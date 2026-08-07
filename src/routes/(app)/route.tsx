@@ -1,3 +1,4 @@
+import { AppMain } from '@/shared/components/app-layout/app-main'
 import { AppNavbar } from '@/shared/components/app-layout/app-navbar'
 import { AppSidebar } from '@/shared/components/app-layout/app-sidebar'
 import { SidebarProvider } from '@/shared/components/ui/sidebar'
@@ -9,17 +10,17 @@ export const Route = createFileRoute('/(app)')({
 
 function RouteComponent() {
   return (
-    <div>
-      <SidebarProvider>
-        <AppSidebar />
-        <main className="w-full">
-          <AppNavbar
-            className="w-full"
-            user={{ name: 'John Doe', role: 'Admin' }}
-          />
+    <SidebarProvider className="bg-sidebar">
+      <AppSidebar />
+      <div className="w-full">
+        <AppNavbar
+          className="w-full"
+          user={{ name: 'John Doe', role: 'Admin' }}
+        />
+        <AppMain>
           <Outlet />
-        </main>
-      </SidebarProvider>
-    </div>
+        </AppMain>
+      </div>
+    </SidebarProvider>
   )
 }

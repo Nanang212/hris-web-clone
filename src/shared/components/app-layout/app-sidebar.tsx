@@ -1,66 +1,108 @@
-import { Link, useRouterState } from "@tanstack/react-router"
+// app-sidebar.tsx
 import {
-  IconLayoutDashboard,
-  IconUserCircle,
   IconCalendarCheck,
   IconCalendarWeek,
-  IconReportMoney,
   IconChecklist,
+  IconLayoutDashboard,
   IconReportAnalytics,
+  IconReportMoney,
   IconSettings,
-  IconHeadset,
-} from "@tabler/icons-react"
+  IconUserCircle,
+} from '@tabler/icons-react'
+import { Link, useRouterState } from '@tanstack/react-router'
 
-import { Button } from "@/shared/components/ui/button"
+import { m } from '@/i18n/paraglide/messages'
+import IconHris from '@/shared/components/icon-hris'
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
+  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/shared/components/ui/sidebar"
+} from '@/shared/components/ui/sidebar'
 
 const mainMenu = [
-  { title: "Dashboard", url: "/", icon: IconLayoutDashboard },
-  { title: "Employee", url: "/employee", icon: IconUserCircle },
-  { title: "Attendance", url: "/attendance", icon: IconCalendarCheck },
-  { title: "Leave", url: "/leave", icon: IconCalendarWeek },
-  { title: "Payroll", url: "/payroll", icon: IconReportMoney },
-  { title: "Performance", url: "/performance", icon: IconChecklist },
-  { title: "Report", url: "/report", icon: IconReportAnalytics },
-  { title: "Settings", url: "/settings", icon: IconSettings },
-]
+  {
+    key: 'dashboard',
+    url: '/',
+    icon: IconLayoutDashboard,
+    title: m.app_layout_nav_dashboard,
+  },
+  {
+    key: 'employee',
+    url: '/employee',
+    icon: IconUserCircle,
+    title: m.app_layout_nav_employee,
+  },
+  {
+    key: 'attendance',
+    url: '/attendance',
+    icon: IconCalendarCheck,
+    title: m.app_layout_nav_attendance,
+  },
+  {
+    key: 'leave',
+    url: '/leave',
+    icon: IconCalendarWeek,
+    title: m.app_layout_nav_leave,
+  },
+  {
+    key: 'payroll',
+    url: '/payroll',
+    icon: IconReportMoney,
+    title: m.app_layout_nav_payroll,
+  },
+  {
+    key: 'performance',
+    url: '/performance',
+    icon: IconChecklist,
+    title: m.app_layout_nav_performance,
+  },
+  {
+    key: 'report',
+    url: '/report',
+    icon: IconReportAnalytics,
+    title: m.app_layout_nav_report,
+  },
+  {
+    key: 'settings',
+    url: '/settings',
+    icon: IconSettings,
+    title: m.app_layout_nav_settings,
+  },
+] as const
 
 export function AppSidebar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname })
 
   return (
-    <Sidebar>
+    <Sidebar className="border-none">
       <SidebarHeader className="px-4 py-5">
         <div className="flex items-center gap-2.5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-sidebar-primary text-lg font-bold text-sidebar-primary-foreground">
-            Q
-          </div>
+          <IconHris />
           <span className="text-lg font-semibold tracking-tight text-sidebar-foreground">
-            HRIS
+            {m.app_layout_brand_name()}
           </span>
         </div>
       </SidebarHeader>
 
       <SidebarContent className="px-3">
         <SidebarGroup>
+          <SidebarGroupLabel>
+            {m.app_layout_nav_main_module_label()}
+          </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu className="gap-1.5">
               {mainMenu.map((item) => {
                 const isActive =
-                  (item.url === "/" && pathname === "/") ||
-                  (item.url !== "/" && pathname.startsWith(item.url))
+                  (item.url === '/' && pathname === '/') ||
+                  (item.url !== '/' && pathname.startsWith(item.url))
                 return (
-                  <SidebarMenuItem key={item.title}>
+                  <SidebarMenuItem key={item.key}>
                     <SidebarMenuButton
                       asChild
                       isActive={isActive}
@@ -68,7 +110,7 @@ export function AppSidebar() {
                     >
                       <Link to={item.url}>
                         <item.icon size={19} stroke={1.75} />
-                        <span>{item.title}</span>
+                        <span>{item.title()}</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -78,27 +120,6 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-
-      <SidebarFooter className="p-4">
-        <div className="flex flex-col items-center gap-3 rounded-2xl bg-sidebar-accent px-4 py-5 text-center">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-sidebar-border">
-            <IconHeadset
-              size={24}
-              className="text-sidebar-foreground"
-              stroke={1.75}
-            />
-          </div>
-          <div>
-            <p className="text-sm font-semibold text-sidebar-foreground">
-              Need Help?
-            </p>
-            <p className="text-xs text-sidebar-foreground/60">
-              We're here to help
-            </p>
-          </div>
-          <Button>Contact Support</Button>
-        </div>
-      </SidebarFooter>
     </Sidebar>
   )
 }
