@@ -27,12 +27,6 @@ import {
 
 const mainMenu = [
   {
-    key: 'dashboard',
-    url: '/',
-    icon: IconLayoutDashboard,
-    title: m.app_layout_nav_dashboard,
-  },
-  {
     key: 'employee',
     url: '/employee',
     icon: IconUserCircle,
@@ -92,24 +86,30 @@ export function AppSidebar() {
 
       <SidebarContent className="px-3">
         <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild isActive>
+                <Link to="/">
+                  <IconLayoutDashboard size={24} stroke={1.75} />
+                  <span>{m.app_layout_nav_dashboard()}</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarGroup>
           <SidebarGroupLabel>
             {m.app_layout_nav_main_module_label()}
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu className="gap-1.5">
               {mainMenu.map((item) => {
-                const isActive =
-                  (item.url === '/' && pathname === '/') ||
-                  (item.url !== '/' && pathname.startsWith(item.url))
+                const isActive = pathname.startsWith(item.url)
                 return (
                   <SidebarMenuItem key={item.key}>
-                    <SidebarMenuButton
-                      asChild
-                      isActive={isActive}
-                      className="h-10 rounded-xl px-3 text-[0.925rem] font-medium"
-                    >
+                    <SidebarMenuButton asChild isActive={isActive}>
                       <Link to={item.url}>
-                        <item.icon size={19} stroke={1.75} />
+                        <item.icon size={24} stroke={1.75} />
                         <span>{item.title()}</span>
                       </Link>
                     </SidebarMenuButton>
