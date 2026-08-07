@@ -87,17 +87,19 @@ export function AppSidebar() {
       <SidebarContent className="px-3">
         <SidebarGroup>
           <SidebarGroupContent>
-            <SidebarMenuItem>
-              <SidebarMenuButton
-                asChild
-                className="bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary/90 hover:text-sidebar-primary-foreground active:bg-sidebar-primary/90 active:text-sidebar-primary-foreground"
-              >
-                <Link to="/">
-                  <IconLayoutDashboard size={24} stroke={1.75} />
-                  <span>{m.app_layout_nav_dashboard()}</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  className="bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary/90 hover:text-sidebar-primary-foreground active:bg-sidebar-primary/90 active:text-sidebar-primary-foreground"
+                >
+                  <Link to="/">
+                    <IconLayoutDashboard size={24} stroke={1.75} />
+                    <span>{m.app_layout_nav_dashboard()}</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
         <SidebarGroup>

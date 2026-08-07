@@ -8,7 +8,7 @@ export default function IconHris(props: React.SVGProps<SVGSVGElement>) {
       xmlns="http://www.w3.org/2000/svg"
       {...props}
     >
-      <rect width="42" height="42" rx="12" fill="#155EEF" />
+      <rect width="42" height="42" rx="12" fill="#4F5EFF" />
       <path
         d="M21 11L13 15.5V24.5L21 31L29 24.5V15.5L21 11Z"
         stroke="white"
