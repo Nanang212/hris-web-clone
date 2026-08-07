@@ -88,7 +88,10 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenuItem>
-              <SidebarMenuButton asChild isActive>
+              <SidebarMenuButton
+                asChild
+                className="bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary/90 hover:text-sidebar-primary-foreground active:bg-sidebar-primary/90 active:text-sidebar-primary-foreground"
+              >
                 <Link to="/">
                   <IconLayoutDashboard size={24} stroke={1.75} />
                   <span>{m.app_layout_nav_dashboard()}</span>
