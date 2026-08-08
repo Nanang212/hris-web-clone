@@ -1,4 +1,5 @@
 {
+  "$schema": "https://inlang.com/schema/inlang-message-format",
   "app_layout_theme_label": "Tema",
   "app_layout_theme_light": "Terang",
   "app_layout_theme_dark": "Gelap",
