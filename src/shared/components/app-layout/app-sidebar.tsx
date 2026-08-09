@@ -3,6 +3,7 @@ import {
   IconCalendarCheck,
   IconCalendarWeek,
   IconChecklist,
+  IconChevronRight,
   IconLayoutDashboard,
   IconReportAnalytics,
   IconReportMoney,
@@ -14,6 +15,11 @@ import { Link, useRouterState } from '@tanstack/react-router'
 import { m } from '@/i18n/paraglide/messages'
 import IconHris from '@/shared/components/icon-hris'
 import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/shared/components/ui/collapsible'
+import {
   Sidebar,
   SidebarContent,
   SidebarGroup,
@@ -23,14 +29,31 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
 } from '@/shared/components/ui/sidebar'
 
 const mainMenu = [
   {
-    key: 'employee',
-    url: '/employee',
+    key: 'company',
+    url: '.',
     icon: IconUserCircle,
-    title: m.app_layout_nav_employee,
+    title: m.app_layout_nav_company,
+    items: [
+      {
+        title: m.app_layout_nav_employee,
+        url: '/company/employee',
+      },
+      {
+        title: m.app_layout_nav_organization,
+        url: '/company/organization',
+      },
+      {
+        title: m.app_layout_nav_document,
+        url: '/company/document',
+      },
+    ],
   },
   {
     key: 'attendance',
@@ -74,26 +97,23 @@ export function AppSidebar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname })
 
   return (
-    <Sidebar className="border-none">
-      <SidebarHeader className="px-4 py-5">
-        <div className="flex items-center gap-2.5">
+    <Sidebar className='border-none'>
+      <SidebarHeader className='px-4 py-5'>
+        <div className='flex items-center gap-2.5'>
           <IconHris />
-          <span className="text-lg font-semibold tracking-tight text-sidebar-foreground">
+          <span className='text-lg font-semibold tracking-tight text-sidebar-foreground'>
             {m.app_layout_brand_name()}
           </span>
         </div>
       </SidebarHeader>
 
-      <SidebarContent className="px-3">
+      <SidebarContent className='px-3'>
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
-                  className="bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary/90 hover:text-sidebar-primary-foreground active:bg-sidebar-primary/90 active:text-sidebar-primary-foreground"
-                >
-                  <Link to="/">
+                <SidebarMenuButton asChild>
+                  <Link to='/'>
                     <IconLayoutDashboard size={24} stroke={1.75} />
                     <span>{m.app_layout_nav_dashboard()}</span>
                   </Link>
@@ -103,22 +123,65 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
         <SidebarGroup>
-          <SidebarGroupLabel>
-            {m.app_layout_nav_main_module_label()}
-          </SidebarGroupLabel>
+          <SidebarGroupLabel>{m.app_layout_nav_main_module_label()}</SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu className="gap-1.5">
+            <SidebarMenu className='gap-1.5'>
               {mainMenu.map((item) => {
-                const isActive = pathname.startsWith(item.url)
+                const hasSubItems = 'items' in item && item.items.length > 0
+
+                const isActive = hasSubItems
+                  ? item.items.some((subItem) => pathname.startsWith(subItem.url))
+                  : pathname.startsWith(item.url)
+
+                if (!hasSubItems) {
+                  return (
+                    <SidebarMenuItem key={item.key}>
+                      <SidebarMenuButton asChild isActive={isActive}>
+                        <Link to={item.url}>
+                          <item.icon size={24} stroke={1.75} />
+                          <span>{item.title()}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  )
+                }
+
                 return (
-                  <SidebarMenuItem key={item.key}>
-                    <SidebarMenuButton asChild isActive={isActive}>
-                      <Link to={item.url}>
-                        <item.icon size={24} stroke={1.75} />
-                        <span>{item.title()}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
+                  <Collapsible
+                    key={item.key}
+                    asChild
+                    defaultOpen={isActive}
+                    className='group/collapsible'
+                  >
+                    <SidebarMenuItem>
+                      <CollapsibleTrigger asChild>
+                        <SidebarMenuButton isActive={isActive}>
+                          <item.icon size={24} stroke={1.75} />
+                          <span>{item.title()}</span>
+                          <IconChevronRight
+                            size={16}
+                            className='ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90'
+                          />
+                        </SidebarMenuButton>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent>
+                        <SidebarMenuSub>
+                          {item.items.map((subItem) => {
+                            const isSubActive = pathname.startsWith(subItem.url)
+                            return (
+                              <SidebarMenuSubItem key={subItem.url}>
+                                <SidebarMenuSubButton asChild isActive={isSubActive}>
+                                  <Link to={subItem.url}>
+                                    <span>{subItem.title()}</span>
+                                  </Link>
+                                </SidebarMenuSubButton>
+                              </SidebarMenuSubItem>
+                            )
+                          })}
+                        </SidebarMenuSub>
+                      </CollapsibleContent>
+                    </SidebarMenuItem>
+                  </Collapsible>
                 )
               })}
             </SidebarMenu>

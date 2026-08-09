@@ -16,12 +16,20 @@ import { Route as authSignoutRouteImport } from './routes/(auth)/signout'
 import { Route as authVerificationRouteImport } from './routes/(auth)/verification'
 import { Route as appdashboardIndexRouteImport } from './routes/(app)/(dashboard)/index'
 import { Route as appAttendanceIndexRouteImport } from './routes/(app)/attendance/index'
-import { Route as appEmployeeIndexRouteImport } from './routes/(app)/employee/index'
 import { Route as appLeaveIndexRouteImport } from './routes/(app)/leave/index'
 import { Route as appPayrollIndexRouteImport } from './routes/(app)/payroll/index'
 import { Route as appPerformanceIndexRouteImport } from './routes/(app)/performance/index'
 import { Route as appReportIndexRouteImport } from './routes/(app)/report/index'
 import { Route as appSettingsIndexRouteImport } from './routes/(app)/settings/index'
+import { Route as appCompanyDocumentIndexRouteImport } from './routes/(app)/company/document/index'
+import { Route as appCompanyEmployeeIndexRouteImport } from './routes/(app)/company/employee/index'
+import { Route as appCompanyEmployeeIdRouteImport } from './routes/(app)/company/employee/$id'
+import { Route as appCompanyEmployeeNewRouteImport } from './routes/(app)/company/employee/new'
+import { Route as appCompanyEmployeeUpdateRouteImport } from './routes/(app)/company/employee/update'
+import { Route as appCompanyOrganizationIndexRouteImport } from './routes/(app)/company/organization/index'
+import { Route as appCompanyOrganizationIdRouteImport } from './routes/(app)/company/organization/$id'
+import { Route as appCompanyOrganizationNewRouteImport } from './routes/(app)/company/organization/new'
+import { Route as appCompanyOrganizationUpdateRouteImport } from './routes/(app)/company/organization/update'
 
 const appRouteRoute = appRouteRouteImport.update({
   id: '/(app)',
@@ -57,11 +65,6 @@ const appAttendanceIndexRoute = appAttendanceIndexRouteImport.update({
   path: '/attendance/',
   getParentRoute: () => appRouteRoute,
 } as any)
-const appEmployeeIndexRoute = appEmployeeIndexRouteImport.update({
-  id: '/employee/',
-  path: '/employee/',
-  getParentRoute: () => appRouteRoute,
-} as any)
 const appLeaveIndexRoute = appLeaveIndexRouteImport.update({
   id: '/leave/',
   path: '/leave/',
@@ -87,6 +90,56 @@ const appSettingsIndexRoute = appSettingsIndexRouteImport.update({
   path: '/settings/',
   getParentRoute: () => appRouteRoute,
 } as any)
+const appCompanyDocumentIndexRoute = appCompanyDocumentIndexRouteImport.update({
+  id: '/company/document/',
+  path: '/company/document/',
+  getParentRoute: () => appRouteRoute,
+} as any)
+const appCompanyEmployeeIndexRoute = appCompanyEmployeeIndexRouteImport.update({
+  id: '/company/employee/',
+  path: '/company/employee/',
+  getParentRoute: () => appRouteRoute,
+} as any)
+const appCompanyEmployeeIdRoute = appCompanyEmployeeIdRouteImport.update({
+  id: '/company/employee/$id',
+  path: '/company/employee/$id',
+  getParentRoute: () => appRouteRoute,
+} as any)
+const appCompanyEmployeeNewRoute = appCompanyEmployeeNewRouteImport.update({
+  id: '/company/employee/new',
+  path: '/company/employee/new',
+  getParentRoute: () => appRouteRoute,
+} as any)
+const appCompanyEmployeeUpdateRoute =
+  appCompanyEmployeeUpdateRouteImport.update({
+    id: '/company/employee/update',
+    path: '/company/employee/update',
+    getParentRoute: () => appRouteRoute,
+  } as any)
+const appCompanyOrganizationIndexRoute =
+  appCompanyOrganizationIndexRouteImport.update({
+    id: '/company/organization/',
+    path: '/company/organization/',
+    getParentRoute: () => appRouteRoute,
+  } as any)
+const appCompanyOrganizationIdRoute =
+  appCompanyOrganizationIdRouteImport.update({
+    id: '/company/organization/$id',
+    path: '/company/organization/$id',
+    getParentRoute: () => appRouteRoute,
+  } as any)
+const appCompanyOrganizationNewRoute =
+  appCompanyOrganizationNewRouteImport.update({
+    id: '/company/organization/new',
+    path: '/company/organization/new',
+    getParentRoute: () => appRouteRoute,
+  } as any)
+const appCompanyOrganizationUpdateRoute =
+  appCompanyOrganizationUpdateRouteImport.update({
+    id: '/company/organization/update',
+    path: '/company/organization/update',
+    getParentRoute: () => appRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/reset': typeof authResetRoute
@@ -95,12 +148,20 @@ export interface FileRoutesByFullPath {
   '/verification': typeof authVerificationRoute
   '/': typeof appdashboardIndexRoute
   '/attendance/': typeof appAttendanceIndexRoute
-  '/employee/': typeof appEmployeeIndexRoute
   '/leave/': typeof appLeaveIndexRoute
   '/payroll/': typeof appPayrollIndexRoute
   '/performance/': typeof appPerformanceIndexRoute
   '/report/': typeof appReportIndexRoute
   '/settings/': typeof appSettingsIndexRoute
+  '/company/employee/$id': typeof appCompanyEmployeeIdRoute
+  '/company/employee/new': typeof appCompanyEmployeeNewRoute
+  '/company/employee/update': typeof appCompanyEmployeeUpdateRoute
+  '/company/organization/$id': typeof appCompanyOrganizationIdRoute
+  '/company/organization/new': typeof appCompanyOrganizationNewRoute
+  '/company/organization/update': typeof appCompanyOrganizationUpdateRoute
+  '/company/document/': typeof appCompanyDocumentIndexRoute
+  '/company/employee/': typeof appCompanyEmployeeIndexRoute
+  '/company/organization/': typeof appCompanyOrganizationIndexRoute
 }
 export interface FileRoutesByTo {
   '/reset': typeof authResetRoute
@@ -109,12 +170,20 @@ export interface FileRoutesByTo {
   '/verification': typeof authVerificationRoute
   '/': typeof appdashboardIndexRoute
   '/attendance': typeof appAttendanceIndexRoute
-  '/employee': typeof appEmployeeIndexRoute
   '/leave': typeof appLeaveIndexRoute
   '/payroll': typeof appPayrollIndexRoute
   '/performance': typeof appPerformanceIndexRoute
   '/report': typeof appReportIndexRoute
   '/settings': typeof appSettingsIndexRoute
+  '/company/employee/$id': typeof appCompanyEmployeeIdRoute
+  '/company/employee/new': typeof appCompanyEmployeeNewRoute
+  '/company/employee/update': typeof appCompanyEmployeeUpdateRoute
+  '/company/organization/$id': typeof appCompanyOrganizationIdRoute
+  '/company/organization/new': typeof appCompanyOrganizationNewRoute
+  '/company/organization/update': typeof appCompanyOrganizationUpdateRoute
+  '/company/document': typeof appCompanyDocumentIndexRoute
+  '/company/employee': typeof appCompanyEmployeeIndexRoute
+  '/company/organization': typeof appCompanyOrganizationIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -125,12 +194,20 @@ export interface FileRoutesById {
   '/(auth)/verification': typeof authVerificationRoute
   '/(app)/(dashboard)/': typeof appdashboardIndexRoute
   '/(app)/attendance/': typeof appAttendanceIndexRoute
-  '/(app)/employee/': typeof appEmployeeIndexRoute
   '/(app)/leave/': typeof appLeaveIndexRoute
   '/(app)/payroll/': typeof appPayrollIndexRoute
   '/(app)/performance/': typeof appPerformanceIndexRoute
   '/(app)/report/': typeof appReportIndexRoute
   '/(app)/settings/': typeof appSettingsIndexRoute
+  '/(app)/company/employee/$id': typeof appCompanyEmployeeIdRoute
+  '/(app)/company/employee/new': typeof appCompanyEmployeeNewRoute
+  '/(app)/company/employee/update': typeof appCompanyEmployeeUpdateRoute
+  '/(app)/company/organization/$id': typeof appCompanyOrganizationIdRoute
+  '/(app)/company/organization/new': typeof appCompanyOrganizationNewRoute
+  '/(app)/company/organization/update': typeof appCompanyOrganizationUpdateRoute
+  '/(app)/company/document/': typeof appCompanyDocumentIndexRoute
+  '/(app)/company/employee/': typeof appCompanyEmployeeIndexRoute
+  '/(app)/company/organization/': typeof appCompanyOrganizationIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -141,12 +218,20 @@ export interface FileRouteTypes {
     | '/verification'
     | '/'
     | '/attendance/'
-    | '/employee/'
     | '/leave/'
     | '/payroll/'
     | '/performance/'
     | '/report/'
     | '/settings/'
+    | '/company/employee/$id'
+    | '/company/employee/new'
+    | '/company/employee/update'
+    | '/company/organization/$id'
+    | '/company/organization/new'
+    | '/company/organization/update'
+    | '/company/document/'
+    | '/company/employee/'
+    | '/company/organization/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/reset'
@@ -155,12 +240,20 @@ export interface FileRouteTypes {
     | '/verification'
     | '/'
     | '/attendance'
-    | '/employee'
     | '/leave'
     | '/payroll'
     | '/performance'
     | '/report'
     | '/settings'
+    | '/company/employee/$id'
+    | '/company/employee/new'
+    | '/company/employee/update'
+    | '/company/organization/$id'
+    | '/company/organization/new'
+    | '/company/organization/update'
+    | '/company/document'
+    | '/company/employee'
+    | '/company/organization'
   id:
     | '__root__'
     | '/(app)'
@@ -170,12 +263,20 @@ export interface FileRouteTypes {
     | '/(auth)/verification'
     | '/(app)/(dashboard)/'
     | '/(app)/attendance/'
-    | '/(app)/employee/'
     | '/(app)/leave/'
     | '/(app)/payroll/'
     | '/(app)/performance/'
     | '/(app)/report/'
     | '/(app)/settings/'
+    | '/(app)/company/employee/$id'
+    | '/(app)/company/employee/new'
+    | '/(app)/company/employee/update'
+    | '/(app)/company/organization/$id'
+    | '/(app)/company/organization/new'
+    | '/(app)/company/organization/update'
+    | '/(app)/company/document/'
+    | '/(app)/company/employee/'
+    | '/(app)/company/organization/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -237,13 +338,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof appAttendanceIndexRouteImport
       parentRoute: typeof appRouteRoute
     }
-    '/(app)/employee/': {
-      id: '/(app)/employee/'
-      path: '/employee'
-      fullPath: '/employee/'
-      preLoaderRoute: typeof appEmployeeIndexRouteImport
-      parentRoute: typeof appRouteRoute
-    }
     '/(app)/leave/': {
       id: '/(app)/leave/'
       path: '/leave'
@@ -279,29 +373,108 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof appSettingsIndexRouteImport
       parentRoute: typeof appRouteRoute
     }
+    '/(app)/company/document/': {
+      id: '/(app)/company/document/'
+      path: '/company/document'
+      fullPath: '/company/document/'
+      preLoaderRoute: typeof appCompanyDocumentIndexRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/company/employee/': {
+      id: '/(app)/company/employee/'
+      path: '/company/employee'
+      fullPath: '/company/employee/'
+      preLoaderRoute: typeof appCompanyEmployeeIndexRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/company/employee/$id': {
+      id: '/(app)/company/employee/$id'
+      path: '/company/employee/$id'
+      fullPath: '/company/employee/$id'
+      preLoaderRoute: typeof appCompanyEmployeeIdRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/company/employee/new': {
+      id: '/(app)/company/employee/new'
+      path: '/company/employee/new'
+      fullPath: '/company/employee/new'
+      preLoaderRoute: typeof appCompanyEmployeeNewRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/company/employee/update': {
+      id: '/(app)/company/employee/update'
+      path: '/company/employee/update'
+      fullPath: '/company/employee/update'
+      preLoaderRoute: typeof appCompanyEmployeeUpdateRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/company/organization/': {
+      id: '/(app)/company/organization/'
+      path: '/company/organization'
+      fullPath: '/company/organization/'
+      preLoaderRoute: typeof appCompanyOrganizationIndexRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/company/organization/$id': {
+      id: '/(app)/company/organization/$id'
+      path: '/company/organization/$id'
+      fullPath: '/company/organization/$id'
+      preLoaderRoute: typeof appCompanyOrganizationIdRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/company/organization/new': {
+      id: '/(app)/company/organization/new'
+      path: '/company/organization/new'
+      fullPath: '/company/organization/new'
+      preLoaderRoute: typeof appCompanyOrganizationNewRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/company/organization/update': {
+      id: '/(app)/company/organization/update'
+      path: '/company/organization/update'
+      fullPath: '/company/organization/update'
+      preLoaderRoute: typeof appCompanyOrganizationUpdateRouteImport
+      parentRoute: typeof appRouteRoute
+    }
   }
 }
 
 interface appRouteRouteChildren {
   appdashboardIndexRoute: typeof appdashboardIndexRoute
   appAttendanceIndexRoute: typeof appAttendanceIndexRoute
-  appEmployeeIndexRoute: typeof appEmployeeIndexRoute
   appLeaveIndexRoute: typeof appLeaveIndexRoute
   appPayrollIndexRoute: typeof appPayrollIndexRoute
   appPerformanceIndexRoute: typeof appPerformanceIndexRoute
   appReportIndexRoute: typeof appReportIndexRoute
   appSettingsIndexRoute: typeof appSettingsIndexRoute
+  appCompanyEmployeeIdRoute: typeof appCompanyEmployeeIdRoute
+  appCompanyEmployeeNewRoute: typeof appCompanyEmployeeNewRoute
+  appCompanyEmployeeUpdateRoute: typeof appCompanyEmployeeUpdateRoute
+  appCompanyOrganizationIdRoute: typeof appCompanyOrganizationIdRoute
+  appCompanyOrganizationNewRoute: typeof appCompanyOrganizationNewRoute
+  appCompanyOrganizationUpdateRoute: typeof appCompanyOrganizationUpdateRoute
+  appCompanyDocumentIndexRoute: typeof appCompanyDocumentIndexRoute
+  appCompanyEmployeeIndexRoute: typeof appCompanyEmployeeIndexRoute
+  appCompanyOrganizationIndexRoute: typeof appCompanyOrganizationIndexRoute
 }
 
 const appRouteRouteChildren: appRouteRouteChildren = {
   appdashboardIndexRoute: appdashboardIndexRoute,
   appAttendanceIndexRoute: appAttendanceIndexRoute,
-  appEmployeeIndexRoute: appEmployeeIndexRoute,
   appLeaveIndexRoute: appLeaveIndexRoute,
   appPayrollIndexRoute: appPayrollIndexRoute,
   appPerformanceIndexRoute: appPerformanceIndexRoute,
   appReportIndexRoute: appReportIndexRoute,
   appSettingsIndexRoute: appSettingsIndexRoute,
+  appCompanyEmployeeIdRoute: appCompanyEmployeeIdRoute,
+  appCompanyEmployeeNewRoute: appCompanyEmployeeNewRoute,
+  appCompanyEmployeeUpdateRoute: appCompanyEmployeeUpdateRoute,
+  appCompanyOrganizationIdRoute: appCompanyOrganizationIdRoute,
+  appCompanyOrganizationNewRoute: appCompanyOrganizationNewRoute,
+  appCompanyOrganizationUpdateRoute: appCompanyOrganizationUpdateRoute,
+  appCompanyDocumentIndexRoute: appCompanyDocumentIndexRoute,
+  appCompanyEmployeeIndexRoute: appCompanyEmployeeIndexRoute,
+  appCompanyOrganizationIndexRoute: appCompanyOrganizationIndexRoute,
 }
 
 const appRouteRouteWithChildren = appRouteRoute._addFileChildren(
