@@ -10,8 +10,10 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as appRouteRouteImport } from './routes/(app)/route'
+import { Route as authResetRouteImport } from './routes/(auth)/reset'
 import { Route as authSigninRouteImport } from './routes/(auth)/signin'
 import { Route as authSignoutRouteImport } from './routes/(auth)/signout'
+import { Route as authVerificationRouteImport } from './routes/(auth)/verification'
 import { Route as appdashboardIndexRouteImport } from './routes/(app)/(dashboard)/index'
 import { Route as appAttendanceIndexRouteImport } from './routes/(app)/attendance/index'
 import { Route as appEmployeeIndexRouteImport } from './routes/(app)/employee/index'
@@ -25,6 +27,11 @@ const appRouteRoute = appRouteRouteImport.update({
   id: '/(app)',
   getParentRoute: () => rootRouteImport,
 } as any)
+const authResetRoute = authResetRouteImport.update({
+  id: '/(auth)/reset',
+  path: '/reset',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const authSigninRoute = authSigninRouteImport.update({
   id: '/(auth)/signin',
   path: '/signin',
@@ -33,6 +40,11 @@ const authSigninRoute = authSigninRouteImport.update({
 const authSignoutRoute = authSignoutRouteImport.update({
   id: '/(auth)/signout',
   path: '/signout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const authVerificationRoute = authVerificationRouteImport.update({
+  id: '/(auth)/verification',
+  path: '/verification',
   getParentRoute: () => rootRouteImport,
 } as any)
 const appdashboardIndexRoute = appdashboardIndexRouteImport.update({
@@ -77,8 +89,10 @@ const appSettingsIndexRoute = appSettingsIndexRouteImport.update({
 } as any)
 
 export interface FileRoutesByFullPath {
+  '/reset': typeof authResetRoute
   '/signin': typeof authSigninRoute
   '/signout': typeof authSignoutRoute
+  '/verification': typeof authVerificationRoute
   '/': typeof appdashboardIndexRoute
   '/attendance/': typeof appAttendanceIndexRoute
   '/employee/': typeof appEmployeeIndexRoute
@@ -89,8 +103,10 @@ export interface FileRoutesByFullPath {
   '/settings/': typeof appSettingsIndexRoute
 }
 export interface FileRoutesByTo {
+  '/reset': typeof authResetRoute
   '/signin': typeof authSigninRoute
   '/signout': typeof authSignoutRoute
+  '/verification': typeof authVerificationRoute
   '/': typeof appdashboardIndexRoute
   '/attendance': typeof appAttendanceIndexRoute
   '/employee': typeof appEmployeeIndexRoute
@@ -103,8 +119,10 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/(app)': typeof appRouteRouteWithChildren
+  '/(auth)/reset': typeof authResetRoute
   '/(auth)/signin': typeof authSigninRoute
   '/(auth)/signout': typeof authSignoutRoute
+  '/(auth)/verification': typeof authVerificationRoute
   '/(app)/(dashboard)/': typeof appdashboardIndexRoute
   '/(app)/attendance/': typeof appAttendanceIndexRoute
   '/(app)/employee/': typeof appEmployeeIndexRoute
@@ -117,8 +135,10 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | '/reset'
     | '/signin'
     | '/signout'
+    | '/verification'
     | '/'
     | '/attendance/'
     | '/employee/'
@@ -129,8 +149,10 @@ export interface FileRouteTypes {
     | '/settings/'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/reset'
     | '/signin'
     | '/signout'
+    | '/verification'
     | '/'
     | '/attendance'
     | '/employee'
@@ -142,8 +164,10 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/(app)'
+    | '/(auth)/reset'
     | '/(auth)/signin'
     | '/(auth)/signout'
+    | '/(auth)/verification'
     | '/(app)/(dashboard)/'
     | '/(app)/attendance/'
     | '/(app)/employee/'
@@ -156,8 +180,10 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   appRouteRoute: typeof appRouteRouteWithChildren
+  authResetRoute: typeof authResetRoute
   authSigninRoute: typeof authSigninRoute
   authSignoutRoute: typeof authSignoutRoute
+  authVerificationRoute: typeof authVerificationRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -167,6 +193,13 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: ''
       preLoaderRoute: typeof appRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(auth)/reset': {
+      id: '/(auth)/reset'
+      path: '/reset'
+      fullPath: '/reset'
+      preLoaderRoute: typeof authResetRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/(auth)/signin': {
@@ -181,6 +214,13 @@ declare module '@tanstack/react-router' {
       path: '/signout'
       fullPath: '/signout'
       preLoaderRoute: typeof authSignoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(auth)/verification': {
+      id: '/(auth)/verification'
+      path: '/verification'
+      fullPath: '/verification'
+      preLoaderRoute: typeof authVerificationRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/(app)/(dashboard)/': {
@@ -270,8 +310,10 @@ const appRouteRouteWithChildren = appRouteRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   appRouteRoute: appRouteRouteWithChildren,
+  authResetRoute: authResetRoute,
   authSigninRoute: authSigninRoute,
   authSignoutRoute: authSignoutRoute,
+  authVerificationRoute: authVerificationRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
