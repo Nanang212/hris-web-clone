@@ -10,6 +10,8 @@
   "app_layout_settings_link": "Settings",
   "app_layout_signout_link": "Sign out",
   "app_layout_search_placeholder": "Search anything...",
+  "app_layout_search_group_menu": "Menu",
+  "app_layout_search_empty": "No results found.",
   "app_layout_brand_name": "HRIS",
   "app_layout_nav_main_module_label": "MAIN MODULE",
   "app_layout_nav_dashboard": "Dashboard",

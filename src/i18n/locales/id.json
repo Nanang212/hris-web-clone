@@ -10,6 +10,8 @@
   "app_layout_settings_link": "Pengaturan",
   "app_layout_signout_link": "Keluar",
   "app_layout_search_placeholder": "Cari apa saja...",
+  "app_layout_search_group_menu": "Menu",
+  "app_layout_search_empty": "Tidak ada hasil ditemukan.",
   "app_layout_brand_name": "HRIS",
   "app_layout_nav_main_module_label": "MODUL UTAMA",
   "app_layout_nav_dashboard": "Dasbor",
