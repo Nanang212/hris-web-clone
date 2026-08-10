@@ -16,7 +16,87 @@ import { StatCard } from '@/features/dashboard/components/stat-card'
 import { WorkforceTrendChart } from '@/features/dashboard/components/workforce-trend-chart'
 import { m } from '@/i18n/paraglide/messages'
 
+import { useState, useEffect } from 'react'
+import { fetchDashboard } from '@/features/dashboard/api'
+
+interface HRDashboardData {
+  totalEmployees: number
+  presentToday: number
+  presentPercentage: number
+  pendingApprovals: number
+  overdueApprovals: number
+  employmentAlerts: number
+  compliance: { id: string; label: string; count: string | number; color?: string; countColor?: string }[]
+  movement: { id: string; label: string; count: string | number; color?: string; countColor?: string }[]
+  events: { id: string; label: string; count: string | number; color?: string; countColor?: string }[]
+}
+
 export function DashboardPage() {
+  const [data, setData] = useState<HRDashboardData | null>(null)
+  const [loading, setLoading] = useState<boolean>(true)
+  const [error, setError] = useState<string | null>(null)
+
+  const loadData = async () => {
+    try {
+      const result = await fetchDashboard({ role: 'HR' })
+      setData(result.hrDashboard)
+      setLoading(false)
+    } catch (err: unknown) {
+      const errMsg = err instanceof Error ? err.message : 'Something went wrong'
+      setError(errMsg)
+      setLoading(false)
+    }
+  }
+
+  const handleRetry = () => {
+    setLoading(true)
+    setError(null)
+    loadData()
+  }
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadData()
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="flex min-h-[500px] flex-col items-center justify-center gap-3 p-8">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+        <p className="text-sm text-muted-foreground">Loading dashboard data...</p>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="flex min-h-[500px] flex-col items-center justify-center gap-4 p-8 text-center">
+        <div className="rounded-full bg-red-100 p-3 text-red-600 dark:bg-red-950/40 dark:text-red-400">
+          <IconAlertTriangle size={32} />
+        </div>
+        <div>
+          <h3 className="font-semibold text-foreground">Failed to load dashboard</h3>
+          <p className="text-sm text-muted-foreground mt-1 max-w-sm">{error}</p>
+        </div>
+        <button
+          type="button"
+          onClick={handleRetry}
+          className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-colors"
+        >
+          Try Again
+        </button>
+      </div>
+    )
+  }
+
+  if (!data) {
+    return (
+      <div className="flex min-h-[500px] flex-col items-center justify-center gap-3 p-8 text-center">
+        <p className="text-sm text-muted-foreground">No dashboard data found.</p>
+      </div>
+    )
+  }
+
   return (
     <div className="flex flex-col gap-5 p-5 lg:p-6">
       {/* Header */}
@@ -48,7 +128,7 @@ export function DashboardPage() {
 
       {/* Alert Banner */}
       <AlertBanner
-        count={31}
+        count={data.employmentAlerts}
         message="Prioritize overdue approvals, expiring contracts, MCU due dates, and incomplete employee documents."
       />
 
@@ -56,7 +136,7 @@ export function DashboardPage() {
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <StatCard
           label={m.dashboard_stat_total_employees()}
-          value="1,248"
+          value={data.totalEmployees?.toLocaleString() || "0"}
           subLabel="+5.2% vs last month"
           subLabelVariant="success"
           icon={IconUsers}
@@ -64,23 +144,23 @@ export function DashboardPage() {
         />
         <StatCard
           label={m.dashboard_stat_present_today()}
-          value="1,132"
-          subLabel="90.7% attendance"
+          value={data.presentToday?.toLocaleString() || "0"}
+          subLabel={`${data.presentPercentage}% attendance`}
           subLabelVariant="success"
           icon={IconCalendarCheck}
           iconBg="bg-emerald-100 dark:bg-emerald-900/40"
         />
         <StatCard
           label={m.dashboard_stat_pending_approvals()}
-          value="31"
-          subLabel="5 overdue"
+          value={data.pendingApprovals?.toLocaleString() || "0"}
+          subLabel={`${data.overdueApprovals} overdue`}
           subLabelVariant="warning"
           icon={IconUserCheck}
           iconBg="bg-amber-100 dark:bg-amber-900/40"
         />
         <StatCard
           label={m.dashboard_stat_employment_alerts()}
-          value="14"
+          value={data.employmentAlerts?.toLocaleString() || "0"}
           subLabel="Contract · MCU · Docs"
           subLabelVariant="danger"
           icon={IconAlertTriangle}
@@ -96,9 +176,9 @@ export function DashboardPage() {
 
       {/* Bottom Row */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <EmploymentCompliance />
-        <WorkforceMovement />
-        <PeopleEvents />
+        <EmploymentCompliance items={data.compliance} />
+        <WorkforceMovement items={data.movement} />
+        <PeopleEvents items={data.events} />
       </div>
 
       {/* Announcement */}

@@ -16,7 +16,97 @@ import { MyRequestCenter } from '@/features/dashboard/components/my-request-cent
 import { StatCard } from '@/features/dashboard/components/stat-card'
 import { m } from '@/i18n/paraglide/messages'
 
+import { useState, useEffect } from 'react'
+import { fetchDashboard } from '@/features/dashboard/api'
+import { IconAlertTriangle } from '@tabler/icons-react'
+
+interface EmployeeDashboardData {
+  attendanceStatus: string
+  checkInTime: string
+  workEndTime: string
+  leaveBalance: number
+  nextPayrollDate: string
+  pendingRequests: number
+  attendanceStats: {
+    presentDays: number
+    leaveDays: number
+    lateDays: number
+    wfhDays: number
+    attendanceRate: number
+  }
+  requests: { id: string; category: string; detail: string; status: string; dateRange: string }[]
+  documents: { id: string; label: string; value: string; statusColor?: string; color?: string }[]
+  payrollTax: { id: string; label: string; value: string; statusColor?: string; color?: string }[]
+  upcomingEvents: { id: string; label: string; value: string; statusColor?: string; color?: string }[]
+  announcement?: { tag: string; title: string; summary: string; readTime: string }
+}
+
 export function EmployeeDashboardPage() {
+  const [data, setData] = useState<EmployeeDashboardData | null>(null)
+  const [loading, setLoading] = useState<boolean>(true)
+  const [error, setError] = useState<string | null>(null)
+
+  const loadData = async () => {
+    try {
+      const result = await fetchDashboard({ role: 'EMPLOYEE' })
+      setData(result.employeeDashboard)
+      setLoading(false)
+    } catch (err: unknown) {
+      const errMsg = err instanceof Error ? err.message : 'Something went wrong'
+      setError(errMsg)
+      setLoading(false)
+    }
+  }
+
+  const handleRetry = () => {
+    setLoading(true)
+    setError(null)
+    loadData()
+  }
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadData()
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="flex min-h-[500px] flex-col items-center justify-center gap-3 p-8">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+        <p className="text-sm text-muted-foreground">Loading dashboard data...</p>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="flex min-h-[500px] flex-col items-center justify-center gap-4 p-8 text-center">
+        <div className="rounded-full bg-red-100 p-3 text-red-600 dark:bg-red-950/40 dark:text-red-400">
+          <IconAlertTriangle size={32} />
+        </div>
+        <div>
+          <h3 className="font-semibold text-foreground">Failed to load dashboard</h3>
+          <p className="text-sm text-muted-foreground mt-1 max-w-sm">{error}</p>
+        </div>
+        <button
+          type="button"
+          onClick={handleRetry}
+          className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-colors"
+        >
+          Try Again
+        </button>
+      </div>
+    )
+  }
+
+  if (!data) {
+    return (
+      <div className="flex min-h-[500px] flex-col items-center justify-center gap-3 p-8 text-center">
+        <p className="text-sm text-muted-foreground">No dashboard data found.</p>
+      </div>
+    )
+  }
+
   return (
     <div className="flex flex-col gap-5 p-5 lg:p-6">
       {/* Header */}
@@ -50,21 +140,21 @@ export function EmployeeDashboardPage() {
       </div>
 
       {/* Check-in Banner */}
-      <CheckInBanner checkInTime="08:42" workEndTime="17:30" />
+      <CheckInBanner checkInTime={data.checkInTime} workEndTime={data.workEndTime} />
 
       {/* KPI Stats */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <StatCard
           label={m.dashboard_stat_attendance_today()}
-          value="Present"
-          subLabel="Check-in 08:42"
+          value={data.attendanceStatus}
+          subLabel={`Check-in ${data.checkInTime}`}
           subLabelVariant="success"
           icon={IconCircleCheck}
           iconBg="bg-emerald-100 dark:bg-emerald-900/40"
         />
         <StatCard
           label={m.dashboard_stat_leave_balance()}
-          value="18 days"
+          value={`${data.leaveBalance} days`}
           subLabel="Annual leave"
           subLabelVariant="default"
           icon={IconCalendarWeek}
@@ -72,7 +162,7 @@ export function EmployeeDashboardPage() {
         />
         <StatCard
           label={m.dashboard_stat_next_payroll()}
-          value="25 May"
+          value={data.nextPayrollDate}
           subLabel="Payslip after processing"
           subLabelVariant="default"
           icon={IconCash}
@@ -80,7 +170,7 @@ export function EmployeeDashboardPage() {
         />
         <StatCard
           label={m.dashboard_stat_pending_requests()}
-          value="2"
+          value={data.pendingRequests?.toString()}
           subLabel="Leave · Claim"
           subLabelVariant="warning"
           icon={IconAlertCircle}
@@ -91,43 +181,44 @@ export function EmployeeDashboardPage() {
       {/* Attendance Chart + Request Center */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_340px]">
         <AttendanceDonutChart
-          presentDays={18}
-          leaveDays={2}
-          lateDays={1}
-          wfhDays={3}
-          attendanceRate={94.7}
+          presentDays={data.attendanceStats?.presentDays}
+          leaveDays={data.attendanceStats?.leaveDays}
+          lateDays={data.attendanceStats?.lateDays}
+          wfhDays={data.attendanceStats?.wfhDays}
+          attendanceRate={data.attendanceStats?.attendanceRate}
         />
-        <MyRequestCenter />
+        <MyRequestCenter requests={data.requests} />
       </div>
 
       {/* Bottom Row: Documents, Payroll, Upcoming */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <MyDocuments />
-        <PayrollTax />
-        <UpcomingEvents />
+        <MyDocuments items={data.documents} />
+        <PayrollTax items={data.payrollTax} />
+        <UpcomingEvents items={data.upcomingEvents} />
       </div>
 
       {/* Company Announcement */}
-      <div className="flex items-center justify-between rounded-2xl bg-card px-5 py-4 shadow-sm ring-1 ring-foreground/5">
-        <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300">
-            <span className="text-xs font-bold">ANN</span>
+      {data.announcement && (
+        <div className="flex items-center justify-between rounded-2xl bg-card px-5 py-4 shadow-sm ring-1 ring-foreground/5">
+          <div className="flex items-center gap-3">
+            <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300">
+              <span className="text-xs font-bold">{data.announcement.tag}</span>
+            </div>
+            <div>
+              <span className="text-sm font-semibold">{data.announcement.title}</span>
+              <p className="text-xs text-muted-foreground">
+                {data.announcement.summary}
+              </p>
+            </div>
           </div>
-          <div>
-            <span className="text-sm font-semibold">Company Announcement</span>
-            <p className="text-xs text-muted-foreground">
-              Hybrid Work Policy has been updated. Please review the effective
-              date and employee guidelines.
-            </p>
-          </div>
+          <button
+            type="button"
+            className="flex-shrink-0 rounded-lg border border-border px-3 py-1.5 text-xs font-medium hover:bg-muted transition-colors"
+          >
+            {data.announcement.readTime}
+          </button>
         </div>
-        <button
-          type="button"
-          className="flex-shrink-0 rounded-lg border border-border px-3 py-1.5 text-xs font-medium hover:bg-muted transition-colors"
-        >
-          Read announcement
-        </button>
-      </div>
+      )}
     </div>
   )
 }

@@ -2,36 +2,6 @@ import { IconArrowRight } from '@tabler/icons-react'
 
 import { cn } from '@/shared/lib/utils'
 
-const attentionItems = [
-  {
-    id: 'turnover',
-    label: 'Turnover hotspots',
-    sublabel: '2 departments above threshold',
-    count: 2,
-    variant: 'danger' as const,
-  },
-  {
-    id: 'vacancies',
-    label: 'Critical vacancies',
-    sublabel: '7 open positions',
-    count: 7,
-    variant: 'warning' as const,
-  },
-  {
-    id: 'compliance',
-    label: 'Compliance alerts',
-    sublabel: '14 open HR items',
-    count: 14,
-    variant: 'info' as const,
-  },
-  {
-    id: 'overtime',
-    label: 'Overtime concentration',
-    sublabel: '3 teams above trend',
-    count: 3,
-    variant: 'success' as const,
-  },
-]
 
 const variantStyles = {
   info: {
@@ -52,7 +22,56 @@ const variantStyles = {
   },
 }
 
-export function ExecutiveAttention() {
+interface AttentionItem {
+  id: string
+  label: string
+  subLabel: string
+  count: number
+  variant: 'info' | 'warning' | 'danger' | 'success'
+}
+
+export function ExecutiveAttention({ items: propItems }: { items?: AttentionItem[] }) {
+  const defaultItems: AttentionItem[] = [
+    {
+      id: 'turnover',
+      label: 'Turnover hotspots',
+      subLabel: '2 departments above threshold',
+      count: 2,
+      variant: 'danger' as const,
+    },
+    {
+      id: 'vacancies',
+      label: 'Critical vacancies',
+      subLabel: '7 open positions',
+      count: 7,
+      variant: 'warning' as const,
+    },
+    {
+      id: 'compliance',
+      label: 'Compliance alerts',
+      subLabel: '14 open HR items',
+      count: 14,
+      variant: 'info' as const,
+    },
+    {
+      id: 'overtime',
+      label: 'Overtime concentration',
+      subLabel: '3 teams above trend',
+      count: 3,
+      variant: 'success' as const,
+    },
+  ]
+
+  const items = propItems
+    ? propItems.map(item => ({
+        id: item.id,
+        label: item.label,
+        subLabel: item.subLabel,
+        count: item.count,
+        variant: (item.variant === 'info' || item.variant === 'warning' || item.variant === 'danger' || item.variant === 'success') ? item.variant : 'info'
+      }))
+    : defaultItems
+
   return (
     <div className="flex flex-col gap-4 rounded-2xl bg-card p-5 shadow-sm ring-1 ring-foreground/5">
       <div className="flex items-center justify-between">
@@ -72,8 +91,8 @@ export function ExecutiveAttention() {
       </div>
 
       <div className="flex flex-col divide-y divide-border/50">
-        {attentionItems.map((item) => {
-          const styles = variantStyles[item.variant]
+        {items.map((item) => {
+          const styles = variantStyles[item.variant] || variantStyles.info
           return (
             <div
               key={item.id}
@@ -84,7 +103,7 @@ export function ExecutiveAttention() {
               />
               <div className="flex-1">
                 <p className="text-sm font-medium">{item.label}</p>
-                <p className="text-xs text-muted-foreground">{item.sublabel}</p>
+                <p className="text-xs text-muted-foreground">{item.subLabel}</p>
               </div>
               <span
                 className={cn(

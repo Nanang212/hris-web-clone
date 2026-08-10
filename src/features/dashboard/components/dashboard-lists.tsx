@@ -6,8 +6,17 @@ import {
 
 import { cn } from '@/shared/lib/utils'
 
-export function EmploymentCompliance() {
-  const items = [
+interface DashboardItem {
+  id: string
+  code?: string
+  label: string
+  count: string | number
+  color?: string
+  countColor?: string
+}
+
+export function EmploymentCompliance({ items: propItems }: { items?: DashboardItem[] }) {
+  const defaultItems: DashboardItem[] = [
     {
       id: 'ctr',
       code: 'CTR',
@@ -32,6 +41,8 @@ export function EmploymentCompliance() {
     },
   ]
 
+  const items = propItems || defaultItems
+
   return (
     <div className="flex flex-col gap-4 rounded-2xl bg-card p-5 shadow-sm ring-1 ring-foreground/5">
       <div>
@@ -48,14 +59,14 @@ export function EmploymentCompliance() {
               <span
                 className={cn(
                   'flex h-8 w-8 items-center justify-center rounded-lg text-xs font-bold',
-                  item.color
+                  item.color || 'bg-muted text-muted-foreground'
                 )}
               >
-                {item.code}
+                {item.code || 'DOC'}
               </span>
               <span className="text-sm font-medium">{item.label}</span>
             </div>
-            <span className="text-sm font-semibold text-amber-600 dark:text-amber-400">
+            <span className={cn("text-sm font-semibold", item.countColor || "text-amber-600 dark:text-amber-400")}>
               {item.count}
             </span>
           </div>
@@ -66,11 +77,10 @@ export function EmploymentCompliance() {
   )
 }
 
-export function WorkforceMovement() {
-  const items = [
+export function WorkforceMovement({ items: propItems }: { items?: DashboardItem[] }) {
+  const defaultItems: DashboardItem[] = [
     {
       id: 'new-hires',
-      icon: IconPlus,
       label: 'New hires',
       count: 12,
       color:
@@ -79,7 +89,6 @@ export function WorkforceMovement() {
     },
     {
       id: 'promotion',
-      icon: IconArrowUpRight,
       label: 'Promotion',
       count: 6,
       color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300',
@@ -87,7 +96,6 @@ export function WorkforceMovement() {
     },
     {
       id: 'mutation',
-      icon: IconArrowRight,
       label: 'Mutation / transfer',
       count: 4,
       color:
@@ -95,6 +103,8 @@ export function WorkforceMovement() {
       countColor: 'text-purple-600 dark:text-purple-400',
     },
   ]
+
+  const items = propItems || defaultItems
 
   return (
     <div className="flex flex-col gap-4 rounded-2xl bg-card p-5 shadow-sm ring-1 ring-foreground/5">
@@ -104,32 +114,38 @@ export function WorkforceMovement() {
       </div>
 
       <div className="flex flex-col gap-4">
-        {items.map((item) => (
-          <div key={item.id} className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <span
-                className={cn(
-                  'flex h-8 w-8 items-center justify-center rounded-full',
-                  item.color
-                )}
-              >
-                <item.icon size={16} stroke={2.5} />
+        {items.map((item) => {
+          let IconComp = IconPlus
+          if (item.id === 'promotion' || item.id === 'mov-2' || item.id === 'wfm-2') IconComp = IconArrowUpRight
+          if (item.id === 'mutation' || item.id === 'mov-3' || item.id === 'wfm-3') IconComp = IconArrowRight
+          if (item.id === 'tm-2') IconComp = IconArrowRight
+          return (
+            <div key={item.id} className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <span
+                  className={cn(
+                    'flex h-8 w-8 items-center justify-center rounded-full',
+                    item.color || 'bg-muted text-muted-foreground'
+                  )}
+                >
+                  <IconComp size={16} stroke={2.5} />
+                </span>
+                <span className="text-sm font-medium">{item.label}</span>
+              </div>
+              <span className={cn('text-sm font-semibold', item.countColor || 'text-foreground')}>
+                {item.count}
               </span>
-              <span className="text-sm font-medium">{item.label}</span>
             </div>
-            <span className={cn('text-sm font-semibold', item.countColor)}>
-              {item.count}
-            </span>
-          </div>
-        ))}
+          )
+        })}
       </div>
       <p className="mt-2 text-xs text-muted-foreground">3 resignations this month</p>
     </div>
   )
 }
 
-export function PeopleEvents() {
-  const items = [
+export function PeopleEvents({ items: propItems }: { items?: DashboardItem[] }) {
+  const defaultItems: DashboardItem[] = [
     {
       id: 'bd',
       code: 'BD',
@@ -158,6 +174,8 @@ export function PeopleEvents() {
     },
   ]
 
+  const items = propItems || defaultItems
+
   return (
     <div className="flex flex-col gap-4 rounded-2xl bg-card p-5 shadow-sm ring-1 ring-foreground/5">
       <div>
@@ -174,14 +192,14 @@ export function PeopleEvents() {
               <span
                 className={cn(
                   'flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold',
-                  item.color
+                  item.color || 'bg-muted text-muted-foreground'
                 )}
               >
-                {item.code}
+                {item.code || 'EVT'}
               </span>
               <span className="text-sm font-medium">{item.label}</span>
             </div>
-            <span className={cn('text-sm font-semibold', item.countColor)}>
+            <span className={cn('text-sm font-semibold', item.countColor || 'text-foreground')}>
               {item.count}
             </span>
           </div>

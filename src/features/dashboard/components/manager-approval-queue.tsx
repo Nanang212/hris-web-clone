@@ -2,37 +2,6 @@ import { IconArrowRight } from '@tabler/icons-react'
 
 import { cn } from '@/shared/lib/utils'
 
-const queueItems = [
-  {
-    id: 'leave',
-    label: 'Leave requests',
-    sublabel: '3 employees',
-    count: 3,
-    variant: 'info' as const,
-  },
-  {
-    id: 'attendance',
-    label: 'Attendance correction',
-    sublabel: '2 employees',
-    count: 2,
-    variant: 'warning' as const,
-  },
-  {
-    id: 'overtime',
-    label: 'Overtime requests',
-    sublabel: '2 employees',
-    count: 2,
-    variant: 'danger' as const,
-  },
-  {
-    id: 'claim',
-    label: 'Claim approvals',
-    sublabel: '2 employees',
-    count: 2,
-    variant: 'success' as const,
-  },
-]
-
 const variantStyles = {
   info: {
     dot: 'bg-blue-500',
@@ -52,7 +21,56 @@ const variantStyles = {
   },
 }
 
-export function ManagerApprovalQueue() {
+interface QueueItem {
+  id: string
+  label: string
+  subLabel: string
+  count: number
+  variant: 'info' | 'warning' | 'danger' | 'success'
+}
+
+export function ManagerApprovalQueue({ items: propItems }: { items?: QueueItem[] }) {
+  const defaultItems: QueueItem[] = [
+    {
+      id: 'leave',
+      label: 'Leave requests',
+      subLabel: '3 employees',
+      count: 3,
+      variant: 'info' as const,
+    },
+    {
+      id: 'attendance',
+      label: 'Attendance correction',
+      subLabel: '2 employees',
+      count: 2,
+      variant: 'warning' as const,
+    },
+    {
+      id: 'overtime',
+      label: 'Overtime requests',
+      subLabel: '2 employees',
+      count: 2,
+      variant: 'danger' as const,
+    },
+    {
+      id: 'claim',
+      label: 'Claim approvals',
+      subLabel: '2 employees',
+      count: 2,
+      variant: 'success' as const,
+    },
+  ]
+
+  const items = propItems
+    ? propItems.map(item => ({
+        id: item.id,
+        label: item.label,
+        subLabel: item.subLabel,
+        count: item.count,
+        variant: (item.variant === 'info' || item.variant === 'warning' || item.variant === 'danger' || item.variant === 'success') ? item.variant : 'info'
+      }))
+    : defaultItems
+
   return (
     <div className="flex flex-col gap-4 rounded-2xl bg-card p-5 shadow-sm ring-1 ring-foreground/5">
       <div className="flex items-center justify-between">
@@ -72,8 +90,8 @@ export function ManagerApprovalQueue() {
       </div>
 
       <div className="flex flex-col divide-y divide-border/50">
-        {queueItems.map((item) => {
-          const styles = variantStyles[item.variant]
+        {items.map((item) => {
+          const styles = variantStyles[item.variant] || variantStyles.info
           return (
             <div
               key={item.id}
@@ -84,7 +102,7 @@ export function ManagerApprovalQueue() {
               />
               <div className="flex-1">
                 <p className="text-sm font-medium">{item.label}</p>
-                <p className="text-xs text-muted-foreground">{item.sublabel}</p>
+                <p className="text-xs text-muted-foreground">{item.subLabel}</p>
               </div>
               <span
                 className={cn(

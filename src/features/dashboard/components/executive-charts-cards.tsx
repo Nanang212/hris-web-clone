@@ -71,8 +71,17 @@ export function HeadcountGrowthChart() {
   )
 }
 
-export function WorkforceMovementExecutive() {
-  const items = [
+interface CardItem {
+  id: string
+  code?: string
+  label: string
+  count: string | number
+  color?: string
+  countColor?: string
+}
+
+export function WorkforceMovementExecutive({ items: propItems }: { items?: CardItem[] }) {
+  const defaultItems = [
     {
       id: 'hires',
       icon: IconPlus,
@@ -99,6 +108,8 @@ export function WorkforceMovementExecutive() {
     },
   ]
 
+  const items = propItems || defaultItems
+
   return (
     <div className="flex flex-col gap-4 rounded-2xl bg-card p-5 shadow-sm ring-1 ring-foreground/5">
       <div>
@@ -106,24 +117,29 @@ export function WorkforceMovementExecutive() {
         <p className="text-xs text-muted-foreground">Year-to-date</p>
       </div>
       <div className="flex flex-col gap-4">
-        {items.map((item) => (
-          <div key={item.id} className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <span
-                className={cn(
-                  'flex h-8 w-8 items-center justify-center rounded-full',
-                  item.color
-                )}
-              >
-                <item.icon size={16} stroke={2.5} />
+        {items.map((item) => {
+          let IconComp = IconPlus
+          if (item.id === 'promos' || item.id === 'mov-2' || item.id === 'wfm-2') IconComp = IconArrowUpRight
+          if (item.id === 'resign' || item.id === 'mov-3' || item.id === 'wfm-3') IconComp = IconMinus
+          return (
+            <div key={item.id} className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <span
+                  className={cn(
+                    'flex h-8 w-8 items-center justify-center rounded-full',
+                    item.color || 'bg-muted text-muted-foreground'
+                  )}
+                >
+                  <IconComp size={16} stroke={2.5} />
+                </span>
+                <span className="text-sm font-medium">{item.label}</span>
+              </div>
+              <span className={cn('text-sm font-bold', item.countColor || 'text-foreground')}>
+                {item.count}
               </span>
-              <span className="text-sm font-medium">{item.label}</span>
             </div>
-            <span className={cn('text-sm font-bold', item.countColor)}>
-              {item.count}
-            </span>
-          </div>
-        ))}
+          )
+        })}
       </div>
       <p className="text-xs text-muted-foreground">
         Net workforce growth: +45
@@ -132,27 +148,38 @@ export function WorkforceMovementExecutive() {
   )
 }
 
-export function OrgDistributionDonut() {
-  const segments = [
-    { key: 'ops', label: 'Operations', pct: 34, color: '#3b82f6' },
-    { key: 'tech', label: 'Technology', pct: 21, color: '#10b981' },
-    { key: 'sales', label: 'Sales', pct: 18, color: '#f59e0b' },
-    { key: 'other', label: 'Others', pct: 27, color: '#e5e7eb' },
+interface SegmentItem {
+  key: string
+  label: string
+  percentage: number
+  color: string
+}
+
+export function OrgDistributionDonut({ segments: propSegments }: { segments?: SegmentItem[] }) {
+  const defaultSegments = [
+    { key: 'ops', label: 'Operations', percentage: 34, color: '#3b82f6' },
+    { key: 'tech', label: 'Technology', percentage: 21, color: '#10b981' },
+    { key: 'sales', label: 'Sales', percentage: 18, color: '#f59e0b' },
+    { key: 'other', label: 'Others', percentage: 27, color: '#e5e7eb' },
   ]
+
+  const segments = propSegments || defaultSegments
 
   const size = 140
   const strokeWidth = 18
   const radius = (size - strokeWidth) / 2
   const circumference = 2 * Math.PI * radius
 
-  let accumulated = 0
-  const slices = segments.map((seg) => {
-    const pct = seg.pct / 100
+  const slices = segments.map((seg, idx) => {
+    const pct = seg.percentage / 100
     const dashArray = `${pct * circumference} ${circumference}`
-    const rotation = accumulated * 360 - 90
-    accumulated += pct
+    const prevSum = segments.slice(0, idx).reduce((sum, s) => sum + s.percentage / 100, 0)
+    const rotation = prevSum * 360 - 90
     return { ...seg, dashArray, rotation }
   })
+
+  // Find max segment for center text
+  const maxSeg = segments.reduce((max, s) => (s.percentage > max.percentage ? s : max), segments[0])
 
   return (
     <div className="flex flex-col gap-4 rounded-2xl bg-card p-5 shadow-sm ring-1 ring-foreground/5">
@@ -183,8 +210,8 @@ export function OrgDistributionDonut() {
             ))}
           </svg>
           <div className="absolute flex flex-col items-center">
-            <span className="text-lg font-bold">34%</span>
-            <span className="text-[9px] text-muted-foreground">Operations</span>
+            <span className="text-lg font-bold">{maxSeg?.percentage}%</span>
+            <span className="text-[9px] text-muted-foreground">{maxSeg?.label}</span>
           </div>
         </div>
 
@@ -197,7 +224,7 @@ export function OrgDistributionDonut() {
                 style={{ backgroundColor: seg.color }}
               />
               <span className="text-xs text-muted-foreground">
-                {seg.label} · {seg.pct}%
+                {seg.label} · {seg.percentage}%
               </span>
             </div>
           ))}
@@ -207,8 +234,8 @@ export function OrgDistributionDonut() {
   )
 }
 
-export function WorkforceRisk() {
-  const items = [
+export function WorkforceRisk({ items: propItems }: { items?: CardItem[] }) {
+  const defaultItems = [
     {
       id: 'vac',
       code: 'VAC',
@@ -235,6 +262,8 @@ export function WorkforceRisk() {
     },
   ]
 
+  const items = propItems || defaultItems
+
   return (
     <div className="flex flex-col gap-4 rounded-2xl bg-card p-5 shadow-sm ring-1 ring-foreground/5">
       <div>
@@ -248,14 +277,14 @@ export function WorkforceRisk() {
               <span
                 className={cn(
                   'flex h-8 w-8 items-center justify-center rounded-lg text-xs font-bold',
-                  item.color
+                  item.color || 'bg-muted text-muted-foreground'
                 )}
               >
-                {item.code}
+                {item.code || 'RISK'}
               </span>
               <span className="text-sm font-medium">{item.label}</span>
             </div>
-            <span className={cn('text-sm font-semibold', item.countColor)}>
+            <span className={cn('text-sm font-semibold', item.countColor || 'text-foreground')}>
               {item.count}
             </span>
           </div>
