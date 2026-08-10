@@ -14,6 +14,7 @@ import {
 } from '@/features/dashboard/components/employee-info-cards'
 import { MyRequestCenter } from '@/features/dashboard/components/my-request-center'
 import { StatCard } from '@/features/dashboard/components/stat-card'
+import { m } from '@/i18n/paraglide/messages'
 
 export function EmployeeDashboardPage() {
   return (
@@ -22,10 +23,11 @@ export function EmployeeDashboardPage() {
       <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
         <div>
           <p className="text-xs text-muted-foreground">Dashboard / Employee</p>
-          <h2 className="text-2xl font-bold tracking-tight">My HR Dashboard</h2>
+          <h2 className="text-2xl font-bold tracking-tight">
+            {m.dashboard_employee_title()}
+          </h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            My attendance, leave, payroll, requests, documents, and company
-            updates.
+            {m.dashboard_employee_subtitle()}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -36,13 +38,13 @@ export function EmployeeDashboardPage() {
             type="button"
             className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted transition-colors"
           >
-            My profile
+            {m.dashboard_my_profile()}
           </button>
           <button
             type="button"
             className="rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:bg-primary/90 transition-colors"
           >
-            Customize
+            {m.dashboard_customize()}
           </button>
         </div>
       </div>
@@ -53,7 +55,7 @@ export function EmployeeDashboardPage() {
       {/* KPI Stats */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <StatCard
-          label="Attendance Today"
+          label={m.dashboard_stat_attendance_today()}
           value="Present"
           subLabel="Check-in 08:42"
           subLabelVariant="success"
@@ -61,7 +63,7 @@ export function EmployeeDashboardPage() {
           iconBg="bg-emerald-100 dark:bg-emerald-900/40"
         />
         <StatCard
-          label="Leave Balance"
+          label={m.dashboard_stat_leave_balance()}
           value="18 days"
           subLabel="Annual leave"
           subLabelVariant="default"
@@ -69,7 +71,7 @@ export function EmployeeDashboardPage() {
           iconBg="bg-blue-100 dark:bg-blue-900/40"
         />
         <StatCard
-          label="Next Payroll"
+          label={m.dashboard_stat_next_payroll()}
           value="25 May"
           subLabel="Payslip after processing"
           subLabelVariant="default"
@@ -77,7 +79,7 @@ export function EmployeeDashboardPage() {
           iconBg="bg-purple-100 dark:bg-purple-900/40"
         />
         <StatCard
-          label="Pending Requests"
+          label={m.dashboard_stat_pending_requests()}
           value="2"
           subLabel="Leave · Claim"
           subLabelVariant="warning"

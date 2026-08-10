@@ -14,6 +14,7 @@ import {
 } from '@/features/dashboard/components/dashboard-lists'
 import { StatCard } from '@/features/dashboard/components/stat-card'
 import { WorkforceTrendChart } from '@/features/dashboard/components/workforce-trend-chart'
+import { m } from '@/i18n/paraglide/messages'
 
 export function DashboardPage() {
   return (
@@ -23,11 +24,10 @@ export function DashboardPage() {
         <div>
           <p className="text-xs text-muted-foreground">Dashboard / HR</p>
           <h2 className="text-2xl font-bold tracking-tight">
-            HR Operations Dashboard
+            {m.dashboard_hr_title()}
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Workforce status, pending actions, employment alerts, and people
-            events.
+            {m.dashboard_hr_subtitle()}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -35,13 +35,13 @@ export function DashboardPage() {
             16 May 2025
           </span>
           <span className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-foreground">
-            All locations
+            {m.dashboard_all_locations()}
           </span>
           <button
             type="button"
             className="rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:bg-primary/90 transition-colors"
           >
-            Customize
+            {m.dashboard_customize()}
           </button>
         </div>
       </div>
@@ -55,7 +55,7 @@ export function DashboardPage() {
       {/* KPI Stats */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <StatCard
-          label="Total Employees"
+          label={m.dashboard_stat_total_employees()}
           value="1,248"
           subLabel="+5.2% vs last month"
           subLabelVariant="success"
@@ -63,7 +63,7 @@ export function DashboardPage() {
           iconBg="bg-blue-100 dark:bg-blue-900/40"
         />
         <StatCard
-          label="Present Today"
+          label={m.dashboard_stat_present_today()}
           value="1,132"
           subLabel="90.7% attendance"
           subLabelVariant="success"
@@ -71,7 +71,7 @@ export function DashboardPage() {
           iconBg="bg-emerald-100 dark:bg-emerald-900/40"
         />
         <StatCard
-          label="Pending Approvals"
+          label={m.dashboard_stat_pending_approvals()}
           value="31"
           subLabel="5 overdue"
           subLabelVariant="warning"
@@ -79,7 +79,7 @@ export function DashboardPage() {
           iconBg="bg-amber-100 dark:bg-amber-900/40"
         />
         <StatCard
-          label="Employment Alerts"
+          label={m.dashboard_stat_employment_alerts()}
           value="14"
           subLabel="Contract · MCU · Docs"
           subLabelVariant="danger"

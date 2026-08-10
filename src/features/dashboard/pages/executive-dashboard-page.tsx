@@ -13,6 +13,7 @@ import {
   WorkforceRisk,
 } from '@/features/dashboard/components/executive-charts-cards'
 import { StatCard } from '@/features/dashboard/components/stat-card'
+import { m } from '@/i18n/paraglide/messages'
 
 export function ExecutiveDashboardPage() {
   return (
@@ -22,11 +23,10 @@ export function ExecutiveDashboardPage() {
         <div>
           <p className="text-xs text-muted-foreground">Dashboard / Executive</p>
           <h2 className="text-2xl font-bold tracking-tight">
-            Executive Workforce Overview
+            {m.dashboard_executive_title()}
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Company-wide workforce health, cost, movement, and organization risk
-            indicators.
+            {m.dashboard_executive_subtitle()}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -37,13 +37,13 @@ export function ExecutiveDashboardPage() {
             type="button"
             className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium hover:bg-muted transition-colors"
           >
-            All companies
+            {m.dashboard_all_companies()}
           </button>
           <button
             type="button"
             className="rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:bg-primary/90 transition-colors"
           >
-            Customize
+            {m.dashboard_customize()}
           </button>
         </div>
       </div>
@@ -54,7 +54,7 @@ export function ExecutiveDashboardPage() {
           <IconArrowUpRight size={18} stroke={2} />
         </div>
         <div className="flex-1">
-          <p className="text-sm font-semibold">Workforce remains stable</p>
+          <p className="text-sm font-semibold">{m.dashboard_workforce_stable()}</p>
           <p className="text-xs text-emerald-100">
             Headcount is up 5.2% year-to-date while turnover is down 0.6
             percentage points.
@@ -64,14 +64,14 @@ export function ExecutiveDashboardPage() {
           type="button"
           className="flex-shrink-0 rounded-lg bg-white/20 px-3 py-1.5 text-xs font-medium text-white hover:bg-white/30 transition-colors"
         >
-          View executive report
+          {m.dashboard_view_executive_report()}
         </button>
       </div>
 
       {/* KPI Stats */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <StatCard
-          label="Headcount"
+          label={m.dashboard_stat_headcount()}
           value="1,248"
           subLabel="+5.2% YTD"
           subLabelVariant="success"
@@ -79,7 +79,7 @@ export function ExecutiveDashboardPage() {
           iconBg="bg-blue-100 dark:bg-blue-900/40"
         />
         <StatCard
-          label="Attendance Rate"
+          label={m.dashboard_stat_attendance_rate()}
           value="95.4%"
           subLabel="+1.1 pts vs last month"
           subLabelVariant="success"
@@ -87,7 +87,7 @@ export function ExecutiveDashboardPage() {
           iconBg="bg-emerald-100 dark:bg-emerald-900/40"
         />
         <StatCard
-          label="Payroll Cost"
+          label={m.dashboard_stat_payroll_cost()}
           value="Rp12.8B"
           subLabel="+3.4% vs budget"
           subLabelVariant="warning"
@@ -95,7 +95,7 @@ export function ExecutiveDashboardPage() {
           iconBg="bg-amber-100 dark:bg-amber-900/40"
         />
         <StatCard
-          label="Turnover"
+          label={m.dashboard_stat_turnover()}
           value="3.8%"
           subLabel="-0.6 pts vs last quarter"
           subLabelVariant="success"
