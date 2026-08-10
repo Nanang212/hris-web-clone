@@ -14,6 +14,7 @@ import {
 } from '@/features/dashboard/components/manager-team-cards'
 import { StatCard } from '@/features/dashboard/components/stat-card'
 import { TeamAttendanceChart } from '@/features/dashboard/components/team-attendance-chart'
+import { m } from '@/i18n/paraglide/messages'
 
 export function ManagerDashboardPage() {
   return (
@@ -22,10 +23,11 @@ export function ManagerDashboardPage() {
       <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
         <div>
           <p className="text-xs text-muted-foreground">Dashboard / Manager</p>
-          <h2 className="text-2xl font-bold tracking-tight">Team Dashboard</h2>
+          <h2 className="text-2xl font-bold tracking-tight">
+            {m.dashboard_manager_title()}
+          </h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Team attendance, approvals, staffing changes, and employment alerts
-            for your direct reports.
+            {m.dashboard_manager_subtitle()}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -36,13 +38,13 @@ export function ManagerDashboardPage() {
             type="button"
             className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium hover:bg-muted transition-colors"
           >
-            My team
+            {m.dashboard_my_team()}
           </button>
           <button
             type="button"
             className="rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:bg-primary/90 transition-colors"
           >
-            Customize
+            {m.dashboard_customize()}
           </button>
         </div>
       </div>
@@ -56,7 +58,7 @@ export function ManagerDashboardPage() {
       {/* KPI Stats */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <StatCard
-          label="Team Members"
+          label={m.dashboard_stat_team_members()}
           value="18"
           subLabel="17 active · 1 probation"
           subLabelVariant="default"
@@ -64,7 +66,7 @@ export function ManagerDashboardPage() {
           iconBg="bg-blue-100 dark:bg-blue-900/40"
         />
         <StatCard
-          label="Team Attendance"
+          label={m.dashboard_stat_team_attendance()}
           value="94.7%"
           subLabel="Today"
           subLabelVariant="success"
@@ -72,7 +74,7 @@ export function ManagerDashboardPage() {
           iconBg="bg-emerald-100 dark:bg-emerald-900/40"
         />
         <StatCard
-          label="Pending Approvals"
+          label={m.dashboard_stat_pending_approvals()}
           value="9"
           subLabel="3 overdue"
           subLabelVariant="danger"
@@ -80,7 +82,7 @@ export function ManagerDashboardPage() {
           iconBg="bg-amber-100 dark:bg-amber-900/40"
         />
         <StatCard
-          label="On Leave Today"
+          label={m.dashboard_stat_on_leave_today()}
           value="3"
           subLabel="2 planned · 1 sick"
           subLabelVariant="default"
