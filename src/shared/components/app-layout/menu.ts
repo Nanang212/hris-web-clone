@@ -76,6 +76,14 @@ export const mainMenu = [
     url: '/settings',
     icon: IconSettings,
     title: m.app_layout_nav_settings,
+    items: [
+      { title: () => 'Company', url: '/settings/company' },
+      { title: () => 'User & Role', url: '/settings' },
+      { title: () => 'Master Data', url: '/settings/master-data' },
+      { title: () => 'Approval Workflow', url: '/settings/approval-workflow' },
+      { title: () => 'Notification', url: '/settings/notification' },
+      { title: () => 'Security', url: '/settings/security' },
+    ],
   },
 ] as const
 

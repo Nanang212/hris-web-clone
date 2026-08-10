@@ -24,6 +24,7 @@ import { Route as appPayrollIndexRouteImport } from './routes/(app)/payroll/inde
 import { Route as appPerformanceIndexRouteImport } from './routes/(app)/performance/index'
 import { Route as appReportIndexRouteImport } from './routes/(app)/report/index'
 import { Route as appSettingsIndexRouteImport } from './routes/(app)/settings/index'
+import { Route as appSettingsCreateRoleRouteImport } from './routes/(app)/settings/create-role'
 import { Route as appCompanyDocumentIndexRouteImport } from './routes/(app)/company/document/index'
 import { Route as appCompanyEmployeeIndexRouteImport } from './routes/(app)/company/employee/index'
 import { Route as appCompanyEmployeeIdRouteImport } from './routes/(app)/company/employee/$id'
@@ -111,6 +112,11 @@ const appSettingsIndexRoute = appSettingsIndexRouteImport.update({
   path: '/settings/',
   getParentRoute: () => appRouteRoute,
 } as any)
+const appSettingsCreateRoleRoute = appSettingsCreateRoleRouteImport.update({
+  id: '/settings/create-role',
+  path: '/settings/create-role',
+  getParentRoute: () => appRouteRoute,
+} as any)
 const appCompanyDocumentIndexRoute = appCompanyDocumentIndexRouteImport.update({
   id: '/company/document/',
   path: '/company/document/',
@@ -170,6 +176,7 @@ export interface FileRoutesByFullPath {
   '/employee-dashboard': typeof appdashboardEmployeeDashboardRoute
   '/executive-dashboard': typeof appdashboardExecutiveDashboardRoute
   '/manager-dashboard': typeof appdashboardManagerDashboardRoute
+  '/settings/create-role': typeof appSettingsCreateRoleRoute
   '/': typeof appdashboardIndexRoute
   '/attendance/': typeof appAttendanceIndexRoute
   '/leave/': typeof appLeaveIndexRoute
@@ -195,6 +202,7 @@ export interface FileRoutesByTo {
   '/employee-dashboard': typeof appdashboardEmployeeDashboardRoute
   '/executive-dashboard': typeof appdashboardExecutiveDashboardRoute
   '/manager-dashboard': typeof appdashboardManagerDashboardRoute
+  '/settings/create-role': typeof appSettingsCreateRoleRoute
   '/': typeof appdashboardIndexRoute
   '/attendance': typeof appAttendanceIndexRoute
   '/leave': typeof appLeaveIndexRoute
@@ -222,6 +230,7 @@ export interface FileRoutesById {
   '/(app)/(dashboard)/employee-dashboard': typeof appdashboardEmployeeDashboardRoute
   '/(app)/(dashboard)/executive-dashboard': typeof appdashboardExecutiveDashboardRoute
   '/(app)/(dashboard)/manager-dashboard': typeof appdashboardManagerDashboardRoute
+  '/(app)/settings/create-role': typeof appSettingsCreateRoleRoute
   '/(app)/(dashboard)/': typeof appdashboardIndexRoute
   '/(app)/attendance/': typeof appAttendanceIndexRoute
   '/(app)/leave/': typeof appLeaveIndexRoute
@@ -249,6 +258,7 @@ export interface FileRouteTypes {
     | '/employee-dashboard'
     | '/executive-dashboard'
     | '/manager-dashboard'
+    | '/settings/create-role'
     | '/'
     | '/attendance/'
     | '/leave/'
@@ -274,6 +284,7 @@ export interface FileRouteTypes {
     | '/employee-dashboard'
     | '/executive-dashboard'
     | '/manager-dashboard'
+    | '/settings/create-role'
     | '/'
     | '/attendance'
     | '/leave'
@@ -300,6 +311,7 @@ export interface FileRouteTypes {
     | '/(app)/(dashboard)/employee-dashboard'
     | '/(app)/(dashboard)/executive-dashboard'
     | '/(app)/(dashboard)/manager-dashboard'
+    | '/(app)/settings/create-role'
     | '/(app)/(dashboard)/'
     | '/(app)/attendance/'
     | '/(app)/leave/'
@@ -433,6 +445,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof appSettingsIndexRouteImport
       parentRoute: typeof appRouteRoute
     }
+    '/(app)/settings/create-role': {
+      id: '/(app)/settings/create-role'
+      path: '/settings/create-role'
+      fullPath: '/settings/create-role'
+      preLoaderRoute: typeof appSettingsCreateRoleRouteImport
+      parentRoute: typeof appRouteRoute
+    }
     '/(app)/company/document/': {
       id: '/(app)/company/document/'
       path: '/company/document'
@@ -503,6 +522,7 @@ interface appRouteRouteChildren {
   appdashboardEmployeeDashboardRoute: typeof appdashboardEmployeeDashboardRoute
   appdashboardExecutiveDashboardRoute: typeof appdashboardExecutiveDashboardRoute
   appdashboardManagerDashboardRoute: typeof appdashboardManagerDashboardRoute
+  appSettingsCreateRoleRoute: typeof appSettingsCreateRoleRoute
   appdashboardIndexRoute: typeof appdashboardIndexRoute
   appAttendanceIndexRoute: typeof appAttendanceIndexRoute
   appLeaveIndexRoute: typeof appLeaveIndexRoute
@@ -525,6 +545,7 @@ const appRouteRouteChildren: appRouteRouteChildren = {
   appdashboardEmployeeDashboardRoute: appdashboardEmployeeDashboardRoute,
   appdashboardExecutiveDashboardRoute: appdashboardExecutiveDashboardRoute,
   appdashboardManagerDashboardRoute: appdashboardManagerDashboardRoute,
+  appSettingsCreateRoleRoute: appSettingsCreateRoleRoute,
   appdashboardIndexRoute: appdashboardIndexRoute,
   appAttendanceIndexRoute: appAttendanceIndexRoute,
   appLeaveIndexRoute: appLeaveIndexRoute,
