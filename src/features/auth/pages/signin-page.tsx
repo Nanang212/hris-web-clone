@@ -1,13 +1,26 @@
-import { IconEye, IconEyeOff, IconLock, IconMail, IconShieldCheck } from '@tabler/icons-react'
-import { Link } from '@tanstack/react-router'
+import { zodResolver } from '@hookform/resolvers/zod'
+import {
+  IconEye,
+  IconEyeOff,
+  IconLoader2,
+  IconLock,
+  IconMail,
+  IconShieldCheck,
+} from '@tabler/icons-react'
+import { Link, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
+import { Controller, useForm } from 'react-hook-form'
+import * as z from 'zod'
 
 import { BackgroundDecor, BrandMark } from '@/features/auth/components/background'
+import { useSignIn } from '@/features/auth/hooks'
 import { m } from '@/i18n/paraglide/messages'
 import { Button } from '@/shared/components/ui/button'
 import { Checkbox } from '@/shared/components/ui/checkbox'
-import { Field, FieldGroup, FieldLabel } from '@/shared/components/ui/field'
+import { Field, FieldError, FieldGroup, FieldLabel } from '@/shared/components/ui/field'
 import { Input } from '@/shared/components/ui/input'
+import { useSchema } from '@/shared/lib/schema'
+import { snackbar } from '@/shared/lib/snackbar'
 import { cn } from '@/shared/lib/utils'
 
 export type SignInPageProps = React.ComponentProps<'div'>
@@ -26,6 +39,40 @@ function SecureAccessNotice() {
 
 function SignInForm() {
   const [showPassword, setShowPassword] = useState(false)
+  const navigate = useNavigate()
+  const { mutate: signIn, isPending } = useSignIn()
+
+  const formSchema = useSchema(() => ({
+    email: z.email({ message: m.auth_signin_email_invalid() }),
+    password: z.string().min(1, { message: m.auth_signin_password_required() }),
+    rememberMe: z.boolean().optional(),
+  }))
+
+  const {
+    register,
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+      rememberMe: false,
+    },
+  })
+
+  const handleSignIn = (values: z.infer<typeof formSchema>) => {
+    signIn(values, {
+      onSuccess: () => {
+        snackbar.success(m.auth_signin_toast_success())
+        navigate({ to: '/' })
+      },
+      onError: (error) => {
+        snackbar.exception(error)
+      },
+    })
+  }
 
   return (
     <div className='w-full max-w-lg space-y-6 rounded-2xl border bg-background p-8 shadow-sm'>
@@ -36,9 +83,9 @@ function SignInForm() {
         <p className='text-sm text-muted-foreground'>{m.auth_signin_welcome_subtitle()}</p>
       </div>
 
-      <form className='space-y-5'>
+      <form className='space-y-5' onSubmit={handleSubmit(handleSignIn)} noValidate>
         <FieldGroup>
-          <Field>
+          <Field data-invalid={!!errors.email}>
             <FieldLabel htmlFor='identifier'>{m.auth_signin_identifier_field_label()}</FieldLabel>
             <div className='relative'>
               <IconMail
@@ -49,12 +96,14 @@ function SignInForm() {
                 id='identifier'
                 placeholder={m.auth_signin_identifier_field_placeholder()}
                 className='pl-9'
-                required
+                aria-invalid={!!errors.email}
+                {...register('email')}
               />
             </div>
+            <FieldError errors={errors.email ? [errors.email] : undefined} />
           </Field>
 
-          <Field>
+          <Field data-invalid={!!errors.password}>
             <FieldLabel htmlFor='password'>{m.auth_signin_password_field_label()}</FieldLabel>
             <div className='relative'>
               <IconLock
@@ -66,7 +115,8 @@ function SignInForm() {
                 type={showPassword ? 'text' : 'password'}
                 placeholder={m.auth_signin_password_field_placeholder()}
                 className='pr-9 pl-9'
-                required
+                aria-invalid={!!errors.password}
+                {...register('password')}
               />
               <button
                 type='button'
@@ -81,11 +131,22 @@ function SignInForm() {
                 {showPassword ? <IconEyeOff size={16} /> : <IconEye size={16} />}
               </button>
             </div>
+            <FieldError errors={errors.password ? [errors.password] : undefined} />
           </Field>
 
           <div className='flex items-center justify-between'>
             <div className='flex items-center gap-2'>
-              <Checkbox id='remember-me' />
+              <Controller
+                name='rememberMe'
+                control={control}
+                render={({ field }) => (
+                  <Checkbox
+                    id='remember-me'
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                )}
+              />
               <FieldLabel
                 htmlFor='remember-me'
                 className='text-sm font-normal text-muted-foreground'
@@ -98,7 +159,8 @@ function SignInForm() {
             </Link>
           </div>
 
-          <Button type='submit' className='w-full'>
+          <Button type='submit' className='w-full' disabled={isPending}>
+            {isPending && <IconLoader2 className='animate-spin' />}
             {m.auth_signin_submit_button()}
           </Button>
         </FieldGroup>

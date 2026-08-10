@@ -1,10 +1,10 @@
 import { paraglideVitePlugin } from '@inlang/paraglide-js'
-import path from 'node:path'
 import tailwindcss from '@tailwindcss/vite'
-import { defineConfig } from 'vite'
 import { tanstackRouter } from '@tanstack/router-plugin/vite'
 import react from '@vitejs/plugin-react'
+import { defineConfig } from 'vite'
 import svgr from 'vite-plugin-svgr'
+import path from 'node:path'
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -18,6 +18,7 @@ export default defineConfig({
     tanstackRouter({
       target: 'react',
       autoCodeSplitting: true,
+      generatedRouteTree: './src/shared/router/route-tree.gen.ts',
     }),
     react(),
     tailwindcss(),
