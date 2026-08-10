@@ -15,6 +15,9 @@ import { Route as authSigninRouteImport } from './routes/(auth)/signin'
 import { Route as authSignoutRouteImport } from './routes/(auth)/signout'
 import { Route as authVerificationRouteImport } from './routes/(auth)/verification'
 import { Route as appdashboardIndexRouteImport } from './routes/(app)/(dashboard)/index'
+import { Route as appdashboardEmployeeDashboardRouteImport } from './routes/(app)/(dashboard)/employee-dashboard'
+import { Route as appdashboardExecutiveDashboardRouteImport } from './routes/(app)/(dashboard)/executive-dashboard'
+import { Route as appdashboardManagerDashboardRouteImport } from './routes/(app)/(dashboard)/manager-dashboard'
 import { Route as appAttendanceIndexRouteImport } from './routes/(app)/attendance/index'
 import { Route as appLeaveIndexRouteImport } from './routes/(app)/leave/index'
 import { Route as appPayrollIndexRouteImport } from './routes/(app)/payroll/index'
@@ -60,6 +63,24 @@ const appdashboardIndexRoute = appdashboardIndexRouteImport.update({
   path: '/',
   getParentRoute: () => appRouteRoute,
 } as any)
+const appdashboardEmployeeDashboardRoute =
+  appdashboardEmployeeDashboardRouteImport.update({
+    id: '/(dashboard)/employee-dashboard',
+    path: '/employee-dashboard',
+    getParentRoute: () => appRouteRoute,
+  } as any)
+const appdashboardExecutiveDashboardRoute =
+  appdashboardExecutiveDashboardRouteImport.update({
+    id: '/(dashboard)/executive-dashboard',
+    path: '/executive-dashboard',
+    getParentRoute: () => appRouteRoute,
+  } as any)
+const appdashboardManagerDashboardRoute =
+  appdashboardManagerDashboardRouteImport.update({
+    id: '/(dashboard)/manager-dashboard',
+    path: '/manager-dashboard',
+    getParentRoute: () => appRouteRoute,
+  } as any)
 const appAttendanceIndexRoute = appAttendanceIndexRouteImport.update({
   id: '/attendance/',
   path: '/attendance/',
@@ -146,6 +167,9 @@ export interface FileRoutesByFullPath {
   '/signin': typeof authSigninRoute
   '/signout': typeof authSignoutRoute
   '/verification': typeof authVerificationRoute
+  '/employee-dashboard': typeof appdashboardEmployeeDashboardRoute
+  '/executive-dashboard': typeof appdashboardExecutiveDashboardRoute
+  '/manager-dashboard': typeof appdashboardManagerDashboardRoute
   '/': typeof appdashboardIndexRoute
   '/attendance/': typeof appAttendanceIndexRoute
   '/leave/': typeof appLeaveIndexRoute
@@ -168,6 +192,9 @@ export interface FileRoutesByTo {
   '/signin': typeof authSigninRoute
   '/signout': typeof authSignoutRoute
   '/verification': typeof authVerificationRoute
+  '/employee-dashboard': typeof appdashboardEmployeeDashboardRoute
+  '/executive-dashboard': typeof appdashboardExecutiveDashboardRoute
+  '/manager-dashboard': typeof appdashboardManagerDashboardRoute
   '/': typeof appdashboardIndexRoute
   '/attendance': typeof appAttendanceIndexRoute
   '/leave': typeof appLeaveIndexRoute
@@ -192,6 +219,9 @@ export interface FileRoutesById {
   '/(auth)/signin': typeof authSigninRoute
   '/(auth)/signout': typeof authSignoutRoute
   '/(auth)/verification': typeof authVerificationRoute
+  '/(app)/(dashboard)/employee-dashboard': typeof appdashboardEmployeeDashboardRoute
+  '/(app)/(dashboard)/executive-dashboard': typeof appdashboardExecutiveDashboardRoute
+  '/(app)/(dashboard)/manager-dashboard': typeof appdashboardManagerDashboardRoute
   '/(app)/(dashboard)/': typeof appdashboardIndexRoute
   '/(app)/attendance/': typeof appAttendanceIndexRoute
   '/(app)/leave/': typeof appLeaveIndexRoute
@@ -216,6 +246,9 @@ export interface FileRouteTypes {
     | '/signin'
     | '/signout'
     | '/verification'
+    | '/employee-dashboard'
+    | '/executive-dashboard'
+    | '/manager-dashboard'
     | '/'
     | '/attendance/'
     | '/leave/'
@@ -238,6 +271,9 @@ export interface FileRouteTypes {
     | '/signin'
     | '/signout'
     | '/verification'
+    | '/employee-dashboard'
+    | '/executive-dashboard'
+    | '/manager-dashboard'
     | '/'
     | '/attendance'
     | '/leave'
@@ -261,6 +297,9 @@ export interface FileRouteTypes {
     | '/(auth)/signin'
     | '/(auth)/signout'
     | '/(auth)/verification'
+    | '/(app)/(dashboard)/employee-dashboard'
+    | '/(app)/(dashboard)/executive-dashboard'
+    | '/(app)/(dashboard)/manager-dashboard'
     | '/(app)/(dashboard)/'
     | '/(app)/attendance/'
     | '/(app)/leave/'
@@ -329,6 +368,27 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof appdashboardIndexRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/(dashboard)/employee-dashboard': {
+      id: '/(app)/(dashboard)/employee-dashboard'
+      path: '/employee-dashboard'
+      fullPath: '/employee-dashboard'
+      preLoaderRoute: typeof appdashboardEmployeeDashboardRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/(dashboard)/executive-dashboard': {
+      id: '/(app)/(dashboard)/executive-dashboard'
+      path: '/executive-dashboard'
+      fullPath: '/executive-dashboard'
+      preLoaderRoute: typeof appdashboardExecutiveDashboardRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/(dashboard)/manager-dashboard': {
+      id: '/(app)/(dashboard)/manager-dashboard'
+      path: '/manager-dashboard'
+      fullPath: '/manager-dashboard'
+      preLoaderRoute: typeof appdashboardManagerDashboardRouteImport
       parentRoute: typeof appRouteRoute
     }
     '/(app)/attendance/': {
@@ -440,6 +500,9 @@ declare module '@tanstack/react-router' {
 }
 
 interface appRouteRouteChildren {
+  appdashboardEmployeeDashboardRoute: typeof appdashboardEmployeeDashboardRoute
+  appdashboardExecutiveDashboardRoute: typeof appdashboardExecutiveDashboardRoute
+  appdashboardManagerDashboardRoute: typeof appdashboardManagerDashboardRoute
   appdashboardIndexRoute: typeof appdashboardIndexRoute
   appAttendanceIndexRoute: typeof appAttendanceIndexRoute
   appLeaveIndexRoute: typeof appLeaveIndexRoute
@@ -459,6 +522,9 @@ interface appRouteRouteChildren {
 }
 
 const appRouteRouteChildren: appRouteRouteChildren = {
+  appdashboardEmployeeDashboardRoute: appdashboardEmployeeDashboardRoute,
+  appdashboardExecutiveDashboardRoute: appdashboardExecutiveDashboardRoute,
+  appdashboardManagerDashboardRoute: appdashboardManagerDashboardRoute,
   appdashboardIndexRoute: appdashboardIndexRoute,
   appAttendanceIndexRoute: appAttendanceIndexRoute,
   appLeaveIndexRoute: appLeaveIndexRoute,

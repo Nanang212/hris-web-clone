@@ -65,7 +65,7 @@ export function AppSidebar() {
 
                 const isActive = hasSubItems
                   ? item.items.some((subItem) => pathname.startsWith(subItem.url))
-                  : pathname.startsWith(item.url)
+                  : pathname === item.url || pathname.startsWith(item.url + '/')
 
                 if (!hasSubItems) {
                   return (
