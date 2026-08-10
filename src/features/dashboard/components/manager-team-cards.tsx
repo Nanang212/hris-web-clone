@@ -6,8 +6,18 @@ import {
 
 import { cn } from '@/shared/lib/utils'
 
-export function ContractProbation() {
-  const items = [
+interface CardItem {
+  id: string
+  code?: string
+  label: string
+  count: string | number
+  color?: string
+  countColor?: string
+  icon?: React.ComponentType<{ size?: number; stroke?: number }>
+}
+
+export function ContractProbation({ items: propItems }: { items?: CardItem[] }) {
+  const defaultItems: CardItem[] = [
     {
       id: 'ctr',
       code: 'CTR',
@@ -34,6 +44,8 @@ export function ContractProbation() {
     },
   ]
 
+  const items = propItems || defaultItems
+
   return (
     <div className="flex flex-col gap-4 rounded-2xl bg-card p-5 shadow-sm ring-1 ring-foreground/5">
       <div>
@@ -49,14 +61,14 @@ export function ContractProbation() {
               <span
                 className={cn(
                   'flex h-8 w-8 items-center justify-center rounded-lg text-xs font-bold',
-                  item.color
+                  item.color || 'bg-muted text-muted-foreground'
                 )}
               >
-                {item.code}
+                {item.code || 'CTR'}
               </span>
               <span className="text-sm font-medium">{item.label}</span>
             </div>
-            <span className={cn('text-sm font-semibold', item.countColor)}>
+            <span className={cn('text-sm font-semibold', item.countColor || 'text-foreground')}>
               {item.count}
             </span>
           </div>
@@ -67,8 +79,8 @@ export function ContractProbation() {
   )
 }
 
-export function TeamMovement() {
-  const items = [
+export function TeamMovement({ items: propItems }: { items?: CardItem[] }) {
+  const defaultItems: CardItem[] = [
     {
       id: 'promo',
       icon: IconArrowUpRight,
@@ -95,6 +107,8 @@ export function TeamMovement() {
     },
   ]
 
+  const items = propItems || defaultItems
+
   return (
     <div className="flex flex-col gap-4 rounded-2xl bg-card p-5 shadow-sm ring-1 ring-foreground/5">
       <div>
@@ -102,32 +116,37 @@ export function TeamMovement() {
         <p className="text-xs text-muted-foreground">Recent staffing changes</p>
       </div>
       <div className="flex flex-col gap-4">
-        {items.map((item) => (
-          <div key={item.id} className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <span
-                className={cn(
-                  'flex h-8 w-8 items-center justify-center rounded-full',
-                  item.color
-                )}
-              >
-                <item.icon size={16} stroke={2.5} />
+        {items.map((item) => {
+          let IconComp = IconPlus
+          if (item.id === 'promo' || item.id === 'tm-1' || item.id === 'wfm-2') IconComp = IconArrowUpRight
+          if (item.id === 'transfer' || item.id === 'tm-2' || item.id === 'wfm-3') IconComp = IconArrowRight
+          return (
+            <div key={item.id} className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <span
+                  className={cn(
+                    'flex h-8 w-8 items-center justify-center rounded-full',
+                    item.color || 'bg-muted text-muted-foreground'
+                  )}
+                >
+                  <IconComp size={16} stroke={2.5} />
+                </span>
+                <span className="text-sm font-medium">{item.label}</span>
+              </div>
+              <span className={cn('text-sm font-semibold', item.countColor || 'text-foreground')}>
+                {item.count}
               </span>
-              <span className="text-sm font-medium">{item.label}</span>
             </div>
-            <span className={cn('text-sm font-semibold', item.countColor)}>
-              {item.count}
-            </span>
-          </div>
-        ))}
+          )
+        })}
       </div>
       <p className="text-xs text-muted-foreground">No resignations this month</p>
     </div>
   )
 }
 
-export function TeamEvents() {
-  const items = [
+export function TeamEvents({ items: propItems }: { items?: CardItem[] }) {
+  const defaultItems: CardItem[] = [
     {
       id: 'bd',
       code: 'BD',
@@ -154,6 +173,8 @@ export function TeamEvents() {
     },
   ]
 
+  const items = propItems || defaultItems
+
   return (
     <div className="flex flex-col gap-4 rounded-2xl bg-card p-5 shadow-sm ring-1 ring-foreground/5">
       <div>
@@ -169,14 +190,14 @@ export function TeamEvents() {
               <span
                 className={cn(
                   'flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold',
-                  item.color
+                  item.color || 'bg-muted text-muted-foreground'
                 )}
               >
-                {item.code}
+                {item.code || 'EVT'}
               </span>
               <span className="text-sm font-medium">{item.label}</span>
             </div>
-            <span className={cn('text-sm font-semibold', item.countColor)}>
+            <span className={cn('text-sm font-semibold', item.countColor || 'text-foreground')}>
               {item.count}
             </span>
           </div>

@@ -15,7 +15,92 @@ import {
 import { StatCard } from '@/features/dashboard/components/stat-card'
 import { m } from '@/i18n/paraglide/messages'
 
+import { useState, useEffect } from 'react'
+import { fetchDashboard } from '@/features/dashboard/api'
+import { IconAlertTriangle } from '@tabler/icons-react'
+
+interface ExecutiveDashboardData {
+  headcount: number
+  headcountGrowth: number
+  attendanceRate: number
+  attendanceRateChange: number
+  payrollCost: string
+  payrollCostChange: number
+  turnover: number
+  turnoverChange: number
+  attention: { id: string; label: string; subLabel: string; count: number; variant: 'info' | 'warning' | 'danger' | 'success' }[]
+  workforceMovement: { id: string; label: string; count: string | number; color?: string; countColor?: string }[]
+  distribution: { key: string; label: string; percentage: number; color: string }[]
+  risk: { id: string; label: string; count: string | number; color?: string; countColor?: string }[]
+  highlight?: string
+}
+
 export function ExecutiveDashboardPage() {
+  const [data, setData] = useState<ExecutiveDashboardData | null>(null)
+  const [loading, setLoading] = useState<boolean>(true)
+  const [error, setError] = useState<string | null>(null)
+
+  const loadData = async () => {
+    try {
+      const result = await fetchDashboard({ role: 'EXECUTIVE' })
+      setData(result.executiveDashboard)
+      setLoading(false)
+    } catch (err: unknown) {
+      const errMsg = err instanceof Error ? err.message : 'Something went wrong'
+      setError(errMsg)
+      setLoading(false)
+    }
+  }
+
+  const handleRetry = () => {
+    setLoading(true)
+    setError(null)
+    loadData()
+  }
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadData()
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="flex min-h-[500px] flex-col items-center justify-center gap-3 p-8">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+        <p className="text-sm text-muted-foreground">Loading dashboard data...</p>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="flex min-h-[500px] flex-col items-center justify-center gap-4 p-8 text-center">
+        <div className="rounded-full bg-red-100 p-3 text-red-600 dark:bg-red-950/40 dark:text-red-400">
+          <IconAlertTriangle size={32} />
+        </div>
+        <div>
+          <h3 className="font-semibold text-foreground">Failed to load dashboard</h3>
+          <p className="text-sm text-muted-foreground mt-1 max-w-sm">{error}</p>
+        </div>
+        <button
+          type="button"
+          onClick={handleRetry}
+          className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-colors"
+        >
+          Try Again
+        </button>
+      </div>
+    )
+  }
+
+  if (!data) {
+    return (
+      <div className="flex min-h-[500px] flex-col items-center justify-center gap-3 p-8 text-center">
+        <p className="text-sm text-muted-foreground">No dashboard data found.</p>
+      </div>
+    )
+  }
+
   return (
     <div className="flex flex-col gap-5 p-5 lg:p-6">
       {/* Header */}
@@ -56,7 +141,7 @@ export function ExecutiveDashboardPage() {
         <div className="flex-1">
           <p className="text-sm font-semibold">{m.dashboard_workforce_stable()}</p>
           <p className="text-xs text-emerald-100">
-            Headcount is up 5.2% year-to-date while turnover is down 0.6
+            Headcount is up {data.headcountGrowth}% year-to-date while turnover is down {Math.abs(data.turnoverChange)}
             percentage points.
           </p>
         </div>
@@ -72,33 +157,33 @@ export function ExecutiveDashboardPage() {
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <StatCard
           label={m.dashboard_stat_headcount()}
-          value="1,248"
-          subLabel="+5.2% YTD"
+          value={data.headcount?.toLocaleString() || "0"}
+          subLabel={`+${data.headcountGrowth}% YTD`}
           subLabelVariant="success"
           icon={IconUsers}
           iconBg="bg-blue-100 dark:bg-blue-900/40"
         />
         <StatCard
           label={m.dashboard_stat_attendance_rate()}
-          value="95.4%"
-          subLabel="+1.1 pts vs last month"
+          value={`${data.attendanceRate}%`}
+          subLabel={`+${data.attendanceRateChange} pts vs last month`}
           subLabelVariant="success"
           icon={IconArrowUpRight}
           iconBg="bg-emerald-100 dark:bg-emerald-900/40"
         />
         <StatCard
           label={m.dashboard_stat_payroll_cost()}
-          value="Rp12.8B"
-          subLabel="+3.4% vs budget"
+          value={data.payrollCost}
+          subLabel={`+${data.payrollCostChange}% vs budget`}
           subLabelVariant="warning"
           icon={IconWallet}
           iconBg="bg-amber-100 dark:bg-amber-900/40"
         />
         <StatCard
           label={m.dashboard_stat_turnover()}
-          value="3.8%"
-          subLabel="-0.6 pts vs last quarter"
-          subLabelVariant="success"
+          value={`${data.turnover}%`}
+          subLabel={`${data.turnoverChange} pts vs last quarter`}
+          subLabelVariant={data.turnoverChange < 0 ? "success" : "danger"}
           icon={IconTrendingDown}
           iconBg="bg-purple-100 dark:bg-purple-900/40"
         />
@@ -107,37 +192,38 @@ export function ExecutiveDashboardPage() {
       {/* Chart + Executive Attention */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_340px]">
         <HeadcountGrowthChart />
-        <ExecutiveAttention />
+        <ExecutiveAttention items={data.attention} />
       </div>
 
       {/* Bottom Row */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <WorkforceMovementExecutive />
-        <OrgDistributionDonut />
-        <WorkforceRisk />
+        <WorkforceMovementExecutive items={data.workforceMovement} />
+        <OrgDistributionDonut segments={data.distribution} />
+        <WorkforceRisk items={data.risk} />
       </div>
 
       {/* Executive Highlight */}
-      <div className="flex items-center justify-between rounded-2xl bg-card px-5 py-4 shadow-sm ring-1 ring-foreground/5">
-        <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">
-            <span className="text-xs font-bold">INS</span>
+      {data.highlight && (
+        <div className="flex items-center justify-between rounded-2xl bg-card px-5 py-4 shadow-sm ring-1 ring-foreground/5">
+          <div className="flex items-center gap-3">
+            <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">
+              <span className="text-xs font-bold">INS</span>
+            </div>
+            <div>
+              <span className="text-sm font-semibold">Executive highlight</span>
+              <p className="text-xs text-muted-foreground">
+                {data.highlight}
+              </p>
+            </div>
           </div>
-          <div>
-            <span className="text-sm font-semibold">Executive highlight</span>
-            <p className="text-xs text-muted-foreground">
-              Headcount growth remains within plan; payroll cost is 3.4% above
-              budget due to hiring concentration in Technology.
-            </p>
-          </div>
+          <button
+            type="button"
+            className="flex-shrink-0 rounded-lg border border-border px-3 py-1.5 text-xs font-medium hover:bg-muted transition-colors"
+          >
+            Open analytics
+          </button>
         </div>
-        <button
-          type="button"
-          className="flex-shrink-0 rounded-lg border border-border px-3 py-1.5 text-xs font-medium hover:bg-muted transition-colors"
-        >
-          Open analytics
-        </button>
-      </div>
+      )}
     </div>
   )
 }
