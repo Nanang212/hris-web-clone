@@ -2,17 +2,28 @@ import { IconChevronDown } from '@tabler/icons-react'
 import { Link } from '@tanstack/react-router'
 import { useState } from 'react'
 
-function Toggle({ checked, onChange }: { checked: boolean; onChange: () => void }) {
+function Toggle({
+  checked,
+  label,
+  onChange,
+}: {
+  checked: boolean
+  label: string
+  onChange: () => void
+}) {
   return (
-    <button
-      type='button'
-      role='switch'
-      aria-checked={checked}
-      onClick={onChange}
-      className={`relative h-6 w-10 rounded-full transition-colors ${checked ? 'bg-primary' : 'bg-muted-foreground/30'}`}
-    >
-      <span className={`absolute top-1 h-4 w-4 rounded-full bg-white shadow-sm transition-transform ${checked ? 'translate-x-5' : 'translate-x-1'}`} />
-    </button>
+    <label className='inline-flex cursor-pointer items-center'>
+      <input
+        type='checkbox'
+        checked={checked}
+        onChange={onChange}
+        aria-label={label}
+        className='peer sr-only'
+      />
+      <span className={`relative h-6 w-10 rounded-full transition-colors peer-focus-visible:ring-2 peer-focus-visible:ring-primary peer-focus-visible:ring-offset-2 ${checked ? 'bg-primary' : 'bg-muted-foreground/30'}`}>
+        <span className={`absolute left-1 top-1 h-4 w-4 rounded-full bg-white shadow-sm transition-transform ${checked ? 'translate-x-4' : ''}`} />
+      </span>
+    </label>
   )
 }
 
@@ -71,11 +82,11 @@ export function CreateRolePage() {
           <div className='mt-6 space-y-6'>
             <div className='flex items-start justify-between gap-4'>
               <div><p className='text-xs font-semibold'>Allow multiple roles</p><p className='mt-1 text-[10px] text-muted-foreground'>Users may keep existing roles when this role is assigned.</p></div>
-              <Toggle checked={allowMultipleRoles} onChange={() => setAllowMultipleRoles((value) => !value)} />
+              <Toggle label='Allow multiple roles' checked={allowMultipleRoles} onChange={() => setAllowMultipleRoles((value) => !value)} />
             </div>
             <div className='flex items-start justify-between gap-4'>
               <div><p className='text-xs font-semibold'>Require periodic access review</p><p className='mt-1 text-[10px] text-muted-foreground'>Prompt administrators to review role membership.</p></div>
-              <Toggle checked={requireReview} onChange={() => setRequireReview((value) => !value)} />
+              <Toggle label='Require periodic access review' checked={requireReview} onChange={() => setRequireReview((value) => !value)} />
             </div>
           </div>
 
