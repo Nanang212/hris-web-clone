@@ -1,7 +1,5 @@
 import { IconAlertTriangle, IconCalendarCheck, IconUserCheck, IconUsers } from '@tabler/icons-react'
-import { useEffect, useState } from 'react'
 
-import { fetchDashboard } from '@/features/dashboard/api'
 import { AnnouncementBanner } from '@/features/dashboard/components/announcement-banner'
 import {
   EmploymentCompliance,
@@ -12,6 +10,7 @@ import { AlertBanner, HrActionCenter } from '@/features/dashboard/components/hr-
 import { StatCard } from '@/features/dashboard/components/stat-card'
 import { WorkforceTrendChart } from '@/features/dashboard/components/workforce-trend-chart'
 import { m } from '@/i18n/paraglide/messages'
+
 
 interface HRDashboardData {
   totalEmployees: number
@@ -43,64 +42,7 @@ interface HRDashboardData {
   }[]
 }
 
-export function DashboardPage() {
-  const [data, setData] = useState<HRDashboardData | null>(null)
-  const [loading, setLoading] = useState<boolean>(true)
-  const [error, setError] = useState<string | null>(null)
-
-  const loadData = async () => {
-    try {
-      const result = await fetchDashboard({ role: 'HR' })
-      setData(result.hrDashboard)
-      setLoading(false)
-    } catch (err: unknown) {
-      const errMsg = err instanceof Error ? err.message : 'Something went wrong'
-      setError(errMsg)
-      setLoading(false)
-    }
-  }
-
-  const handleRetry = () => {
-    setLoading(true)
-    setError(null)
-    loadData()
-  }
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    loadData()
-  }, [])
-
-  if (loading) {
-    return (
-      <div className='flex min-h-125 flex-col items-center justify-center gap-3 p-8'>
-        <div className='h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent' />
-        <p className='text-sm text-muted-foreground'>Loading dashboard data...</p>
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div className='flex min-h-125 flex-col items-center justify-center gap-4 p-8 text-center'>
-        <div className='rounded-full bg-red-100 p-3 text-red-600 dark:bg-red-950/40 dark:text-red-400'>
-          <IconAlertTriangle size={32} />
-        </div>
-        <div>
-          <h3 className='font-semibold text-foreground'>Failed to load dashboard</h3>
-          <p className='mt-1 max-w-sm text-sm text-muted-foreground'>{error}</p>
-        </div>
-        <button
-          type='button'
-          onClick={handleRetry}
-          className='rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90'
-        >
-          Try Again
-        </button>
-      </div>
-    )
-  }
-
+export function DashboardPage({ data }: { data: HRDashboardData }) {
   if (!data) {
     return (
       <div className='flex min-h-125 flex-col items-center justify-center gap-3 p-8 text-center'>
