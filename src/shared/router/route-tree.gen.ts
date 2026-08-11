@@ -15,6 +15,7 @@ import { Route as authSigninRouteImport } from './../../routes/(auth)/signin'
 import { Route as authSignoutRouteImport } from './../../routes/(auth)/signout'
 import { Route as authVerificationRouteImport } from './../../routes/(auth)/verification'
 import { Route as appdashboardIndexRouteImport } from './../../routes/(app)/(dashboard)/index'
+import { Route as appdashboardDashboardCustomizeRouteImport } from './../../routes/(app)/(dashboard)/dashboard-customize'
 import { Route as appdashboardEmployeeDashboardRouteImport } from './../../routes/(app)/(dashboard)/employee-dashboard'
 import { Route as appdashboardExecutiveDashboardRouteImport } from './../../routes/(app)/(dashboard)/executive-dashboard'
 import { Route as appdashboardManagerDashboardRouteImport } from './../../routes/(app)/(dashboard)/manager-dashboard'
@@ -63,6 +64,12 @@ const appdashboardIndexRoute = appdashboardIndexRouteImport.update({
   path: '/',
   getParentRoute: () => appRouteRoute,
 } as any)
+const appdashboardDashboardCustomizeRoute =
+  appdashboardDashboardCustomizeRouteImport.update({
+    id: '/(dashboard)/dashboard-customize',
+    path: '/dashboard-customize',
+    getParentRoute: () => appRouteRoute,
+  } as any)
 const appdashboardEmployeeDashboardRoute =
   appdashboardEmployeeDashboardRouteImport.update({
     id: '/(dashboard)/employee-dashboard',
@@ -167,6 +174,7 @@ export interface FileRoutesByFullPath {
   '/signin': typeof authSigninRoute
   '/signout': typeof authSignoutRoute
   '/verification': typeof authVerificationRoute
+  '/dashboard-customize': typeof appdashboardDashboardCustomizeRoute
   '/employee-dashboard': typeof appdashboardEmployeeDashboardRoute
   '/executive-dashboard': typeof appdashboardExecutiveDashboardRoute
   '/manager-dashboard': typeof appdashboardManagerDashboardRoute
@@ -192,6 +200,7 @@ export interface FileRoutesByTo {
   '/signin': typeof authSigninRoute
   '/signout': typeof authSignoutRoute
   '/verification': typeof authVerificationRoute
+  '/dashboard-customize': typeof appdashboardDashboardCustomizeRoute
   '/employee-dashboard': typeof appdashboardEmployeeDashboardRoute
   '/executive-dashboard': typeof appdashboardExecutiveDashboardRoute
   '/manager-dashboard': typeof appdashboardManagerDashboardRoute
@@ -219,6 +228,7 @@ export interface FileRoutesById {
   '/(auth)/signin': typeof authSigninRoute
   '/(auth)/signout': typeof authSignoutRoute
   '/(auth)/verification': typeof authVerificationRoute
+  '/(app)/(dashboard)/dashboard-customize': typeof appdashboardDashboardCustomizeRoute
   '/(app)/(dashboard)/employee-dashboard': typeof appdashboardEmployeeDashboardRoute
   '/(app)/(dashboard)/executive-dashboard': typeof appdashboardExecutiveDashboardRoute
   '/(app)/(dashboard)/manager-dashboard': typeof appdashboardManagerDashboardRoute
@@ -246,6 +256,7 @@ export interface FileRouteTypes {
     | '/signin'
     | '/signout'
     | '/verification'
+    | '/dashboard-customize'
     | '/employee-dashboard'
     | '/executive-dashboard'
     | '/manager-dashboard'
@@ -271,6 +282,7 @@ export interface FileRouteTypes {
     | '/signin'
     | '/signout'
     | '/verification'
+    | '/dashboard-customize'
     | '/employee-dashboard'
     | '/executive-dashboard'
     | '/manager-dashboard'
@@ -297,6 +309,7 @@ export interface FileRouteTypes {
     | '/(auth)/signin'
     | '/(auth)/signout'
     | '/(auth)/verification'
+    | '/(app)/(dashboard)/dashboard-customize'
     | '/(app)/(dashboard)/employee-dashboard'
     | '/(app)/(dashboard)/executive-dashboard'
     | '/(app)/(dashboard)/manager-dashboard'
@@ -368,6 +381,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof appdashboardIndexRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/(dashboard)/dashboard-customize': {
+      id: '/(app)/(dashboard)/dashboard-customize'
+      path: '/dashboard-customize'
+      fullPath: '/dashboard-customize'
+      preLoaderRoute: typeof appdashboardDashboardCustomizeRouteImport
       parentRoute: typeof appRouteRoute
     }
     '/(app)/(dashboard)/employee-dashboard': {
@@ -500,6 +520,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface appRouteRouteChildren {
+  appdashboardDashboardCustomizeRoute: typeof appdashboardDashboardCustomizeRoute
   appdashboardEmployeeDashboardRoute: typeof appdashboardEmployeeDashboardRoute
   appdashboardExecutiveDashboardRoute: typeof appdashboardExecutiveDashboardRoute
   appdashboardManagerDashboardRoute: typeof appdashboardManagerDashboardRoute
@@ -522,6 +543,7 @@ interface appRouteRouteChildren {
 }
 
 const appRouteRouteChildren: appRouteRouteChildren = {
+  appdashboardDashboardCustomizeRoute: appdashboardDashboardCustomizeRoute,
   appdashboardEmployeeDashboardRoute: appdashboardEmployeeDashboardRoute,
   appdashboardExecutiveDashboardRoute: appdashboardExecutiveDashboardRoute,
   appdashboardManagerDashboardRoute: appdashboardManagerDashboardRoute,
