@@ -14,9 +14,21 @@ import { m } from '@/i18n/paraglide/messages'
 export const dashboardMenu = [
   {
     key: '/dashboard',
-    url: '.',
+    url: '/',
     icon: IconLayoutDashboard,
     title: m.app_layout_nav_dashboard,
+    items: [
+      {
+        key: 'dashboard-home',
+        title: m.app_layout_nav_dashboard,
+        url: '/',
+      },
+      {
+        key: 'dashboard-widget',
+        title: m.app_layout_nav_widget,
+        url: '/dashboard-customize',
+      },
+    ],
   },
 ]
 
