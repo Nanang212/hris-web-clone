@@ -1,4 +1,4 @@
-import { ExecutiveDashboardPage } from '@/features/dashboard/pages/executive-dashboard-page'
+import { ExecutiveDashboardPage } from '@/features/dashboard/executive/executive-dashboard-page'
 import { createFileRoute } from '@tanstack/react-router'
 import { fetchDashboard } from '@/features/dashboard/api'
 import { DashboardLoading, DashboardError } from '@/features/dashboard/components/dashboard-feedback'

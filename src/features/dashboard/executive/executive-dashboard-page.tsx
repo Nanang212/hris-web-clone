@@ -4,13 +4,13 @@ import {
   IconUsers,
   IconWallet,
 } from '@tabler/icons-react'
-import { ExecutiveAttention } from '@/features/dashboard/components/executive-attention'
+import { ExecutiveAttention } from './components/executive-attention'
 import {
   HeadcountGrowthChart,
   OrgDistributionDonut,
   WorkforceMovementExecutive,
   WorkforceRisk,
-} from '@/features/dashboard/components/executive-charts-cards'
+} from './components/executive-charts-cards'
 import { StatCard } from '@/features/dashboard/components/stat-card'
 import { m } from '@/i18n/paraglide/messages'
 
@@ -43,7 +43,7 @@ interface ExecutiveDashboardData {
   highlight?: string
 }
 
-export function ExecutiveDashboardPage({ data }: { data: ExecutiveDashboardData }) {
+export function ExecutiveDashboardPage({ data }: { data: ExecutiveDashboardData | undefined }) {
   if (!data) {
     return (
       <div className='flex min-h-125 flex-col items-center justify-center gap-3 p-8 text-center'>

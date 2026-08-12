@@ -4,14 +4,14 @@ import {
   IconCash,
   IconCircleCheck,
 } from '@tabler/icons-react'
-import { AttendanceDonutChart } from '@/features/dashboard/components/attendance-donut-chart'
-import { CheckInBanner } from '@/features/dashboard/components/checkin-banner'
+import { AttendanceDonutChart } from './components/attendance-donut-chart'
+import { CheckInBanner } from './components/checkin-banner'
 import {
   MyDocuments,
   PayrollTax,
   UpcomingEvents,
-} from '@/features/dashboard/components/employee-info-cards'
-import { MyRequestCenter } from '@/features/dashboard/components/my-request-center'
+} from './components/employee-info-cards'
+import { MyRequestCenter } from './components/my-request-center'
 import { StatCard } from '@/features/dashboard/components/stat-card'
 import { m } from '@/i18n/paraglide/messages'
 
@@ -43,7 +43,7 @@ interface EmployeeDashboardData {
   announcement?: { tag: string; title: string; summary: string; readTime: string }
 }
 
-export function EmployeeDashboardPage({ data }: { data: EmployeeDashboardData }) {
+export function EmployeeDashboardPage({ data }: { data: EmployeeDashboardData | undefined }) {
   if (!data) {
     return (
       <div className='flex min-h-125 flex-col items-center justify-center gap-3 p-8 text-center'>
