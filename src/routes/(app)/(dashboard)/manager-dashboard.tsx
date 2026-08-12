@@ -1,4 +1,4 @@
-import { ManagerDashboardPage } from '@/features/dashboard/pages/manager-dashboard-page'
+import { ManagerDashboardPage } from '@/features/dashboard/manager/manager-dashboard-page'
 import { createFileRoute } from '@tanstack/react-router'
 import { fetchDashboard } from '@/features/dashboard/api'
 import { DashboardLoading, DashboardError } from '@/features/dashboard/components/dashboard-feedback'

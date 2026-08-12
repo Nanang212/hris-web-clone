@@ -96,10 +96,10 @@ export async function fetchDashboard(req: DashboardQueryRequest) {
           leavePlanned: 2,
           leaveSick: 1,
           approvalQueue: [
-            { id: 'q-1', label: 'Leave requests', subLabel: '3 employees', count: 3, variant: 'info' },
-            { id: 'q-2', label: 'Attendance correction', subLabel: '2 employees', count: 2, variant: 'warning' },
-            { id: 'q-3', label: 'Overtime requests', subLabel: '2 employees', count: 2, variant: 'danger' },
-            { id: 'q-4', label: 'Claim approvals', subLabel: '2 employees', count: 2, variant: 'success' }
+            { id: 'q-1', label: 'Leave requests', subLabel: '3 employees', count: 3, variant: 'info' as const },
+            { id: 'q-2', label: 'Attendance correction', subLabel: '2 employees', count: 2, variant: 'warning' as const },
+            { id: 'q-3', label: 'Overtime requests', subLabel: '2 employees', count: 2, variant: 'danger' as const },
+            { id: 'q-4', label: 'Claim approvals', subLabel: '2 employees', count: 2, variant: 'success' as const }
           ],
           contractProbation: [
             { id: 'cp-1', label: 'Contracts expiring', count: '2', countColor: 'text-amber-600 dark:text-amber-400', color: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300' },
@@ -131,10 +131,10 @@ export async function fetchDashboard(req: DashboardQueryRequest) {
           turnover: 3.8,
           turnoverChange: -0.6,
           attention: [
-            { id: 'att-1', label: 'Turnover hotspots', subLabel: '2 departments above threshold', count: 2, variant: 'danger' },
-            { id: 'att-2', label: 'Critical vacancies', subLabel: '7 open positions', count: 7, variant: 'warning' },
-            { id: 'att-3', label: 'Compliance alerts', subLabel: '14 open HR items', count: 14, variant: 'info' },
-            { id: 'att-4', label: 'Overtime concentration', subLabel: '3 teams above trend', count: 3, variant: 'success' }
+            { id: 'att-1', label: 'Turnover hotspots', subLabel: '2 departments above threshold', count: 2, variant: 'danger' as const },
+            { id: 'att-2', label: 'Critical vacancies', subLabel: '7 open positions', count: 7, variant: 'warning' as const },
+            { id: 'att-3', label: 'Compliance alerts', subLabel: '14 open HR items', count: 14, variant: 'info' as const },
+            { id: 'att-4', label: 'Overtime concentration', subLabel: '3 teams above trend', count: 3, variant: 'success' as const }
           ],
           workforceMovement: [
             { id: 'wfm-1', label: 'New hires', count: '86', countColor: 'text-emerald-600 dark:text-emerald-400', color: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' },

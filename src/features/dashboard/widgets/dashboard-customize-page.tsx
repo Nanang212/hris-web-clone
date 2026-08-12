@@ -2,13 +2,14 @@
 import { useState } from 'react'
 
 import { m } from '@/i18n/paraglide/messages'
-import type { CanvasWidget } from '@/features/dashboard/components/widget-canvas'
-import { WidgetCanvas } from '@/features/dashboard/components/widget-canvas'
-import type { CatalogWidget } from '@/features/dashboard/components/widget-catalog'
-import { WidgetCatalog } from '@/features/dashboard/components/widget-catalog'
-import type { SelectedWidget, WidgetConfig } from '@/features/dashboard/components/widget-config-panel'
-import { WidgetConfigPanel } from '@/features/dashboard/components/widget-config-panel'
-import { WidgetConfigModal } from '@/features/dashboard/components/widget-config-modal'
+import type { CanvasWidget } from './components/widget-canvas'
+import { WidgetCanvas } from './components/widget-canvas'
+import type { CatalogWidget } from './components/widget-catalog'
+import { WidgetCatalog } from './components/widget-catalog'
+import type { SelectedWidget, WidgetConfig } from './components/widget-config-panel'
+import { WidgetConfigPanel } from './components/widget-config-panel'
+import { WidgetConfigModal } from './components/widget-config-modal'
+import type { WidgetConfigModalResult } from './components/widget-config-modal'
 
 // ─── Initial catalog data ────────────────────────────────────────────────────
 
@@ -290,7 +291,7 @@ export function DashboardCustomizePage() {
         <WidgetConfigModal
           widget={configuringWidget}
           onClose={() => setConfiguringWidget(null)}
-          onSave={(result) => {
+          onSave={(result: WidgetConfigModalResult) => {
             setCanvasWidgets((prev) =>
               prev.map((w) =>
                 w.id === result.widgetId

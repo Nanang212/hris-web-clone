@@ -3,7 +3,7 @@ import { IconX } from '@tabler/icons-react'
 import { useState } from 'react'
 
 import { m } from '@/i18n/paraglide/messages'
-import type { CanvasWidget } from '@/features/dashboard/components/widget-canvas'
+import type { CanvasWidget } from './widget-canvas'
 
 // ─── Mock preview data per widget ────────────────────────────────────────────
 
