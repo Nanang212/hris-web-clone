@@ -1,15 +1,17 @@
-// dashboard-customize-page.tsx
 import { useState } from 'react'
 
 import { m } from '@/i18n/paraglide/messages'
-import type { CanvasWidget } from './components/widget-canvas'
-import { WidgetCanvas } from './components/widget-canvas'
-import type { CatalogWidget } from './components/widget-catalog'
-import { WidgetCatalog } from './components/widget-catalog'
-import type { SelectedWidget, WidgetConfig } from './components/widget-config-panel'
-import { WidgetConfigPanel } from './components/widget-config-panel'
-import { WidgetConfigModal } from './components/widget-config-modal'
-import type { WidgetConfigModalResult } from './components/widget-config-modal'
+import { AppMain } from '@/shared/components/app-layout/app-main'
+import { Button } from '@/shared/components/ui/button'
+
+import { WidgetCanvas, type CanvasWidget } from './components/widget-canvas'
+import { WidgetCatalog, type CatalogWidget } from './components/widget-catalog'
+import { WidgetConfigModal, type WidgetConfigModalResult } from './components/widget-config-modal'
+import {
+  WidgetConfigPanel,
+  type SelectedWidget,
+  type WidgetConfig,
+} from './components/widget-config-panel'
 
 // ─── Initial catalog data ────────────────────────────────────────────────────
 
@@ -82,11 +84,46 @@ const INITIAL_CATALOG: CatalogWidget[] = [
 // ─── Initial canvas data ─────────────────────────────────────────────────────
 
 const INITIAL_CANVAS: CanvasWidget[] = [
-  { id: 'canvas-att', name: 'Attendance Summary', size: 'L', dateRange: 'This month', active: true, colSpan: 1 },
-  { id: 'canvas-leave', name: 'Leave Summary', size: 'M', dateRange: 'This year', active: true, colSpan: 1 },
-  { id: 'canvas-ann', name: 'Announcement', size: 'M', dateRange: 'Latest 5', active: true, colSpan: 1 },
-  { id: 'canvas-cal', name: 'Calendar', size: 'S', dateRange: 'This month', active: true, colSpan: 1 },
-  { id: 'canvas-kpi', name: 'KPI Summary', size: 'L', dateRange: 'Headcount, attendance, leave', active: true, colSpan: 2 },
+  {
+    id: 'canvas-att',
+    name: 'Attendance Summary',
+    size: 'L',
+    dateRange: 'This month',
+    active: true,
+    colSpan: 1,
+  },
+  {
+    id: 'canvas-leave',
+    name: 'Leave Summary',
+    size: 'M',
+    dateRange: 'This year',
+    active: true,
+    colSpan: 1,
+  },
+  {
+    id: 'canvas-ann',
+    name: 'Announcement',
+    size: 'M',
+    dateRange: 'Latest 5',
+    active: true,
+    colSpan: 1,
+  },
+  {
+    id: 'canvas-cal',
+    name: 'Calendar',
+    size: 'S',
+    dateRange: 'This month',
+    active: true,
+    colSpan: 1,
+  },
+  {
+    id: 'canvas-kpi',
+    name: 'KPI Summary',
+    size: 'L',
+    dateRange: 'Headcount, attendance, leave',
+    active: true,
+    colSpan: 2,
+  },
 ]
 
 // ─── Selected widget preview map ─────────────────────────────────────────────
@@ -133,8 +170,7 @@ function buildSelectedWidget(canvasId: string): SelectedWidget {
       previewValue: '156',
       previewSub: '+5.2% vs last month',
       previewBadge: 'Growing',
-      previewBadgeColor:
-        'bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300',
+      previewBadgeColor: 'bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300',
     },
   }
   return map[canvasId] ?? { id: canvasId, name: canvasId }
@@ -167,9 +203,7 @@ export function DashboardCustomizePage() {
   const handleAddWidget = () => {
     const notActive = catalog.find((w) => !w.active)
     if (notActive) {
-      setCatalog((prev) =>
-        prev.map((w) => (w.id === notActive.id ? { ...w, active: true } : w)),
-      )
+      setCatalog((prev) => prev.map((w) => (w.id === notActive.id ? { ...w, active: true } : w)))
       setCanvasWidgets((prev) => [
         ...prev,
         {
@@ -210,52 +244,44 @@ export function DashboardCustomizePage() {
      * Outer wrapper: full height of the AppMain area, flex column, no extra padding
      * (AppMain itself already adds p-4 and bg-background)
      */
-    <div className='flex h-[calc(100vh-64px-2rem)] flex-col gap-4 overflow-hidden pb-1'>
-
-      {/* ── Page header ───────────────────────────────────────────────────────── */}
-      <div className='flex shrink-0 items-start justify-between'>
-        <div>
-          <p className='text-xs text-muted-foreground'>
-            {m.app_layout_nav_dashboard()} / {m.app_layout_nav_widget()}
-          </p>
-          <h1 className='mt-0.5 text-2xl font-bold tracking-tight text-foreground'>
-            {m.dashboard_widget_customize_title()}
-          </h1>
-          <p className='mt-0.5 text-sm text-muted-foreground'>
-            {m.dashboard_widget_customize_subtitle()}
-          </p>
-        </div>
-
-        <div className='flex shrink-0 items-center gap-2'>
-          <button
+    <AppMain
+      breadcrumbs={[
+        { to: '/', label: m.app_layout_nav_dashboard() },
+        { to: '.', label: m.app_layout_nav_widget() },
+      ]}
+      title={m.dashboard_widget_customize_title()}
+      subtitle={m.dashboard_widget_customize_subtitle()}
+      actions={
+        <>
+          <Button
             id='dashboard-customize-reset'
+            variant='outline'
             type='button'
+            size='sm'
             onClick={() => {
               setCatalog(INITIAL_CATALOG)
               setCanvasWidgets(INITIAL_CANVAS)
               setSelectedCanvasId(null)
             }}
-            className='rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted'
           >
             {m.dashboard_widget_reset()}
-          </button>
-          <button
-            id='dashboard-customize-save'
-            type='button'
-            className='rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90'
-          >
+          </Button>
+          <Button id='dashboard-customize-save' type='button' size='sm'>
             {m.dashboard_widget_save_layout()}
-          </button>
-        </div>
-      </div>
-
+          </Button>
+        </>
+      }
+    >
       {/* ── 3-column card layout ──────────────────────────────────────────────── */}
       <div className='flex min-h-0 flex-1 gap-4'>
-
         {/* Left card — Widget Catalog */}
-        <div className='flex w-[270px] shrink-0 flex-col overflow-hidden rounded-2xl border border-border bg-background shadow-sm'>
+        <div className='flex w-67.5 shrink-0 flex-col overflow-hidden rounded-2xl border border-border bg-background shadow-sm'>
           <div className='flex-1 overflow-y-auto p-4'>
-            <WidgetCatalog widgets={catalog} onToggle={handleCatalogToggle} onAdd={handleAddToCatalog} />
+            <WidgetCatalog
+              widgets={catalog}
+              onToggle={handleCatalogToggle}
+              onAdd={handleAddToCatalog}
+            />
           </div>
         </div>
 
@@ -274,7 +300,7 @@ export function DashboardCustomizePage() {
         </div>
 
         {/* Right card — Selected Widget Config */}
-        <div className='flex w-[240px] shrink-0 flex-col overflow-hidden rounded-2xl border border-border bg-background shadow-sm'>
+        <div className='flex w-60 shrink-0 flex-col overflow-hidden rounded-2xl border border-border bg-background shadow-sm'>
           <div className='flex-1 overflow-y-auto p-4'>
             <WidgetConfigPanel
               selected={selectedWidget}
@@ -283,7 +309,6 @@ export function DashboardCustomizePage() {
             />
           </div>
         </div>
-
       </div>
 
       {/* ── Configure Widget Modal ── */}
@@ -302,6 +327,6 @@ export function DashboardCustomizePage() {
           }}
         />
       )}
-    </div>
+    </AppMain>
   )
 }

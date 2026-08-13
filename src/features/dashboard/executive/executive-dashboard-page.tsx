@@ -1,19 +1,16 @@
-import {
-  IconArrowUpRight,
-  IconTrendingDown,
-  IconUsers,
-  IconWallet,
-} from '@tabler/icons-react'
-import { ExecutiveAttention } from './components/executive-attention'
+import { IconArrowUpRight, IconTrendingDown, IconUsers, IconWallet } from '@tabler/icons-react'
+
+import { StatCard } from '@/features/dashboard/components/stat-card'
+import { ExecutiveAttention } from '@/features/dashboard/executive/components/executive-attention'
 import {
   HeadcountGrowthChart,
   OrgDistributionDonut,
   WorkforceMovementExecutive,
   WorkforceRisk,
-} from './components/executive-charts-cards'
-import { StatCard } from '@/features/dashboard/components/stat-card'
+} from '@/features/dashboard/executive/components/executive-charts-cards'
 import { m } from '@/i18n/paraglide/messages'
-
+import { AppMain } from '@/shared/components/app-layout/app-main'
+import { Button } from '@/shared/components/ui/button'
 
 interface ExecutiveDashboardData {
   headcount: number
@@ -43,43 +40,31 @@ interface ExecutiveDashboardData {
   highlight?: string
 }
 
-export function ExecutiveDashboardPage({ data }: { data: ExecutiveDashboardData | undefined }) {
+export function ExecutiveDashboardPage({
+  data,
+}: Readonly<{ data: ExecutiveDashboardData | undefined }>) {
   if (!data) {
-    return (
-      <div className='flex min-h-125 flex-col items-center justify-center gap-3 p-8 text-center'>
-        <p className='text-sm text-muted-foreground'>No dashboard data found.</p>
-      </div>
-    )
+    return <AppMain notFound />
   }
 
   return (
-    <div className='flex flex-col gap-5 p-5 lg:p-6'>
-      {/* Header */}
-      <div className='flex flex-col justify-between gap-3 sm:flex-row sm:items-start'>
-        <div>
-          <p className='text-xs text-muted-foreground'>Dashboard / Executive</p>
-          <h2 className='text-2xl font-bold tracking-tight'>{m.dashboard_executive_title()}</h2>
-          <p className='mt-1 text-sm text-muted-foreground'>{m.dashboard_executive_subtitle()}</p>
-        </div>
-        <div className='flex items-center gap-2'>
-          <span className='rounded-lg border border-border px-3 py-1.5 text-xs font-medium'>
+    <AppMain
+      breadcrumbs={[
+        { to: '/', label: 'Dashboard' },
+        { to: '.', label: 'Executive' },
+      ]}
+      title={m.dashboard_executive_title()}
+      subtitle={m.dashboard_executive_subtitle()}
+      actions={
+        <>
+          <Button size='sm' variant='outline'>
             16 May 2025
-          </span>
-          <button
-            type='button'
-            className='rounded-lg border border-border px-3 py-1.5 text-xs font-medium transition-colors hover:bg-muted'
-          >
-            {m.dashboard_all_companies()}
-          </button>
-          <button
-            type='button'
-            className='rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground transition-colors hover:bg-primary/90'
-          >
-            {m.dashboard_customize()}
-          </button>
-        </div>
-      </div>
-
+          </Button>
+          <Button size='sm'>{m.dashboard_all_companies()}</Button>
+          <Button size='sm'>{m.dashboard_customize()}</Button>
+        </>
+      }
+    >
       {/* Status Banner */}
       <div className='flex items-center gap-3 rounded-2xl bg-emerald-600 px-5 py-3.5 text-white shadow-sm'>
         <div className='flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/20'>
@@ -170,6 +155,6 @@ export function ExecutiveDashboardPage({ data }: { data: ExecutiveDashboardData 
           </button>
         </div>
       )}
-    </div>
+    </AppMain>
   )
 }

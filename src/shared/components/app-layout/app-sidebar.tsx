@@ -45,21 +45,19 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {dashboardMenu.map((item) => {
-                const hasSubItems = 'items' in item && item.items.length > 0
+                const hasSubItems = 'items' in item && item.items?.length
                 const isActive = hasSubItems
-                  ? item.items.some(
-                      (subItem) =>
-                        pathname === subItem.url ||
-                        pathname.startsWith(subItem.url + '/'),
+                  ? item.items?.some(
+                      (subItem) => pathname === subItem.to || pathname.startsWith(subItem.to + '/'),
                     )
-                  : pathname === item.url || pathname.startsWith(item.url + '/')
+                  : pathname === item.to || pathname.startsWith(item.to + '/')
 
                 if (!hasSubItems) {
                   return (
                     <SidebarMenuItem key={item.key}>
                       <SidebarMenuButton asChild isActive={isActive}>
-                        <Link to={item.url}>
-                          <item.icon size={24} stroke={1.75} />
+                        <Link to={item.to}>
+                          {item.icon && <item.icon size={24} stroke={1.75} />}
                           <span>{item.title()}</span>
                         </Link>
                       </SidebarMenuButton>
@@ -77,7 +75,7 @@ export function AppSidebar() {
                     <SidebarMenuItem>
                       <CollapsibleTrigger asChild>
                         <SidebarMenuButton isActive={isActive}>
-                          <item.icon size={24} stroke={1.75} />
+                          {item.icon && <item.icon size={24} stroke={1.75} />}
                           <span>{item.title()}</span>
                           <IconChevronRight
                             size={16}
@@ -87,14 +85,13 @@ export function AppSidebar() {
                       </CollapsibleTrigger>
                       <CollapsibleContent>
                         <SidebarMenuSub>
-                          {item.items.map((subItem) => {
+                          {item.items?.map((subItem) => {
                             const isSubActive =
-                              pathname === subItem.url ||
-                              pathname.startsWith(subItem.url + '/')
+                              pathname === subItem.to || pathname.startsWith(subItem.to + '/')
                             return (
                               <SidebarMenuSubItem key={subItem.key}>
                                 <SidebarMenuSubButton asChild isActive={isSubActive}>
-                                  <Link to={subItem.url}>
+                                  <Link to={subItem.to}>
                                     <span>{subItem.title()}</span>
                                   </Link>
                                 </SidebarMenuSubButton>
@@ -120,14 +117,14 @@ export function AppSidebar() {
                 const hasSubItems = 'items' in item && item.items.length > 0
 
                 const isActive = hasSubItems
-                  ? item.items.some((subItem) => pathname.startsWith(subItem.url))
-                  : pathname === item.url || pathname.startsWith(item.url + '/')
+                  ? item.items.some((subItem) => pathname.startsWith(subItem.to))
+                  : pathname === item.to || pathname.startsWith(item.to + '/')
 
                 if (!hasSubItems) {
                   return (
                     <SidebarMenuItem key={item.key}>
                       <SidebarMenuButton asChild isActive={isActive}>
-                        <Link to={item.url}>
+                        <Link to={item.to}>
                           <item.icon size={24} stroke={1.75} />
                           <span>{item.title()}</span>
                         </Link>
@@ -157,11 +154,11 @@ export function AppSidebar() {
                       <CollapsibleContent>
                         <SidebarMenuSub>
                           {item.items.map((subItem) => {
-                            const isSubActive = pathname.startsWith(subItem.url)
+                            const isSubActive = pathname.startsWith(subItem.to)
                             return (
-                              <SidebarMenuSubItem key={subItem.url}>
+                              <SidebarMenuSubItem key={subItem.to}>
                                 <SidebarMenuSubButton asChild isActive={isSubActive}>
-                                  <Link to={subItem.url}>
+                                  <Link to={subItem.to}>
                                     <span>{subItem.title()}</span>
                                   </Link>
                                 </SidebarMenuSubButton>

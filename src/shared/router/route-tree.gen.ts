@@ -15,10 +15,6 @@ import { Route as authSigninRouteImport } from './../../routes/(auth)/signin'
 import { Route as authSignoutRouteImport } from './../../routes/(auth)/signout'
 import { Route as authVerificationRouteImport } from './../../routes/(auth)/verification'
 import { Route as appdashboardIndexRouteImport } from './../../routes/(app)/(dashboard)/index'
-import { Route as appdashboardDashboardCustomizeRouteImport } from './../../routes/(app)/(dashboard)/dashboard-customize'
-import { Route as appdashboardEmployeeDashboardRouteImport } from './../../routes/(app)/(dashboard)/employee-dashboard'
-import { Route as appdashboardExecutiveDashboardRouteImport } from './../../routes/(app)/(dashboard)/executive-dashboard'
-import { Route as appdashboardManagerDashboardRouteImport } from './../../routes/(app)/(dashboard)/manager-dashboard'
 import { Route as appApprovalIndexRouteImport } from './../../routes/(app)/approval/index'
 import { Route as appAttendanceIndexRouteImport } from './../../routes/(app)/attendance/index'
 import { Route as appLeaveIndexRouteImport } from './../../routes/(app)/leave/index'
@@ -26,6 +22,11 @@ import { Route as appPayrollIndexRouteImport } from './../../routes/(app)/payrol
 import { Route as appPerformanceIndexRouteImport } from './../../routes/(app)/performance/index'
 import { Route as appReportIndexRouteImport } from './../../routes/(app)/report/index'
 import { Route as appSettingsIndexRouteImport } from './../../routes/(app)/settings/index'
+import { Route as appdashboardDashboardCustomizeRouteImport } from './../../routes/(app)/(dashboard)/dashboard.customize'
+import { Route as appdashboardDashboardEmployeeRouteImport } from './../../routes/(app)/(dashboard)/dashboard.employee'
+import { Route as appdashboardDashboardExecutiveRouteImport } from './../../routes/(app)/(dashboard)/dashboard.executive'
+import { Route as appdashboardDashboardHrRouteImport } from './../../routes/(app)/(dashboard)/dashboard.hr'
+import { Route as appdashboardDashboardManagerRouteImport } from './../../routes/(app)/(dashboard)/dashboard.manager'
 import { Route as appCompanyDocumentIndexRouteImport } from './../../routes/(app)/company/document/index'
 import { Route as appCompanyEmployeeIndexRouteImport } from './../../routes/(app)/company/employee/index'
 import { Route as appCompanyEmployeeIdRouteImport } from './../../routes/(app)/company/employee/$id'
@@ -72,30 +73,6 @@ const appdashboardIndexRoute = appdashboardIndexRouteImport.update({
   path: '/',
   getParentRoute: () => appRouteRoute,
 } as any)
-const appdashboardDashboardCustomizeRoute =
-  appdashboardDashboardCustomizeRouteImport.update({
-    id: '/(dashboard)/dashboard-customize',
-    path: '/dashboard-customize',
-    getParentRoute: () => appRouteRoute,
-  } as any)
-const appdashboardEmployeeDashboardRoute =
-  appdashboardEmployeeDashboardRouteImport.update({
-    id: '/(dashboard)/employee-dashboard',
-    path: '/employee-dashboard',
-    getParentRoute: () => appRouteRoute,
-  } as any)
-const appdashboardExecutiveDashboardRoute =
-  appdashboardExecutiveDashboardRouteImport.update({
-    id: '/(dashboard)/executive-dashboard',
-    path: '/executive-dashboard',
-    getParentRoute: () => appRouteRoute,
-  } as any)
-const appdashboardManagerDashboardRoute =
-  appdashboardManagerDashboardRouteImport.update({
-    id: '/(dashboard)/manager-dashboard',
-    path: '/manager-dashboard',
-    getParentRoute: () => appRouteRoute,
-  } as any)
 const appApprovalIndexRoute = appApprovalIndexRouteImport.update({
   id: '/approval/',
   path: '/approval/',
@@ -131,6 +108,35 @@ const appSettingsIndexRoute = appSettingsIndexRouteImport.update({
   path: '/settings/',
   getParentRoute: () => appRouteRoute,
 } as any)
+const appdashboardDashboardCustomizeRoute =
+  appdashboardDashboardCustomizeRouteImport.update({
+    id: '/(dashboard)/dashboard/customize',
+    path: '/dashboard/customize',
+    getParentRoute: () => appRouteRoute,
+  } as any)
+const appdashboardDashboardEmployeeRoute =
+  appdashboardDashboardEmployeeRouteImport.update({
+    id: '/(dashboard)/dashboard/employee',
+    path: '/dashboard/employee',
+    getParentRoute: () => appRouteRoute,
+  } as any)
+const appdashboardDashboardExecutiveRoute =
+  appdashboardDashboardExecutiveRouteImport.update({
+    id: '/(dashboard)/dashboard/executive',
+    path: '/dashboard/executive',
+    getParentRoute: () => appRouteRoute,
+  } as any)
+const appdashboardDashboardHrRoute = appdashboardDashboardHrRouteImport.update({
+  id: '/(dashboard)/dashboard/hr',
+  path: '/dashboard/hr',
+  getParentRoute: () => appRouteRoute,
+} as any)
+const appdashboardDashboardManagerRoute =
+  appdashboardDashboardManagerRouteImport.update({
+    id: '/(dashboard)/dashboard/manager',
+    path: '/dashboard/manager',
+    getParentRoute: () => appRouteRoute,
+  } as any)
 const appCompanyDocumentIndexRoute = appCompanyDocumentIndexRouteImport.update({
   id: '/company/document/',
   path: '/company/document/',
@@ -229,10 +235,6 @@ export interface FileRoutesByFullPath {
   '/signin': typeof authSigninRoute
   '/signout': typeof authSignoutRoute
   '/verification': typeof authVerificationRoute
-  '/dashboard-customize': typeof appdashboardDashboardCustomizeRoute
-  '/employee-dashboard': typeof appdashboardEmployeeDashboardRoute
-  '/executive-dashboard': typeof appdashboardExecutiveDashboardRoute
-  '/manager-dashboard': typeof appdashboardManagerDashboardRoute
   '/': typeof appdashboardIndexRoute
   '/approval/': typeof appApprovalIndexRoute
   '/attendance/': typeof appAttendanceIndexRoute
@@ -241,6 +243,11 @@ export interface FileRoutesByFullPath {
   '/performance/': typeof appPerformanceIndexRoute
   '/report/': typeof appReportIndexRoute
   '/settings/': typeof appSettingsIndexRoute
+  '/dashboard/customize': typeof appdashboardDashboardCustomizeRoute
+  '/dashboard/employee': typeof appdashboardDashboardEmployeeRoute
+  '/dashboard/executive': typeof appdashboardDashboardExecutiveRoute
+  '/dashboard/hr': typeof appdashboardDashboardHrRoute
+  '/dashboard/manager': typeof appdashboardDashboardManagerRoute
   '/company/employee/$id': typeof appCompanyEmployeeIdRoute
   '/company/employee/new': typeof appCompanyEmployeeNewRoute
   '/company/employee/update': typeof appCompanyEmployeeUpdateRoute
@@ -263,10 +270,6 @@ export interface FileRoutesByTo {
   '/signin': typeof authSigninRoute
   '/signout': typeof authSignoutRoute
   '/verification': typeof authVerificationRoute
-  '/dashboard-customize': typeof appdashboardDashboardCustomizeRoute
-  '/employee-dashboard': typeof appdashboardEmployeeDashboardRoute
-  '/executive-dashboard': typeof appdashboardExecutiveDashboardRoute
-  '/manager-dashboard': typeof appdashboardManagerDashboardRoute
   '/': typeof appdashboardIndexRoute
   '/approval': typeof appApprovalIndexRoute
   '/attendance': typeof appAttendanceIndexRoute
@@ -275,6 +278,11 @@ export interface FileRoutesByTo {
   '/performance': typeof appPerformanceIndexRoute
   '/report': typeof appReportIndexRoute
   '/settings': typeof appSettingsIndexRoute
+  '/dashboard/customize': typeof appdashboardDashboardCustomizeRoute
+  '/dashboard/employee': typeof appdashboardDashboardEmployeeRoute
+  '/dashboard/executive': typeof appdashboardDashboardExecutiveRoute
+  '/dashboard/hr': typeof appdashboardDashboardHrRoute
+  '/dashboard/manager': typeof appdashboardDashboardManagerRoute
   '/company/employee/$id': typeof appCompanyEmployeeIdRoute
   '/company/employee/new': typeof appCompanyEmployeeNewRoute
   '/company/employee/update': typeof appCompanyEmployeeUpdateRoute
@@ -299,10 +307,6 @@ export interface FileRoutesById {
   '/(auth)/signin': typeof authSigninRoute
   '/(auth)/signout': typeof authSignoutRoute
   '/(auth)/verification': typeof authVerificationRoute
-  '/(app)/(dashboard)/dashboard-customize': typeof appdashboardDashboardCustomizeRoute
-  '/(app)/(dashboard)/employee-dashboard': typeof appdashboardEmployeeDashboardRoute
-  '/(app)/(dashboard)/executive-dashboard': typeof appdashboardExecutiveDashboardRoute
-  '/(app)/(dashboard)/manager-dashboard': typeof appdashboardManagerDashboardRoute
   '/(app)/(dashboard)/': typeof appdashboardIndexRoute
   '/(app)/approval/': typeof appApprovalIndexRoute
   '/(app)/attendance/': typeof appAttendanceIndexRoute
@@ -311,6 +315,11 @@ export interface FileRoutesById {
   '/(app)/performance/': typeof appPerformanceIndexRoute
   '/(app)/report/': typeof appReportIndexRoute
   '/(app)/settings/': typeof appSettingsIndexRoute
+  '/(app)/(dashboard)/dashboard/customize': typeof appdashboardDashboardCustomizeRoute
+  '/(app)/(dashboard)/dashboard/employee': typeof appdashboardDashboardEmployeeRoute
+  '/(app)/(dashboard)/dashboard/executive': typeof appdashboardDashboardExecutiveRoute
+  '/(app)/(dashboard)/dashboard/hr': typeof appdashboardDashboardHrRoute
+  '/(app)/(dashboard)/dashboard/manager': typeof appdashboardDashboardManagerRoute
   '/(app)/company/employee/$id': typeof appCompanyEmployeeIdRoute
   '/(app)/company/employee/new': typeof appCompanyEmployeeNewRoute
   '/(app)/company/employee/update': typeof appCompanyEmployeeUpdateRoute
@@ -335,10 +344,6 @@ export interface FileRouteTypes {
     | '/signin'
     | '/signout'
     | '/verification'
-    | '/dashboard-customize'
-    | '/employee-dashboard'
-    | '/executive-dashboard'
-    | '/manager-dashboard'
     | '/'
     | '/approval/'
     | '/attendance/'
@@ -347,6 +352,11 @@ export interface FileRouteTypes {
     | '/performance/'
     | '/report/'
     | '/settings/'
+    | '/dashboard/customize'
+    | '/dashboard/employee'
+    | '/dashboard/executive'
+    | '/dashboard/hr'
+    | '/dashboard/manager'
     | '/company/employee/$id'
     | '/company/employee/new'
     | '/company/employee/update'
@@ -369,10 +379,6 @@ export interface FileRouteTypes {
     | '/signin'
     | '/signout'
     | '/verification'
-    | '/dashboard-customize'
-    | '/employee-dashboard'
-    | '/executive-dashboard'
-    | '/manager-dashboard'
     | '/'
     | '/approval'
     | '/attendance'
@@ -381,6 +387,11 @@ export interface FileRouteTypes {
     | '/performance'
     | '/report'
     | '/settings'
+    | '/dashboard/customize'
+    | '/dashboard/employee'
+    | '/dashboard/executive'
+    | '/dashboard/hr'
+    | '/dashboard/manager'
     | '/company/employee/$id'
     | '/company/employee/new'
     | '/company/employee/update'
@@ -404,10 +415,6 @@ export interface FileRouteTypes {
     | '/(auth)/signin'
     | '/(auth)/signout'
     | '/(auth)/verification'
-    | '/(app)/(dashboard)/dashboard-customize'
-    | '/(app)/(dashboard)/employee-dashboard'
-    | '/(app)/(dashboard)/executive-dashboard'
-    | '/(app)/(dashboard)/manager-dashboard'
     | '/(app)/(dashboard)/'
     | '/(app)/approval/'
     | '/(app)/attendance/'
@@ -416,6 +423,11 @@ export interface FileRouteTypes {
     | '/(app)/performance/'
     | '/(app)/report/'
     | '/(app)/settings/'
+    | '/(app)/(dashboard)/dashboard/customize'
+    | '/(app)/(dashboard)/dashboard/employee'
+    | '/(app)/(dashboard)/dashboard/executive'
+    | '/(app)/(dashboard)/dashboard/hr'
+    | '/(app)/(dashboard)/dashboard/manager'
     | '/(app)/company/employee/$id'
     | '/(app)/company/employee/new'
     | '/(app)/company/employee/update'
@@ -486,34 +498,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof appdashboardIndexRouteImport
       parentRoute: typeof appRouteRoute
     }
-    '/(app)/(dashboard)/dashboard-customize': {
-      id: '/(app)/(dashboard)/dashboard-customize'
-      path: '/dashboard-customize'
-      fullPath: '/dashboard-customize'
-      preLoaderRoute: typeof appdashboardDashboardCustomizeRouteImport
-      parentRoute: typeof appRouteRoute
-    }
-    '/(app)/(dashboard)/employee-dashboard': {
-      id: '/(app)/(dashboard)/employee-dashboard'
-      path: '/employee-dashboard'
-      fullPath: '/employee-dashboard'
-      preLoaderRoute: typeof appdashboardEmployeeDashboardRouteImport
-      parentRoute: typeof appRouteRoute
-    }
-    '/(app)/(dashboard)/executive-dashboard': {
-      id: '/(app)/(dashboard)/executive-dashboard'
-      path: '/executive-dashboard'
-      fullPath: '/executive-dashboard'
-      preLoaderRoute: typeof appdashboardExecutiveDashboardRouteImport
-      parentRoute: typeof appRouteRoute
-    }
-    '/(app)/(dashboard)/manager-dashboard': {
-      id: '/(app)/(dashboard)/manager-dashboard'
-      path: '/manager-dashboard'
-      fullPath: '/manager-dashboard'
-      preLoaderRoute: typeof appdashboardManagerDashboardRouteImport
-      parentRoute: typeof appRouteRoute
-    }
     '/(app)/approval/': {
       id: '/(app)/approval/'
       path: '/approval'
@@ -561,6 +545,41 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings/'
       preLoaderRoute: typeof appSettingsIndexRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/(dashboard)/dashboard/customize': {
+      id: '/(app)/(dashboard)/dashboard/customize'
+      path: '/dashboard/customize'
+      fullPath: '/dashboard/customize'
+      preLoaderRoute: typeof appdashboardDashboardCustomizeRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/(dashboard)/dashboard/employee': {
+      id: '/(app)/(dashboard)/dashboard/employee'
+      path: '/dashboard/employee'
+      fullPath: '/dashboard/employee'
+      preLoaderRoute: typeof appdashboardDashboardEmployeeRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/(dashboard)/dashboard/executive': {
+      id: '/(app)/(dashboard)/dashboard/executive'
+      path: '/dashboard/executive'
+      fullPath: '/dashboard/executive'
+      preLoaderRoute: typeof appdashboardDashboardExecutiveRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/(dashboard)/dashboard/hr': {
+      id: '/(app)/(dashboard)/dashboard/hr'
+      path: '/dashboard/hr'
+      fullPath: '/dashboard/hr'
+      preLoaderRoute: typeof appdashboardDashboardHrRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/(dashboard)/dashboard/manager': {
+      id: '/(app)/(dashboard)/dashboard/manager'
+      path: '/dashboard/manager'
+      fullPath: '/dashboard/manager'
+      preLoaderRoute: typeof appdashboardDashboardManagerRouteImport
       parentRoute: typeof appRouteRoute
     }
     '/(app)/company/document/': {
@@ -679,10 +698,6 @@ declare module '@tanstack/react-router' {
 }
 
 interface appRouteRouteChildren {
-  appdashboardDashboardCustomizeRoute: typeof appdashboardDashboardCustomizeRoute
-  appdashboardEmployeeDashboardRoute: typeof appdashboardEmployeeDashboardRoute
-  appdashboardExecutiveDashboardRoute: typeof appdashboardExecutiveDashboardRoute
-  appdashboardManagerDashboardRoute: typeof appdashboardManagerDashboardRoute
   appdashboardIndexRoute: typeof appdashboardIndexRoute
   appApprovalIndexRoute: typeof appApprovalIndexRoute
   appAttendanceIndexRoute: typeof appAttendanceIndexRoute
@@ -691,6 +706,11 @@ interface appRouteRouteChildren {
   appPerformanceIndexRoute: typeof appPerformanceIndexRoute
   appReportIndexRoute: typeof appReportIndexRoute
   appSettingsIndexRoute: typeof appSettingsIndexRoute
+  appdashboardDashboardCustomizeRoute: typeof appdashboardDashboardCustomizeRoute
+  appdashboardDashboardEmployeeRoute: typeof appdashboardDashboardEmployeeRoute
+  appdashboardDashboardExecutiveRoute: typeof appdashboardDashboardExecutiveRoute
+  appdashboardDashboardHrRoute: typeof appdashboardDashboardHrRoute
+  appdashboardDashboardManagerRoute: typeof appdashboardDashboardManagerRoute
   appCompanyEmployeeIdRoute: typeof appCompanyEmployeeIdRoute
   appCompanyEmployeeNewRoute: typeof appCompanyEmployeeNewRoute
   appCompanyEmployeeUpdateRoute: typeof appCompanyEmployeeUpdateRoute
@@ -710,10 +730,6 @@ interface appRouteRouteChildren {
 }
 
 const appRouteRouteChildren: appRouteRouteChildren = {
-  appdashboardDashboardCustomizeRoute: appdashboardDashboardCustomizeRoute,
-  appdashboardEmployeeDashboardRoute: appdashboardEmployeeDashboardRoute,
-  appdashboardExecutiveDashboardRoute: appdashboardExecutiveDashboardRoute,
-  appdashboardManagerDashboardRoute: appdashboardManagerDashboardRoute,
   appdashboardIndexRoute: appdashboardIndexRoute,
   appApprovalIndexRoute: appApprovalIndexRoute,
   appAttendanceIndexRoute: appAttendanceIndexRoute,
@@ -722,6 +738,11 @@ const appRouteRouteChildren: appRouteRouteChildren = {
   appPerformanceIndexRoute: appPerformanceIndexRoute,
   appReportIndexRoute: appReportIndexRoute,
   appSettingsIndexRoute: appSettingsIndexRoute,
+  appdashboardDashboardCustomizeRoute: appdashboardDashboardCustomizeRoute,
+  appdashboardDashboardEmployeeRoute: appdashboardDashboardEmployeeRoute,
+  appdashboardDashboardExecutiveRoute: appdashboardDashboardExecutiveRoute,
+  appdashboardDashboardHrRoute: appdashboardDashboardHrRoute,
+  appdashboardDashboardManagerRoute: appdashboardDashboardManagerRoute,
   appCompanyEmployeeIdRoute: appCompanyEmployeeIdRoute,
   appCompanyEmployeeNewRoute: appCompanyEmployeeNewRoute,
   appCompanyEmployeeUpdateRoute: appCompanyEmployeeUpdateRoute,

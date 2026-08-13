@@ -1,20 +1,17 @@
-import {
-  IconAlertCircle,
-  IconCalendarWeek,
-  IconCash,
-  IconCircleCheck,
-} from '@tabler/icons-react'
-import { AttendanceDonutChart } from './components/attendance-donut-chart'
-import { CheckInBanner } from './components/checkin-banner'
+import { IconAlertCircle, IconCalendarWeek, IconCash, IconCircleCheck } from '@tabler/icons-react'
+
+import { StatCard } from '@/features/dashboard/components/stat-card'
+import { AttendanceDonutChart } from '@/features/dashboard/employee/components/attendance-donut-chart'
+import { CheckInBanner } from '@/features/dashboard/employee/components/checkin-banner'
 import {
   MyDocuments,
   PayrollTax,
   UpcomingEvents,
-} from './components/employee-info-cards'
-import { MyRequestCenter } from './components/my-request-center'
-import { StatCard } from '@/features/dashboard/components/stat-card'
+} from '@/features/dashboard/employee/components/employee-info-cards'
+import { MyRequestCenter } from '@/features/dashboard/employee/components/my-request-center'
 import { m } from '@/i18n/paraglide/messages'
-
+import { AppMain } from '@/shared/components/app-layout/app-main'
+import { Button } from '@/shared/components/ui/button'
 
 interface EmployeeDashboardData {
   attendanceStatus: string
@@ -43,43 +40,31 @@ interface EmployeeDashboardData {
   announcement?: { tag: string; title: string; summary: string; readTime: string }
 }
 
-export function EmployeeDashboardPage({ data }: { data: EmployeeDashboardData | undefined }) {
+export function EmployeeDashboardPage({
+  data,
+}: Readonly<{ data: EmployeeDashboardData | undefined }>) {
   if (!data) {
-    return (
-      <div className='flex min-h-125 flex-col items-center justify-center gap-3 p-8 text-center'>
-        <p className='text-sm text-muted-foreground'>No dashboard data found.</p>
-      </div>
-    )
+    return <AppMain notFound />
   }
 
   return (
-    <div className='flex flex-col gap-5 p-5 lg:p-6'>
-      {/* Header */}
-      <div className='flex flex-col justify-between gap-3 sm:flex-row sm:items-start'>
-        <div>
-          <p className='text-xs text-muted-foreground'>Dashboard / Employee</p>
-          <h2 className='text-2xl font-bold tracking-tight'>{m.dashboard_employee_title()}</h2>
-          <p className='mt-1 text-sm text-muted-foreground'>{m.dashboard_employee_subtitle()}</p>
-        </div>
-        <div className='flex items-center gap-2'>
-          <span className='rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-foreground'>
+    <AppMain
+      breadcrumbs={[
+        { to: '/', label: 'Dashboard' },
+        { to: '.', label: 'Employee' },
+      ]}
+      title={m.dashboard_employee_title()}
+      subtitle={m.dashboard_employee_subtitle()}
+      actions={
+        <>
+          <Button size='sm' variant='outline'>
             16 May 2025
-          </span>
-          <button
-            type='button'
-            className='rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-muted'
-          >
-            {m.dashboard_my_profile()}
-          </button>
-          <button
-            type='button'
-            className='rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground transition-colors hover:bg-primary/90'
-          >
-            {m.dashboard_customize()}
-          </button>
-        </div>
-      </div>
-
+          </Button>
+          <Button size='sm'>{m.dashboard_my_profile()}</Button>
+          <Button size='sm'>{m.dashboard_customize()}</Button>
+        </>
+      }
+    >
       {/* Check-in Banner */}
       <CheckInBanner checkInTime={data.checkInTime} workEndTime={data.workEndTime} />
 
@@ -158,6 +143,6 @@ export function EmployeeDashboardPage({ data }: { data: EmployeeDashboardData | 
           </button>
         </div>
       )}
-    </div>
+    </AppMain>
   )
 }

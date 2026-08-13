@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import {
   IconCalendarWeek,
   IconCategory,
@@ -12,9 +11,12 @@ import {
   IconSearch,
   IconX,
 } from '@tabler/icons-react'
+import { useState } from 'react'
 
+import { AppMain } from '@/shared/components/app-layout/app-main'
 import { snackbar } from '@/shared/lib/snackbar'
 import { cn } from '@/shared/lib/utils'
+
 import { dummyWorkflows, moduleColors, moduleLabels } from '../approval-workflow/data'
 import { approveRequest, rejectRequest } from './api'
 import { ApprovalDetailDrawer } from './components/detail-drawer'
@@ -37,7 +39,7 @@ const tabConfig: Record<string, { label: string; icon: typeof IconCategory }> = 
   promotion: { label: 'Promosi', icon: IconCoin },
 }
 
-export function ApprovalPage({ initialRequests }: ApprovalPageProps) {
+export function ApprovalPage({ initialRequests }: Readonly<ApprovalPageProps>) {
   const [requests, setRequests] = useState<ApprovalRequest[]>(initialRequests)
   const [activeTab, setActiveTab] = useState<TabType>('all')
   const [statusFilter, setStatusFilter] = useState<StatusFilterType>('pending')
@@ -51,9 +53,7 @@ export function ApprovalPage({ initialRequests }: ApprovalPageProps) {
   // Derive active tabs dynamically from workflows with active status
   const activeTabs = [
     'all',
-    ...dummyWorkflows
-      .filter((w) => w.status === 'active')
-      .map((w) => w.module),
+    ...dummyWorkflows.filter((w) => w.status === 'active').map((w) => w.module),
   ]
 
   // Handlers
@@ -95,7 +95,10 @@ export function ApprovalPage({ initialRequests }: ApprovalPageProps) {
   const totalItems = filteredRequests.length
   const totalPages = Math.max(1, Math.ceil(totalItems / pageSize))
   const activePage = Math.min(currentPage, totalPages)
-  const paginatedRequests = filteredRequests.slice((activePage - 1) * pageSize, activePage * pageSize)
+  const paginatedRequests = filteredRequests.slice(
+    (activePage - 1) * pageSize,
+    activePage * pageSize,
+  )
 
   const startItemIdx = totalItems === 0 ? 0 : (activePage - 1) * pageSize + 1
   const endItemIdx = Math.min(activePage * pageSize, totalItems)
@@ -106,7 +109,11 @@ export function ApprovalPage({ initialRequests }: ApprovalPageProps) {
   const countRejected = requests.filter((r) => r.status === 'rejected').length
 
   return (
-    <div className='flex flex-col gap-6 p-5 lg:p-6'>
+    <AppMain
+      breadcrumbs={[{ to: '.', label: 'Approval' }]}
+      title={'Approval Inbox'}
+      subtitle={'Kelola dan tinjau seluruh pengajuan persetujuan yang ditujukan kepada Anda'}
+    >
       {/* Hide scrollbar styles */}
       <style>{`
         .no-scrollbar::-webkit-scrollbar {
@@ -117,14 +124,6 @@ export function ApprovalPage({ initialRequests }: ApprovalPageProps) {
           scrollbar-width: none;
         }
       `}</style>
-      {/* Header */}
-      <div>
-        <p className='text-xs text-muted-foreground'>Persetujuan Mandiri / Approval</p>
-        <h2 className='text-2xl font-bold tracking-tight'>Approval Inbox</h2>
-        <p className='mt-1 text-sm text-muted-foreground'>
-          Kelola dan tinjau seluruh pengajuan persetujuan yang ditujukan kepada Anda
-        </p>
-      </div>
 
       {/* Stats Summary Card */}
       <div className='grid grid-cols-1 gap-4 sm:grid-cols-3'>
@@ -153,10 +152,10 @@ export function ApprovalPage({ initialRequests }: ApprovalPageProps) {
             className='flex items-center justify-between rounded-2xl bg-card p-5 shadow-sm ring-1 ring-foreground/5'
           >
             <div>
-              <p className='text-xs font-semibold text-muted-foreground uppercase tracking-wider'>
+              <p className='text-xs font-semibold tracking-wider text-muted-foreground uppercase'>
                 {item.label}
               </p>
-              <p className={cn('text-3xl font-extrabold mt-1.5', item.color)}>{item.count}</p>
+              <p className={cn('mt-1.5 text-3xl font-extrabold', item.color)}>{item.count}</p>
             </div>
             <div className={cn('flex h-11 w-11 items-center justify-center rounded-2xl', item.bg)}>
               <IconCircleCheck size={22} className={item.color} />
@@ -166,9 +165,9 @@ export function ApprovalPage({ initialRequests }: ApprovalPageProps) {
       </div>
 
       {/* Tabs Layout Container matching mockup */}
-      <div className='flex flex-wrap items-center justify-between gap-4 border border-border/50 bg-card p-2 rounded-2xl shadow-sm'>
+      <div className='flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-border/50 bg-card p-2 shadow-sm'>
         {/* Horizontal tabs list - scrollable, no scrollbar */}
-        <div className='flex items-center overflow-x-auto flex-nowrap gap-1 pb-1 sm:pb-0 max-w-full sm:max-w-[400px] md:max-w-[550px] lg:max-w-[700px] no-scrollbar'>
+        <div className='no-scrollbar flex max-w-full flex-nowrap items-center gap-1 overflow-x-auto pb-1 sm:max-w-[400px] sm:pb-0 md:max-w-[550px] lg:max-w-[700px]'>
           {activeTabs.map((type) => {
             const config = tabConfig[type] || { label: type, icon: IconCategory }
             const Icon = config.icon
@@ -182,7 +181,7 @@ export function ApprovalPage({ initialRequests }: ApprovalPageProps) {
                   setCurrentPage(1)
                 }}
                 className={cn(
-                  'flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold tracking-wide transition-all duration-200 cursor-pointer flex-shrink-0',
+                  'flex flex-shrink-0 cursor-pointer items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-semibold tracking-wide transition-all duration-200',
                   isActive
                     ? 'bg-primary text-primary-foreground shadow-sm shadow-primary/20'
                     : 'text-muted-foreground hover:bg-muted/80 hover:text-foreground',
@@ -196,12 +195,12 @@ export function ApprovalPage({ initialRequests }: ApprovalPageProps) {
         </div>
 
         {/* Filters and Search inline */}
-        <div className='flex flex-wrap items-center gap-3 w-full sm:w-auto'>
+        <div className='flex w-full flex-wrap items-center gap-3 sm:w-auto'>
           {/* Search bar */}
           <div className='relative flex-1 sm:flex-initial'>
             <IconSearch
               size={14}
-              className='absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground'
+              className='absolute top-1/2 left-3.5 -translate-y-1/2 text-muted-foreground'
             />
             <input
               type='text'
@@ -211,7 +210,7 @@ export function ApprovalPage({ initialRequests }: ApprovalPageProps) {
                 setSearchQuery(e.target.value)
                 setCurrentPage(1)
               }}
-              className='h-9 w-full sm:w-60 rounded-xl border border-input bg-background pl-9.5 pr-4 text-xs focus:outline-none focus:ring-2 focus:ring-ring/50 transition-all'
+              className='h-9 w-full rounded-xl border border-input bg-background pr-4 pl-9.5 text-xs transition-all focus:ring-2 focus:ring-ring/50 focus:outline-none sm:w-60'
             />
           </div>
 
@@ -223,7 +222,7 @@ export function ApprovalPage({ initialRequests }: ApprovalPageProps) {
                 setStatusFilter(e.target.value as StatusFilterType)
                 setCurrentPage(1)
               }}
-              className='h-9 rounded-xl border border-input bg-background px-3 text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-ring/50 cursor-pointer'
+              className='h-9 cursor-pointer rounded-xl border border-input bg-background px-3 text-xs text-foreground focus:ring-2 focus:ring-ring/50 focus:outline-none'
             >
               <option value='all'>Semua Status</option>
               <option value='pending'>Menunggu</option>
@@ -235,33 +234,33 @@ export function ApprovalPage({ initialRequests }: ApprovalPageProps) {
       </div>
 
       {/* Approval Inbox Table / List */}
-      <div className='rounded-2xl bg-card shadow-sm ring-1 ring-foreground/5 overflow-hidden'>
+      <div className='overflow-hidden rounded-2xl bg-card shadow-sm ring-1 ring-foreground/5'>
         <div className='overflow-x-auto'>
           <table className='w-full'>
             <thead>
               <tr className='border-b border-border/50 bg-muted/20'>
-                <th className='py-3.5 pl-6 pr-2 text-left text-xs font-bold uppercase tracking-wider text-muted-foreground w-12'>
+                <th className='w-12 py-3.5 pr-2 pl-6 text-left text-xs font-bold tracking-wider text-muted-foreground uppercase'>
                   No.
                 </th>
-                <th className='py-3.5 px-3 text-left text-xs font-bold uppercase tracking-wider text-muted-foreground'>
+                <th className='px-3 py-3.5 text-left text-xs font-bold tracking-wider text-muted-foreground uppercase'>
                   Karyawan
                 </th>
-                <th className='px-3 py-3.5 text-left text-xs font-bold uppercase tracking-wider text-muted-foreground'>
+                <th className='px-3 py-3.5 text-left text-xs font-bold tracking-wider text-muted-foreground uppercase'>
                   Modul
                 </th>
-                <th className='px-3 py-3.5 text-left text-xs font-bold uppercase tracking-wider text-muted-foreground'>
+                <th className='px-3 py-3.5 text-left text-xs font-bold tracking-wider text-muted-foreground uppercase'>
                   Rincian Pengajuan
                 </th>
-                <th className='px-3 py-3.5 text-center text-xs font-bold uppercase tracking-wider text-muted-foreground'>
+                <th className='px-3 py-3.5 text-center text-xs font-bold tracking-wider text-muted-foreground uppercase'>
                   Workflow Level
                 </th>
-                <th className='px-3 py-3.5 text-center text-xs font-bold uppercase tracking-wider text-muted-foreground'>
+                <th className='px-3 py-3.5 text-center text-xs font-bold tracking-wider text-muted-foreground uppercase'>
                   Diajukan
                 </th>
-                <th className='px-3 py-3.5 text-center text-xs font-bold uppercase tracking-wider text-muted-foreground'>
+                <th className='px-3 py-3.5 text-center text-xs font-bold tracking-wider text-muted-foreground uppercase'>
                   Status
                 </th>
-                <th className='py-3.5 pl-3 pr-6 text-center text-xs font-bold uppercase tracking-wider text-muted-foreground'>
+                <th className='py-3.5 pr-6 pl-3 text-center text-xs font-bold tracking-wider text-muted-foreground uppercase'>
                   Aksi
                 </th>
               </tr>
@@ -282,22 +281,22 @@ export function ApprovalPage({ initialRequests }: ApprovalPageProps) {
                   return (
                     <tr
                       key={req.id}
-                      className='group hover:bg-muted/10 transition-colors duration-150'
+                      className='group transition-colors duration-150 hover:bg-muted/10'
                     >
                       {/* Number */}
-                      <td className='py-4 pl-6 pr-2 text-xs font-semibold text-muted-foreground'>
+                      <td className='py-4 pr-2 pl-6 text-xs font-semibold text-muted-foreground'>
                         {rowNum}
                       </td>
 
                       {/* Employee profile */}
-                      <td className='py-4 px-3'>
+                      <td className='px-3 py-4'>
                         <div className='flex items-center gap-3'>
                           <div className='flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-primary/10 text-xs font-bold text-primary'>
                             {req.employeeName.charAt(0)}
                           </div>
                           <div>
                             <p className='text-xs font-bold text-foreground'>{req.employeeName}</p>
-                            <p className='text-[10px] text-muted-foreground mt-0.5'>
+                            <p className='mt-0.5 text-[10px] text-muted-foreground'>
                               {req.department} · {req.position}
                             </p>
                           </div>
@@ -318,11 +317,11 @@ export function ApprovalPage({ initialRequests }: ApprovalPageProps) {
 
                       {/* Request details */}
                       <td className='px-3 py-4'>
-                        <p className='text-xs font-semibold text-foreground truncate max-w-xs'>
+                        <p className='max-w-xs truncate text-xs font-semibold text-foreground'>
                           {req.details}
                         </p>
                         {req.reason && (
-                          <p className='text-[10px] text-muted-foreground truncate max-w-xs mt-0.5'>
+                          <p className='mt-0.5 max-w-xs truncate text-[10px] text-muted-foreground'>
                             {req.reason}
                           </p>
                         )}
@@ -366,7 +365,7 @@ export function ApprovalPage({ initialRequests }: ApprovalPageProps) {
                       </td>
 
                       {/* Actions */}
-                      <td className='py-4 pl-3 pr-6 text-center'>
+                      <td className='py-4 pr-6 pl-3 text-center'>
                         <div className='flex items-center justify-center gap-1.5'>
                           {/* Details */}
                           <button
@@ -384,7 +383,7 @@ export function ApprovalPage({ initialRequests }: ApprovalPageProps) {
                               <button
                                 type='button'
                                 onClick={() => handleApprove(req.id, 'Disetujui cepat.')}
-                                className='flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-100 hover:bg-emerald-100 transition-colors'
+                                className='flex h-8 w-8 items-center justify-center rounded-lg border border-emerald-100 bg-emerald-50 text-emerald-600 transition-colors hover:bg-emerald-100'
                                 title='Setujui Cepat'
                               >
                                 <IconCheck size={14} stroke={2.5} />
@@ -394,7 +393,7 @@ export function ApprovalPage({ initialRequests }: ApprovalPageProps) {
                               <button
                                 type='button'
                                 onClick={() => handleReject(req.id, 'Ditolak cepat.')}
-                                className='flex h-8 w-8 items-center justify-center rounded-lg bg-red-50 text-red-600 border border-red-100 hover:bg-red-100 transition-colors'
+                                className='flex h-8 w-8 items-center justify-center rounded-lg border border-red-100 bg-red-50 text-red-600 transition-colors hover:bg-red-100'
                                 title='Tolak Cepat'
                               >
                                 <IconX size={14} stroke={2.5} />
@@ -412,14 +411,16 @@ export function ApprovalPage({ initialRequests }: ApprovalPageProps) {
         </div>
 
         {/* Pagination Footer */}
-        <div className='border-t border-border/50 px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4 bg-muted/5'>
-          <div className='flex flex-col sm:flex-row items-center gap-4 text-xs text-muted-foreground'>
+        <div className='flex flex-col items-center justify-between gap-4 border-t border-border/50 bg-muted/5 px-6 py-4 sm:flex-row'>
+          <div className='flex flex-col items-center gap-4 text-xs text-muted-foreground sm:flex-row'>
             <p>
-              Menampilkan <span className='font-semibold text-foreground'>{startItemIdx}</span> - <span className='font-semibold text-foreground'>{endItemIdx}</span> dari <span className='font-semibold text-foreground'>{totalItems}</span> pengajuan
+              Menampilkan <span className='font-semibold text-foreground'>{startItemIdx}</span> -{' '}
+              <span className='font-semibold text-foreground'>{endItemIdx}</span> dari{' '}
+              <span className='font-semibold text-foreground'>{totalItems}</span> pengajuan
             </p>
-            
-            <div className='hidden sm:block h-3 w-px bg-border' />
-            
+
+            <div className='hidden h-3 w-px bg-border sm:block' />
+
             <div className='flex items-center gap-1.5'>
               <span>Baris per halaman:</span>
               <select
@@ -428,7 +429,7 @@ export function ApprovalPage({ initialRequests }: ApprovalPageProps) {
                   setPageSize(Number(e.target.value))
                   setCurrentPage(1)
                 }}
-                className='h-7 rounded-lg border border-border bg-background px-1.5 text-xs text-foreground focus:outline-none cursor-pointer hover:bg-muted transition-colors'
+                className='h-7 cursor-pointer rounded-lg border border-border bg-background px-1.5 text-xs text-foreground transition-colors hover:bg-muted focus:outline-none'
               >
                 <option value={5}>5</option>
                 <option value={10}>10</option>
@@ -442,7 +443,7 @@ export function ApprovalPage({ initialRequests }: ApprovalPageProps) {
               type='button'
               onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
               disabled={activePage === 1}
-              className='h-8 px-3 rounded-lg border border-border text-xs font-semibold bg-background text-foreground hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer'
+              className='h-8 cursor-pointer rounded-lg border border-border bg-background px-3 text-xs font-semibold text-foreground transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-40'
             >
               Sebelumnya
             </button>
@@ -456,7 +457,7 @@ export function ApprovalPage({ initialRequests }: ApprovalPageProps) {
                   type='button'
                   onClick={() => setCurrentPage(pageNum)}
                   className={cn(
-                    'h-8 w-8 flex items-center justify-center rounded-lg text-xs font-bold transition-all cursor-pointer',
+                    'flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg text-xs font-bold transition-all',
                     isCurrent
                       ? 'bg-primary text-primary-foreground shadow-sm shadow-primary/20'
                       : 'border border-border bg-background text-foreground hover:bg-muted',
@@ -471,7 +472,7 @@ export function ApprovalPage({ initialRequests }: ApprovalPageProps) {
               type='button'
               onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
               disabled={activePage === totalPages}
-              className='h-8 px-3 rounded-lg border border-border text-xs font-semibold bg-background text-foreground hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer'
+              className='h-8 cursor-pointer rounded-lg border border-border bg-background px-3 text-xs font-semibold text-foreground transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-40'
             >
               Selanjutnya
             </button>
@@ -493,6 +494,6 @@ export function ApprovalPage({ initialRequests }: ApprovalPageProps) {
           }}
         />
       )}
-    </div>
+    </AppMain>
   )
 }

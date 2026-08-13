@@ -1,6 +1,8 @@
+import { IconSearchOff } from '@tabler/icons-react'
 import { Link, type LinkProps } from '@tanstack/react-router'
 import React from 'react'
 
+import { m } from '@/i18n/paraglide/messages'
 import {
   Breadcrumb,
   BreadcrumbEllipsis,
@@ -22,12 +24,13 @@ type BreadcrumbItemType = {
 
 type AppMainProps = React.ComponentProps<'main'> & {
   title?: string
-  description?: string
+  subtitle?: string
   actions?: React.ReactNode
   breadcrumbs?: BreadcrumbItemType[]
+  notFound?: React.ReactNode
 }
 
-function AppBreadcrumb({ items }: { items: BreadcrumbItemType[] }) {
+function AppBreadcrumb({ items }: Readonly<{ items: BreadcrumbItemType[] }>) {
   const collapsedMobile = items.length > 2
 
   return (
@@ -40,11 +43,11 @@ function AppBreadcrumb({ items }: { items: BreadcrumbItemType[] }) {
 
           const crumb =
             isLast || !item.to ? (
-              <BreadcrumbPage className='max-w-[140px] truncate sm:max-w-none'>
+              <BreadcrumbPage className='max-w-35 truncate sm:max-w-none'>
                 {item.label}
               </BreadcrumbPage>
             ) : (
-              <BreadcrumbLink asChild className='max-w-[100px] truncate sm:max-w-none'>
+              <BreadcrumbLink asChild className='max-w-25 truncate sm:max-w-none'>
                 <Link to={item.to} params={item.params} search={item.search}>
                   {item.label}
                 </Link>
@@ -77,11 +80,22 @@ function AppBreadcrumb({ items }: { items: BreadcrumbItemType[] }) {
   )
 }
 
+function AppMainNotFound() {
+  return (
+    <div className='flex flex-1 flex-col items-center justify-center gap-2 py-16 text-center'>
+      <IconSearchOff className='size-10 text-muted-foreground' />
+      <p className='text-sm font-medium text-foreground'>{m.app_layout_main_not_found()}</p>
+      <p className='text-sm text-muted-foreground'>{m.app_layout_main_not_found_description()}</p>
+    </div>
+  )
+}
+
 export function AppMain({
   title,
-  description,
+  subtitle: description,
   actions,
   breadcrumbs,
+  notFound,
   className,
   children,
   ...props
@@ -111,7 +125,7 @@ export function AppMain({
         </div>
       )}
 
-      {children}
+      {(notFound && (typeof notFound === 'boolean' ? <AppMainNotFound /> : notFound)) || children}
     </main>
   )
 }

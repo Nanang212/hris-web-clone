@@ -4,17 +4,19 @@ import {
   IconClipboardCheck,
   IconUsers,
 } from '@tabler/icons-react'
+
+import { StatCard } from '@/features/dashboard/components/stat-card'
 import { AlertBanner } from '@/features/dashboard/hr/components/hr-action-center'
-import { ManagerApprovalQueue } from './components/manager-approval-queue'
+import { ManagerApprovalQueue } from '@/features/dashboard/manager/components/manager-approval-queue'
 import {
   ContractProbation,
   TeamEvents,
   TeamMovement,
-} from './components/manager-team-cards'
-import { StatCard } from '@/features/dashboard/components/stat-card'
-import { TeamAttendanceChart } from './components/team-attendance-chart'
+} from '@/features/dashboard/manager/components/manager-team-cards'
+import { TeamAttendanceChart } from '@/features/dashboard/manager/components/team-attendance-chart'
 import { m } from '@/i18n/paraglide/messages'
-
+import { AppMain } from '@/shared/components/app-layout/app-main'
+import { Button } from '@/shared/components/ui/button'
 
 interface ManagerDashboardData {
   teamMembers: number
@@ -57,7 +59,9 @@ interface ManagerDashboardData {
   healthInsight?: string
 }
 
-export function ManagerDashboardPage({ data }: { data: ManagerDashboardData | undefined }) {
+export function ManagerDashboardPage({
+  data,
+}: Readonly<{ data: ManagerDashboardData | undefined }>) {
   if (!data) {
     return (
       <div className='flex min-h-125 flex-col items-center justify-center gap-3 p-8 text-center'>
@@ -67,33 +71,23 @@ export function ManagerDashboardPage({ data }: { data: ManagerDashboardData | un
   }
 
   return (
-    <div className='flex flex-col gap-5 p-5 lg:p-6'>
-      {/* Header */}
-      <div className='flex flex-col justify-between gap-3 sm:flex-row sm:items-start'>
-        <div>
-          <p className='text-xs text-muted-foreground'>Dashboard / Manager</p>
-          <h2 className='text-2xl font-bold tracking-tight'>{m.dashboard_manager_title()}</h2>
-          <p className='mt-1 text-sm text-muted-foreground'>{m.dashboard_manager_subtitle()}</p>
-        </div>
-        <div className='flex items-center gap-2'>
-          <span className='rounded-lg border border-border px-3 py-1.5 text-xs font-medium'>
+    <AppMain
+      breadcrumbs={[
+        { to: '/', label: 'Dashboard' },
+        { to: '.', label: 'Manager' },
+      ]}
+      title={m.dashboard_manager_title()}
+      subtitle={m.dashboard_manager_subtitle()}
+      actions={
+        <>
+          <Button size='sm' variant='outline'>
             16 May 2025
-          </span>
-          <button
-            type='button'
-            className='rounded-lg border border-border px-3 py-1.5 text-xs font-medium transition-colors hover:bg-muted'
-          >
-            {m.dashboard_my_team()}
-          </button>
-          <button
-            type='button'
-            className='rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground transition-colors hover:bg-primary/90'
-          >
-            {m.dashboard_customize()}
-          </button>
-        </div>
-      </div>
-
+          </Button>
+          <Button size='sm'>{m.dashboard_my_team()}</Button>
+          <Button size='sm'>{m.dashboard_customize()}</Button>
+        </>
+      }
+    >
       {/* Alert Banner */}
       <AlertBanner
         count={data.pendingApprovals}
@@ -169,6 +163,6 @@ export function ManagerDashboardPage({ data }: { data: ManagerDashboardData | un
           </button>
         </div>
       )}
-    </div>
+    </AppMain>
   )
 }

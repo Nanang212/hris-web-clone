@@ -9,26 +9,51 @@ import {
   IconReportMoney,
   IconSettings,
   IconUserCircle,
+  type IconProps,
 } from '@tabler/icons-react'
+import type { LinkProps } from '@tanstack/react-router'
 
 import { m } from '@/i18n/paraglide/messages'
 
-export const dashboardMenu = [
+type Menu = {
+  key: string
+  to: LinkProps['to']
+  icon?: React.ForwardRefExoticComponent<IconProps & React.RefAttributes<SVGSVGElement>>
+  title: () => string
+  items?: Menu[]
+}
+
+export const dashboardMenu: Menu[] = [
   {
     key: '/dashboard',
-    url: '/',
+    to: '/',
     icon: IconLayoutDashboard,
     title: m.app_layout_nav_dashboard,
     items: [
       {
-        key: 'dashboard-home',
-        title: m.app_layout_nav_dashboard,
-        url: '/',
+        key: 'dashboard-employee',
+        title: m.app_layout_nav_dashboard_employee,
+        to: '/',
+      },
+      {
+        key: 'dashboard-hr',
+        title: m.app_layout_nav_dashboard_hr,
+        to: '/dashboard/hr',
+      },
+      {
+        key: 'dashboard-manager',
+        title: m.app_layout_nav_dashboard_manager,
+        to: '/dashboard/manager',
+      },
+      {
+        key: 'dashboard-executive',
+        title: m.app_layout_nav_dashboard_executive,
+        to: '/dashboard/executive',
       },
       {
         key: 'dashboard-widget',
         title: m.app_layout_nav_widget,
-        url: '/dashboard-customize',
+        to: '/dashboard/customize',
       },
     ],
   },
@@ -37,70 +62,70 @@ export const dashboardMenu = [
 export const mainMenu = [
   {
     key: 'company',
-    url: '.',
+    to: '.',
     icon: IconUserCircle,
     title: m.app_layout_nav_company,
     items: [
       {
         title: m.app_layout_nav_employee,
-        url: '/company/employee',
+        to: '/company/employee',
       },
       {
         title: m.app_layout_nav_organization,
-        url: '/company/organization',
+        to: '/company/organization',
       },
       {
         title: m.app_layout_nav_document,
-        url: '/company/document',
+        to: '/company/document',
       },
     ],
   },
   {
     key: 'attendance',
-    url: '/attendance',
+    to: '/attendance',
     icon: IconCalendarCheck,
     title: m.app_layout_nav_attendance,
   },
   {
     key: 'leave',
-    url: '/leave',
+    to: '/leave',
     icon: IconCalendarWeek,
     title: m.app_layout_nav_leave,
   },
   {
     key: 'payroll',
-    url: '/payroll',
+    to: '/payroll',
     icon: IconReportMoney,
     title: m.app_layout_nav_payroll,
   },
   {
     key: 'performance',
-    url: '/performance',
+    to: '/performance',
     icon: IconChecklist,
     title: m.app_layout_nav_performance,
   },
   {
     key: 'report',
-    url: '/report',
+    to: '/report',
     icon: IconReportAnalytics,
     title: m.app_layout_nav_report,
   },
   {
     key: 'approval',
-    url: '/approval',
+    to: '/approval',
     icon: IconCircleCheck,
     title: m.app_layout_nav_approval,
   },
   {
     key: 'settings',
-    url: '/settings',
+    to: '/settings',
     icon: IconSettings,
     title: m.app_layout_nav_settings,
     items: [
       {
         key: 'approval-workflow',
         title: m.app_layout_nav_approval_workflow,
-        url: '/settings/approval-workflow',
+        to: '/settings/approval-workflow',
         icon: IconGitBranch,
       },
     ],
