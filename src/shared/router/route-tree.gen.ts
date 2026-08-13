@@ -10,7 +10,6 @@
 
 import { Route as rootRouteImport } from './../../routes/__root'
 import { Route as appRouteRouteImport } from './../../routes/(app)/route'
-import { Route as appApprovalRouteImport } from './../../routes/(app)/approval'
 import { Route as authResetRouteImport } from './../../routes/(auth)/reset'
 import { Route as authSigninRouteImport } from './../../routes/(auth)/signin'
 import { Route as authSignoutRouteImport } from './../../routes/(auth)/signout'
@@ -20,6 +19,7 @@ import { Route as appdashboardDashboardCustomizeRouteImport } from './../../rout
 import { Route as appdashboardEmployeeDashboardRouteImport } from './../../routes/(app)/(dashboard)/employee-dashboard'
 import { Route as appdashboardExecutiveDashboardRouteImport } from './../../routes/(app)/(dashboard)/executive-dashboard'
 import { Route as appdashboardManagerDashboardRouteImport } from './../../routes/(app)/(dashboard)/manager-dashboard'
+import { Route as appApprovalIndexRouteImport } from './../../routes/(app)/approval/index'
 import { Route as appAttendanceIndexRouteImport } from './../../routes/(app)/attendance/index'
 import { Route as appLeaveIndexRouteImport } from './../../routes/(app)/leave/index'
 import { Route as appPayrollIndexRouteImport } from './../../routes/(app)/payroll/index'
@@ -46,11 +46,6 @@ import { Route as appSettingsApprovalWorkflowIdTestRouteImport } from './../../r
 const appRouteRoute = appRouteRouteImport.update({
   id: '/(app)',
   getParentRoute: () => rootRouteImport,
-} as any)
-const appApprovalRoute = appApprovalRouteImport.update({
-  id: '/approval',
-  path: '/approval',
-  getParentRoute: () => appRouteRoute,
 } as any)
 const authResetRoute = authResetRouteImport.update({
   id: '/(auth)/reset',
@@ -101,6 +96,11 @@ const appdashboardManagerDashboardRoute =
     path: '/manager-dashboard',
     getParentRoute: () => appRouteRoute,
   } as any)
+const appApprovalIndexRoute = appApprovalIndexRouteImport.update({
+  id: '/approval/',
+  path: '/approval/',
+  getParentRoute: () => appRouteRoute,
+} as any)
 const appAttendanceIndexRoute = appAttendanceIndexRouteImport.update({
   id: '/attendance/',
   path: '/attendance/',
@@ -225,7 +225,6 @@ const appSettingsApprovalWorkflowIdTestRoute =
   } as any)
 
 export interface FileRoutesByFullPath {
-  '/approval': typeof appApprovalRoute
   '/reset': typeof authResetRoute
   '/signin': typeof authSigninRoute
   '/signout': typeof authSignoutRoute
@@ -235,6 +234,7 @@ export interface FileRoutesByFullPath {
   '/executive-dashboard': typeof appdashboardExecutiveDashboardRoute
   '/manager-dashboard': typeof appdashboardManagerDashboardRoute
   '/': typeof appdashboardIndexRoute
+  '/approval/': typeof appApprovalIndexRoute
   '/attendance/': typeof appAttendanceIndexRoute
   '/leave/': typeof appLeaveIndexRoute
   '/payroll/': typeof appPayrollIndexRoute
@@ -259,7 +259,6 @@ export interface FileRoutesByFullPath {
   '/settings/approval-workflow/$id/': typeof appSettingsApprovalWorkflowIdIndexRoute
 }
 export interface FileRoutesByTo {
-  '/approval': typeof appApprovalRoute
   '/reset': typeof authResetRoute
   '/signin': typeof authSigninRoute
   '/signout': typeof authSignoutRoute
@@ -269,6 +268,7 @@ export interface FileRoutesByTo {
   '/executive-dashboard': typeof appdashboardExecutiveDashboardRoute
   '/manager-dashboard': typeof appdashboardManagerDashboardRoute
   '/': typeof appdashboardIndexRoute
+  '/approval': typeof appApprovalIndexRoute
   '/attendance': typeof appAttendanceIndexRoute
   '/leave': typeof appLeaveIndexRoute
   '/payroll': typeof appPayrollIndexRoute
@@ -295,7 +295,6 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/(app)': typeof appRouteRouteWithChildren
-  '/(app)/approval': typeof appApprovalRoute
   '/(auth)/reset': typeof authResetRoute
   '/(auth)/signin': typeof authSigninRoute
   '/(auth)/signout': typeof authSignoutRoute
@@ -305,6 +304,7 @@ export interface FileRoutesById {
   '/(app)/(dashboard)/executive-dashboard': typeof appdashboardExecutiveDashboardRoute
   '/(app)/(dashboard)/manager-dashboard': typeof appdashboardManagerDashboardRoute
   '/(app)/(dashboard)/': typeof appdashboardIndexRoute
+  '/(app)/approval/': typeof appApprovalIndexRoute
   '/(app)/attendance/': typeof appAttendanceIndexRoute
   '/(app)/leave/': typeof appLeaveIndexRoute
   '/(app)/payroll/': typeof appPayrollIndexRoute
@@ -331,7 +331,6 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    | '/approval'
     | '/reset'
     | '/signin'
     | '/signout'
@@ -341,6 +340,7 @@ export interface FileRouteTypes {
     | '/executive-dashboard'
     | '/manager-dashboard'
     | '/'
+    | '/approval/'
     | '/attendance/'
     | '/leave/'
     | '/payroll/'
@@ -365,7 +365,6 @@ export interface FileRouteTypes {
     | '/settings/approval-workflow/$id/'
   fileRoutesByTo: FileRoutesByTo
   to:
-    | '/approval'
     | '/reset'
     | '/signin'
     | '/signout'
@@ -375,6 +374,7 @@ export interface FileRouteTypes {
     | '/executive-dashboard'
     | '/manager-dashboard'
     | '/'
+    | '/approval'
     | '/attendance'
     | '/leave'
     | '/payroll'
@@ -400,7 +400,6 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/(app)'
-    | '/(app)/approval'
     | '/(auth)/reset'
     | '/(auth)/signin'
     | '/(auth)/signout'
@@ -410,6 +409,7 @@ export interface FileRouteTypes {
     | '/(app)/(dashboard)/executive-dashboard'
     | '/(app)/(dashboard)/manager-dashboard'
     | '/(app)/(dashboard)/'
+    | '/(app)/approval/'
     | '/(app)/attendance/'
     | '/(app)/leave/'
     | '/(app)/payroll/'
@@ -450,13 +450,6 @@ declare module '@tanstack/react-router' {
       fullPath: ''
       preLoaderRoute: typeof appRouteRouteImport
       parentRoute: typeof rootRouteImport
-    }
-    '/(app)/approval': {
-      id: '/(app)/approval'
-      path: '/approval'
-      fullPath: '/approval'
-      preLoaderRoute: typeof appApprovalRouteImport
-      parentRoute: typeof appRouteRoute
     }
     '/(auth)/reset': {
       id: '/(auth)/reset'
@@ -519,6 +512,13 @@ declare module '@tanstack/react-router' {
       path: '/manager-dashboard'
       fullPath: '/manager-dashboard'
       preLoaderRoute: typeof appdashboardManagerDashboardRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/approval/': {
+      id: '/(app)/approval/'
+      path: '/approval'
+      fullPath: '/approval/'
+      preLoaderRoute: typeof appApprovalIndexRouteImport
       parentRoute: typeof appRouteRoute
     }
     '/(app)/attendance/': {
@@ -679,12 +679,12 @@ declare module '@tanstack/react-router' {
 }
 
 interface appRouteRouteChildren {
-  appApprovalRoute: typeof appApprovalRoute
   appdashboardDashboardCustomizeRoute: typeof appdashboardDashboardCustomizeRoute
   appdashboardEmployeeDashboardRoute: typeof appdashboardEmployeeDashboardRoute
   appdashboardExecutiveDashboardRoute: typeof appdashboardExecutiveDashboardRoute
   appdashboardManagerDashboardRoute: typeof appdashboardManagerDashboardRoute
   appdashboardIndexRoute: typeof appdashboardIndexRoute
+  appApprovalIndexRoute: typeof appApprovalIndexRoute
   appAttendanceIndexRoute: typeof appAttendanceIndexRoute
   appLeaveIndexRoute: typeof appLeaveIndexRoute
   appPayrollIndexRoute: typeof appPayrollIndexRoute
@@ -710,12 +710,12 @@ interface appRouteRouteChildren {
 }
 
 const appRouteRouteChildren: appRouteRouteChildren = {
-  appApprovalRoute: appApprovalRoute,
   appdashboardDashboardCustomizeRoute: appdashboardDashboardCustomizeRoute,
   appdashboardEmployeeDashboardRoute: appdashboardEmployeeDashboardRoute,
   appdashboardExecutiveDashboardRoute: appdashboardExecutiveDashboardRoute,
   appdashboardManagerDashboardRoute: appdashboardManagerDashboardRoute,
   appdashboardIndexRoute: appdashboardIndexRoute,
+  appApprovalIndexRoute: appApprovalIndexRoute,
   appAttendanceIndexRoute: appAttendanceIndexRoute,
   appLeaveIndexRoute: appLeaveIndexRoute,
   appPayrollIndexRoute: appPayrollIndexRoute,

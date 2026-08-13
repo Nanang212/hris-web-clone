@@ -4,7 +4,7 @@ import { fetchApprovalRequests } from '@/features/approval/api'
 import { WorkflowError, WorkflowLoading } from '@/features/approval-workflow/components/feedback'
 import { ApprovalPage } from '@/features/approval/approval-page'
 
-export const Route = createFileRoute('/(app)/approval')({
+export const Route = createFileRoute('/(app)/approval/')({
   loader: async () => {
     const initialRequests = await fetchApprovalRequests()
     return { initialRequests }
