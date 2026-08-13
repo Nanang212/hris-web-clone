@@ -142,10 +142,10 @@ function UserMenu({ user }: { readonly user: AppNavbarUser }) {
         <DropdownMenuLabel>{m.app_layout_account_label()}</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
-          <Link to='/settings'>{m.app_layout_profile_link()}</Link>
+          <Link to='/'>{m.app_layout_profile_link()}</Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link to='/settings'>{m.app_layout_settings_link()}</Link>
+          <Link to='/'>{m.app_layout_settings_link()}</Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
 
