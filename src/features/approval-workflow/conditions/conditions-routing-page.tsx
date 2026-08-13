@@ -1,0 +1,136 @@
+// conditions-routing-page.tsx
+import { useState } from 'react'
+import {
+  IconArrowLeft,
+  IconInfoCircle,
+  IconPlus,
+} from '@tabler/icons-react'
+import { Link } from '@tanstack/react-router'
+
+import type { RoutingRule, Workflow } from '../types'
+import { RuleCard } from './components/rule-card'
+
+
+interface ConditionsRoutingPageProps {
+  workflowId: string
+  workflow: Workflow
+  rules: RoutingRule[]
+}
+
+export function ConditionsRoutingPage({ workflowId, workflow, rules }: ConditionsRoutingPageProps) {
+  const [localRules, setLocalRules] = useState(rules)
+
+  return (
+    <div className='flex flex-col gap-5 p-5 lg:p-6'>
+      {/* Header */}
+      <div className='flex flex-col justify-between gap-3 sm:flex-row sm:items-start'>
+        <div className='flex items-center gap-3'>
+          <Link
+            to='/settings/approval-workflow/$id/levels'
+            params={{ id: workflowId }}
+            className='flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-card text-muted-foreground shadow-sm transition-colors hover:text-foreground'
+          >
+            <IconArrowLeft size={18} />
+          </Link>
+          <div>
+            <p className='text-xs text-muted-foreground'>
+              Pengaturan / Approval Workflow / Conditions & Routing
+            </p>
+            <h2 className='text-2xl font-bold tracking-tight'>Conditions & Routing Rules</h2>
+            <p className='mt-1 text-sm text-muted-foreground'>
+              {workflow?.name} — Tentukan kondisi untuk menentukan jalur approval
+            </p>
+          </div>
+        </div>
+        <div className='flex items-center gap-2'>
+          <Link
+            to='/settings/approval-workflow/$id/test'
+            params={{ id: workflowId }}
+            className='inline-flex items-center gap-2 rounded-xl border border-border px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted'
+          >
+            Test Workflow
+          </Link>
+          <button
+            type='button'
+            onClick={() =>
+              setLocalRules((prev) => [
+                ...prev,
+                {
+                  id: `rule-${Date.now()}`,
+                  workflowId,
+                  name: `Rule ${prev.length + 1}`,
+                  priority: prev.length + 1,
+                  conditions: { id: `grp-${Date.now()}`, logic: 'AND', rules: [] },
+                },
+              ])
+            }
+            className='inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-all hover:bg-primary/90 active:scale-95'
+          >
+            <IconPlus size={16} stroke={2.5} />
+            Tambah Rule
+          </button>
+        </div>
+      </div>
+
+      <div className='grid grid-cols-1 gap-5 lg:grid-cols-[1fr_280px]'>
+        {/* Rules list */}
+        <div className='flex flex-col gap-3'>
+          {localRules.length === 0 ? (
+            <div className='flex flex-col items-center gap-3 rounded-2xl border-2 border-dashed border-border py-16 text-center'>
+              <p className='text-sm text-muted-foreground'>Belum ada routing rule</p>
+              <p className='max-w-xs text-xs text-muted-foreground'>
+                Tambahkan rule untuk mengatur kondisi kapan workflow ini aktif atau level mana
+                yang dilewati.
+              </p>
+            </div>
+          ) : (
+            localRules.map((rule, idx) => (
+              <RuleCard key={rule.id} rule={rule} idx={idx} total={localRules.length} />
+            ))
+          )}
+        </div>
+
+        {/* Sidebar */}
+        <div className='flex flex-col gap-4'>
+          <div className='rounded-2xl bg-card p-5 shadow-sm ring-1 ring-foreground/5'>
+            <h3 className='mb-3 text-sm font-semibold'>Tentang Routing Rules</h3>
+            <div className='flex flex-col gap-2.5 text-xs text-muted-foreground'>
+              <p>
+                Rules dievaluasi secara berurutan dari prioritas tertinggi. Rule pertama yang
+                cocok akan digunakan.
+              </p>
+              <div className='rounded-xl bg-muted/50 p-3'>
+                <p className='mb-1 font-semibold text-foreground'>Contoh penggunaan:</p>
+                <ul className='list-inside list-disc space-y-1'>
+                  <li>Cuti &gt; 5 hari → tambah level Director</li>
+                  <li>Amount &gt; 10jt → wajib Finance Approval</li>
+                  <li>Dept. Engineering → skip HR Level</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div className='rounded-2xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-900/20'>
+            <div className='flex gap-2'>
+              <IconInfoCircle
+                size={15}
+                className='mt-0.5 flex-shrink-0 text-amber-600 dark:text-amber-400'
+              />
+              <p className='text-[11px] text-amber-700 dark:text-amber-400'>
+                Jika tidak ada rule yang cocok, workflow default akan digunakan dengan semua
+                level approver.
+              </p>
+            </div>
+          </div>
+
+          <button
+            type='button'
+            className='w-full rounded-xl bg-primary py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:bg-primary/90'
+          >
+            Simpan Semua Rule
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
