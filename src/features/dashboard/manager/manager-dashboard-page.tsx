@@ -4,15 +4,15 @@ import {
   IconClipboardCheck,
   IconUsers,
 } from '@tabler/icons-react'
-import { AlertBanner } from '@/features/dashboard/components/hr-action-center'
-import { ManagerApprovalQueue } from '@/features/dashboard/components/manager-approval-queue'
+import { AlertBanner } from '@/features/dashboard/hr/components/hr-action-center'
+import { ManagerApprovalQueue } from './components/manager-approval-queue'
 import {
   ContractProbation,
   TeamEvents,
   TeamMovement,
-} from '@/features/dashboard/components/manager-team-cards'
+} from './components/manager-team-cards'
 import { StatCard } from '@/features/dashboard/components/stat-card'
-import { TeamAttendanceChart } from '@/features/dashboard/components/team-attendance-chart'
+import { TeamAttendanceChart } from './components/team-attendance-chart'
 import { m } from '@/i18n/paraglide/messages'
 
 
@@ -57,7 +57,7 @@ interface ManagerDashboardData {
   healthInsight?: string
 }
 
-export function ManagerDashboardPage({ data }: { data: ManagerDashboardData }) {
+export function ManagerDashboardPage({ data }: { data: ManagerDashboardData | undefined }) {
   if (!data) {
     return (
       <div className='flex min-h-125 flex-col items-center justify-center gap-3 p-8 text-center'>

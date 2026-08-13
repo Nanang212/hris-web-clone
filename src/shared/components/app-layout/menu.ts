@@ -2,6 +2,8 @@ import {
   IconCalendarCheck,
   IconCalendarWeek,
   IconChecklist,
+  IconCircleCheck,
+  IconGitBranch,
   IconLayoutDashboard,
   IconReportAnalytics,
   IconReportMoney,
@@ -84,10 +86,24 @@ export const mainMenu = [
     title: m.app_layout_nav_report,
   },
   {
+    key: 'approval',
+    url: '/approval',
+    icon: IconCircleCheck,
+    title: m.app_layout_nav_approval,
+  },
+  {
     key: 'settings',
     url: '/settings',
     icon: IconSettings,
     title: m.app_layout_nav_settings,
+    items: [
+      {
+        key: 'approval-workflow',
+        title: m.app_layout_nav_approval_workflow,
+        url: '/settings/approval-workflow',
+        icon: IconGitBranch,
+      },
+    ],
   },
 ] as const
 

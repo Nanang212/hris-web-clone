@@ -1,14 +1,14 @@
 import { IconAlertTriangle, IconCalendarCheck, IconUserCheck, IconUsers } from '@tabler/icons-react'
 
-import { AnnouncementBanner } from '@/features/dashboard/components/announcement-banner'
+import { AnnouncementBanner } from './components/announcement-banner'
 import {
   EmploymentCompliance,
   PeopleEvents,
   WorkforceMovement,
-} from '@/features/dashboard/components/dashboard-lists'
-import { AlertBanner, HrActionCenter } from '@/features/dashboard/components/hr-action-center'
+} from './components/dashboard-lists'
+import { AlertBanner, HrActionCenter } from './components/hr-action-center'
 import { StatCard } from '@/features/dashboard/components/stat-card'
-import { WorkforceTrendChart } from '@/features/dashboard/components/workforce-trend-chart'
+import { WorkforceTrendChart } from './components/workforce-trend-chart'
 import { m } from '@/i18n/paraglide/messages'
 
 
@@ -42,7 +42,7 @@ interface HRDashboardData {
   }[]
 }
 
-export function DashboardPage({ data }: { data: HRDashboardData }) {
+export function DashboardPage({ data }: { data: HRDashboardData | undefined }) {
   if (!data) {
     return (
       <div className='flex min-h-125 flex-col items-center justify-center gap-3 p-8 text-center'>
