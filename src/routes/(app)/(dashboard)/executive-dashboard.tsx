@@ -1,10 +1,19 @@
-import { ExecutiveDashboardPage } from '@/features/dashboard/pages/executive-dashboard-page'
+import { ExecutiveDashboardPage } from '@/features/dashboard/executive/executive-dashboard-page'
 import { createFileRoute } from '@tanstack/react-router'
+import { fetchDashboard } from '@/features/dashboard/api'
+import { DashboardLoading, DashboardError } from '@/features/dashboard/components/dashboard-feedback'
 
 export const Route = createFileRoute('/(app)/(dashboard)/executive-dashboard')({
+  loader: async () => {
+    const data = await fetchDashboard({ role: 'EXECUTIVE' })
+    return data.executiveDashboard
+  },
+  pendingComponent: DashboardLoading,
+  errorComponent: ({ error, reset }) => <DashboardError error={error} reset={reset} />,
   component: RouteComponent,
 })
 
 function RouteComponent() {
-  return <ExecutiveDashboardPage />
+  const data = Route.useLoaderData()
+  return <ExecutiveDashboardPage data={data} />
 }

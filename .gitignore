@@ -27,3 +27,6 @@ dist-ssr
 .codebase-memory
 
 .env
+
+# TanStack Router temporary files
+.tanstack/

@@ -2,6 +2,8 @@ import {
   IconCalendarCheck,
   IconCalendarWeek,
   IconChecklist,
+  IconCircleCheck,
+  IconGitBranch,
   IconLayoutDashboard,
   IconReportAnalytics,
   IconReportMoney,
@@ -14,9 +16,21 @@ import { m } from '@/i18n/paraglide/messages'
 export const dashboardMenu = [
   {
     key: '/dashboard',
-    url: '.',
+    url: '/',
     icon: IconLayoutDashboard,
     title: m.app_layout_nav_dashboard,
+    items: [
+      {
+        key: 'dashboard-home',
+        title: m.app_layout_nav_dashboard,
+        url: '/',
+      },
+      {
+        key: 'dashboard-widget',
+        title: m.app_layout_nav_widget,
+        url: '/dashboard-customize',
+      },
+    ],
   },
 ]
 
@@ -72,10 +86,24 @@ export const mainMenu = [
     title: m.app_layout_nav_report,
   },
   {
+    key: 'approval',
+    url: '/approval',
+    icon: IconCircleCheck,
+    title: m.app_layout_nav_approval,
+  },
+  {
     key: 'settings',
     url: '/settings',
     icon: IconSettings,
     title: m.app_layout_nav_settings,
+    items: [
+      {
+        key: 'approval-workflow',
+        title: m.app_layout_nav_approval_workflow,
+        url: '/settings/approval-workflow',
+        icon: IconGitBranch,
+      },
+    ],
     items: [
       { title: () => 'Company', url: '/settings/company' },
       { title: () => 'User & Role', url: '/settings' },

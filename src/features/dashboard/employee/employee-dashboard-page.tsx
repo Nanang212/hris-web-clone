@@ -1,23 +1,20 @@
 import {
   IconAlertCircle,
-  IconAlertTriangle,
   IconCalendarWeek,
   IconCash,
   IconCircleCheck,
 } from '@tabler/icons-react'
-import { useEffect, useState } from 'react'
-
-import { fetchDashboard } from '@/features/dashboard/api'
-import { AttendanceDonutChart } from '@/features/dashboard/components/attendance-donut-chart'
-import { CheckInBanner } from '@/features/dashboard/components/checkin-banner'
+import { AttendanceDonutChart } from './components/attendance-donut-chart'
+import { CheckInBanner } from './components/checkin-banner'
 import {
   MyDocuments,
   PayrollTax,
   UpcomingEvents,
-} from '@/features/dashboard/components/employee-info-cards'
-import { MyRequestCenter } from '@/features/dashboard/components/my-request-center'
+} from './components/employee-info-cards'
+import { MyRequestCenter } from './components/my-request-center'
 import { StatCard } from '@/features/dashboard/components/stat-card'
 import { m } from '@/i18n/paraglide/messages'
+
 
 interface EmployeeDashboardData {
   attendanceStatus: string
@@ -46,64 +43,7 @@ interface EmployeeDashboardData {
   announcement?: { tag: string; title: string; summary: string; readTime: string }
 }
 
-export function EmployeeDashboardPage() {
-  const [data, setData] = useState<EmployeeDashboardData | null>(null)
-  const [loading, setLoading] = useState<boolean>(true)
-  const [error, setError] = useState<string | null>(null)
-
-  const loadData = async () => {
-    try {
-      const result = await fetchDashboard({ role: 'EMPLOYEE' })
-      setData(result.employeeDashboard)
-      setLoading(false)
-    } catch (err: unknown) {
-      const errMsg = err instanceof Error ? err.message : 'Something went wrong'
-      setError(errMsg)
-      setLoading(false)
-    }
-  }
-
-  const handleRetry = () => {
-    setLoading(true)
-    setError(null)
-    loadData()
-  }
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    loadData()
-  }, [])
-
-  if (loading) {
-    return (
-      <div className='flex min-h-125 flex-col items-center justify-center gap-3 p-8'>
-        <div className='h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent' />
-        <p className='text-sm text-muted-foreground'>Loading dashboard data...</p>
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div className='flex min-h-125 flex-col items-center justify-center gap-4 p-8 text-center'>
-        <div className='rounded-full bg-red-100 p-3 text-red-600 dark:bg-red-950/40 dark:text-red-400'>
-          <IconAlertTriangle size={32} />
-        </div>
-        <div>
-          <h3 className='font-semibold text-foreground'>Failed to load dashboard</h3>
-          <p className='mt-1 max-w-sm text-sm text-muted-foreground'>{error}</p>
-        </div>
-        <button
-          type='button'
-          onClick={handleRetry}
-          className='rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90'
-        >
-          Try Again
-        </button>
-      </div>
-    )
-  }
-
+export function EmployeeDashboardPage({ data }: { data: EmployeeDashboardData | undefined }) {
   if (!data) {
     return (
       <div className='flex min-h-125 flex-col items-center justify-center gap-3 p-8 text-center'>
