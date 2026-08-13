@@ -1,14 +1,19 @@
 import {
+  IconBell,
+  IconBuilding,
   IconCalendarCheck,
   IconCalendarWeek,
   IconChecklist,
   IconCircleCheck,
+  IconDatabase,
   IconGitBranch,
   IconLayoutDashboard,
   IconReportAnalytics,
   IconReportMoney,
   IconSettings,
+  IconShield,
   IconUserCircle,
+  IconUsers,
 } from '@tabler/icons-react'
 
 import { m } from '@/i18n/paraglide/messages'
@@ -42,14 +47,17 @@ export const mainMenu = [
     title: m.app_layout_nav_company,
     items: [
       {
+        key: 'employee',
         title: m.app_layout_nav_employee,
         url: '/company/employee',
       },
       {
+        key: 'organization',
         title: m.app_layout_nav_organization,
         url: '/company/organization',
       },
       {
+        key: 'document',
         title: m.app_layout_nav_document,
         url: '/company/document',
       },
@@ -103,14 +111,36 @@ export const mainMenu = [
         url: '/settings/approval-workflow',
         icon: IconGitBranch,
       },
-    ],
-    items: [
-      { title: () => 'Company', url: '/settings/company' },
-      { title: () => 'User & Role', url: '/settings' },
-      { title: () => 'Master Data', url: '/settings/master-data' },
-      { title: () => 'Approval Workflow', url: '/settings/approval-workflow' },
-      { title: () => 'Notification', url: '/settings/notification' },
-      { title: () => 'Security', url: '/settings/security' },
+      {
+        key: 'company',
+        title: m.app_layout_nav_company,
+        url: '/settings/company',
+        icon: IconBuilding,
+      },
+      {
+        key: 'user-role',
+        title: m.app_layout_nav_user_role,
+        url: '/settings/user-role',
+        icon: IconUsers,
+      },
+      {
+        key: 'master-data',
+        title: m.app_layout_nav_master_data,
+        url: '/settings/master-data',
+        icon: IconDatabase,
+      },
+      {
+        key: 'notification',
+        title: m.app_layout_nav_notification,
+        url: '/settings/notification',
+        icon: IconBell,
+      },
+      {
+        key: 'security',
+        title: m.app_layout_nav_security,
+        url: '/settings/security',
+        icon: IconShield,
+      },
     ],
   },
 ] as const
