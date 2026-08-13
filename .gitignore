@@ -30,3 +30,14 @@ dist-ssr
 
 # TanStack Router temporary files
 .tanstack/
+
+#agentic AI
+.clinerules
+.cursorrules
+.roomodes
+.windsurfrules
+.claude
+.antigravitycli
+.github
+CLAUDE.md
+CONVENTIONS.md
