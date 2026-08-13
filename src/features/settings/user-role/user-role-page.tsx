@@ -22,17 +22,24 @@ function StatCard({
   note,
   tone,
 }: {
-  icon: typeof IconUsers
-  label: string
-  value: string | number
-  note: string
-  tone: 'violet' | 'blue' | 'orange' | 'red'
+  readonly icon: typeof IconUsers
+  readonly label: string
+  readonly value: string | number
+  readonly note: string
+  readonly tone: 'violet' | 'blue' | 'orange' | 'red'
 }) {
   const tones = {
     violet: 'bg-violet-50 text-violet-500 dark:bg-violet-950/40',
     blue: 'bg-blue-50 text-blue-500 dark:bg-blue-950/40',
     orange: 'bg-orange-50 text-orange-500 dark:bg-orange-950/40',
     red: 'bg-red-50 text-red-500 dark:bg-red-950/40',
+  }
+
+  let noteColorClass = 'text-violet-500'
+  if (tone === 'red') {
+    noteColorClass = 'text-red-500'
+  } else if (tone === 'orange') {
+    noteColorClass = 'text-orange-500'
   }
 
   return (
@@ -44,11 +51,7 @@ function StatCard({
         <div>
           <p className='text-xs font-medium text-muted-foreground'>{label}</p>
           <p className='mt-1 text-2xl font-bold tracking-tight text-foreground'>{value}</p>
-          <p
-            className={`mt-1.5 text-xs font-medium ${tone === 'red' ? 'text-red-500' : tone === 'orange' ? 'text-orange-500' : 'text-violet-500'}`}
-          >
-            {note}
-          </p>
+          <p className={`mt-1.5 text-xs font-medium ${noteColorClass}`}>{note}</p>
         </div>
       </div>
     </div>
@@ -168,55 +171,71 @@ export default function UserRolePage() {
               </tr>
             </thead>
             <tbody>
-              {isRolesLoading ? (
+              {isRolesLoading && (
                 <tr>
                   <td colSpan={7} className='py-8 text-center text-sm text-muted-foreground'>
                     Loading user roles...
                   </td>
                 </tr>
-              ) : roles.length === 0 ? (
+              )}
+              {!isRolesLoading && roles.length === 0 && (
                 <tr>
                   <td colSpan={7} className='py-8 text-center text-sm text-muted-foreground'>
                     No roles found.
                   </td>
                 </tr>
-              ) : (
-                roles.map((role) => (
-                  <tr
-                    key={role.id || role.name}
-                    className='border-t border-border/80 text-sm text-foreground transition-colors hover:bg-muted/30'
-                  >
-                    <td className='px-4 py-3 font-semibold'>
-                      <span className='mr-2.5 inline-flex rounded-md bg-blue-50 p-1 text-blue-500 dark:bg-blue-950/40'>
-                        <IconShieldCheck size={15} />
-                      </span>
-                      {role.name}
-                    </td>
-                    <td className='px-4 py-3'>{role.users}</td>
-                    <td className='px-4 py-3'>
-                      <span
-                        className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${role.scope === 'Company' ? 'bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400' : role.scope === 'Team' ? 'bg-violet-50 text-violet-600 dark:bg-violet-950/40 dark:text-violet-400' : 'bg-fuchsia-50 text-fuchsia-600 dark:bg-fuchsia-950/40 dark:text-fuchsia-400'}`}
-                      >
-                        {role.scope}
-                      </span>
-                    </td>
-                    <td className='px-4 py-3 font-medium text-blue-600 dark:text-blue-400'>
-                      {role.coverage}
-                    </td>
-                    <td className='px-4 py-3 text-muted-foreground'>{role.updatedAt}</td>
-                    <td className='px-4 py-3'>
-                      <span className='inline-flex rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400'>
-                        {role.status}
-                      </span>
-                    </td>
-                    <td className='px-4 py-3 text-center'>
-                      <Button variant='outline' size='xs' className='min-w-16'>
-                        {role.action ?? <IconDots size={16} />}
-                      </Button>
-                    </td>
-                  </tr>
-                ))
               )}
+              {!isRolesLoading &&
+                roles.length > 0 &&
+                roles.map((role) => {
+                  const getScopeClass = (scope: string) => {
+                    if (scope === 'Company') {
+                      return 'bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400'
+                    }
+                    if (scope === 'Team') {
+                      return 'bg-violet-50 text-violet-600 dark:bg-violet-950/40 dark:text-violet-400'
+                    }
+                    return 'bg-fuchsia-50 text-fuchsia-600 dark:bg-fuchsia-950/40 dark:text-fuchsia-400'
+                  }
+
+                  const scopeClass = getScopeClass(role.scope)
+
+                  return (
+                    <tr
+                      key={role.id || role.name}
+                      className='border-t border-border/80 text-sm text-foreground transition-colors hover:bg-muted/30'
+                    >
+                      <td className='px-4 py-3 font-semibold'>
+                        <span className='mr-2.5 inline-flex rounded-md bg-blue-50 p-1 text-blue-500 dark:bg-blue-950/40'>
+                          <IconShieldCheck size={15} />
+                        </span>
+                        {role.name}
+                      </td>
+                      <td className='px-4 py-3'>{role.users}</td>
+                      <td className='px-4 py-3'>
+                        <span
+                          className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${scopeClass}`}
+                        >
+                          {role.scope}
+                        </span>
+                      </td>
+                      <td className='px-4 py-3 font-medium text-blue-600 dark:text-blue-400'>
+                        {role.coverage}
+                      </td>
+                      <td className='px-4 py-3 text-muted-foreground'>{role.updatedAt}</td>
+                      <td className='px-4 py-3'>
+                        <span className='inline-flex rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400'>
+                          {role.status}
+                        </span>
+                      </td>
+                      <td className='px-4 py-3 text-center'>
+                        <Button variant='outline' size='xs' className='min-w-16'>
+                          {role.action ?? <IconDots size={16} />}
+                        </Button>
+                      </td>
+                    </tr>
+                  )
+                })}
             </tbody>
           </table>
         </div>
