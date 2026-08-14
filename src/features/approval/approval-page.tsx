@@ -17,14 +17,10 @@ import { AppMain } from '@/shared/components/app-layout/app-main'
 import { snackbar } from '@/shared/lib/snackbar'
 import { cn } from '@/shared/lib/utils'
 
+import { useApprovalRequests, useApproveRequest, useRejectRequest } from './hooks'
 import { dummyWorkflows, moduleColors, moduleLabels } from '../approval-workflow/data'
-import { approveRequest, rejectRequest } from './api'
 import { ApprovalDetailDrawer } from './components/detail-drawer'
 import type { ApprovalRequest } from './types'
-
-interface ApprovalPageProps {
-  initialRequests: ApprovalRequest[]
-}
 
 type TabType = string
 type StatusFilterType = 'all' | 'pending' | 'approved' | 'rejected'
@@ -39,8 +35,13 @@ const tabConfig: Record<string, { label: string; icon: typeof IconCategory }> = 
   promotion: { label: 'Promosi', icon: IconCoin },
 }
 
-export function ApprovalPage({ initialRequests }: Readonly<ApprovalPageProps>) {
-  const [requests, setRequests] = useState<ApprovalRequest[]>(initialRequests)
+export function ApprovalPage() {
+  const { data, isPending, error } = useApprovalRequests()
+  const { mutateAsync: approve } = useApproveRequest()
+  const { mutateAsync: reject } = useRejectRequest()
+
+  const requests = data?.items ?? []
+
   const [activeTab, setActiveTab] = useState<TabType>('all')
   const [statusFilter, setStatusFilter] = useState<StatusFilterType>('pending')
   const [searchQuery, setSearchQuery] = useState('')
@@ -59,26 +60,26 @@ export function ApprovalPage({ initialRequests }: Readonly<ApprovalPageProps>) {
   // Handlers
   const handleApprove = async (id: string, note = '') => {
     try {
-      const res = await approveRequest(id, note)
-      if (res.success) {
-        setRequests((prev) => prev.map((r) => (r.id === id ? res.request : r)))
-        snackbar.success('Pengajuan berhasil disetujui!')
-      }
-    } catch {
-      snackbar.error('Gagal memproses persetujuan.')
+      await approve({ id, note })
+      snackbar.success('Pengajuan berhasil disetujui!')
+      setSelectedRequest(null)
+    } catch (err) {
+      snackbar.exception(err)
     }
   }
 
   const handleReject = async (id: string, note = '') => {
     try {
-      const res = await rejectRequest(id, note)
-      if (res.success) {
-        setRequests((prev) => prev.map((r) => (r.id === id ? res.request : r)))
-        snackbar.success('Pengajuan berhasil ditolak.')
-      }
-    } catch {
-      snackbar.error('Gagal memproses penolakan.')
+      await reject({ id, note })
+      snackbar.success('Pengajuan berhasil ditolak.')
+      setSelectedRequest(null)
+    } catch (err) {
+      snackbar.exception(err)
     }
+  }
+
+  if (isPending || error) {
+    return <AppMain pending={isPending} error={error} notFound={requests.length === 0} />
   }
 
   // Filter requests

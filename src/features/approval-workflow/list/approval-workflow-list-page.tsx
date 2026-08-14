@@ -21,6 +21,7 @@ import { AppMain } from '@/shared/components/app-layout/app-main'
 import { Button } from '@/shared/components/ui/button'
 import { cn } from '@/shared/lib/utils'
 
+import { useWorkflows } from '../hooks'
 import { moduleColors, moduleLabels } from '../data'
 import type { Workflow, WorkflowStatus } from '../types'
 
@@ -157,13 +158,15 @@ function WorkflowRow({ workflow }: { workflow: Workflow }) {
   )
 }
 
-interface ApprovalWorkflowListPageProps {
-  workflows: Workflow[]
-}
-
-export function ApprovalWorkflowListPage({ workflows }: Readonly<ApprovalWorkflowListPageProps>) {
+export function ApprovalWorkflowListPage() {
   const [search, setSearch] = useState('')
   const [filterStatus, setFilterStatus] = useState<WorkflowStatus | 'all'>('all')
+
+  const { data: workflows, isPending, error } = useWorkflows()
+
+  if (isPending || error || !workflows) {
+    return <AppMain pending={isPending} error={error} notFound={!workflows} />
+  }
 
   const totalActive = workflows.filter((w) => w.status === 'active').length
   const totalRequests = workflows.reduce((s, w) => s + w.totalRequests, 0)

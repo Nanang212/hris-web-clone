@@ -1,106 +1,35 @@
-import { dummyApprovalLevels, dummyWorkflows } from '../approval-workflow/data'
-import { dummyApprovalRequests } from './data'
+// api.ts — Approval Inbox data fetching via backend API
+import { apiClient } from '@/shared/lib/axios'
+import type { Envelope, PaginatedData } from '@/shared/types'
 import type { ApprovalRequest } from './types'
 
-const delay = (ms = 600) => new Promise((resolve) => setTimeout(resolve, ms))
+export interface FetchApprovalsParams {
+  requestType?: string
+  status?: string
+  search?: string
+  cursor?: string
+  limit?: number
+}
 
-export async function fetchApprovalRequests(): Promise<ApprovalRequest[]> {
-  await delay(500)
+// ─── Fetch Approvals List (Paginated) ──────────────────────────────────────────
 
-  // Map and enrich dummy requests dynamically based on the active workflows in approval-workflow
-  const enrichedRequests = dummyApprovalRequests.map((req) => {
-    const workflow = dummyWorkflows.find(
-      (w) => w.module === req.requestType && w.status === 'active',
-    )
-
-    if (workflow) {
-      const levels = dummyApprovalLevels[workflow.id] || []
-      const newTotalLevels = levels.length || req.totalLevels
-      const currentLevel = Math.min(req.currentLevel, newTotalLevels)
-
-      // Map timeline steps dynamically
-      const timeline = levels.map((lvl) => {
-        const existingStep = req.timeline.find((t) => t.level === lvl.level)
-
-        let status: 'approved' | 'pending' | 'waiting' | 'rejected' = 'waiting'
-        if (req.status === 'approved') {
-          status = 'approved'
-        } else if (lvl.level < currentLevel) {
-          status = 'approved'
-        } else if (lvl.level === currentLevel) {
-          status = req.status === 'rejected' ? 'rejected' : 'pending'
-        }
-
-        return {
-          level: lvl.level,
-          name: lvl.name,
-          approverName: existingStep?.approverName || `${lvl.name} (Anda)`,
-          status: existingStep?.status || status,
-          approvedAt: existingStep?.approvedAt,
-          note: existingStep?.note,
-        }
-      })
-
-      return {
-        ...req,
-        workflowName: workflow.name,
-        totalLevels: newTotalLevels,
-        currentLevel,
-        timeline,
-      }
-    }
-
-    return req
+export async function fetchApprovalRequests(params?: FetchApprovalsParams): Promise<PaginatedData<ApprovalRequest>> {
+  const res = await apiClient.get<Envelope<PaginatedData<ApprovalRequest>>>('/api/v1/approvals', {
+    params,
   })
-
-  return enrichedRequests
+  return res.data.data
 }
 
-export async function approveRequest(id: string, note?: string): Promise<{ success: boolean; request: ApprovalRequest }> {
-  await delay(800)
-  const reqIndex = dummyApprovalRequests.findIndex((r) => r.id === id)
-  if (reqIndex === -1) throw new Error('Request tidak ditemukan')
+// ─── Approve Request ──────────────────────────────────────────────────────────
 
-  const request = dummyApprovalRequests[reqIndex]
-  // Update timeline status for current level
-  const currentStep = request.timeline.find((t) => t.level === request.currentLevel)
-  if (currentStep) {
-    currentStep.status = 'approved'
-    currentStep.approvedAt = new Date().toISOString().replace('T', ' ').substring(0, 16)
-    currentStep.note = note || 'Disetujui.'
-  }
-
-  // Move to next level if available
-  if (request.currentLevel < request.totalLevels) {
-    request.currentLevel += 1
-    const nextStep = request.timeline.find((t) => t.level === request.currentLevel)
-    if (nextStep) {
-      nextStep.status = 'pending'
-    }
-  } else {
-    // End of workflow, set request status to approved
-    request.status = 'approved'
-  }
-
-  return { success: true, request }
+export async function approveRequest(id: string, note?: string): Promise<ApprovalRequest> {
+  const res = await apiClient.post<Envelope<ApprovalRequest>>(`/api/v1/approvals/${id}/approve`, { note })
+  return res.data.data
 }
 
-export async function rejectRequest(id: string, note?: string): Promise<{ success: boolean; request: ApprovalRequest }> {
-  await delay(800)
-  const reqIndex = dummyApprovalRequests.findIndex((r) => r.id === id)
-  if (reqIndex === -1) throw new Error('Request tidak ditemukan')
+// ─── Reject Request ───────────────────────────────────────────────────────────
 
-  const request = dummyApprovalRequests[reqIndex]
-  // Update timeline status for current level
-  const currentStep = request.timeline.find((t) => t.level === request.currentLevel)
-  if (currentStep) {
-    currentStep.status = 'approved' // technically user acted
-    currentStep.approvedAt = new Date().toISOString().replace('T', ' ').substring(0, 16)
-    currentStep.note = note || 'Ditolak.'
-  }
-
-  // Set request status to rejected
-  request.status = 'rejected'
-
-  return { success: true, request }
+export async function rejectRequest(id: string, note?: string): Promise<ApprovalRequest> {
+  const res = await apiClient.post<Envelope<ApprovalRequest>>(`/api/v1/approvals/${id}/reject`, { note })
+  return res.data.data
 }
