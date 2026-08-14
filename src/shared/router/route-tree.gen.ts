@@ -21,7 +21,6 @@ import { Route as appLeaveIndexRouteImport } from './../../routes/(app)/leave/in
 import { Route as appPayrollIndexRouteImport } from './../../routes/(app)/payroll/index'
 import { Route as appPerformanceIndexRouteImport } from './../../routes/(app)/performance/index'
 import { Route as appReportIndexRouteImport } from './../../routes/(app)/report/index'
-import { Route as appSettingsIndexRouteImport } from './../../routes/(app)/settings/index'
 import { Route as appdashboardDashboardCustomizeRouteImport } from './../../routes/(app)/(dashboard)/dashboard.customize'
 import { Route as appdashboardDashboardEmployeeRouteImport } from './../../routes/(app)/(dashboard)/dashboard.employee'
 import { Route as appdashboardDashboardExecutiveRouteImport } from './../../routes/(app)/(dashboard)/dashboard.executive'
@@ -39,6 +38,12 @@ import { Route as appCompanyOrganizationUpdateRouteImport } from './../../routes
 import { Route as appSettingsApprovalWorkflowIndexRouteImport } from './../../routes/(app)/settings/approval-workflow/index'
 import { Route as appSettingsApprovalWorkflowMatrixRouteImport } from './../../routes/(app)/settings/approval-workflow/matrix'
 import { Route as appSettingsApprovalWorkflowNewRouteImport } from './../../routes/(app)/settings/approval-workflow/new'
+import { Route as appSettingsCompanyIndexRouteImport } from './../../routes/(app)/settings/company/index'
+import { Route as appSettingsMasterDataIndexRouteImport } from './../../routes/(app)/settings/master-data/index'
+import { Route as appSettingsNotificationIndexRouteImport } from './../../routes/(app)/settings/notification/index'
+import { Route as appSettingsSecurityIndexRouteImport } from './../../routes/(app)/settings/security/index'
+import { Route as appSettingsUserRoleIndexRouteImport } from './../../routes/(app)/settings/user-role/index'
+import { Route as appSettingsUserRoleCreateRoleRouteImport } from './../../routes/(app)/settings/user-role/create-role'
 import { Route as appSettingsApprovalWorkflowIdIndexRouteImport } from './../../routes/(app)/settings/approval-workflow/$id/index'
 import { Route as appSettingsApprovalWorkflowIdConditionsRouteImport } from './../../routes/(app)/settings/approval-workflow/$id/conditions'
 import { Route as appSettingsApprovalWorkflowIdLevelsRouteImport } from './../../routes/(app)/settings/approval-workflow/$id/levels'
@@ -101,11 +106,6 @@ const appPerformanceIndexRoute = appPerformanceIndexRouteImport.update({
 const appReportIndexRoute = appReportIndexRouteImport.update({
   id: '/report/',
   path: '/report/',
-  getParentRoute: () => appRouteRoute,
-} as any)
-const appSettingsIndexRoute = appSettingsIndexRouteImport.update({
-  id: '/settings/',
-  path: '/settings/',
   getParentRoute: () => appRouteRoute,
 } as any)
 const appdashboardDashboardCustomizeRoute =
@@ -205,6 +205,41 @@ const appSettingsApprovalWorkflowNewRoute =
     path: '/settings/approval-workflow/new',
     getParentRoute: () => appRouteRoute,
   } as any)
+const appSettingsCompanyIndexRoute = appSettingsCompanyIndexRouteImport.update({
+  id: '/settings/company/',
+  path: '/settings/company/',
+  getParentRoute: () => appRouteRoute,
+} as any)
+const appSettingsMasterDataIndexRoute =
+  appSettingsMasterDataIndexRouteImport.update({
+    id: '/settings/master-data/',
+    path: '/settings/master-data/',
+    getParentRoute: () => appRouteRoute,
+  } as any)
+const appSettingsNotificationIndexRoute =
+  appSettingsNotificationIndexRouteImport.update({
+    id: '/settings/notification/',
+    path: '/settings/notification/',
+    getParentRoute: () => appRouteRoute,
+  } as any)
+const appSettingsSecurityIndexRoute =
+  appSettingsSecurityIndexRouteImport.update({
+    id: '/settings/security/',
+    path: '/settings/security/',
+    getParentRoute: () => appRouteRoute,
+  } as any)
+const appSettingsUserRoleIndexRoute =
+  appSettingsUserRoleIndexRouteImport.update({
+    id: '/settings/user-role/',
+    path: '/settings/user-role/',
+    getParentRoute: () => appRouteRoute,
+  } as any)
+const appSettingsUserRoleCreateRoleRoute =
+  appSettingsUserRoleCreateRoleRouteImport.update({
+    id: '/settings/user-role/create-role',
+    path: '/settings/user-role/create-role',
+    getParentRoute: () => appRouteRoute,
+  } as any)
 const appSettingsApprovalWorkflowIdIndexRoute =
   appSettingsApprovalWorkflowIdIndexRouteImport.update({
     id: '/settings/approval-workflow/$id/',
@@ -242,7 +277,6 @@ export interface FileRoutesByFullPath {
   '/payroll/': typeof appPayrollIndexRoute
   '/performance/': typeof appPerformanceIndexRoute
   '/report/': typeof appReportIndexRoute
-  '/settings/': typeof appSettingsIndexRoute
   '/dashboard/customize': typeof appdashboardDashboardCustomizeRoute
   '/dashboard/employee': typeof appdashboardDashboardEmployeeRoute
   '/dashboard/executive': typeof appdashboardDashboardExecutiveRoute
@@ -256,10 +290,16 @@ export interface FileRoutesByFullPath {
   '/company/organization/update': typeof appCompanyOrganizationUpdateRoute
   '/settings/approval-workflow/matrix': typeof appSettingsApprovalWorkflowMatrixRoute
   '/settings/approval-workflow/new': typeof appSettingsApprovalWorkflowNewRoute
+  '/settings/user-role/create-role': typeof appSettingsUserRoleCreateRoleRoute
   '/company/document/': typeof appCompanyDocumentIndexRoute
   '/company/employee/': typeof appCompanyEmployeeIndexRoute
   '/company/organization/': typeof appCompanyOrganizationIndexRoute
   '/settings/approval-workflow/': typeof appSettingsApprovalWorkflowIndexRoute
+  '/settings/company/': typeof appSettingsCompanyIndexRoute
+  '/settings/master-data/': typeof appSettingsMasterDataIndexRoute
+  '/settings/notification/': typeof appSettingsNotificationIndexRoute
+  '/settings/security/': typeof appSettingsSecurityIndexRoute
+  '/settings/user-role/': typeof appSettingsUserRoleIndexRoute
   '/settings/approval-workflow/$id/conditions': typeof appSettingsApprovalWorkflowIdConditionsRoute
   '/settings/approval-workflow/$id/levels': typeof appSettingsApprovalWorkflowIdLevelsRoute
   '/settings/approval-workflow/$id/test': typeof appSettingsApprovalWorkflowIdTestRoute
@@ -277,7 +317,6 @@ export interface FileRoutesByTo {
   '/payroll': typeof appPayrollIndexRoute
   '/performance': typeof appPerformanceIndexRoute
   '/report': typeof appReportIndexRoute
-  '/settings': typeof appSettingsIndexRoute
   '/dashboard/customize': typeof appdashboardDashboardCustomizeRoute
   '/dashboard/employee': typeof appdashboardDashboardEmployeeRoute
   '/dashboard/executive': typeof appdashboardDashboardExecutiveRoute
@@ -291,10 +330,16 @@ export interface FileRoutesByTo {
   '/company/organization/update': typeof appCompanyOrganizationUpdateRoute
   '/settings/approval-workflow/matrix': typeof appSettingsApprovalWorkflowMatrixRoute
   '/settings/approval-workflow/new': typeof appSettingsApprovalWorkflowNewRoute
+  '/settings/user-role/create-role': typeof appSettingsUserRoleCreateRoleRoute
   '/company/document': typeof appCompanyDocumentIndexRoute
   '/company/employee': typeof appCompanyEmployeeIndexRoute
   '/company/organization': typeof appCompanyOrganizationIndexRoute
   '/settings/approval-workflow': typeof appSettingsApprovalWorkflowIndexRoute
+  '/settings/company': typeof appSettingsCompanyIndexRoute
+  '/settings/master-data': typeof appSettingsMasterDataIndexRoute
+  '/settings/notification': typeof appSettingsNotificationIndexRoute
+  '/settings/security': typeof appSettingsSecurityIndexRoute
+  '/settings/user-role': typeof appSettingsUserRoleIndexRoute
   '/settings/approval-workflow/$id/conditions': typeof appSettingsApprovalWorkflowIdConditionsRoute
   '/settings/approval-workflow/$id/levels': typeof appSettingsApprovalWorkflowIdLevelsRoute
   '/settings/approval-workflow/$id/test': typeof appSettingsApprovalWorkflowIdTestRoute
@@ -314,7 +359,6 @@ export interface FileRoutesById {
   '/(app)/payroll/': typeof appPayrollIndexRoute
   '/(app)/performance/': typeof appPerformanceIndexRoute
   '/(app)/report/': typeof appReportIndexRoute
-  '/(app)/settings/': typeof appSettingsIndexRoute
   '/(app)/(dashboard)/dashboard/customize': typeof appdashboardDashboardCustomizeRoute
   '/(app)/(dashboard)/dashboard/employee': typeof appdashboardDashboardEmployeeRoute
   '/(app)/(dashboard)/dashboard/executive': typeof appdashboardDashboardExecutiveRoute
@@ -328,10 +372,16 @@ export interface FileRoutesById {
   '/(app)/company/organization/update': typeof appCompanyOrganizationUpdateRoute
   '/(app)/settings/approval-workflow/matrix': typeof appSettingsApprovalWorkflowMatrixRoute
   '/(app)/settings/approval-workflow/new': typeof appSettingsApprovalWorkflowNewRoute
+  '/(app)/settings/user-role/create-role': typeof appSettingsUserRoleCreateRoleRoute
   '/(app)/company/document/': typeof appCompanyDocumentIndexRoute
   '/(app)/company/employee/': typeof appCompanyEmployeeIndexRoute
   '/(app)/company/organization/': typeof appCompanyOrganizationIndexRoute
   '/(app)/settings/approval-workflow/': typeof appSettingsApprovalWorkflowIndexRoute
+  '/(app)/settings/company/': typeof appSettingsCompanyIndexRoute
+  '/(app)/settings/master-data/': typeof appSettingsMasterDataIndexRoute
+  '/(app)/settings/notification/': typeof appSettingsNotificationIndexRoute
+  '/(app)/settings/security/': typeof appSettingsSecurityIndexRoute
+  '/(app)/settings/user-role/': typeof appSettingsUserRoleIndexRoute
   '/(app)/settings/approval-workflow/$id/conditions': typeof appSettingsApprovalWorkflowIdConditionsRoute
   '/(app)/settings/approval-workflow/$id/levels': typeof appSettingsApprovalWorkflowIdLevelsRoute
   '/(app)/settings/approval-workflow/$id/test': typeof appSettingsApprovalWorkflowIdTestRoute
@@ -351,7 +401,6 @@ export interface FileRouteTypes {
     | '/payroll/'
     | '/performance/'
     | '/report/'
-    | '/settings/'
     | '/dashboard/customize'
     | '/dashboard/employee'
     | '/dashboard/executive'
@@ -365,10 +414,16 @@ export interface FileRouteTypes {
     | '/company/organization/update'
     | '/settings/approval-workflow/matrix'
     | '/settings/approval-workflow/new'
+    | '/settings/user-role/create-role'
     | '/company/document/'
     | '/company/employee/'
     | '/company/organization/'
     | '/settings/approval-workflow/'
+    | '/settings/company/'
+    | '/settings/master-data/'
+    | '/settings/notification/'
+    | '/settings/security/'
+    | '/settings/user-role/'
     | '/settings/approval-workflow/$id/conditions'
     | '/settings/approval-workflow/$id/levels'
     | '/settings/approval-workflow/$id/test'
@@ -386,7 +441,6 @@ export interface FileRouteTypes {
     | '/payroll'
     | '/performance'
     | '/report'
-    | '/settings'
     | '/dashboard/customize'
     | '/dashboard/employee'
     | '/dashboard/executive'
@@ -400,10 +454,16 @@ export interface FileRouteTypes {
     | '/company/organization/update'
     | '/settings/approval-workflow/matrix'
     | '/settings/approval-workflow/new'
+    | '/settings/user-role/create-role'
     | '/company/document'
     | '/company/employee'
     | '/company/organization'
     | '/settings/approval-workflow'
+    | '/settings/company'
+    | '/settings/master-data'
+    | '/settings/notification'
+    | '/settings/security'
+    | '/settings/user-role'
     | '/settings/approval-workflow/$id/conditions'
     | '/settings/approval-workflow/$id/levels'
     | '/settings/approval-workflow/$id/test'
@@ -422,7 +482,6 @@ export interface FileRouteTypes {
     | '/(app)/payroll/'
     | '/(app)/performance/'
     | '/(app)/report/'
-    | '/(app)/settings/'
     | '/(app)/(dashboard)/dashboard/customize'
     | '/(app)/(dashboard)/dashboard/employee'
     | '/(app)/(dashboard)/dashboard/executive'
@@ -436,10 +495,16 @@ export interface FileRouteTypes {
     | '/(app)/company/organization/update'
     | '/(app)/settings/approval-workflow/matrix'
     | '/(app)/settings/approval-workflow/new'
+    | '/(app)/settings/user-role/create-role'
     | '/(app)/company/document/'
     | '/(app)/company/employee/'
     | '/(app)/company/organization/'
     | '/(app)/settings/approval-workflow/'
+    | '/(app)/settings/company/'
+    | '/(app)/settings/master-data/'
+    | '/(app)/settings/notification/'
+    | '/(app)/settings/security/'
+    | '/(app)/settings/user-role/'
     | '/(app)/settings/approval-workflow/$id/conditions'
     | '/(app)/settings/approval-workflow/$id/levels'
     | '/(app)/settings/approval-workflow/$id/test'
@@ -538,13 +603,6 @@ declare module '@tanstack/react-router' {
       path: '/report'
       fullPath: '/report/'
       preLoaderRoute: typeof appReportIndexRouteImport
-      parentRoute: typeof appRouteRoute
-    }
-    '/(app)/settings/': {
-      id: '/(app)/settings/'
-      path: '/settings'
-      fullPath: '/settings/'
-      preLoaderRoute: typeof appSettingsIndexRouteImport
       parentRoute: typeof appRouteRoute
     }
     '/(app)/(dashboard)/dashboard/customize': {
@@ -666,6 +724,48 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof appSettingsApprovalWorkflowNewRouteImport
       parentRoute: typeof appRouteRoute
     }
+    '/(app)/settings/company/': {
+      id: '/(app)/settings/company/'
+      path: '/settings/company'
+      fullPath: '/settings/company/'
+      preLoaderRoute: typeof appSettingsCompanyIndexRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/settings/master-data/': {
+      id: '/(app)/settings/master-data/'
+      path: '/settings/master-data'
+      fullPath: '/settings/master-data/'
+      preLoaderRoute: typeof appSettingsMasterDataIndexRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/settings/notification/': {
+      id: '/(app)/settings/notification/'
+      path: '/settings/notification'
+      fullPath: '/settings/notification/'
+      preLoaderRoute: typeof appSettingsNotificationIndexRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/settings/security/': {
+      id: '/(app)/settings/security/'
+      path: '/settings/security'
+      fullPath: '/settings/security/'
+      preLoaderRoute: typeof appSettingsSecurityIndexRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/settings/user-role/': {
+      id: '/(app)/settings/user-role/'
+      path: '/settings/user-role'
+      fullPath: '/settings/user-role/'
+      preLoaderRoute: typeof appSettingsUserRoleIndexRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/settings/user-role/create-role': {
+      id: '/(app)/settings/user-role/create-role'
+      path: '/settings/user-role/create-role'
+      fullPath: '/settings/user-role/create-role'
+      preLoaderRoute: typeof appSettingsUserRoleCreateRoleRouteImport
+      parentRoute: typeof appRouteRoute
+    }
     '/(app)/settings/approval-workflow/$id/': {
       id: '/(app)/settings/approval-workflow/$id/'
       path: '/settings/approval-workflow/$id'
@@ -705,7 +805,6 @@ interface appRouteRouteChildren {
   appPayrollIndexRoute: typeof appPayrollIndexRoute
   appPerformanceIndexRoute: typeof appPerformanceIndexRoute
   appReportIndexRoute: typeof appReportIndexRoute
-  appSettingsIndexRoute: typeof appSettingsIndexRoute
   appdashboardDashboardCustomizeRoute: typeof appdashboardDashboardCustomizeRoute
   appdashboardDashboardEmployeeRoute: typeof appdashboardDashboardEmployeeRoute
   appdashboardDashboardExecutiveRoute: typeof appdashboardDashboardExecutiveRoute
@@ -719,10 +818,16 @@ interface appRouteRouteChildren {
   appCompanyOrganizationUpdateRoute: typeof appCompanyOrganizationUpdateRoute
   appSettingsApprovalWorkflowMatrixRoute: typeof appSettingsApprovalWorkflowMatrixRoute
   appSettingsApprovalWorkflowNewRoute: typeof appSettingsApprovalWorkflowNewRoute
+  appSettingsUserRoleCreateRoleRoute: typeof appSettingsUserRoleCreateRoleRoute
   appCompanyDocumentIndexRoute: typeof appCompanyDocumentIndexRoute
   appCompanyEmployeeIndexRoute: typeof appCompanyEmployeeIndexRoute
   appCompanyOrganizationIndexRoute: typeof appCompanyOrganizationIndexRoute
   appSettingsApprovalWorkflowIndexRoute: typeof appSettingsApprovalWorkflowIndexRoute
+  appSettingsCompanyIndexRoute: typeof appSettingsCompanyIndexRoute
+  appSettingsMasterDataIndexRoute: typeof appSettingsMasterDataIndexRoute
+  appSettingsNotificationIndexRoute: typeof appSettingsNotificationIndexRoute
+  appSettingsSecurityIndexRoute: typeof appSettingsSecurityIndexRoute
+  appSettingsUserRoleIndexRoute: typeof appSettingsUserRoleIndexRoute
   appSettingsApprovalWorkflowIdConditionsRoute: typeof appSettingsApprovalWorkflowIdConditionsRoute
   appSettingsApprovalWorkflowIdLevelsRoute: typeof appSettingsApprovalWorkflowIdLevelsRoute
   appSettingsApprovalWorkflowIdTestRoute: typeof appSettingsApprovalWorkflowIdTestRoute
@@ -737,7 +842,6 @@ const appRouteRouteChildren: appRouteRouteChildren = {
   appPayrollIndexRoute: appPayrollIndexRoute,
   appPerformanceIndexRoute: appPerformanceIndexRoute,
   appReportIndexRoute: appReportIndexRoute,
-  appSettingsIndexRoute: appSettingsIndexRoute,
   appdashboardDashboardCustomizeRoute: appdashboardDashboardCustomizeRoute,
   appdashboardDashboardEmployeeRoute: appdashboardDashboardEmployeeRoute,
   appdashboardDashboardExecutiveRoute: appdashboardDashboardExecutiveRoute,
@@ -752,10 +856,16 @@ const appRouteRouteChildren: appRouteRouteChildren = {
   appSettingsApprovalWorkflowMatrixRoute:
     appSettingsApprovalWorkflowMatrixRoute,
   appSettingsApprovalWorkflowNewRoute: appSettingsApprovalWorkflowNewRoute,
+  appSettingsUserRoleCreateRoleRoute: appSettingsUserRoleCreateRoleRoute,
   appCompanyDocumentIndexRoute: appCompanyDocumentIndexRoute,
   appCompanyEmployeeIndexRoute: appCompanyEmployeeIndexRoute,
   appCompanyOrganizationIndexRoute: appCompanyOrganizationIndexRoute,
   appSettingsApprovalWorkflowIndexRoute: appSettingsApprovalWorkflowIndexRoute,
+  appSettingsCompanyIndexRoute: appSettingsCompanyIndexRoute,
+  appSettingsMasterDataIndexRoute: appSettingsMasterDataIndexRoute,
+  appSettingsNotificationIndexRoute: appSettingsNotificationIndexRoute,
+  appSettingsSecurityIndexRoute: appSettingsSecurityIndexRoute,
+  appSettingsUserRoleIndexRoute: appSettingsUserRoleIndexRoute,
   appSettingsApprovalWorkflowIdConditionsRoute:
     appSettingsApprovalWorkflowIdConditionsRoute,
   appSettingsApprovalWorkflowIdLevelsRoute:
