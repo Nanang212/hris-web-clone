@@ -1,4 +1,4 @@
-import { IconLoader2, IconSearchOff } from '@tabler/icons-react'
+import { IconLoader2, IconSearchOff, IconArrowLeft } from '@tabler/icons-react'
 import { Link, type LinkProps } from '@tanstack/react-router'
 import React from 'react'
 
@@ -24,7 +24,7 @@ type BreadcrumbItemType = {
 )
 
 type AppMainProps = React.ComponentProps<'main'> & {
-  title?: string
+  title?: React.ReactNode
   subtitle?: string
   actions?: React.ReactNode
   breadcrumbs?: BreadcrumbItemType[]
@@ -34,6 +34,8 @@ type AppMainProps = React.ComponentProps<'main'> & {
   retry?: () => void
   loadingComponent?: () => React.ReactNode
   errorComponent?: (props: { error: Error; retry?: () => void }) => React.ReactNode
+  backTo?: LinkProps['to']
+  backParams?: LinkProps['params']
 }
 
 function AppBreadcrumb({ items }: Readonly<{ items: BreadcrumbItemType[] }>) {
@@ -140,6 +142,8 @@ export function AppMain({
   retry,
   loadingComponent,
   errorComponent,
+  backTo,
+  backParams,
   className,
   children,
   ...props
@@ -177,9 +181,20 @@ export function AppMain({
             <div className='min-w-0'>
               {breadcrumbs && breadcrumbs.length > 0 && <AppBreadcrumb items={breadcrumbs} />}
               {title && (
-                <h2 className='text-2xl font-bold tracking-tight text-foreground'>{title}</h2>
+                <div className='flex items-center gap-2.5 mt-1'>
+                  {backTo && (
+                    <Link
+                      to={backTo}
+                      params={backParams}
+                      className='inline-flex h-8 w-8 items-center justify-center rounded-xl border border-border bg-card text-muted-foreground transition-all hover:bg-muted hover:text-foreground active:scale-95'
+                    >
+                      <IconArrowLeft size={16} stroke={2.5} />
+                    </Link>
+                  )}
+                  <h2 className='text-2xl font-bold tracking-tight text-foreground'>{title}</h2>
+                </div>
               )}
-              {description && <p className='mt-1 text-sm text-muted-foreground'>{description}</p>}
+              {description && <p className='mt-1.5 text-sm text-muted-foreground'>{description}</p>}
             </div>
           )}
           {actions && <div className='flex flex-wrap items-center gap-2'>{actions}</div>}

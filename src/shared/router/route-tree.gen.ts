@@ -40,6 +40,15 @@ import { Route as appSettingsApprovalWorkflowMatrixRouteImport } from './../../r
 import { Route as appSettingsApprovalWorkflowNewRouteImport } from './../../routes/(app)/settings/approval-workflow/new'
 import { Route as appSettingsCompanyIndexRouteImport } from './../../routes/(app)/settings/company/index'
 import { Route as appSettingsMasterDataIndexRouteImport } from './../../routes/(app)/settings/master-data/index'
+import { Route as appSettingsMasterDataDepartmentsRouteImport } from './../../routes/(app)/settings/master-data/departments'
+import { Route as appSettingsMasterDataDivisionsRouteImport } from './../../routes/(app)/settings/master-data/divisions'
+import { Route as appSettingsMasterDataGradesRouteImport } from './../../routes/(app)/settings/master-data/grades'
+import { Route as appSettingsMasterDataHolidaysRouteImport } from './../../routes/(app)/settings/master-data/holidays'
+import { Route as appSettingsMasterDataImportRouteImport } from './../../routes/(app)/settings/master-data/import'
+import { Route as appSettingsMasterDataLeaveTypesRouteImport } from './../../routes/(app)/settings/master-data/leave-types'
+import { Route as appSettingsMasterDataPayrollComponentsRouteImport } from './../../routes/(app)/settings/master-data/payroll-components'
+import { Route as appSettingsMasterDataPositionsRouteImport } from './../../routes/(app)/settings/master-data/positions'
+import { Route as appSettingsMasterDataShiftsRouteImport } from './../../routes/(app)/settings/master-data/shifts'
 import { Route as appSettingsNotificationIndexRouteImport } from './../../routes/(app)/settings/notification/index'
 import { Route as appSettingsSecurityIndexRouteImport } from './../../routes/(app)/settings/security/index'
 import { Route as appSettingsUserRoleIndexRouteImport } from './../../routes/(app)/settings/user-role/index'
@@ -216,6 +225,60 @@ const appSettingsMasterDataIndexRoute =
     path: '/settings/master-data/',
     getParentRoute: () => appRouteRoute,
   } as any)
+const appSettingsMasterDataDepartmentsRoute =
+  appSettingsMasterDataDepartmentsRouteImport.update({
+    id: '/settings/master-data/departments',
+    path: '/settings/master-data/departments',
+    getParentRoute: () => appRouteRoute,
+  } as any)
+const appSettingsMasterDataDivisionsRoute =
+  appSettingsMasterDataDivisionsRouteImport.update({
+    id: '/settings/master-data/divisions',
+    path: '/settings/master-data/divisions',
+    getParentRoute: () => appRouteRoute,
+  } as any)
+const appSettingsMasterDataGradesRoute =
+  appSettingsMasterDataGradesRouteImport.update({
+    id: '/settings/master-data/grades',
+    path: '/settings/master-data/grades',
+    getParentRoute: () => appRouteRoute,
+  } as any)
+const appSettingsMasterDataHolidaysRoute =
+  appSettingsMasterDataHolidaysRouteImport.update({
+    id: '/settings/master-data/holidays',
+    path: '/settings/master-data/holidays',
+    getParentRoute: () => appRouteRoute,
+  } as any)
+const appSettingsMasterDataImportRoute =
+  appSettingsMasterDataImportRouteImport.update({
+    id: '/settings/master-data/import',
+    path: '/settings/master-data/import',
+    getParentRoute: () => appRouteRoute,
+  } as any)
+const appSettingsMasterDataLeaveTypesRoute =
+  appSettingsMasterDataLeaveTypesRouteImport.update({
+    id: '/settings/master-data/leave-types',
+    path: '/settings/master-data/leave-types',
+    getParentRoute: () => appRouteRoute,
+  } as any)
+const appSettingsMasterDataPayrollComponentsRoute =
+  appSettingsMasterDataPayrollComponentsRouteImport.update({
+    id: '/settings/master-data/payroll-components',
+    path: '/settings/master-data/payroll-components',
+    getParentRoute: () => appRouteRoute,
+  } as any)
+const appSettingsMasterDataPositionsRoute =
+  appSettingsMasterDataPositionsRouteImport.update({
+    id: '/settings/master-data/positions',
+    path: '/settings/master-data/positions',
+    getParentRoute: () => appRouteRoute,
+  } as any)
+const appSettingsMasterDataShiftsRoute =
+  appSettingsMasterDataShiftsRouteImport.update({
+    id: '/settings/master-data/shifts',
+    path: '/settings/master-data/shifts',
+    getParentRoute: () => appRouteRoute,
+  } as any)
 const appSettingsNotificationIndexRoute =
   appSettingsNotificationIndexRouteImport.update({
     id: '/settings/notification/',
@@ -290,6 +353,15 @@ export interface FileRoutesByFullPath {
   '/company/organization/update': typeof appCompanyOrganizationUpdateRoute
   '/settings/approval-workflow/matrix': typeof appSettingsApprovalWorkflowMatrixRoute
   '/settings/approval-workflow/new': typeof appSettingsApprovalWorkflowNewRoute
+  '/settings/master-data/departments': typeof appSettingsMasterDataDepartmentsRoute
+  '/settings/master-data/divisions': typeof appSettingsMasterDataDivisionsRoute
+  '/settings/master-data/grades': typeof appSettingsMasterDataGradesRoute
+  '/settings/master-data/holidays': typeof appSettingsMasterDataHolidaysRoute
+  '/settings/master-data/import': typeof appSettingsMasterDataImportRoute
+  '/settings/master-data/leave-types': typeof appSettingsMasterDataLeaveTypesRoute
+  '/settings/master-data/payroll-components': typeof appSettingsMasterDataPayrollComponentsRoute
+  '/settings/master-data/positions': typeof appSettingsMasterDataPositionsRoute
+  '/settings/master-data/shifts': typeof appSettingsMasterDataShiftsRoute
   '/settings/user-role/create-role': typeof appSettingsUserRoleCreateRoleRoute
   '/company/document/': typeof appCompanyDocumentIndexRoute
   '/company/employee/': typeof appCompanyEmployeeIndexRoute
@@ -330,6 +402,15 @@ export interface FileRoutesByTo {
   '/company/organization/update': typeof appCompanyOrganizationUpdateRoute
   '/settings/approval-workflow/matrix': typeof appSettingsApprovalWorkflowMatrixRoute
   '/settings/approval-workflow/new': typeof appSettingsApprovalWorkflowNewRoute
+  '/settings/master-data/departments': typeof appSettingsMasterDataDepartmentsRoute
+  '/settings/master-data/divisions': typeof appSettingsMasterDataDivisionsRoute
+  '/settings/master-data/grades': typeof appSettingsMasterDataGradesRoute
+  '/settings/master-data/holidays': typeof appSettingsMasterDataHolidaysRoute
+  '/settings/master-data/import': typeof appSettingsMasterDataImportRoute
+  '/settings/master-data/leave-types': typeof appSettingsMasterDataLeaveTypesRoute
+  '/settings/master-data/payroll-components': typeof appSettingsMasterDataPayrollComponentsRoute
+  '/settings/master-data/positions': typeof appSettingsMasterDataPositionsRoute
+  '/settings/master-data/shifts': typeof appSettingsMasterDataShiftsRoute
   '/settings/user-role/create-role': typeof appSettingsUserRoleCreateRoleRoute
   '/company/document': typeof appCompanyDocumentIndexRoute
   '/company/employee': typeof appCompanyEmployeeIndexRoute
@@ -372,6 +453,15 @@ export interface FileRoutesById {
   '/(app)/company/organization/update': typeof appCompanyOrganizationUpdateRoute
   '/(app)/settings/approval-workflow/matrix': typeof appSettingsApprovalWorkflowMatrixRoute
   '/(app)/settings/approval-workflow/new': typeof appSettingsApprovalWorkflowNewRoute
+  '/(app)/settings/master-data/departments': typeof appSettingsMasterDataDepartmentsRoute
+  '/(app)/settings/master-data/divisions': typeof appSettingsMasterDataDivisionsRoute
+  '/(app)/settings/master-data/grades': typeof appSettingsMasterDataGradesRoute
+  '/(app)/settings/master-data/holidays': typeof appSettingsMasterDataHolidaysRoute
+  '/(app)/settings/master-data/import': typeof appSettingsMasterDataImportRoute
+  '/(app)/settings/master-data/leave-types': typeof appSettingsMasterDataLeaveTypesRoute
+  '/(app)/settings/master-data/payroll-components': typeof appSettingsMasterDataPayrollComponentsRoute
+  '/(app)/settings/master-data/positions': typeof appSettingsMasterDataPositionsRoute
+  '/(app)/settings/master-data/shifts': typeof appSettingsMasterDataShiftsRoute
   '/(app)/settings/user-role/create-role': typeof appSettingsUserRoleCreateRoleRoute
   '/(app)/company/document/': typeof appCompanyDocumentIndexRoute
   '/(app)/company/employee/': typeof appCompanyEmployeeIndexRoute
@@ -414,6 +504,15 @@ export interface FileRouteTypes {
     | '/company/organization/update'
     | '/settings/approval-workflow/matrix'
     | '/settings/approval-workflow/new'
+    | '/settings/master-data/departments'
+    | '/settings/master-data/divisions'
+    | '/settings/master-data/grades'
+    | '/settings/master-data/holidays'
+    | '/settings/master-data/import'
+    | '/settings/master-data/leave-types'
+    | '/settings/master-data/payroll-components'
+    | '/settings/master-data/positions'
+    | '/settings/master-data/shifts'
     | '/settings/user-role/create-role'
     | '/company/document/'
     | '/company/employee/'
@@ -454,6 +553,15 @@ export interface FileRouteTypes {
     | '/company/organization/update'
     | '/settings/approval-workflow/matrix'
     | '/settings/approval-workflow/new'
+    | '/settings/master-data/departments'
+    | '/settings/master-data/divisions'
+    | '/settings/master-data/grades'
+    | '/settings/master-data/holidays'
+    | '/settings/master-data/import'
+    | '/settings/master-data/leave-types'
+    | '/settings/master-data/payroll-components'
+    | '/settings/master-data/positions'
+    | '/settings/master-data/shifts'
     | '/settings/user-role/create-role'
     | '/company/document'
     | '/company/employee'
@@ -495,6 +603,15 @@ export interface FileRouteTypes {
     | '/(app)/company/organization/update'
     | '/(app)/settings/approval-workflow/matrix'
     | '/(app)/settings/approval-workflow/new'
+    | '/(app)/settings/master-data/departments'
+    | '/(app)/settings/master-data/divisions'
+    | '/(app)/settings/master-data/grades'
+    | '/(app)/settings/master-data/holidays'
+    | '/(app)/settings/master-data/import'
+    | '/(app)/settings/master-data/leave-types'
+    | '/(app)/settings/master-data/payroll-components'
+    | '/(app)/settings/master-data/positions'
+    | '/(app)/settings/master-data/shifts'
     | '/(app)/settings/user-role/create-role'
     | '/(app)/company/document/'
     | '/(app)/company/employee/'
@@ -738,6 +855,69 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof appSettingsMasterDataIndexRouteImport
       parentRoute: typeof appRouteRoute
     }
+    '/(app)/settings/master-data/departments': {
+      id: '/(app)/settings/master-data/departments'
+      path: '/settings/master-data/departments'
+      fullPath: '/settings/master-data/departments'
+      preLoaderRoute: typeof appSettingsMasterDataDepartmentsRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/settings/master-data/divisions': {
+      id: '/(app)/settings/master-data/divisions'
+      path: '/settings/master-data/divisions'
+      fullPath: '/settings/master-data/divisions'
+      preLoaderRoute: typeof appSettingsMasterDataDivisionsRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/settings/master-data/grades': {
+      id: '/(app)/settings/master-data/grades'
+      path: '/settings/master-data/grades'
+      fullPath: '/settings/master-data/grades'
+      preLoaderRoute: typeof appSettingsMasterDataGradesRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/settings/master-data/holidays': {
+      id: '/(app)/settings/master-data/holidays'
+      path: '/settings/master-data/holidays'
+      fullPath: '/settings/master-data/holidays'
+      preLoaderRoute: typeof appSettingsMasterDataHolidaysRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/settings/master-data/import': {
+      id: '/(app)/settings/master-data/import'
+      path: '/settings/master-data/import'
+      fullPath: '/settings/master-data/import'
+      preLoaderRoute: typeof appSettingsMasterDataImportRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/settings/master-data/leave-types': {
+      id: '/(app)/settings/master-data/leave-types'
+      path: '/settings/master-data/leave-types'
+      fullPath: '/settings/master-data/leave-types'
+      preLoaderRoute: typeof appSettingsMasterDataLeaveTypesRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/settings/master-data/payroll-components': {
+      id: '/(app)/settings/master-data/payroll-components'
+      path: '/settings/master-data/payroll-components'
+      fullPath: '/settings/master-data/payroll-components'
+      preLoaderRoute: typeof appSettingsMasterDataPayrollComponentsRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/settings/master-data/positions': {
+      id: '/(app)/settings/master-data/positions'
+      path: '/settings/master-data/positions'
+      fullPath: '/settings/master-data/positions'
+      preLoaderRoute: typeof appSettingsMasterDataPositionsRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/settings/master-data/shifts': {
+      id: '/(app)/settings/master-data/shifts'
+      path: '/settings/master-data/shifts'
+      fullPath: '/settings/master-data/shifts'
+      preLoaderRoute: typeof appSettingsMasterDataShiftsRouteImport
+      parentRoute: typeof appRouteRoute
+    }
     '/(app)/settings/notification/': {
       id: '/(app)/settings/notification/'
       path: '/settings/notification'
@@ -818,6 +998,15 @@ interface appRouteRouteChildren {
   appCompanyOrganizationUpdateRoute: typeof appCompanyOrganizationUpdateRoute
   appSettingsApprovalWorkflowMatrixRoute: typeof appSettingsApprovalWorkflowMatrixRoute
   appSettingsApprovalWorkflowNewRoute: typeof appSettingsApprovalWorkflowNewRoute
+  appSettingsMasterDataDepartmentsRoute: typeof appSettingsMasterDataDepartmentsRoute
+  appSettingsMasterDataDivisionsRoute: typeof appSettingsMasterDataDivisionsRoute
+  appSettingsMasterDataGradesRoute: typeof appSettingsMasterDataGradesRoute
+  appSettingsMasterDataHolidaysRoute: typeof appSettingsMasterDataHolidaysRoute
+  appSettingsMasterDataImportRoute: typeof appSettingsMasterDataImportRoute
+  appSettingsMasterDataLeaveTypesRoute: typeof appSettingsMasterDataLeaveTypesRoute
+  appSettingsMasterDataPayrollComponentsRoute: typeof appSettingsMasterDataPayrollComponentsRoute
+  appSettingsMasterDataPositionsRoute: typeof appSettingsMasterDataPositionsRoute
+  appSettingsMasterDataShiftsRoute: typeof appSettingsMasterDataShiftsRoute
   appSettingsUserRoleCreateRoleRoute: typeof appSettingsUserRoleCreateRoleRoute
   appCompanyDocumentIndexRoute: typeof appCompanyDocumentIndexRoute
   appCompanyEmployeeIndexRoute: typeof appCompanyEmployeeIndexRoute
@@ -856,6 +1045,16 @@ const appRouteRouteChildren: appRouteRouteChildren = {
   appSettingsApprovalWorkflowMatrixRoute:
     appSettingsApprovalWorkflowMatrixRoute,
   appSettingsApprovalWorkflowNewRoute: appSettingsApprovalWorkflowNewRoute,
+  appSettingsMasterDataDepartmentsRoute: appSettingsMasterDataDepartmentsRoute,
+  appSettingsMasterDataDivisionsRoute: appSettingsMasterDataDivisionsRoute,
+  appSettingsMasterDataGradesRoute: appSettingsMasterDataGradesRoute,
+  appSettingsMasterDataHolidaysRoute: appSettingsMasterDataHolidaysRoute,
+  appSettingsMasterDataImportRoute: appSettingsMasterDataImportRoute,
+  appSettingsMasterDataLeaveTypesRoute: appSettingsMasterDataLeaveTypesRoute,
+  appSettingsMasterDataPayrollComponentsRoute:
+    appSettingsMasterDataPayrollComponentsRoute,
+  appSettingsMasterDataPositionsRoute: appSettingsMasterDataPositionsRoute,
+  appSettingsMasterDataShiftsRoute: appSettingsMasterDataShiftsRoute,
   appSettingsUserRoleCreateRoleRoute: appSettingsUserRoleCreateRoleRoute,
   appCompanyDocumentIndexRoute: appCompanyDocumentIndexRoute,
   appCompanyEmployeeIndexRoute: appCompanyEmployeeIndexRoute,
