@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom'
 
 import { m } from '@/i18n/paraglide/messages'
 import { useAppLayoutStore } from '@/shared/components/app-layout/app-layout-store'
+import { SkeletonPattern } from '@/shared/components/skeleton-pattern'
 import {
   Breadcrumb,
   BreadcrumbEllipsis,
@@ -134,6 +135,22 @@ function toError(error: unknown): Error {
   return error instanceof Error ? error : new Error(String(error))
 }
 
+export function AppSkeleton() {
+  return (
+    <SkeletonPattern
+      gap={16}
+      rowGap={16}
+      height={[80, 100, 240, 100]}
+      pattern={`
+        ===========
+        ==-==-==-==
+        ========-==
+        ==-==-=====
+      `}
+    />
+  )
+}
+
 export function AppMain({
   title,
   subtitle: description,
@@ -143,7 +160,7 @@ export function AppMain({
   pending,
   error,
   retry,
-  loadingComponent,
+  loadingComponent = AppSkeleton,
   errorComponent,
   backTo,
   backParams,
