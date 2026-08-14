@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 
-import { CreateWorkflowPage } from '@/features/approval-workflow/create/create-workflow-page'
+import { CreateWorkflowPage } from '@/features/settings/approval-workflow/create/create-workflow-page'
 
 export const Route = createFileRoute('/(app)/settings/approval-workflow/new')({
   component: RouteComponent,

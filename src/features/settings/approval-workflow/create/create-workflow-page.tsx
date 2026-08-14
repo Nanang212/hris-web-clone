@@ -1,15 +1,21 @@
-// create-workflow-page.tsx
 import { IconGitBranch, IconInfoCircle } from '@tabler/icons-react'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
 
+import { moduleLabels } from '@/features/settings/approval-workflow/data'
+import {
+  useCreateWorkflow,
+  useUpdateWorkflow,
+  useWorkflow,
+} from '@/features/settings/approval-workflow/hooks'
+import type {
+  ModuleType,
+  Workflow,
+  WorkflowStatus,
+} from '@/features/settings/approval-workflow/types'
 import { AppMain } from '@/shared/components/app-layout/app-main'
 import { snackbar } from '@/shared/lib/snackbar'
 import { cn } from '@/shared/lib/utils'
-
-import { useCreateWorkflow, useUpdateWorkflow, useWorkflow } from '../hooks'
-import { moduleLabels } from '../data'
-import type { ModuleType, Workflow, WorkflowStatus } from '../types'
 
 const moduleOptions: { value: ModuleType; label: string; description: string }[] = [
   { value: 'leave', label: 'Cuti', description: 'Pengajuan cuti dan izin karyawan' },
@@ -43,19 +49,13 @@ export function CreateWorkflowPage({
   workflowId,
 }: Readonly<CreateWorkflowPageProps>) {
   const isEdit = mode === 'edit'
-  const { data: workflow, isPending, error } = useWorkflow(isEdit ? workflowId ?? '' : '')
+  const { data: workflow, isPending, error } = useWorkflow(isEdit ? (workflowId ?? '') : '')
 
   if (isEdit && (isPending || error || !workflow)) {
     return <AppMain pending={isPending} error={error} notFound={!workflow} />
   }
 
-  return (
-    <CreateWorkflowForm
-      mode={mode}
-      workflowId={workflowId}
-      initialWorkflow={workflow}
-    />
-  )
+  return <CreateWorkflowForm mode={mode} workflowId={workflowId} initialWorkflow={workflow} />
 }
 
 interface CreateWorkflowFormProps {
@@ -68,7 +68,7 @@ function CreateWorkflowForm({
   mode,
   workflowId,
   initialWorkflow,
-}: CreateWorkflowFormProps) {
+}: Readonly<CreateWorkflowFormProps>) {
   const isEdit = mode === 'edit'
   const navigate = useNavigate()
 

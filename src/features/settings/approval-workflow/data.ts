@@ -1,11 +1,4 @@
-// data.ts — Dummy data for Approval Workflow feature
-import type {
-  ApprovalLevel,
-  MatrixEntry,
-  RoutingRule,
-  TestResult,
-  Workflow,
-} from './types'
+import type { ApprovalLevel, MatrixEntry, RoutingRule, TestResult, Workflow } from './types'
 
 export const dummyWorkflows: Workflow[] = [
   {

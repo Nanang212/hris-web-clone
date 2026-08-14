@@ -1,5 +1,3 @@
-// conditions/components/rule-card.tsx
-import { useState } from 'react'
 import {
   IconChevronDown,
   IconChevronUp,
@@ -7,8 +5,10 @@ import {
   IconPlus,
   IconTrash,
 } from '@tabler/icons-react'
+import { useState } from 'react'
 
 import { cn } from '@/shared/lib/utils'
+
 import type { ConditionOperator, ConditionRule, RoutingRule } from '../../types'
 
 export const fieldOptions = [
@@ -32,14 +32,12 @@ export const operatorLabels: Record<ConditionOperator, string> = {
   not_in: 'Tidak termasuk',
 }
 
-// ─── RuleRow ─────────────────────────────────────────────────────────────────
-
 interface RuleRowProps {
   rule: ConditionRule
   onRemove: () => void
 }
 
-export function RuleRow({ rule, onRemove }: RuleRowProps) {
+export function RuleRow({ rule, onRemove }: Readonly<RuleRowProps>) {
   const fieldLabel = fieldOptions.find((f) => f.value === rule.field)?.label ?? rule.field
   return (
     <div className='flex items-center gap-2 rounded-xl border border-border bg-background px-3 py-2.5'>
@@ -160,9 +158,7 @@ export function RuleCard({ rule, idx, total }: RuleCardProps) {
                 <RuleRow
                   key={r.id}
                   rule={r}
-                  onRemove={() =>
-                    setLocalRules((prev) => prev.filter((_, i) => i !== rIdx))
-                  }
+                  onRemove={() => setLocalRules((prev) => prev.filter((_, i) => i !== rIdx))}
                 />
               ))}
 
@@ -172,7 +168,7 @@ export function RuleCard({ rule, idx, total }: RuleCardProps) {
                   <select
                     value={newRule.field}
                     onChange={(e) => setNewRule((r) => ({ ...r, field: e.target.value }))}
-                    className='h-8 flex-1 rounded-lg border border-input bg-background px-2 text-xs focus:outline-none focus:ring-2 focus:ring-ring/50'
+                    className='h-8 flex-1 rounded-lg border border-input bg-background px-2 text-xs focus:ring-2 focus:ring-ring/50 focus:outline-none'
                   >
                     {fieldOptions.map((f) => (
                       <option key={f.value} value={f.value}>
@@ -185,7 +181,7 @@ export function RuleCard({ rule, idx, total }: RuleCardProps) {
                     onChange={(e) =>
                       setNewRule((r) => ({ ...r, operator: e.target.value as ConditionOperator }))
                     }
-                    className='h-8 w-20 rounded-lg border border-input bg-background px-2 text-xs focus:outline-none focus:ring-2 focus:ring-ring/50'
+                    className='h-8 w-20 rounded-lg border border-input bg-background px-2 text-xs focus:ring-2 focus:ring-ring/50 focus:outline-none'
                   >
                     {(Object.entries(operatorLabels) as [ConditionOperator, string][]).map(
                       ([op, label]) => (
@@ -200,7 +196,7 @@ export function RuleCard({ rule, idx, total }: RuleCardProps) {
                     placeholder='Nilai'
                     value={String(newRule.value ?? '')}
                     onChange={(e) => setNewRule((r) => ({ ...r, value: e.target.value }))}
-                    className='h-8 w-24 rounded-lg border border-input bg-background px-2 text-xs focus:outline-none focus:ring-2 focus:ring-ring/50'
+                    className='h-8 w-24 rounded-lg border border-input bg-background px-2 text-xs focus:ring-2 focus:ring-ring/50 focus:outline-none'
                   />
                   <button
                     type='button'

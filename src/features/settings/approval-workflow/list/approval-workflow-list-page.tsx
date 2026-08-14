@@ -1,4 +1,3 @@
-// approval-workflow-list-page.tsx
 import {
   IconBolt,
   IconCheck,
@@ -21,8 +20,8 @@ import { AppMain } from '@/shared/components/app-layout/app-main'
 import { Button } from '@/shared/components/ui/button'
 import { cn } from '@/shared/lib/utils'
 
-import { useWorkflows } from '../hooks'
 import { moduleColors, moduleLabels } from '../data'
+import { useWorkflows } from '../hooks'
 import type { Workflow, WorkflowStatus } from '../types'
 
 const statusConfig: Record<WorkflowStatus, { label: string; icon: typeof IconCheck; cls: string }> =
