@@ -79,7 +79,7 @@ export function ApprovalPage() {
   }
 
   if (isPending || error) {
-    return <AppMain pending={isPending} error={error} notFound={requests.length === 0} />
+    return <AppMain pending={isPending} error={error} />
   }
 
   // Filter requests
