@@ -114,10 +114,10 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu className='gap-1.5'>
               {mainMenu.map((item) => {
-                const hasSubItems = 'items' in item && item.items.length > 0
+                const hasSubItems = 'items' in item && item.items?.length
 
                 const isActive = hasSubItems
-                  ? item.items.some((subItem) => pathname.startsWith(subItem.to))
+                  ? item.items?.some((subItem) => subItem.to && pathname.startsWith(subItem.to))
                   : pathname === item.to || pathname.startsWith(item.to + '/')
 
                 if (!hasSubItems) {
@@ -125,7 +125,7 @@ export function AppSidebar() {
                     <SidebarMenuItem key={item.key}>
                       <SidebarMenuButton asChild isActive={isActive}>
                         <Link to={item.to}>
-                          <item.icon size={24} stroke={1.75} />
+                          {item.icon && <item.icon size={24} stroke={1.75} />}
                           <span>{item.title()}</span>
                         </Link>
                       </SidebarMenuButton>
@@ -143,7 +143,7 @@ export function AppSidebar() {
                     <SidebarMenuItem>
                       <CollapsibleTrigger asChild>
                         <SidebarMenuButton isActive={isActive}>
-                          <item.icon size={24} stroke={1.75} />
+                          {item.icon && <item.icon size={24} stroke={1.75} />}
                           <span>{item.title()}</span>
                           <IconChevronRight
                             size={16}
@@ -153,8 +153,8 @@ export function AppSidebar() {
                       </CollapsibleTrigger>
                       <CollapsibleContent>
                         <SidebarMenuSub>
-                          {item.items.map((subItem) => {
-                            const isSubActive = pathname.startsWith(subItem.to)
+                          {item.items?.map((subItem) => {
+                            const isSubActive = subItem.to && pathname.startsWith(subItem.to)
                             return (
                               <SidebarMenuSubItem key={subItem.to}>
                                 <SidebarMenuSubButton asChild isActive={isSubActive}>

@@ -22,7 +22,7 @@ import { m } from '@/i18n/paraglide/messages'
 
 type Menu = {
   key: string
-  to: LinkProps['to']
+  to: NonNullable<LinkProps['to']>
   icon?: React.ForwardRefExoticComponent<IconProps & React.RefAttributes<SVGSVGElement>>
   title: () => string
   items?: Menu[]
