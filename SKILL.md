@@ -81,7 +81,7 @@ export const signIn = async (req: SignIn) => {
 ## 4. `hooks.ts`
 
 - One hook per endpoint in `api.ts`. Naming:
-  - Queries: `useGet<Thing>` for a single/page-scoped fetch (`useGetEmployeeDashboard`), or `use<Things>` / `use<Thing>` for a resource-style feature (`useRoles`, `useRole`).
+  - Queries: `useGet<Thing>` for a single/page-scoped fetch (`useGetEmployeeDashboard`).
   - Mutations: `use<Verb><Thing>` (`useSignIn`, `useSignOut`, `useCreateRole`, `useUpdateRole`, `useDeleteRole`).
 - Query hooks: use `select` to unwrap the envelope so page components consume plain data, not `{ data, success, code, messages }`.
 
@@ -94,7 +94,7 @@ export const userRoleQueryKeys = {
   detail: (id: string) => [...userRoleQueryKeys.all, "detail", id] as const,
 };
 
-export function useRoles(params?: RoleFilterParams) {
+export function useGetRoles(params?: RoleFilterParams) {
   return useQuery({
     queryKey: userRoleQueryKeys.list(params),
     queryFn: () => getRoles(params),
