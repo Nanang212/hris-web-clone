@@ -12,13 +12,34 @@ import { MyRequestCenter } from '@/features/dashboard/employee/components/my-req
 import { useGetEmployeeDashboard } from '@/features/dashboard/hooks'
 import { m } from '@/i18n/paraglide/messages'
 import { AppMain } from '@/shared/components/app-layout/app-main'
+import { SkeletonPattern } from '@/shared/components/skeleton-pattern'
 import { Button } from '@/shared/components/ui/button'
 
 export function EmployeeDashboardPage() {
   const { data, isPending, error } = useGetEmployeeDashboard()
 
   if (isPending || error || !data) {
-    return <AppMain pending={isPending} error={error} notFound={!data} />
+    return (
+      <AppMain
+        pending={isPending}
+        error={error}
+        notFound={!data}
+        loadingComponent={
+          <SkeletonPattern
+            gap={16}
+            rowGap={16}
+            height={[64, 166, 311, 252, 72]}
+            pattern={`
+              ===========
+              ==-==-==-==
+              ========-==
+              ===-===-===
+              ===========
+            `}
+          />
+        }
+      />
+    )
   }
 
   return (

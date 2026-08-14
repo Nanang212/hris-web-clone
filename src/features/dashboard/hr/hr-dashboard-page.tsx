@@ -12,13 +12,34 @@ import { AlertBanner, HrActionCenter } from '@/features/dashboard/hr/components/
 import { WorkforceTrendChart } from '@/features/dashboard/hr/components/workforce-trend-chart'
 import { m } from '@/i18n/paraglide/messages'
 import { AppMain } from '@/shared/components/app-layout/app-main'
+import { SkeletonPattern } from '@/shared/components/skeleton-pattern'
 import { Button } from '@/shared/components/ui/button'
 
 export function DashboardPage() {
   const { data, isPending, error } = useGetHrDashboard()
 
   if (isPending || error || !data) {
-    return <AppMain pending={isPending} error={error} notFound={!data} />
+    return (
+      <AppMain
+        pending={isPending}
+        error={error}
+        notFound={!data}
+        loadingComponent={
+          <SkeletonPattern
+            gap={16}
+            rowGap={16}
+            height={[64, 166, 311, 252, 72]}
+            pattern={`
+              ===========
+              ==-==-==-==
+              ========-==
+              ===-===-===
+              ===========
+            `}
+          />
+        }
+      />
+    )
   }
 
   return (

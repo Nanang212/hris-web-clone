@@ -12,6 +12,7 @@ import { switchLocale, useLocale } from '@/i18n/local-store'
 import { m } from '@/i18n/paraglide/messages'
 import { locales } from '@/i18n/paraglide/runtime'
 import { AppCommandMenu } from '@/shared/components/app-layout/app-command-menu'
+import { useAppLayoutStore } from '@/shared/components/app-layout/app-layout-store'
 import { useTheme } from '@/shared/components/theme-provider'
 import { Avatar, AvatarFallback, AvatarImage } from '@/shared/components/ui/avatar'
 import { Badge } from '@/shared/components/ui/badge'
@@ -30,7 +31,7 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from '@/shared/components/ui/dropdown-menu'
-import { SidebarTrigger } from '@/shared/components/ui/sidebar'
+import { SidebarTrigger, useSidebar } from '@/shared/components/ui/sidebar'
 import { cn } from '@/shared/lib/utils'
 
 const THEME_OPTIONS = [
@@ -167,9 +168,23 @@ export function AppNavbar({
   user,
   notificationCount = 2,
 }: Readonly<AppNavbarProps>) {
+  const setBackBtnNode = useAppLayoutStore((state) => state.setBackBtnNode)
+  const hasBackButton = useAppLayoutStore((state) => state.hasBackButton)
+  const { open } = useSidebar()
+
   return (
-    <nav className={cn('flex h-16 items-center gap-4 bg-sidebar px-4 lg:px-6', className)}>
-      <SidebarTrigger className='-ml-1' />
+    <nav
+      className={cn(
+        'flex h-16 items-center gap-4 bg-sidebar px-4 transition-all',
+        open && 'lg:px-0',
+        className,
+      )}
+    >
+      <div className={cn(!hasBackButton && 'hidden')} ref={setBackBtnNode}></div>
+
+      <Button variant='outline' size='icon'>
+        <SidebarTrigger />
+      </Button>
 
       <h1 className='text-lg font-semibold tracking-tight'>{title}</h1>
 

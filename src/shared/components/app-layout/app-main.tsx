@@ -1,8 +1,10 @@
-import { IconLoader2, IconSearchOff, IconArrowLeft } from '@tabler/icons-react'
+import { IconChevronLeft, IconLoader2, IconSearchOff } from '@tabler/icons-react'
 import { Link, type LinkProps } from '@tanstack/react-router'
-import React from 'react'
+import React, { useEffect } from 'react'
+import { createPortal } from 'react-dom'
 
 import { m } from '@/i18n/paraglide/messages'
+import { useAppLayoutStore } from '@/shared/components/app-layout/app-layout-store'
 import {
   Breadcrumb,
   BreadcrumbEllipsis,
@@ -12,6 +14,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/shared/components/ui/breadcrumb'
+import { Button } from '@/shared/components/ui/button'
 import { useSidebar } from '@/shared/components/ui/sidebar'
 import { isAxiosError } from '@/shared/lib/axios'
 import { cn } from '@/shared/lib/utils'
@@ -32,7 +35,7 @@ type AppMainProps = React.ComponentProps<'main'> & {
   pending?: boolean
   error?: Error | null
   retry?: () => void
-  loadingComponent?: () => React.ReactNode
+  loadingComponent?: React.ReactNode | (() => React.ReactNode)
   errorComponent?: (props: { error: Error; retry?: () => void }) => React.ReactNode
   backTo?: LinkProps['to']
   backParams?: LinkProps['params']
@@ -149,10 +152,20 @@ export function AppMain({
   ...props
 }: AppMainProps) {
   const { open } = useSidebar()
+  const backBtnNode = useAppLayoutStore((state) => state.backBtnNode)
+  const setHasBackButton = useAppLayoutStore((state) => state.setHasBackButton)
+
+  useEffect(() => {
+    setHasBackButton(!!backTo)
+    return () => setHasBackButton(false)
+  }, [backTo, setHasBackButton])
 
   let content: React.ReactNode
   if (pending) {
-    content = loadingComponent ? loadingComponent() : <AppMainLoading />
+    content =
+      typeof loadingComponent === 'function'
+        ? loadingComponent()
+        : (loadingComponent ?? <AppMainLoading />)
   } else if (error) {
     const normalizedError = toError(error)
     content = errorComponent ? (
@@ -181,16 +194,17 @@ export function AppMain({
             <div className='min-w-0'>
               {breadcrumbs && breadcrumbs.length > 0 && <AppBreadcrumb items={breadcrumbs} />}
               {title && (
-                <div className='flex items-center gap-2.5 mt-1'>
-                  {backTo && (
-                    <Link
-                      to={backTo}
-                      params={backParams}
-                      className='inline-flex h-8 w-8 items-center justify-center rounded-xl border border-border bg-card text-muted-foreground transition-all hover:bg-muted hover:text-foreground active:scale-95'
-                    >
-                      <IconArrowLeft size={16} stroke={2.5} />
-                    </Link>
-                  )}
+                <div className='mt-1 flex items-center gap-2.5'>
+                  {backTo &&
+                    backBtnNode &&
+                    createPortal(
+                      <Button variant='outline' size='icon' asChild>
+                        <Link to={backTo} params={backParams}>
+                          <IconChevronLeft size={24} />
+                        </Link>
+                      </Button>,
+                      backBtnNode,
+                    )}
                   <h2 className='text-2xl font-bold tracking-tight text-foreground'>{title}</h2>
                 </div>
               )}
