@@ -9,42 +9,16 @@ import {
   UpcomingEvents,
 } from '@/features/dashboard/employee/components/employee-info-cards'
 import { MyRequestCenter } from '@/features/dashboard/employee/components/my-request-center'
+import { useGetEmployeeDashboard } from '@/features/dashboard/hooks'
 import { m } from '@/i18n/paraglide/messages'
 import { AppMain } from '@/shared/components/app-layout/app-main'
 import { Button } from '@/shared/components/ui/button'
 
-interface EmployeeDashboardData {
-  attendanceStatus: string
-  checkInTime: string
-  workEndTime: string
-  leaveBalance: number
-  nextPayrollDate: string
-  pendingRequests: number
-  attendanceStats: {
-    presentDays: number
-    leaveDays: number
-    lateDays: number
-    wfhDays: number
-    attendanceRate: number
-  }
-  requests: { id: string; category: string; detail: string; status: string; dateRange: string }[]
-  documents: { id: string; label: string; value: string; statusColor?: string; color?: string }[]
-  payrollTax: { id: string; label: string; value: string; statusColor?: string; color?: string }[]
-  upcomingEvents: {
-    id: string
-    label: string
-    value: string
-    statusColor?: string
-    color?: string
-  }[]
-  announcement?: { tag: string; title: string; summary: string; readTime: string }
-}
+export function EmployeeDashboardPage() {
+  const { data, isPending, error } = useGetEmployeeDashboard()
 
-export function EmployeeDashboardPage({
-  data,
-}: Readonly<{ data: EmployeeDashboardData | undefined }>) {
-  if (!data) {
-    return <AppMain notFound />
+  if (isPending || error || !data) {
+    return <AppMain pending={isPending} error={error} notFound={!data} />
   }
 
   return (

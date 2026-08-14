@@ -8,43 +8,16 @@ import {
   WorkforceMovementExecutive,
   WorkforceRisk,
 } from '@/features/dashboard/executive/components/executive-charts-cards'
+import { useGetExecutiveDashboard } from '@/features/dashboard/hooks'
 import { m } from '@/i18n/paraglide/messages'
 import { AppMain } from '@/shared/components/app-layout/app-main'
 import { Button } from '@/shared/components/ui/button'
 
-interface ExecutiveDashboardData {
-  headcount: number
-  headcountGrowth: number
-  attendanceRate: number
-  attendanceRateChange: number
-  payrollCost: string
-  payrollCostChange: number
-  turnover: number
-  turnoverChange: number
-  attention: {
-    id: string
-    label: string
-    subLabel: string
-    count: number
-    variant: 'info' | 'warning' | 'danger' | 'success'
-  }[]
-  workforceMovement: {
-    id: string
-    label: string
-    count: string | number
-    color?: string
-    countColor?: string
-  }[]
-  distribution: { key: string; label: string; percentage: number; color: string }[]
-  risk: { id: string; label: string; count: string | number; color?: string; countColor?: string }[]
-  highlight?: string
-}
+export function ExecutiveDashboardPage() {
+  const { data, isPending, error } = useGetExecutiveDashboard()
 
-export function ExecutiveDashboardPage({
-  data,
-}: Readonly<{ data: ExecutiveDashboardData | undefined }>) {
-  if (!data) {
-    return <AppMain notFound />
+  if (isPending || error || !data) {
+    return <AppMain pending={isPending} error={error} notFound={!data} />
   }
 
   return (

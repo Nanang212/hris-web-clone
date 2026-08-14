@@ -1,10 +1,12 @@
 // create-workflow-page.tsx
-import { useState } from 'react'
-import { IconArrowLeft, IconGitBranch, IconInfoCircle } from '@tabler/icons-react'
+import { IconGitBranch, IconInfoCircle } from '@tabler/icons-react'
 import { Link, useNavigate } from '@tanstack/react-router'
+import { useState } from 'react'
 
-import { cn } from '@/shared/lib/utils'
+import { AppMain } from '@/shared/components/app-layout/app-main'
 import { snackbar } from '@/shared/lib/snackbar'
+import { cn } from '@/shared/lib/utils'
+
 import { createWorkflow, updateWorkflow } from '../api'
 import { moduleLabels } from '../data'
 import type { ModuleType, Workflow, WorkflowStatus } from '../types'
@@ -37,7 +39,11 @@ interface CreateWorkflowPageProps {
   workflow?: Workflow
 }
 
-export function CreateWorkflowPage({ mode = 'create', workflowId, workflow }: CreateWorkflowPageProps) {
+export function CreateWorkflowPage({
+  mode = 'create',
+  workflowId,
+  workflow,
+}: Readonly<CreateWorkflowPageProps>) {
   const [form, setForm] = useState({
     name: workflow?.name ?? '',
     description: workflow?.description ?? '',
@@ -98,42 +104,34 @@ export function CreateWorkflowPage({ mode = 'create', workflowId, workflow }: Cr
   const isEdit = mode === 'edit'
 
   return (
-    <div className='flex flex-col gap-5 p-5 lg:p-6'>
-      {/* Header */}
-      <div className='flex items-center gap-3'>
-        <Link
-          to='/settings/approval-workflow'
-          className='flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-card text-muted-foreground shadow-sm transition-colors hover:text-foreground'
-        >
-          <IconArrowLeft size={18} />
-        </Link>
-        <div>
-          <p className='text-xs text-muted-foreground'>
-            Pengaturan / Approval Workflow /{' '}
-            {isEdit ? 'Edit Workflow' : 'Buat Workflow'}
-          </p>
-          <h2 className='text-2xl font-bold tracking-tight'>
-            {isEdit ? 'Edit Workflow' : 'Buat Workflow Baru'}
-          </h2>
-          <p className='mt-1 text-sm text-muted-foreground'>
-            {isEdit
-              ? 'Perbarui konfigurasi workflow approval'
-              : 'Konfigurasikan alur persetujuan baru untuk pengajuan karyawan'}
-          </p>
-        </div>
-        {isEdit && workflow && (
-          <div className='ml-auto flex items-center gap-2'>
-            <Link
-              to='/settings/approval-workflow/$id/levels'
-              params={{ id: workflowId! }}
-              className='inline-flex items-center gap-2 rounded-xl border border-border px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted'
-            >
-              Configure Levels
-            </Link>
-          </div>
-        )}
-      </div>
-
+    <AppMain
+      breadcrumbs={[
+        { to: '/', label: 'Pengaturan' },
+        { to: '/settings/approval-workflow', label: 'Approval Workflow' },
+        { to: '.', label: isEdit ? 'Edit Workflow' : 'Buat Workflow' },
+      ]}
+      title={isEdit ? 'Edit Workflow' : 'Buat Workflow Baru'}
+      subtitle={
+        isEdit
+          ? 'Perbarui konfigurasi workflow approval'
+          : 'Konfigurasikan alur persetujuan baru untuk pengajuan karyawan'
+      }
+      actions={
+        <>
+          {isEdit && workflow && (
+            <div className='ml-auto flex items-center gap-2'>
+              <Link
+                to='/settings/approval-workflow/$id/levels'
+                params={{ id: workflowId! }}
+                className='inline-flex items-center gap-2 rounded-xl border border-border px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted'
+              >
+                Configure Levels
+              </Link>
+            </div>
+          )}
+        </>
+      }
+    >
       <div className='grid grid-cols-1 gap-5 lg:grid-cols-[1fr_320px]'>
         {/* Main Form */}
         <div className='flex flex-col gap-4'>
@@ -150,7 +148,7 @@ export function CreateWorkflowPage({ mode = 'create', workflowId, workflow }: Cr
                   value={form.name}
                   onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
                   placeholder='Contoh: Leave Approval'
-                  className='h-10 w-full rounded-xl border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring/50'
+                  className='h-10 w-full rounded-xl border border-input bg-background px-3 text-sm focus:ring-2 focus:ring-ring/50 focus:outline-none'
                 />
               </div>
               <div>
@@ -162,13 +160,11 @@ export function CreateWorkflowPage({ mode = 'create', workflowId, workflow }: Cr
                   onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
                   placeholder='Jelaskan tujuan dan cakupan workflow ini...'
                   rows={3}
-                  className='w-full rounded-xl border border-input bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring/50'
+                  className='w-full rounded-xl border border-input bg-background px-3 py-2.5 text-sm focus:ring-2 focus:ring-ring/50 focus:outline-none'
                 />
               </div>
               <div>
-                <label className='mb-1.5 block text-xs font-medium text-foreground'>
-                  Status
-                </label>
+                <label className='mb-1.5 block text-xs font-medium text-foreground'>Status</label>
                 <div className='flex gap-2'>
                   {(['active', 'inactive', 'draft'] as WorkflowStatus[]).map((s) => (
                     <button
@@ -298,7 +294,7 @@ export function CreateWorkflowPage({ mode = 'create', workflowId, workflow }: Cr
               onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))}
               placeholder='Tambahkan catatan untuk admin lainnya...'
               rows={3}
-              className='w-full rounded-xl border border-input bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring/50'
+              className='w-full rounded-xl border border-input bg-background px-3 py-2.5 text-sm focus:ring-2 focus:ring-ring/50 focus:outline-none'
             />
           </div>
         </div>
@@ -346,7 +342,10 @@ export function CreateWorkflowPage({ mode = 'create', workflowId, workflow }: Cr
           {/* Info box */}
           <div className='rounded-2xl border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-900/20'>
             <div className='flex gap-2'>
-              <IconInfoCircle size={16} className='mt-0.5 flex-shrink-0 text-blue-600 dark:text-blue-400' />
+              <IconInfoCircle
+                size={16}
+                className='mt-0.5 flex-shrink-0 text-blue-600 dark:text-blue-400'
+              />
               <div>
                 <p className='text-xs font-semibold text-blue-800 dark:text-blue-300'>
                   Langkah Selanjutnya
@@ -365,9 +364,13 @@ export function CreateWorkflowPage({ mode = 'create', workflowId, workflow }: Cr
               type='button'
               onClick={handleSave}
               disabled={isSaving}
-              className='w-full rounded-xl bg-primary py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:bg-primary/90 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed'
+              className='w-full rounded-xl bg-primary py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:bg-primary/90 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50'
             >
-              {isSaving ? 'Menyimpan...' : isEdit ? 'Simpan Perubahan' : 'Simpan & Konfigurasi Level'}
+              {isSaving
+                ? 'Menyimpan...'
+                : isEdit
+                  ? 'Simpan Perubahan'
+                  : 'Simpan & Konfigurasi Level'}
             </button>
             <button
               type='button'
@@ -379,6 +382,6 @@ export function CreateWorkflowPage({ mode = 'create', workflowId, workflow }: Cr
           </div>
         </div>
       </div>
-    </div>
+    </AppMain>
   )
 }

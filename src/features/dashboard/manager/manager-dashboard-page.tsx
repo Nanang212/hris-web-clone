@@ -6,6 +6,7 @@ import {
 } from '@tabler/icons-react'
 
 import { StatCard } from '@/features/dashboard/components/stat-card'
+import { useGetManagerDashboard } from '@/features/dashboard/hooks'
 import { AlertBanner } from '@/features/dashboard/hr/components/hr-action-center'
 import { ManagerApprovalQueue } from '@/features/dashboard/manager/components/manager-approval-queue'
 import {
@@ -18,56 +19,11 @@ import { m } from '@/i18n/paraglide/messages'
 import { AppMain } from '@/shared/components/app-layout/app-main'
 import { Button } from '@/shared/components/ui/button'
 
-interface ManagerDashboardData {
-  teamMembers: number
-  activeMembers: number
-  probationMembers: number
-  teamAttendance: number
-  pendingApprovals: number
-  overdueApprovals: number
-  onLeaveToday: number
-  leavePlanned: number
-  leaveSick: number
-  approvalQueue: {
-    id: string
-    label: string
-    subLabel: string
-    count: number
-    variant: 'info' | 'warning' | 'danger' | 'success'
-  }[]
-  contractProbation: {
-    id: string
-    label: string
-    count: string | number
-    color?: string
-    countColor?: string
-  }[]
-  teamMovement: {
-    id: string
-    label: string
-    count: string | number
-    color?: string
-    countColor?: string
-  }[]
-  teamEvents: {
-    id: string
-    label: string
-    count: string | number
-    color?: string
-    countColor?: string
-  }[]
-  healthInsight?: string
-}
+export function ManagerDashboardPage() {
+  const { data, isPending, error } = useGetManagerDashboard()
 
-export function ManagerDashboardPage({
-  data,
-}: Readonly<{ data: ManagerDashboardData | undefined }>) {
-  if (!data) {
-    return (
-      <div className='flex min-h-125 flex-col items-center justify-center gap-3 p-8 text-center'>
-        <p className='text-sm text-muted-foreground'>No dashboard data found.</p>
-      </div>
-    )
+  if (isPending || error || !data) {
+    return <AppMain pending={isPending} error={error} notFound={!data} />
   }
 
   return (

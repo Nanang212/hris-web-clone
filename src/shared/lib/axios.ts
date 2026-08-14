@@ -8,7 +8,7 @@ import axios, {
 import { router } from '@/shared/router'
 import type { Envelope } from '@/shared/types'
 
-export function isAxiosError<ResponseType = unknown>(
+export function isAxiosError<ResponseType = Envelope<unknown>>(
   error: unknown,
 ): error is AxiosError<ResponseType> {
   return axios.isAxiosError(error)

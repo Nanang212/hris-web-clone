@@ -1,23 +1,18 @@
 // approval-matrix-page.tsx
-import { useState } from 'react'
-import {
-  IconCheck,
-  IconClock,
-  IconSearch,
-  IconX,
-} from '@tabler/icons-react'
+import { IconCheck, IconClock, IconPlus, IconSearch, IconX } from '@tabler/icons-react'
 import { Link } from '@tanstack/react-router'
+import { useState } from 'react'
 
+import { AppMain } from '@/shared/components/app-layout/app-main'
+import { Button } from '@/shared/components/ui/button'
 import { cn } from '@/shared/lib/utils'
+
 import { moduleColors, moduleLabels } from '../data'
 import type { MatrixEntry, ModuleType } from '../types'
 
 type EntryStatus = MatrixEntry['status']
 
-const statusConfig: Record<
-  EntryStatus,
-  { label: string; cls: string; icon: typeof IconCheck }
-> = {
+const statusConfig: Record<EntryStatus, { label: string; cls: string; icon: typeof IconCheck }> = {
   pending: {
     label: 'Menunggu',
     cls: 'bg-muted text-muted-foreground',
@@ -40,13 +35,7 @@ const statusConfig: Record<
   },
 }
 
-function LevelProgressBar({
-  current,
-  total,
-}: {
-  current: number
-  total: number
-}) {
+function LevelProgressBar({ current, total }: { current: number; total: number }) {
   return (
     <div className='flex items-center gap-1.5'>
       {Array.from({ length: total }).map((_, i) => (
@@ -73,7 +62,7 @@ interface ApprovalMatrixPageProps {
   entries: MatrixEntry[]
 }
 
-export function ApprovalMatrixPage({ entries }: ApprovalMatrixPageProps) {
+export function ApprovalMatrixPage({ entries }: Readonly<ApprovalMatrixPageProps>) {
   const [search, setSearch] = useState('')
   const [filterStatus, setFilterStatus] = useState<EntryStatus | 'all'>('all')
   const [filterModule, setFilterModule] = useState<ModuleType | 'all'>('all')
@@ -94,26 +83,20 @@ export function ApprovalMatrixPage({ entries }: ApprovalMatrixPageProps) {
   const totalRejected = entries.filter((e) => e.status === 'rejected').length
 
   return (
-    <div className='flex flex-col gap-5 p-5 lg:p-6'>
-      {/* Header */}
-      <div className='flex flex-col justify-between gap-3 sm:flex-row sm:items-start'>
-        <div>
-          <p className='text-xs text-muted-foreground'>
-            Pengaturan / Approval Workflow / Approval Matrix
-          </p>
-          <h2 className='text-2xl font-bold tracking-tight'>Approval Matrix</h2>
-          <p className='mt-1 text-sm text-muted-foreground'>
-            Pantau status seluruh pengajuan yang sedang berjalan
-          </p>
-        </div>
-        <Link
-          to='/settings/approval-workflow'
-          className='inline-flex items-center gap-2 rounded-xl border border-border px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted'
-        >
-          Kelola Workflow
-        </Link>
-      </div>
-
+    <AppMain
+      breadcrumbs={[
+        { to: '/', label: 'Pengaturan' },
+        { to: '/settings/approval-workflow', label: 'Approval Workflow' },
+        { to: '.', label: 'Matrix' },
+      ]}
+      title={'Approval Matrix'}
+      subtitle={'Pantau status seluruh pengajuan yang sedang berjalan'}
+      actions={
+        <Button size='sm' asChild>
+          <Link to='/settings/approval-workflow'>Kelola Workflow</Link>
+        </Button>
+      }
+    >
       {/* Stats bar */}
       <div className='grid grid-cols-2 gap-3 sm:grid-cols-4'>
         {[
@@ -168,14 +151,14 @@ export function ApprovalMatrixPage({ entries }: ApprovalMatrixPageProps) {
             <div className='relative'>
               <IconSearch
                 size={14}
-                className='absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground'
+                className='absolute top-1/2 left-3 -translate-y-1/2 text-muted-foreground'
               />
               <input
                 type='text'
                 placeholder='Cari karyawan...'
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className='h-8 rounded-lg border border-border bg-background pl-8 pr-3 text-xs focus:outline-none focus:ring-2 focus:ring-ring/50'
+                className='h-8 rounded-lg border border-border bg-background pr-3 pl-8 text-xs focus:ring-2 focus:ring-ring/50 focus:outline-none'
               />
             </div>
             {/* Status Filter */}
@@ -211,22 +194,22 @@ export function ApprovalMatrixPage({ entries }: ApprovalMatrixPageProps) {
           <table className='w-full'>
             <thead>
               <tr className='border-b border-border/50 bg-muted/30'>
-                <th className='py-3 pl-5 pr-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground'>
+                <th className='py-3 pr-3 pl-5 text-left text-xs font-semibold tracking-wide text-muted-foreground uppercase'>
                   Karyawan
                 </th>
-                <th className='px-3 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground'>
+                <th className='px-3 py-3 text-left text-xs font-semibold tracking-wide text-muted-foreground uppercase'>
                   Tipe
                 </th>
-                <th className='px-3 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground'>
+                <th className='px-3 py-3 text-left text-xs font-semibold tracking-wide text-muted-foreground uppercase'>
                   Workflow
                 </th>
-                <th className='px-3 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground'>
+                <th className='px-3 py-3 text-left text-xs font-semibold tracking-wide text-muted-foreground uppercase'>
                   Progress Level
                 </th>
-                <th className='px-3 py-3 text-center text-xs font-semibold uppercase tracking-wide text-muted-foreground'>
+                <th className='px-3 py-3 text-center text-xs font-semibold tracking-wide text-muted-foreground uppercase'>
                   Hari
                 </th>
-                <th className='px-3 py-3 text-center text-xs font-semibold uppercase tracking-wide text-muted-foreground'>
+                <th className='px-3 py-3 text-center text-xs font-semibold tracking-wide text-muted-foreground uppercase'>
                   Status
                 </th>
               </tr>
@@ -250,7 +233,7 @@ export function ApprovalMatrixPage({ entries }: ApprovalMatrixPageProps) {
                       key={entry.id}
                       className='border-b border-border/50 transition-colors hover:bg-muted/30'
                     >
-                      <td className='py-3.5 pl-5 pr-3'>
+                      <td className='py-3.5 pr-3 pl-5'>
                         <div className='flex items-center gap-2.5'>
                           <div className='flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary'>
                             {entry.employeeName.charAt(0)}
@@ -264,7 +247,12 @@ export function ApprovalMatrixPage({ entries }: ApprovalMatrixPageProps) {
                         </div>
                       </td>
                       <td className='px-3 py-3.5'>
-                        <span className={cn('rounded-full px-2.5 py-0.5 text-xs font-medium', moduleCls)}>
+                        <span
+                          className={cn(
+                            'rounded-full px-2.5 py-0.5 text-xs font-medium',
+                            moduleCls,
+                          )}
+                        >
                           {moduleLabels[entry.requestType]}
                         </span>
                       </td>
@@ -320,6 +308,6 @@ export function ApprovalMatrixPage({ entries }: ApprovalMatrixPageProps) {
           </p>
         </div>
       </div>
-    </div>
+    </AppMain>
   )
 }

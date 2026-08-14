@@ -1,15 +1,13 @@
 // conditions-routing-page.tsx
-import { useState } from 'react'
-import {
-  IconArrowLeft,
-  IconInfoCircle,
-  IconPlus,
-} from '@tabler/icons-react'
+import { IconArrowLeft, IconInfoCircle, IconPlus } from '@tabler/icons-react'
 import { Link } from '@tanstack/react-router'
+import { useState } from 'react'
+
+import { AppMain } from '@/shared/components/app-layout/app-main'
+import { Button } from '@/shared/components/ui/button'
 
 import type { RoutingRule, Workflow } from '../types'
 import { RuleCard } from './components/rule-card'
-
 
 interface ConditionsRoutingPageProps {
   workflowId: string
@@ -21,37 +19,24 @@ export function ConditionsRoutingPage({ workflowId, workflow, rules }: Condition
   const [localRules, setLocalRules] = useState(rules)
 
   return (
-    <div className='flex flex-col gap-5 p-5 lg:p-6'>
-      {/* Header */}
-      <div className='flex flex-col justify-between gap-3 sm:flex-row sm:items-start'>
-        <div className='flex items-center gap-3'>
-          <Link
-            to='/settings/approval-workflow/$id/levels'
-            params={{ id: workflowId }}
-            className='flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-card text-muted-foreground shadow-sm transition-colors hover:text-foreground'
-          >
-            <IconArrowLeft size={18} />
-          </Link>
-          <div>
-            <p className='text-xs text-muted-foreground'>
-              Pengaturan / Approval Workflow / Conditions & Routing
-            </p>
-            <h2 className='text-2xl font-bold tracking-tight'>Conditions & Routing Rules</h2>
-            <p className='mt-1 text-sm text-muted-foreground'>
-              {workflow?.name} — Tentukan kondisi untuk menentukan jalur approval
-            </p>
-          </div>
-        </div>
-        <div className='flex items-center gap-2'>
-          <Link
-            to='/settings/approval-workflow/$id/test'
-            params={{ id: workflowId }}
-            className='inline-flex items-center gap-2 rounded-xl border border-border px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted'
-          >
-            Test Workflow
-          </Link>
-          <button
+    <AppMain
+      breadcrumbs={[
+        { to: '/', label: 'Pengaturan' },
+        { to: '/settings/approval-workflow', label: 'Approval Workflow' },
+        { to: '.', label: 'Conditions & Routing' },
+      ]}
+      title={'Conditions & Routing Rules'}
+      subtitle={`${workflow?.name} — Tentukan kondisi untuk menentukan jalur approval`}
+      actions={
+        <>
+          <Button asChild variant='outline' size='sm'>
+            <Link to='/settings/approval-workflow/$id/test' params={{ id: workflowId }}>
+              Test Workflow
+            </Link>
+          </Button>
+          <Button
             type='button'
+            size='sm'
             onClick={() =>
               setLocalRules((prev) => [
                 ...prev,
@@ -64,14 +49,13 @@ export function ConditionsRoutingPage({ workflowId, workflow, rules }: Condition
                 },
               ])
             }
-            className='inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-all hover:bg-primary/90 active:scale-95'
           >
             <IconPlus size={16} stroke={2.5} />
             Tambah Rule
-          </button>
-        </div>
-      </div>
-
+          </Button>
+        </>
+      }
+    >
       <div className='grid grid-cols-1 gap-5 lg:grid-cols-[1fr_280px]'>
         {/* Rules list */}
         <div className='flex flex-col gap-3'>
@@ -79,8 +63,8 @@ export function ConditionsRoutingPage({ workflowId, workflow, rules }: Condition
             <div className='flex flex-col items-center gap-3 rounded-2xl border-2 border-dashed border-border py-16 text-center'>
               <p className='text-sm text-muted-foreground'>Belum ada routing rule</p>
               <p className='max-w-xs text-xs text-muted-foreground'>
-                Tambahkan rule untuk mengatur kondisi kapan workflow ini aktif atau level mana
-                yang dilewati.
+                Tambahkan rule untuk mengatur kondisi kapan workflow ini aktif atau level mana yang
+                dilewati.
               </p>
             </div>
           ) : (
@@ -96,8 +80,8 @@ export function ConditionsRoutingPage({ workflowId, workflow, rules }: Condition
             <h3 className='mb-3 text-sm font-semibold'>Tentang Routing Rules</h3>
             <div className='flex flex-col gap-2.5 text-xs text-muted-foreground'>
               <p>
-                Rules dievaluasi secara berurutan dari prioritas tertinggi. Rule pertama yang
-                cocok akan digunakan.
+                Rules dievaluasi secara berurutan dari prioritas tertinggi. Rule pertama yang cocok
+                akan digunakan.
               </p>
               <div className='rounded-xl bg-muted/50 p-3'>
                 <p className='mb-1 font-semibold text-foreground'>Contoh penggunaan:</p>
@@ -117,8 +101,8 @@ export function ConditionsRoutingPage({ workflowId, workflow, rules }: Condition
                 className='mt-0.5 flex-shrink-0 text-amber-600 dark:text-amber-400'
               />
               <p className='text-[11px] text-amber-700 dark:text-amber-400'>
-                Jika tidak ada rule yang cocok, workflow default akan digunakan dengan semua
-                level approver.
+                Jika tidak ada rule yang cocok, workflow default akan digunakan dengan semua level
+                approver.
               </p>
             </div>
           </div>
@@ -131,6 +115,6 @@ export function ConditionsRoutingPage({ workflowId, workflow, rules }: Condition
           </button>
         </div>
       </div>
-    </div>
+    </AppMain>
   )
 }

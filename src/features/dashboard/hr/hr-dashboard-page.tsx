@@ -1,6 +1,7 @@
 import { IconAlertTriangle, IconCalendarCheck, IconUserCheck, IconUsers } from '@tabler/icons-react'
 
 import { StatCard } from '@/features/dashboard/components/stat-card'
+import { useGetHrDashboard } from '@/features/dashboard/hooks'
 import { AnnouncementBanner } from '@/features/dashboard/hr/components/announcement-banner'
 import {
   EmploymentCompliance,
@@ -13,39 +14,11 @@ import { m } from '@/i18n/paraglide/messages'
 import { AppMain } from '@/shared/components/app-layout/app-main'
 import { Button } from '@/shared/components/ui/button'
 
-interface HRDashboardData {
-  totalEmployees: number
-  presentToday: number
-  presentPercentage: number
-  pendingApprovals: number
-  overdueApprovals: number
-  employmentAlerts: number
-  compliance: {
-    id: string
-    label: string
-    count: string | number
-    color?: string
-    countColor?: string
-  }[]
-  movement: {
-    id: string
-    label: string
-    count: string | number
-    color?: string
-    countColor?: string
-  }[]
-  events: {
-    id: string
-    label: string
-    count: string | number
-    color?: string
-    countColor?: string
-  }[]
-}
+export function DashboardPage() {
+  const { data, isPending, error } = useGetHrDashboard()
 
-export function DashboardPage({ data }: Readonly<{ data: HRDashboardData | undefined }>) {
-  if (!data) {
-    return <AppMain notFound />
+  if (isPending || error || !data) {
+    return <AppMain pending={isPending} error={error} notFound={!data} />
   }
 
   return (

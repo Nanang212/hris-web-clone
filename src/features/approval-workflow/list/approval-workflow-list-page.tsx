@@ -1,5 +1,4 @@
 // approval-workflow-list-page.tsx
-import { useState } from 'react'
 import {
   IconBolt,
   IconCheck,
@@ -16,8 +15,12 @@ import {
   IconTrash,
 } from '@tabler/icons-react'
 import { Link } from '@tanstack/react-router'
+import { useState } from 'react'
 
+import { AppMain } from '@/shared/components/app-layout/app-main'
+import { Button } from '@/shared/components/ui/button'
 import { cn } from '@/shared/lib/utils'
+
 import { moduleColors, moduleLabels } from '../data'
 import type { Workflow, WorkflowStatus } from '../types'
 
@@ -46,20 +49,20 @@ function WorkflowStatCard({
   value,
   sublabel,
   iconBg,
-}: {
+}: Readonly<{
   icon: typeof IconBolt
   label: string
   value: string | number
   sublabel?: string
   iconBg: string
-}) {
+}>) {
   return (
     <div className='flex flex-col gap-3 rounded-2xl bg-card p-5 shadow-sm ring-1 ring-foreground/5'>
       <div className={cn('flex h-10 w-10 items-center justify-center rounded-xl', iconBg)}>
         <Icon size={20} stroke={1.75} className='text-foreground/70' />
       </div>
       <div>
-        <p className='text-xs font-medium uppercase tracking-wide text-muted-foreground'>{label}</p>
+        <p className='text-xs font-medium tracking-wide text-muted-foreground uppercase'>{label}</p>
         <p className='mt-1 text-3xl font-bold tracking-tight'>{value}</p>
         {sublabel && <p className='mt-0.5 text-xs font-medium text-muted-foreground'>{sublabel}</p>}
       </div>
@@ -74,7 +77,7 @@ function WorkflowRow({ workflow }: { workflow: Workflow }) {
 
   return (
     <tr className='group border-b border-border/50 transition-colors hover:bg-muted/30'>
-      <td className='py-3.5 pl-5 pr-3'>
+      <td className='py-3.5 pr-3 pl-5'>
         <div className='flex items-center gap-3'>
           <div className='flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-primary/10'>
             <IconGitBranch size={18} className='text-primary' />
@@ -115,7 +118,7 @@ function WorkflowRow({ workflow }: { workflow: Workflow }) {
           <span className='text-xs text-muted-foreground'>—</span>
         )}
       </td>
-      <td className='py-3.5 pl-3 pr-5'>
+      <td className='py-3.5 pr-5 pl-3'>
         <div className='flex items-center justify-end gap-1'>
           <Link
             to='/settings/approval-workflow/$id'
@@ -158,7 +161,7 @@ interface ApprovalWorkflowListPageProps {
   workflows: Workflow[]
 }
 
-export function ApprovalWorkflowListPage({ workflows }: ApprovalWorkflowListPageProps) {
+export function ApprovalWorkflowListPage({ workflows }: Readonly<ApprovalWorkflowListPageProps>) {
   const [search, setSearch] = useState('')
   const [filterStatus, setFilterStatus] = useState<WorkflowStatus | 'all'>('all')
 
@@ -178,25 +181,22 @@ export function ApprovalWorkflowListPage({ workflows }: ApprovalWorkflowListPage
   })
 
   return (
-    <div className='flex flex-col gap-5 p-5 lg:p-6'>
-      {/* Header */}
-      <div className='flex flex-col justify-between gap-3 sm:flex-row sm:items-start'>
-        <div>
-          <p className='text-xs text-muted-foreground'>Pengaturan / Approval Workflow</p>
-          <h2 className='text-2xl font-bold tracking-tight'>Approval Workflow</h2>
-          <p className='mt-1 text-sm text-muted-foreground'>
-            Kelola alur persetujuan untuk berbagai jenis pengajuan karyawan
-          </p>
-        </div>
-        <Link
-          to='/settings/approval-workflow/new'
-          className='inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-all hover:bg-primary/90 active:scale-95'
-        >
-          <IconPlus size={16} stroke={2.5} />
-          Buat Workflow
-        </Link>
-      </div>
-
+    <AppMain
+      breadcrumbs={[
+        { to: '/', label: 'Pengaturan' },
+        { to: '.', label: 'Approval Workflow' },
+      ]}
+      title={'Approval Workflow'}
+      subtitle={'Kelola alur persetujuan untuk berbagai jenis pengajuan karyawan'}
+      actions={
+        <Button size='sm' asChild>
+          <Link to='/settings/approval-workflow/new'>
+            <IconPlus size={16} stroke={2.5} />
+            Buat Workflow
+          </Link>
+        </Button>
+      }
+    >
       {/* Stats */}
       <div className='grid grid-cols-2 gap-4 lg:grid-cols-4'>
         <WorkflowStatCard
@@ -244,21 +244,21 @@ export function ApprovalWorkflowListPage({ workflows }: ApprovalWorkflowListPage
             <div className='relative'>
               <IconSearch
                 size={14}
-                className='absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground'
+                className='absolute top-1/2 left-3 -translate-y-1/2 text-muted-foreground'
               />
               <input
                 type='text'
                 placeholder='Cari workflow...'
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className='h-8 rounded-lg border border-border bg-background pl-8 pr-3 text-xs focus:outline-none focus:ring-2 focus:ring-ring/50'
+                className='h-8 rounded-lg border border-border bg-background pr-3 pl-8 text-xs focus:ring-2 focus:ring-ring/50 focus:outline-none'
               />
             </div>
             {/* Status Filter */}
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value as WorkflowStatus | 'all')}
-              className='h-8 rounded-lg border border-border bg-background px-2 text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-ring/50'
+              className='h-8 rounded-lg border border-border bg-background px-2 text-xs text-foreground focus:ring-2 focus:ring-ring/50 focus:outline-none'
             >
               <option value='all'>Semua Status</option>
               <option value='active'>Aktif</option>
@@ -281,28 +281,28 @@ export function ApprovalWorkflowListPage({ workflows }: ApprovalWorkflowListPage
           <table className='w-full text-sm'>
             <thead>
               <tr className='border-b border-border/50 bg-muted/30'>
-                <th className='py-3 pl-5 pr-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground'>
+                <th className='py-3 pr-3 pl-5 text-left text-xs font-semibold tracking-wide text-muted-foreground uppercase'>
                   Nama Workflow
                 </th>
-                <th className='px-3 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground'>
+                <th className='px-3 py-3 text-left text-xs font-semibold tracking-wide text-muted-foreground uppercase'>
                   Modul
                 </th>
-                <th className='px-3 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground'>
+                <th className='px-3 py-3 text-left text-xs font-semibold tracking-wide text-muted-foreground uppercase'>
                   Status
                 </th>
-                <th className='px-3 py-3 text-center text-xs font-semibold uppercase tracking-wide text-muted-foreground'>
+                <th className='px-3 py-3 text-center text-xs font-semibold tracking-wide text-muted-foreground uppercase'>
                   Level
                 </th>
-                <th className='px-3 py-3 text-center text-xs font-semibold uppercase tracking-wide text-muted-foreground'>
+                <th className='px-3 py-3 text-center text-xs font-semibold tracking-wide text-muted-foreground uppercase'>
                   Total Req.
                 </th>
-                <th className='px-3 py-3 text-center text-xs font-semibold uppercase tracking-wide text-muted-foreground'>
+                <th className='px-3 py-3 text-center text-xs font-semibold tracking-wide text-muted-foreground uppercase'>
                   Avg. Days
                 </th>
-                <th className='px-3 py-3 text-center text-xs font-semibold uppercase tracking-wide text-muted-foreground'>
+                <th className='px-3 py-3 text-center text-xs font-semibold tracking-wide text-muted-foreground uppercase'>
                   Pending
                 </th>
-                <th className='py-3 pl-3 pr-5 text-right text-xs font-semibold uppercase tracking-wide text-muted-foreground'>
+                <th className='py-3 pr-5 pl-3 text-right text-xs font-semibold tracking-wide text-muted-foreground uppercase'>
                   Aksi
                 </th>
               </tr>
@@ -315,9 +315,7 @@ export function ApprovalWorkflowListPage({ workflows }: ApprovalWorkflowListPage
                   </td>
                 </tr>
               ) : (
-                filtered.map((workflow) => (
-                  <WorkflowRow key={workflow.id} workflow={workflow} />
-                ))
+                filtered.map((workflow) => <WorkflowRow key={workflow.id} workflow={workflow} />)
               )}
             </tbody>
           </table>
@@ -379,6 +377,6 @@ export function ApprovalWorkflowListPage({ workflows }: ApprovalWorkflowListPage
           />
         </div>
       </div>
-    </div>
+    </AppMain>
   )
 }

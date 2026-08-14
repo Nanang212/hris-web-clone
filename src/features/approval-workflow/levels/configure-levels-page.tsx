@@ -1,7 +1,5 @@
 // configure-levels-page.tsx
-import { useEffect, useState } from 'react'
 import {
-  IconArrowLeft,
   IconChevronDown,
   IconChevronUp,
   IconEdit,
@@ -11,10 +9,14 @@ import {
   IconTrash,
 } from '@tabler/icons-react'
 import { Link } from '@tanstack/react-router'
+import { useEffect, useState } from 'react'
 
+import { AppMain } from '@/shared/components/app-layout/app-main'
+import { Button } from '@/shared/components/ui/button'
 import { cn } from '@/shared/lib/utils'
-import type { ApprovalLevel, ApproverType, Workflow } from '../types'
+
 import { saveApprovalLevels } from '../api'
+import type { ApprovalLevel, ApproverType, Workflow } from '../types'
 import { AddLevelPanel } from './components/add-level-panel'
 
 const approverTypeLabels: Record<ApproverType, string> = {
@@ -39,14 +41,17 @@ const timeoutActionLabels: Record<string, string> = {
   auto_reject: 'Auto Reject',
 }
 
-
 interface ConfigureLevelsPageProps {
   workflowId: string
   workflow: Workflow
   levels: ApprovalLevel[]
 }
 
-export function ConfigureLevelsPage({ workflowId, workflow, levels }: ConfigureLevelsPageProps) {
+export function ConfigureLevelsPage({
+  workflowId,
+  workflow,
+  levels,
+}: Readonly<ConfigureLevelsPageProps>) {
   const [showAddPanel, setShowAddPanel] = useState(false)
   const [editLevel, setEditLevel] = useState<ApprovalLevel | undefined>()
   const [localLevels, setLocalLevels] = useState<ApprovalLevel[]>(levels)
@@ -120,45 +125,29 @@ export function ConfigureLevelsPage({ workflowId, workflow, levels }: ConfigureL
 
   return (
     <>
-      <div className='flex flex-col gap-5 p-5 lg:p-6'>
-        {/* Header */}
-        <div className='flex flex-col justify-between gap-3 sm:flex-row sm:items-start'>
-          <div className='flex items-center gap-3'>
-            <Link
-              to='/settings/approval-workflow'
-              className='flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-card text-muted-foreground shadow-sm transition-colors hover:text-foreground'
-            >
-              <IconArrowLeft size={18} />
-            </Link>
-            <div>
-              <p className='text-xs text-muted-foreground'>
-                Pengaturan / Approval Workflow / Configure Levels
-              </p>
-              <h2 className='text-2xl font-bold tracking-tight'>Configure Approval Levels</h2>
-              <p className='mt-1 text-sm text-muted-foreground'>
-                {workflow?.name} — Atur urutan dan approver untuk setiap level
-              </p>
-            </div>
-          </div>
-          <div className='flex items-center gap-2'>
-            <Link
-              to='/settings/approval-workflow/$id/conditions'
-              params={{ id: workflowId }}
-              className='inline-flex items-center gap-2 rounded-xl border border-border px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted'
-            >
-              Conditions & Routing
-            </Link>
-            <button
-              type='button'
-              onClick={openAdd}
-              className='inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-all hover:bg-primary/90 active:scale-95'
-            >
+      <AppMain
+        breadcrumbs={[
+          { to: '/', label: 'Pengaturan' },
+          { to: '/settings/approval-workflow', label: 'Approval Workflow' },
+          { to: '.', label: 'Configure Levels' },
+        ]}
+        title={'Configure Approval Levels'}
+        subtitle={`${workflow?.name} — Atur urutan dan approver untuk setiap level`}
+        actions={
+          <>
+            <Button asChild variant='outline' size='sm'>
+              <Link to='/settings/approval-workflow/$id/conditions' params={{ id: workflowId }}>
+                Conditions & Routing
+              </Link>
+            </Button>
+
+            <Button type='button' onClick={openAdd} size='sm'>
               <IconPlus size={16} stroke={2.5} />
               Tambah Level
-            </button>
-          </div>
-        </div>
-
+            </Button>
+          </>
+        }
+      >
         <div className='grid grid-cols-1 gap-5 lg:grid-cols-[1fr_300px]'>
           {/* Levels List */}
           <div className='flex flex-col gap-3'>
@@ -366,7 +355,7 @@ export function ConfigureLevelsPage({ workflowId, workflow, levels }: ConfigureL
             </Link>
           </div>
         </div>
-      </div>
+      </AppMain>
 
       {showAddPanel && (
         <AddLevelPanel
