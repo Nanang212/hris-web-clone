@@ -1,23 +1,33 @@
-// conditions-routing-page.tsx
 import { IconInfoCircle, IconPlus } from '@tabler/icons-react'
 import { Link } from '@tanstack/react-router'
 import { useState } from 'react'
 
+import { RuleCard } from '@/features/settings/approval-workflow/conditions/components/rule-card'
+import {
+  useSaveWorkflowRoutingRules,
+  useWorkflow,
+  useWorkflowRoutingRules,
+} from '@/features/settings/approval-workflow/hooks'
+import type { RoutingRule, Workflow } from '@/features/settings/approval-workflow/types'
 import { AppMain } from '@/shared/components/app-layout/app-main'
 import { Button } from '@/shared/components/ui/button'
 import { snackbar } from '@/shared/lib/snackbar'
-
-import { useSaveWorkflowRoutingRules, useWorkflow, useWorkflowRoutingRules } from '../hooks'
-import type { RoutingRule, Workflow } from '../types'
-import { RuleCard } from './components/rule-card'
 
 interface ConditionsRoutingPageProps {
   workflowId: string
 }
 
-export function ConditionsRoutingPage({ workflowId }: ConditionsRoutingPageProps) {
-  const { data: workflow, isPending: isPendingWorkflow, error: workflowError } = useWorkflow(workflowId)
-  const { data: rules, isPending: isPendingRules, error: rulesError } = useWorkflowRoutingRules(workflowId)
+export function ConditionsRoutingPage({ workflowId }: Readonly<ConditionsRoutingPageProps>) {
+  const {
+    data: workflow,
+    isPending: isPendingWorkflow,
+    error: workflowError,
+  } = useWorkflow(workflowId)
+  const {
+    data: rules,
+    isPending: isPendingRules,
+    error: rulesError,
+  } = useWorkflowRoutingRules(workflowId)
 
   const isPending = isPendingWorkflow || isPendingRules
   const error = workflowError || rulesError
@@ -26,13 +36,7 @@ export function ConditionsRoutingPage({ workflowId }: ConditionsRoutingPageProps
     return <AppMain pending={isPending} error={error} notFound={!workflow} />
   }
 
-  return (
-    <ConditionsRoutingForm
-      workflowId={workflowId}
-      workflow={workflow}
-      initialRules={rules}
-    />
-  )
+  return <ConditionsRoutingForm workflowId={workflowId} workflow={workflow} initialRules={rules} />
 }
 
 interface ConditionsRoutingFormProps {
@@ -41,7 +45,11 @@ interface ConditionsRoutingFormProps {
   initialRules: RoutingRule[]
 }
 
-function ConditionsRoutingForm({ workflowId, workflow, initialRules }: ConditionsRoutingFormProps) {
+function ConditionsRoutingForm({
+  workflowId,
+  workflow,
+  initialRules,
+}: Readonly<ConditionsRoutingFormProps>) {
   const { mutateAsync: saveRules, isPending: isSaving } = useSaveWorkflowRoutingRules(workflowId)
   const [localRules, setLocalRules] = useState<RoutingRule[]>(initialRules)
 
@@ -149,7 +157,7 @@ function ConditionsRoutingForm({ workflowId, workflow, initialRules }: Condition
             type='button'
             onClick={handleSave}
             disabled={isSaving}
-            className='w-full rounded-xl bg-primary py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed'
+            className='w-full rounded-xl bg-primary py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50'
           >
             {isSaving ? 'Menyimpan...' : 'Simpan Semua Rule'}
           </button>

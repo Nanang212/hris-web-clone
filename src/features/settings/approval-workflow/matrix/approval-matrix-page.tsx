@@ -1,4 +1,3 @@
-// approval-matrix-page.tsx
 import { IconCheck, IconClock, IconSearch, IconX } from '@tabler/icons-react'
 import { Link } from '@tanstack/react-router'
 import { useState } from 'react'

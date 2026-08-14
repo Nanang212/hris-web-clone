@@ -1,7 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router'
 
-import { WorkflowError, WorkflowLoading } from '@/features/approval-workflow/components/feedback'
-import { ConfigureLevelsPage } from '@/features/approval-workflow/levels/configure-levels-page'
+import {
+  WorkflowError,
+  WorkflowLoading,
+} from '@/features/settings/approval-workflow/components/feedback'
+import { ConfigureLevelsPage } from '@/features/settings/approval-workflow/levels/configure-levels-page'
 
 export const Route = createFileRoute('/(app)/settings/approval-workflow/$id/levels')({
   pendingComponent: WorkflowLoading,

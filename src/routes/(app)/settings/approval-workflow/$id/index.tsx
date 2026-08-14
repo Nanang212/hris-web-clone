@@ -1,7 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router'
 
-import { WorkflowError, WorkflowLoading } from '@/features/approval-workflow/components/feedback'
-import { CreateWorkflowPage } from '@/features/approval-workflow/create/create-workflow-page'
+import {
+  WorkflowError,
+  WorkflowLoading,
+} from '@/features/settings/approval-workflow/components/feedback'
+import { CreateWorkflowPage } from '@/features/settings/approval-workflow/create/create-workflow-page'
 
 export const Route = createFileRoute('/(app)/settings/approval-workflow/$id/')({
   pendingComponent: WorkflowLoading,

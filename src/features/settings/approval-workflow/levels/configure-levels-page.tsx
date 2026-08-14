@@ -1,4 +1,3 @@
-// configure-levels-page.tsx
 import {
   IconChevronDown,
   IconChevronUp,
@@ -46,8 +45,16 @@ interface ConfigureLevelsPageProps {
 }
 
 export function ConfigureLevelsPage({ workflowId }: Readonly<ConfigureLevelsPageProps>) {
-  const { data: workflow, isPending: isPendingWorkflow, error: workflowError } = useWorkflow(workflowId)
-  const { data: levels, isPending: isPendingLevels, error: levelsError } = useWorkflowLevels(workflowId)
+  const {
+    data: workflow,
+    isPending: isPendingWorkflow,
+    error: workflowError,
+  } = useWorkflow(workflowId)
+  const {
+    data: levels,
+    isPending: isPendingLevels,
+    error: levelsError,
+  } = useWorkflowLevels(workflowId)
 
   const isPending = isPendingWorkflow || isPendingLevels
   const error = workflowError || levelsError
@@ -56,13 +63,7 @@ export function ConfigureLevelsPage({ workflowId }: Readonly<ConfigureLevelsPage
     return <AppMain pending={isPending} error={error} notFound={!workflow} />
   }
 
-  return (
-    <ConfigureLevelsForm
-      workflowId={workflowId}
-      workflow={workflow}
-      initialLevels={levels}
-    />
-  )
+  return <ConfigureLevelsForm workflowId={workflowId} workflow={workflow} initialLevels={levels} />
 }
 
 interface ConfigureLevelsFormProps {
@@ -79,7 +80,7 @@ function ConfigureLevelsForm({
   const [showAddPanel, setShowAddPanel] = useState(false)
   const [editLevel, setEditLevel] = useState<ApprovalLevel | undefined>()
   const [localLevels, setLocalLevels] = useState<ApprovalLevel[]>(initialLevels)
-  
+
   const { mutate: saveLevels } = useSaveWorkflowLevels(workflowId)
 
   const openEdit = (level: ApprovalLevel) => {
@@ -361,7 +362,7 @@ function ConfigureLevelsForm({
               <div className='flex gap-2'>
                 <IconInfoCircle
                   size={15}
-                  className='mt-0.5 flex-shrink-0 text-blue-600 dark:text-blue-400'
+                  className='mt-0.5 shrink-0 text-blue-600 dark:text-blue-400'
                 />
                 <p className='text-[11px] text-blue-700 dark:text-blue-400'>
                   Seret dan lepas level untuk mengatur urutan approval. Perubahan akan disimpan

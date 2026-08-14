@@ -1,10 +1,8 @@
-// feedback.tsx — Loading dan Error states untuk Approval Workflow
-// Mengikuti pola yang sama dengan dashboard/components/dashboard-feedback.tsx
 import { IconAlertTriangle } from '@tabler/icons-react'
 
 export function WorkflowLoading() {
   return (
-    <div className='flex min-h-[500px] flex-col items-center justify-center gap-3 p-8'>
+    <div className='flex min-h-125 flex-col items-center justify-center gap-3 p-8'>
       <div className='h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent' />
       <p className='text-sm text-muted-foreground'>Memuat data...</p>
     </div>
@@ -16,9 +14,9 @@ interface WorkflowErrorProps {
   reset: () => void
 }
 
-export function WorkflowError({ error, reset }: WorkflowErrorProps) {
+export function WorkflowError({ error, reset }: Readonly<WorkflowErrorProps>) {
   return (
-    <div className='flex min-h-[500px] flex-col items-center justify-center gap-4 p-8 text-center'>
+    <div className='flex min-h-125 flex-col items-center justify-center gap-4 p-8 text-center'>
       <div className='rounded-full bg-red-100 p-3 text-red-600 dark:bg-red-950/40 dark:text-red-400'>
         <IconAlertTriangle size={32} />
       </div>
