@@ -233,3 +233,160 @@ const formSchema = useSchema(() => ({
 4. `en.json` + `id.json` — add every new message key in both files.
 5. `pages/<feature>-page.tsx` — fetch via hook, render inside `<AppMain>` with `title`/`subtitle`/`breadcrumbs`/`actions`, guard `pending`/`error`/`notFound` before the full render.
 6. `src/routes/...` — a `createFileRoute` file that renders the page component.
+
+## 11. React Hook Form & Form Field components
+
+All feature forms must use **React Hook Form** (`react-hook-form`) combined with **Zod** validation. Form UI must be built with the shared `Field` primitives — never hand-roll `<label>` / `<input>` / `<span>` for errors.
+
+### 11.1 Schema definition
+
+- Derive the Zod schema with `useSchema` from `@/shared/lib/schema` so validation messages re-render when the locale changes. Do **not** define a module-level `z.object(...)`.
+- Import `z` from `zod` (not from any other package).
+- Use `z.email()` for e-mail fields, `z.string().min(1, ...)` for required fields.
+- Message keys follow the pattern `<feature>_<page>_<field>_required` / `_invalid`.
+
+```ts
+const formSchema = useSchema(() => ({
+  email: z.email({ message: m.auth_signin_email_invalid() }),
+  password: z.string().min(1, { message: m.auth_signin_password_required() }),
+  rememberMe: z.boolean().optional(),
+}))
+```
+
+### 11.2 `useForm` setup
+
+- Always pass `resolver: zodResolver(formSchema)`.
+- Provide `defaultValues` for every field to keep the form controlled from the start.
+- Destructure `register`, `handleSubmit`, `control`, and `formState: { errors }`.
+
+```ts
+const {
+  register,
+  handleSubmit,
+  control,
+  formState: { errors },
+} = useForm<z.infer<typeof formSchema>>({
+  resolver: zodResolver(formSchema),
+  defaultValues: {
+    email: '',
+    password: '',
+    rememberMe: false,
+  },
+})
+```
+
+### 11.3 Form markup with `Field` primitives
+
+Import from `@/shared/components/ui/field`:
+
+| Component    | Purpose                                                                        |
+| ------------ | ------------------------------------------------------------------------------ |
+| `FieldGroup` | Wrapper around the whole form (adds spacing).                                  |
+| `Field`      | Wrapper around a single label + input + error.                                 |
+| `FieldLabel` | Label text. Use `htmlFor` matching the input `id`.                             |
+| `FieldError` | Error message list. Pass `errors={errors.field ? [errors.field] : undefined}`. |
+
+Rules:
+
+- Every `Field` must have `data-invalid={!!errors.<fieldName>}` so the UI can style invalid states.
+- Every `Input` must have `aria-invalid={!!errors.<fieldName>}` for a11y.
+- Every `Input` must have a matching `id` and the `FieldLabel` must reference it via `htmlFor`.
+- Place icons (e.g. `IconMail`, `IconLock`) as decorative elements with `pointer-events-none` inside a relative wrapper; do **not** use them as labels.
+
+```tsx
+<Field data-invalid={!!errors.email}>
+  <FieldLabel htmlFor='email'>{m.auth_signin_email_field_label()}</FieldLabel>
+  <div className='relative'>
+    <IconMail size={16} className='pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-muted-foreground' />
+    <Input
+      id='email'
+      placeholder={m.auth_signin_email_field_placeholder()}
+      className='pl-9'
+      aria-invalid={!!errors.email}
+      {...register('email')}
+    />
+  </div>
+  <FieldError errors={errors.email ? [errors.email] : undefined} />
+</Field>
+```
+
+### 11.4 Controlled components (`Controller`)
+
+For components that do not expose a native ref (e.g. `Checkbox`, custom selects, date pickers), use `Controller` from `react-hook-form` instead of `register`.
+
+```tsx
+<Controller
+  name='rememberMe'
+  control={control}
+  render={({ field }) => (
+    <Checkbox
+      id='remember-me'
+      checked={field.value}
+      onCheckedChange={field.onChange}
+    />
+  )}
+/>
+```
+
+Rules:
+
+- Always wire `field.value` → component value prop.
+- Always wire component change handler → `field.onChange`.
+- If the component uses `checked` (boolean), map it explicitly; do not spread `field` blindly.
+
+### 11.5 Submit handler
+
+- Call `handleSubmit(yourHandler)` on the `<form>` element.
+- Inside the handler, call the mutation's `.mutate()` and put navigation / toast side effects in the mutation's `onSuccess` / `onError` callbacks (see §6).
+- Disable the submit button with `disabled={isPending}` while the mutation is in flight.
+- Show a loading spinner inside the button when `isPending` is true.
+
+```tsx
+<form className='space-y-5' onSubmit={handleSubmit(onSubmit)} noValidate>
+  <FieldGroup>
+    {/* fields */}
+    <Button type='submit' className='w-full' disabled={isPending}>
+      {isPending && <IconLoader2 className='animate-spin' />}
+      {m.auth_signin_submit_button()}
+    </Button>
+  </FieldGroup>
+</form>
+```
+
+### 11.6 Password visibility toggle
+
+When a password field needs a show/hide toggle:
+
+- Use a local `useState` for `showPassword`.
+- Render a `<button type='button'>` (not an `<IconButton>`) absolutely positioned inside the input wrapper.
+- Provide an `aria-label` that switches based on state, using i18n message keys.
+- Toggle `Input` type between `'text'` and `'password'`.
+
+```tsx
+const [showPassword, setShowPassword] = useState(false)
+
+<Input
+  id='password'
+  type={showPassword ? 'text' : 'password'}
+  {...register('password')}
+/>
+<button
+  type='button'
+  onClick={() => setShowPassword((prev) => !prev)}
+  aria-label={showPassword ? m.auth_signin_password_hide_label() : m.auth_signin_password_show_label()}
+>
+  {showPassword ? <IconEyeOff size={16} /> : <IconEye size={16} />}
+</button>
+```
+
+### 11.7 Form checklist
+
+1. Schema created with `useSchema`, messages from `m.<key>()`, imported `z` from `zod`.
+2. `useForm` configured with `zodResolver`, explicit `defaultValues`, and typed with `z.infer<typeof formSchema>`.
+3. Every field wrapped in `<Field data-invalid={!!errors.x}>`.
+4. Every input has matching `id` / `htmlFor`, `aria-invalid`, and `FieldError`.
+5. Controlled non-native inputs use `<Controller name='x' control={control} render={...} />`.
+6. Submit button is disabled during `isPending` and shows a spinner.
+7. No hardcoded strings — all labels, placeholders, errors, and aria-labels come from `m.<key>()`.
+
+---
