@@ -13,13 +13,17 @@ import {
 } from '@tabler/icons-react'
 import { useState } from 'react'
 
+import {
+  dummyWorkflows,
+  moduleColors,
+  moduleLabels,
+} from '@/features/settings/approval-workflow/data'
 import { AppMain } from '@/shared/components/app-layout/app-main'
 import { snackbar } from '@/shared/lib/snackbar'
 import { cn } from '@/shared/lib/utils'
 
-import { useApprovalRequests, useApproveRequest, useRejectRequest } from './hooks'
-import { dummyWorkflows, moduleColors, moduleLabels } from '../approval-workflow/data'
 import { ApprovalDetailDrawer } from './components/detail-drawer'
+import { useApprovalRequests, useApproveRequest, useRejectRequest } from './hooks'
 import type { ApprovalRequest } from './types'
 
 type TabType = string
