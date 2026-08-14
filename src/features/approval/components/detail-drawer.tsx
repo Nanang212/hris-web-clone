@@ -9,7 +9,7 @@ import {
 } from '@tabler/icons-react'
 import { useState } from 'react'
 
-import { moduleColors } from '@/features/settings/approval-workflow/data'
+import { moduleColors, moduleLabels } from '@/features/settings/approval-workflow/data'
 import { cn } from '@/shared/lib/utils'
 
 import type { ApprovalRequest } from '../types'
