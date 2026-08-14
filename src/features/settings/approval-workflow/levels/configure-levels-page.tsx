@@ -150,6 +150,7 @@ function ConfigureLevelsForm({
   return (
     <>
       <AppMain
+        backTo='/settings/approval-workflow'
         breadcrumbs={[
           { to: '/', label: 'Pengaturan' },
           { to: '/settings/approval-workflow', label: 'Approval Workflow' },
