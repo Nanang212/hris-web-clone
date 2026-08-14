@@ -9,13 +9,13 @@ import {
   IconTrash,
 } from '@tabler/icons-react'
 import { Link } from '@tanstack/react-router'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 
 import { AppMain } from '@/shared/components/app-layout/app-main'
 import { Button } from '@/shared/components/ui/button'
 import { cn } from '@/shared/lib/utils'
 
-import { saveApprovalLevels } from '../api'
+import { useSaveWorkflowLevels, useWorkflow, useWorkflowLevels } from '../hooks'
 import type { ApprovalLevel, ApproverType, Workflow } from '../types'
 import { AddLevelPanel } from './components/add-level-panel'
 
@@ -43,22 +43,44 @@ const timeoutActionLabels: Record<string, string> = {
 
 interface ConfigureLevelsPageProps {
   workflowId: string
-  workflow: Workflow
-  levels: ApprovalLevel[]
 }
 
-export function ConfigureLevelsPage({
+export function ConfigureLevelsPage({ workflowId }: Readonly<ConfigureLevelsPageProps>) {
+  const { data: workflow, isPending: isPendingWorkflow, error: workflowError } = useWorkflow(workflowId)
+  const { data: levels, isPending: isPendingLevels, error: levelsError } = useWorkflowLevels(workflowId)
+
+  const isPending = isPendingWorkflow || isPendingLevels
+  const error = workflowError || levelsError
+
+  if (isPending || error || !workflow || !levels) {
+    return <AppMain pending={isPending} error={error} notFound={!workflow} />
+  }
+
+  return (
+    <ConfigureLevelsForm
+      workflowId={workflowId}
+      workflow={workflow}
+      initialLevels={levels}
+    />
+  )
+}
+
+interface ConfigureLevelsFormProps {
+  workflowId: string
+  workflow: Workflow
+  initialLevels: ApprovalLevel[]
+}
+
+function ConfigureLevelsForm({
   workflowId,
   workflow,
-  levels,
-}: Readonly<ConfigureLevelsPageProps>) {
+  initialLevels,
+}: Readonly<ConfigureLevelsFormProps>) {
   const [showAddPanel, setShowAddPanel] = useState(false)
   const [editLevel, setEditLevel] = useState<ApprovalLevel | undefined>()
-  const [localLevels, setLocalLevels] = useState<ApprovalLevel[]>(levels)
-
-  useEffect(() => {
-    saveApprovalLevels(workflowId, localLevels).catch(console.error)
-  }, [localLevels, workflowId])
+  const [localLevels, setLocalLevels] = useState<ApprovalLevel[]>(initialLevels)
+  
+  const { mutate: saveLevels } = useSaveWorkflowLevels(workflowId)
 
   const openEdit = (level: ApprovalLevel) => {
     setEditLevel(level)
@@ -72,31 +94,31 @@ export function ConfigureLevelsPage({
 
   const moveLevelUp = (idx: number) => {
     if (idx === 0) return
-    setLocalLevels((prev) => {
-      const next = [...prev]
-      const temp = next[idx]
-      next[idx] = next[idx - 1]
-      next[idx - 1] = temp
-      return next.map((item, i) => ({ ...item, level: i + 1 }))
-    })
+    const next = [...localLevels]
+    const temp = next[idx]
+    next[idx] = next[idx - 1]
+    next[idx - 1] = temp
+    const updated = next.map((item, i) => ({ ...item, level: i + 1 }))
+    setLocalLevels(updated)
+    saveLevels(updated)
   }
 
   const moveLevelDown = (idx: number) => {
     if (idx === localLevels.length - 1) return
-    setLocalLevels((prev) => {
-      const next = [...prev]
-      const temp = next[idx]
-      next[idx] = next[idx + 1]
-      next[idx + 1] = temp
-      return next.map((item, i) => ({ ...item, level: i + 1 }))
-    })
+    const next = [...localLevels]
+    const temp = next[idx]
+    next[idx] = next[idx + 1]
+    next[idx + 1] = temp
+    const updated = next.map((item, i) => ({ ...item, level: i + 1 }))
+    setLocalLevels(updated)
+    saveLevels(updated)
   }
 
   const deleteLevel = (id: string) => {
-    setLocalLevels((prev) => {
-      const filtered = prev.filter((item) => item.id !== id)
-      return filtered.map((item, i) => ({ ...item, level: i + 1 }))
-    })
+    const filtered = localLevels.filter((item) => item.id !== id)
+    const updated = filtered.map((item, i) => ({ ...item, level: i + 1 }))
+    setLocalLevels(updated)
+    saveLevels(updated)
   }
 
   const handleSaveLevel = (
@@ -105,11 +127,10 @@ export function ConfigureLevelsPage({
       level?: number
     },
   ) => {
+    let updated: ApprovalLevel[]
     if (newLevel.id) {
-      setLocalLevels((prev) =>
-        prev.map((item) =>
-          item.id === newLevel.id ? ({ ...item, ...newLevel } as ApprovalLevel) : item,
-        ),
+      updated = localLevels.map((item) =>
+        item.id === newLevel.id ? ({ ...item, ...newLevel } as ApprovalLevel) : item,
       )
     } else {
       const nextLevelNumber = localLevels.length + 1
@@ -119,8 +140,10 @@ export function ConfigureLevelsPage({
         workflowId,
         level: nextLevelNumber,
       } as ApprovalLevel
-      setLocalLevels((prev) => [...prev, levelObj])
+      updated = [...localLevels, levelObj]
     }
+    setLocalLevels(updated)
+    saveLevels(updated)
   }
 
   return (

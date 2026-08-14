@@ -7,7 +7,7 @@ import { AppMain } from '@/shared/components/app-layout/app-main'
 import { snackbar } from '@/shared/lib/snackbar'
 import { cn } from '@/shared/lib/utils'
 
-import { createWorkflow, updateWorkflow } from '../api'
+import { useCreateWorkflow, useUpdateWorkflow, useWorkflow } from '../hooks'
 import { moduleLabels } from '../data'
 import type { ModuleType, Workflow, WorkflowStatus } from '../types'
 
@@ -36,19 +36,47 @@ const moduleColorMap: Record<string, string> = {
 interface CreateWorkflowPageProps {
   mode?: 'create' | 'edit'
   workflowId?: string
-  workflow?: Workflow
 }
 
 export function CreateWorkflowPage({
   mode = 'create',
   workflowId,
-  workflow,
 }: Readonly<CreateWorkflowPageProps>) {
+  const isEdit = mode === 'edit'
+  const { data: workflow, isPending, error } = useWorkflow(isEdit ? workflowId ?? '' : '')
+
+  if (isEdit && (isPending || error || !workflow)) {
+    return <AppMain pending={isPending} error={error} notFound={!workflow} />
+  }
+
+  return (
+    <CreateWorkflowForm
+      mode={mode}
+      workflowId={workflowId}
+      initialWorkflow={workflow}
+    />
+  )
+}
+
+interface CreateWorkflowFormProps {
+  mode: 'create' | 'edit'
+  workflowId?: string
+  initialWorkflow?: Workflow
+}
+
+function CreateWorkflowForm({
+  mode,
+  workflowId,
+  initialWorkflow,
+}: CreateWorkflowFormProps) {
+  const isEdit = mode === 'edit'
+  const navigate = useNavigate()
+
   const [form, setForm] = useState({
-    name: workflow?.name ?? '',
-    description: workflow?.description ?? '',
-    module: (workflow?.module ?? '') as ModuleType | '',
-    status: (workflow?.status ?? 'draft') as WorkflowStatus,
+    name: initialWorkflow?.name ?? '',
+    description: initialWorkflow?.description ?? '',
+    module: (initialWorkflow?.module ?? '') as ModuleType | '',
+    status: (initialWorkflow?.status ?? 'draft') as WorkflowStatus,
     applyToAllEmployee: true,
     allowDelegation: true,
     notifyRequester: true,
@@ -56,7 +84,8 @@ export function CreateWorkflowPage({
     notes: '',
   })
 
-  const navigate = useNavigate()
+  const { mutateAsync: createMutate } = useCreateWorkflow()
+  const { mutateAsync: updateMutate } = useUpdateWorkflow(workflowId ?? '')
 
   const [isSaving, setIsSaving] = useState(false)
 
@@ -73,19 +102,19 @@ export function CreateWorkflowPage({
     setIsSaving(true)
     try {
       if (isEdit && workflowId) {
-        await updateWorkflow(workflowId, {
+        await updateMutate({
           name: form.name,
           description: form.description,
-          module: form.module,
+          module: form.module as ModuleType,
           status: form.status,
         })
         snackbar.success('Workflow berhasil diperbarui!')
         navigate({ to: '/settings/approval-workflow' })
       } else {
-        const newWorkflow = await createWorkflow({
+        const newWorkflow = await createMutate({
           name: form.name,
           description: form.description,
-          module: form.module,
+          module: form.module as ModuleType,
           status: form.status,
         })
         snackbar.success('Workflow berhasil dibuat!')
@@ -94,14 +123,12 @@ export function CreateWorkflowPage({
           params: { id: newWorkflow.id },
         })
       }
-    } catch {
-      snackbar.error('Gagal menyimpan workflow.')
+    } catch (err) {
+      snackbar.exception(err)
     } finally {
       setIsSaving(false)
     }
   }
-
-  const isEdit = mode === 'edit'
 
   return (
     <AppMain
@@ -118,7 +145,7 @@ export function CreateWorkflowPage({
       }
       actions={
         <>
-          {isEdit && workflow && (
+          {isEdit && initialWorkflow && (
             <div className='ml-auto flex items-center gap-2'>
               <Link
                 to='/settings/approval-workflow/$id/levels'

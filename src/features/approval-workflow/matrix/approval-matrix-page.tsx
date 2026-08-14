@@ -1,5 +1,5 @@
 // approval-matrix-page.tsx
-import { IconCheck, IconClock, IconPlus, IconSearch, IconX } from '@tabler/icons-react'
+import { IconCheck, IconClock, IconSearch, IconX } from '@tabler/icons-react'
 import { Link } from '@tanstack/react-router'
 import { useState } from 'react'
 
@@ -7,6 +7,7 @@ import { AppMain } from '@/shared/components/app-layout/app-main'
 import { Button } from '@/shared/components/ui/button'
 import { cn } from '@/shared/lib/utils'
 
+import { useApprovalMatrix } from '../hooks'
 import { moduleColors, moduleLabels } from '../data'
 import type { MatrixEntry, ModuleType } from '../types'
 
@@ -58,14 +59,16 @@ function LevelProgressBar({ current, total }: { current: number; total: number }
   )
 }
 
-interface ApprovalMatrixPageProps {
-  entries: MatrixEntry[]
-}
-
-export function ApprovalMatrixPage({ entries }: Readonly<ApprovalMatrixPageProps>) {
+export function ApprovalMatrixPage() {
   const [search, setSearch] = useState('')
   const [filterStatus, setFilterStatus] = useState<EntryStatus | 'all'>('all')
   const [filterModule, setFilterModule] = useState<ModuleType | 'all'>('all')
+
+  const { data: entries, isPending, error } = useApprovalMatrix()
+
+  if (isPending || error || !entries) {
+    return <AppMain pending={isPending} error={error} notFound={!entries} />
+  }
 
   const filtered = entries.filter((e) => {
     const matchSearch =

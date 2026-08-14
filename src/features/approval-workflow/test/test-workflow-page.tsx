@@ -1,7 +1,6 @@
 // test-workflow-page.tsx
 import { useState } from 'react'
 import {
-  IconArrowLeft,
   IconBolt,
   IconCheck,
   IconChevronRight,
@@ -11,10 +10,12 @@ import {
 } from '@tabler/icons-react'
 import { Link } from '@tanstack/react-router'
 
+import { AppMain } from '@/shared/components/app-layout/app-main'
+import { snackbar } from '@/shared/lib/snackbar'
 import { cn } from '@/shared/lib/utils'
-import { testWorkflow } from '../api'
+import { useTestWorkflow, useWorkflow } from '../hooks'
 import { moduleLabels } from '../data'
-import type { ApproverType, ModuleType, TestResult, Workflow } from '../types'
+import type { ApproverType, ModuleType, TestResult } from '../types'
 
 const approverTypeColor: Record<ApproverType, string> = {
   direct_manager: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300',
@@ -34,10 +35,12 @@ const approverTypeLabels: Record<ApproverType, string> = {
 
 interface TestWorkflowPageProps {
   workflowId: string
-  workflow: Workflow
 }
 
-export function TestWorkflowPage({ workflowId, workflow }: TestWorkflowPageProps) {
+export function TestWorkflowPage({ workflowId }: TestWorkflowPageProps) {
+  const { data: workflow, isPending, error } = useWorkflow(workflowId)
+  const { mutateAsync: runSimulation, isPending: loading } = useTestWorkflow(workflowId)
+
   const [form, setForm] = useState({
     requesterName: 'Rina Marlina',
     requesterDepartment: 'Engineering',
@@ -48,45 +51,38 @@ export function TestWorkflowPage({ workflowId, workflow }: TestWorkflowPageProps
     reason: 'Keperluan keluarga',
   })
 
-  const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<TestResult | null>(null)
 
-  const handleTest = () => {
-    setLoading(true)
-    testWorkflow(workflowId, {
-      requesterName: form.requesterName,
-      requesterDepartment: form.requesterDepartment,
-      requesterPosition: form.requesterPosition,
-      requestType: form.requestType,
-      requestDays: form.requestDays,
-      reason: form.reason,
-    }).then((res) => {
+  const handleTest = async () => {
+    try {
+      const res = await runSimulation({
+        requesterName: form.requesterName,
+        requesterDepartment: form.requesterDepartment,
+        requesterPosition: form.requesterPosition,
+        requestType: form.requestType,
+        requestDays: form.requestDays,
+        reason: form.reason,
+      })
       setResult(res)
-      setLoading(false)
-    })
+    } catch (err) {
+      snackbar.exception(err)
+    }
+  }
+
+  if (isPending || error || !workflow) {
+    return <AppMain pending={isPending} error={error} notFound={!workflow} />
   }
 
   return (
-    <div className='flex flex-col gap-5 p-5 lg:p-6'>
-      {/* Header */}
-      <div className='flex items-center gap-3'>
-        <Link
-          to='/settings/approval-workflow/$id/conditions'
-          params={{ id: workflowId }}
-          className='flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-card text-muted-foreground shadow-sm transition-colors hover:text-foreground'
-        >
-          <IconArrowLeft size={18} />
-        </Link>
-        <div>
-          <p className='text-xs text-muted-foreground'>
-            Pengaturan / Approval Workflow / Test Workflow
-          </p>
-          <h2 className='text-2xl font-bold tracking-tight'>Test Workflow</h2>
-          <p className='mt-1 text-sm text-muted-foreground'>
-            {workflow?.name} — Simulasikan pengajuan untuk melihat alur approval
-          </p>
-        </div>
-      </div>
+    <AppMain
+      breadcrumbs={[
+        { to: '/', label: 'Pengaturan' },
+        { to: '/settings/approval-workflow', label: 'Approval Workflow' },
+        { to: '.', label: 'Test Workflow' },
+      ]}
+      title='Test Workflow'
+      subtitle={`${workflow?.name} — Simulasikan pengajuan untuk melihat alur approval`}
+    >
 
       <div className='grid grid-cols-1 gap-5 lg:grid-cols-[1fr_380px]'>
         {/* Test Form */}
@@ -386,6 +382,6 @@ export function TestWorkflowPage({ workflowId, workflow }: TestWorkflowPageProps
           </Link>
         </div>
       </div>
-    </div>
+    </AppMain>
   )
 }
