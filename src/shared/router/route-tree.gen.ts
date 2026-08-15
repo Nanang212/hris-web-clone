@@ -17,6 +17,9 @@ import { Route as authVerificationRouteImport } from './../../routes/(auth)/veri
 import { Route as appdashboardIndexRouteImport } from './../../routes/(app)/(dashboard)/index'
 import { Route as appApprovalIndexRouteImport } from './../../routes/(app)/approval/index'
 import { Route as appAttendanceIndexRouteImport } from './../../routes/(app)/attendance/index'
+import { Route as appAttendanceAllMenuRouteImport } from './../../routes/(app)/attendance/all-menu'
+import { Route as appAttendanceClockInOutRouteImport } from './../../routes/(app)/attendance/clock-in-out'
+import { Route as appAttendanceHistoryRouteImport } from './../../routes/(app)/attendance/history'
 import { Route as appLeaveIndexRouteImport } from './../../routes/(app)/leave/index'
 import { Route as appPayrollIndexRouteImport } from './../../routes/(app)/payroll/index'
 import { Route as appPerformanceIndexRouteImport } from './../../routes/(app)/performance/index'
@@ -26,6 +29,10 @@ import { Route as appdashboardDashboardEmployeeRouteImport } from './../../route
 import { Route as appdashboardDashboardExecutiveRouteImport } from './../../routes/(app)/(dashboard)/dashboard.executive'
 import { Route as appdashboardDashboardHrRouteImport } from './../../routes/(app)/(dashboard)/dashboard.hr'
 import { Route as appdashboardDashboardManagerRouteImport } from './../../routes/(app)/(dashboard)/dashboard.manager'
+import { Route as appAttendanceApprovalIndexRouteImport } from './../../routes/(app)/attendance/approval/index'
+import { Route as appAttendanceManagementIndexRouteImport } from './../../routes/(app)/attendance/management/index'
+import { Route as appAttendanceRequestsIndexRouteImport } from './../../routes/(app)/attendance/requests/index'
+import { Route as appAttendanceRequestsNewRouteImport } from './../../routes/(app)/attendance/requests/new'
 import { Route as appCompanyDocumentIndexRouteImport } from './../../routes/(app)/company/document/index'
 import { Route as appCompanyEmployeeIndexRouteImport } from './../../routes/(app)/company/employee/index'
 import { Route as appCompanyEmployeeIdRouteImport } from './../../routes/(app)/company/employee/$id'
@@ -100,6 +107,21 @@ const appAttendanceIndexRoute = appAttendanceIndexRouteImport.update({
   path: '/attendance/',
   getParentRoute: () => appRouteRoute,
 } as any)
+const appAttendanceAllMenuRoute = appAttendanceAllMenuRouteImport.update({
+  id: '/attendance/all-menu',
+  path: '/attendance/all-menu',
+  getParentRoute: () => appRouteRoute,
+} as any)
+const appAttendanceClockInOutRoute = appAttendanceClockInOutRouteImport.update({
+  id: '/attendance/clock-in-out',
+  path: '/attendance/clock-in-out',
+  getParentRoute: () => appRouteRoute,
+} as any)
+const appAttendanceHistoryRoute = appAttendanceHistoryRouteImport.update({
+  id: '/attendance/history',
+  path: '/attendance/history',
+  getParentRoute: () => appRouteRoute,
+} as any)
 const appLeaveIndexRoute = appLeaveIndexRouteImport.update({
   id: '/leave/',
   path: '/leave/',
@@ -147,6 +169,30 @@ const appdashboardDashboardManagerRoute =
   appdashboardDashboardManagerRouteImport.update({
     id: '/(dashboard)/dashboard/manager',
     path: '/dashboard/manager',
+    getParentRoute: () => appRouteRoute,
+  } as any)
+const appAttendanceApprovalIndexRoute =
+  appAttendanceApprovalIndexRouteImport.update({
+    id: '/attendance/approval/',
+    path: '/attendance/approval/',
+    getParentRoute: () => appRouteRoute,
+  } as any)
+const appAttendanceManagementIndexRoute =
+  appAttendanceManagementIndexRouteImport.update({
+    id: '/attendance/management/',
+    path: '/attendance/management/',
+    getParentRoute: () => appRouteRoute,
+  } as any)
+const appAttendanceRequestsIndexRoute =
+  appAttendanceRequestsIndexRouteImport.update({
+    id: '/attendance/requests/',
+    path: '/attendance/requests/',
+    getParentRoute: () => appRouteRoute,
+  } as any)
+const appAttendanceRequestsNewRoute =
+  appAttendanceRequestsNewRouteImport.update({
+    id: '/attendance/requests/new',
+    path: '/attendance/requests/new',
     getParentRoute: () => appRouteRoute,
   } as any)
 const appCompanyDocumentIndexRoute = appCompanyDocumentIndexRouteImport.update({
@@ -354,6 +400,9 @@ export interface FileRoutesByFullPath {
   '/signin': typeof authSigninRoute
   '/signout': typeof authSignoutRoute
   '/verification': typeof authVerificationRoute
+  '/attendance/all-menu': typeof appAttendanceAllMenuRoute
+  '/attendance/clock-in-out': typeof appAttendanceClockInOutRoute
+  '/attendance/history': typeof appAttendanceHistoryRoute
   '/': typeof appdashboardIndexRoute
   '/approval/': typeof appApprovalIndexRoute
   '/attendance/': typeof appAttendanceIndexRoute
@@ -366,6 +415,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/executive': typeof appdashboardDashboardExecutiveRoute
   '/dashboard/hr': typeof appdashboardDashboardHrRoute
   '/dashboard/manager': typeof appdashboardDashboardManagerRoute
+  '/attendance/requests/new': typeof appAttendanceRequestsNewRoute
   '/company/employee/$id': typeof appCompanyEmployeeIdRoute
   '/company/employee/new': typeof appCompanyEmployeeNewRoute
   '/company/employee/update': typeof appCompanyEmployeeUpdateRoute
@@ -385,6 +435,9 @@ export interface FileRoutesByFullPath {
   '/settings/master-data/shifts': typeof appSettingsMasterDataShiftsRoute
   '/settings/user-role/create-role': typeof appSettingsUserRoleCreateRoleRoute
   '/settings/user-role/permission-matrix': typeof appSettingsUserRolePermissionMatrixRoute
+  '/attendance/approval/': typeof appAttendanceApprovalIndexRoute
+  '/attendance/management/': typeof appAttendanceManagementIndexRoute
+  '/attendance/requests/': typeof appAttendanceRequestsIndexRoute
   '/company/document/': typeof appCompanyDocumentIndexRoute
   '/company/employee/': typeof appCompanyEmployeeIndexRoute
   '/company/organization/': typeof appCompanyOrganizationIndexRoute
@@ -406,6 +459,9 @@ export interface FileRoutesByTo {
   '/signin': typeof authSigninRoute
   '/signout': typeof authSignoutRoute
   '/verification': typeof authVerificationRoute
+  '/attendance/all-menu': typeof appAttendanceAllMenuRoute
+  '/attendance/clock-in-out': typeof appAttendanceClockInOutRoute
+  '/attendance/history': typeof appAttendanceHistoryRoute
   '/': typeof appdashboardIndexRoute
   '/approval': typeof appApprovalIndexRoute
   '/attendance': typeof appAttendanceIndexRoute
@@ -418,6 +474,7 @@ export interface FileRoutesByTo {
   '/dashboard/executive': typeof appdashboardDashboardExecutiveRoute
   '/dashboard/hr': typeof appdashboardDashboardHrRoute
   '/dashboard/manager': typeof appdashboardDashboardManagerRoute
+  '/attendance/requests/new': typeof appAttendanceRequestsNewRoute
   '/company/employee/$id': typeof appCompanyEmployeeIdRoute
   '/company/employee/new': typeof appCompanyEmployeeNewRoute
   '/company/employee/update': typeof appCompanyEmployeeUpdateRoute
@@ -437,6 +494,9 @@ export interface FileRoutesByTo {
   '/settings/master-data/shifts': typeof appSettingsMasterDataShiftsRoute
   '/settings/user-role/create-role': typeof appSettingsUserRoleCreateRoleRoute
   '/settings/user-role/permission-matrix': typeof appSettingsUserRolePermissionMatrixRoute
+  '/attendance/approval': typeof appAttendanceApprovalIndexRoute
+  '/attendance/management': typeof appAttendanceManagementIndexRoute
+  '/attendance/requests': typeof appAttendanceRequestsIndexRoute
   '/company/document': typeof appCompanyDocumentIndexRoute
   '/company/employee': typeof appCompanyEmployeeIndexRoute
   '/company/organization': typeof appCompanyOrganizationIndexRoute
@@ -460,6 +520,9 @@ export interface FileRoutesById {
   '/(auth)/signin': typeof authSigninRoute
   '/(auth)/signout': typeof authSignoutRoute
   '/(auth)/verification': typeof authVerificationRoute
+  '/(app)/attendance/all-menu': typeof appAttendanceAllMenuRoute
+  '/(app)/attendance/clock-in-out': typeof appAttendanceClockInOutRoute
+  '/(app)/attendance/history': typeof appAttendanceHistoryRoute
   '/(app)/(dashboard)/': typeof appdashboardIndexRoute
   '/(app)/approval/': typeof appApprovalIndexRoute
   '/(app)/attendance/': typeof appAttendanceIndexRoute
@@ -472,6 +535,7 @@ export interface FileRoutesById {
   '/(app)/(dashboard)/dashboard/executive': typeof appdashboardDashboardExecutiveRoute
   '/(app)/(dashboard)/dashboard/hr': typeof appdashboardDashboardHrRoute
   '/(app)/(dashboard)/dashboard/manager': typeof appdashboardDashboardManagerRoute
+  '/(app)/attendance/requests/new': typeof appAttendanceRequestsNewRoute
   '/(app)/company/employee/$id': typeof appCompanyEmployeeIdRoute
   '/(app)/company/employee/new': typeof appCompanyEmployeeNewRoute
   '/(app)/company/employee/update': typeof appCompanyEmployeeUpdateRoute
@@ -491,6 +555,9 @@ export interface FileRoutesById {
   '/(app)/settings/master-data/shifts': typeof appSettingsMasterDataShiftsRoute
   '/(app)/settings/user-role/create-role': typeof appSettingsUserRoleCreateRoleRoute
   '/(app)/settings/user-role/permission-matrix': typeof appSettingsUserRolePermissionMatrixRoute
+  '/(app)/attendance/approval/': typeof appAttendanceApprovalIndexRoute
+  '/(app)/attendance/management/': typeof appAttendanceManagementIndexRoute
+  '/(app)/attendance/requests/': typeof appAttendanceRequestsIndexRoute
   '/(app)/company/document/': typeof appCompanyDocumentIndexRoute
   '/(app)/company/employee/': typeof appCompanyEmployeeIndexRoute
   '/(app)/company/organization/': typeof appCompanyOrganizationIndexRoute
@@ -514,6 +581,9 @@ export interface FileRouteTypes {
     | '/signin'
     | '/signout'
     | '/verification'
+    | '/attendance/all-menu'
+    | '/attendance/clock-in-out'
+    | '/attendance/history'
     | '/'
     | '/approval/'
     | '/attendance/'
@@ -526,6 +596,7 @@ export interface FileRouteTypes {
     | '/dashboard/executive'
     | '/dashboard/hr'
     | '/dashboard/manager'
+    | '/attendance/requests/new'
     | '/company/employee/$id'
     | '/company/employee/new'
     | '/company/employee/update'
@@ -545,6 +616,9 @@ export interface FileRouteTypes {
     | '/settings/master-data/shifts'
     | '/settings/user-role/create-role'
     | '/settings/user-role/permission-matrix'
+    | '/attendance/approval/'
+    | '/attendance/management/'
+    | '/attendance/requests/'
     | '/company/document/'
     | '/company/employee/'
     | '/company/organization/'
@@ -566,6 +640,9 @@ export interface FileRouteTypes {
     | '/signin'
     | '/signout'
     | '/verification'
+    | '/attendance/all-menu'
+    | '/attendance/clock-in-out'
+    | '/attendance/history'
     | '/'
     | '/approval'
     | '/attendance'
@@ -578,6 +655,7 @@ export interface FileRouteTypes {
     | '/dashboard/executive'
     | '/dashboard/hr'
     | '/dashboard/manager'
+    | '/attendance/requests/new'
     | '/company/employee/$id'
     | '/company/employee/new'
     | '/company/employee/update'
@@ -597,6 +675,9 @@ export interface FileRouteTypes {
     | '/settings/master-data/shifts'
     | '/settings/user-role/create-role'
     | '/settings/user-role/permission-matrix'
+    | '/attendance/approval'
+    | '/attendance/management'
+    | '/attendance/requests'
     | '/company/document'
     | '/company/employee'
     | '/company/organization'
@@ -619,6 +700,9 @@ export interface FileRouteTypes {
     | '/(auth)/signin'
     | '/(auth)/signout'
     | '/(auth)/verification'
+    | '/(app)/attendance/all-menu'
+    | '/(app)/attendance/clock-in-out'
+    | '/(app)/attendance/history'
     | '/(app)/(dashboard)/'
     | '/(app)/approval/'
     | '/(app)/attendance/'
@@ -631,6 +715,7 @@ export interface FileRouteTypes {
     | '/(app)/(dashboard)/dashboard/executive'
     | '/(app)/(dashboard)/dashboard/hr'
     | '/(app)/(dashboard)/dashboard/manager'
+    | '/(app)/attendance/requests/new'
     | '/(app)/company/employee/$id'
     | '/(app)/company/employee/new'
     | '/(app)/company/employee/update'
@@ -650,6 +735,9 @@ export interface FileRouteTypes {
     | '/(app)/settings/master-data/shifts'
     | '/(app)/settings/user-role/create-role'
     | '/(app)/settings/user-role/permission-matrix'
+    | '/(app)/attendance/approval/'
+    | '/(app)/attendance/management/'
+    | '/(app)/attendance/requests/'
     | '/(app)/company/document/'
     | '/(app)/company/employee/'
     | '/(app)/company/organization/'
@@ -733,6 +821,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof appAttendanceIndexRouteImport
       parentRoute: typeof appRouteRoute
     }
+    '/(app)/attendance/all-menu': {
+      id: '/(app)/attendance/all-menu'
+      path: '/attendance/all-menu'
+      fullPath: '/attendance/all-menu'
+      preLoaderRoute: typeof appAttendanceAllMenuRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/attendance/clock-in-out': {
+      id: '/(app)/attendance/clock-in-out'
+      path: '/attendance/clock-in-out'
+      fullPath: '/attendance/clock-in-out'
+      preLoaderRoute: typeof appAttendanceClockInOutRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/attendance/history': {
+      id: '/(app)/attendance/history'
+      path: '/attendance/history'
+      fullPath: '/attendance/history'
+      preLoaderRoute: typeof appAttendanceHistoryRouteImport
+      parentRoute: typeof appRouteRoute
+    }
     '/(app)/leave/': {
       id: '/(app)/leave/'
       path: '/leave'
@@ -794,6 +903,34 @@ declare module '@tanstack/react-router' {
       path: '/dashboard/manager'
       fullPath: '/dashboard/manager'
       preLoaderRoute: typeof appdashboardDashboardManagerRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/attendance/approval/': {
+      id: '/(app)/attendance/approval/'
+      path: '/attendance/approval'
+      fullPath: '/attendance/approval/'
+      preLoaderRoute: typeof appAttendanceApprovalIndexRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/attendance/management/': {
+      id: '/(app)/attendance/management/'
+      path: '/attendance/management'
+      fullPath: '/attendance/management/'
+      preLoaderRoute: typeof appAttendanceManagementIndexRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/attendance/requests/': {
+      id: '/(app)/attendance/requests/'
+      path: '/attendance/requests'
+      fullPath: '/attendance/requests/'
+      preLoaderRoute: typeof appAttendanceRequestsIndexRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/attendance/requests/new': {
+      id: '/(app)/attendance/requests/new'
+      path: '/attendance/requests/new'
+      fullPath: '/attendance/requests/new'
+      preLoaderRoute: typeof appAttendanceRequestsNewRouteImport
       parentRoute: typeof appRouteRoute
     }
     '/(app)/company/document/': {
@@ -1038,6 +1175,9 @@ declare module '@tanstack/react-router' {
 }
 
 interface appRouteRouteChildren {
+  appAttendanceAllMenuRoute: typeof appAttendanceAllMenuRoute
+  appAttendanceClockInOutRoute: typeof appAttendanceClockInOutRoute
+  appAttendanceHistoryRoute: typeof appAttendanceHistoryRoute
   appdashboardIndexRoute: typeof appdashboardIndexRoute
   appApprovalIndexRoute: typeof appApprovalIndexRoute
   appAttendanceIndexRoute: typeof appAttendanceIndexRoute
@@ -1050,6 +1190,7 @@ interface appRouteRouteChildren {
   appdashboardDashboardExecutiveRoute: typeof appdashboardDashboardExecutiveRoute
   appdashboardDashboardHrRoute: typeof appdashboardDashboardHrRoute
   appdashboardDashboardManagerRoute: typeof appdashboardDashboardManagerRoute
+  appAttendanceRequestsNewRoute: typeof appAttendanceRequestsNewRoute
   appCompanyEmployeeIdRoute: typeof appCompanyEmployeeIdRoute
   appCompanyEmployeeNewRoute: typeof appCompanyEmployeeNewRoute
   appCompanyEmployeeUpdateRoute: typeof appCompanyEmployeeUpdateRoute
@@ -1069,6 +1210,9 @@ interface appRouteRouteChildren {
   appSettingsMasterDataShiftsRoute: typeof appSettingsMasterDataShiftsRoute
   appSettingsUserRoleCreateRoleRoute: typeof appSettingsUserRoleCreateRoleRoute
   appSettingsUserRolePermissionMatrixRoute: typeof appSettingsUserRolePermissionMatrixRoute
+  appAttendanceApprovalIndexRoute: typeof appAttendanceApprovalIndexRoute
+  appAttendanceManagementIndexRoute: typeof appAttendanceManagementIndexRoute
+  appAttendanceRequestsIndexRoute: typeof appAttendanceRequestsIndexRoute
   appCompanyDocumentIndexRoute: typeof appCompanyDocumentIndexRoute
   appCompanyEmployeeIndexRoute: typeof appCompanyEmployeeIndexRoute
   appCompanyOrganizationIndexRoute: typeof appCompanyOrganizationIndexRoute
@@ -1087,6 +1231,9 @@ interface appRouteRouteChildren {
 }
 
 const appRouteRouteChildren: appRouteRouteChildren = {
+  appAttendanceAllMenuRoute: appAttendanceAllMenuRoute,
+  appAttendanceClockInOutRoute: appAttendanceClockInOutRoute,
+  appAttendanceHistoryRoute: appAttendanceHistoryRoute,
   appdashboardIndexRoute: appdashboardIndexRoute,
   appApprovalIndexRoute: appApprovalIndexRoute,
   appAttendanceIndexRoute: appAttendanceIndexRoute,
@@ -1099,6 +1246,7 @@ const appRouteRouteChildren: appRouteRouteChildren = {
   appdashboardDashboardExecutiveRoute: appdashboardDashboardExecutiveRoute,
   appdashboardDashboardHrRoute: appdashboardDashboardHrRoute,
   appdashboardDashboardManagerRoute: appdashboardDashboardManagerRoute,
+  appAttendanceRequestsNewRoute: appAttendanceRequestsNewRoute,
   appCompanyEmployeeIdRoute: appCompanyEmployeeIdRoute,
   appCompanyEmployeeNewRoute: appCompanyEmployeeNewRoute,
   appCompanyEmployeeUpdateRoute: appCompanyEmployeeUpdateRoute,
@@ -1121,6 +1269,9 @@ const appRouteRouteChildren: appRouteRouteChildren = {
   appSettingsUserRoleCreateRoleRoute: appSettingsUserRoleCreateRoleRoute,
   appSettingsUserRolePermissionMatrixRoute:
     appSettingsUserRolePermissionMatrixRoute,
+  appAttendanceApprovalIndexRoute: appAttendanceApprovalIndexRoute,
+  appAttendanceManagementIndexRoute: appAttendanceManagementIndexRoute,
+  appAttendanceRequestsIndexRoute: appAttendanceRequestsIndexRoute,
   appCompanyDocumentIndexRoute: appCompanyDocumentIndexRoute,
   appCompanyEmployeeIndexRoute: appCompanyEmployeeIndexRoute,
   appCompanyOrganizationIndexRoute: appCompanyOrganizationIndexRoute,
