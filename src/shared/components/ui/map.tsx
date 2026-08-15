@@ -222,7 +222,7 @@ function getViewport(map: MapLibreGL.Map): MapViewport {
   }
 }
 
-const Map = forwardRef<MapRef, MapProps>(function Map(
+const Map = forwardRef<MapRef, MapProps>(function map(
   {
     children,
     className,
