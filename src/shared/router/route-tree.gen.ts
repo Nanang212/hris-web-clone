@@ -53,10 +53,13 @@ import { Route as appSettingsNotificationIndexRouteImport } from './../../routes
 import { Route as appSettingsSecurityIndexRouteImport } from './../../routes/(app)/settings/security/index'
 import { Route as appSettingsUserRoleIndexRouteImport } from './../../routes/(app)/settings/user-role/index'
 import { Route as appSettingsUserRoleCreateRoleRouteImport } from './../../routes/(app)/settings/user-role/create-role'
+import { Route as appSettingsUserRolePermissionMatrixRouteImport } from './../../routes/(app)/settings/user-role/permission-matrix'
 import { Route as appSettingsApprovalWorkflowIdIndexRouteImport } from './../../routes/(app)/settings/approval-workflow/$id/index'
 import { Route as appSettingsApprovalWorkflowIdConditionsRouteImport } from './../../routes/(app)/settings/approval-workflow/$id/conditions'
 import { Route as appSettingsApprovalWorkflowIdLevelsRouteImport } from './../../routes/(app)/settings/approval-workflow/$id/levels'
 import { Route as appSettingsApprovalWorkflowIdTestRouteImport } from './../../routes/(app)/settings/approval-workflow/$id/test'
+import { Route as appSettingsUserRoleRoleIdAssignUsersRouteImport } from './../../routes/(app)/settings/user-role/$roleId/assign-users'
+import { Route as appSettingsUserRoleRoleIdEditRouteImport } from './../../routes/(app)/settings/user-role/$roleId/edit'
 
 const appRouteRoute = appRouteRouteImport.update({
   id: '/(app)',
@@ -303,6 +306,12 @@ const appSettingsUserRoleCreateRoleRoute =
     path: '/settings/user-role/create-role',
     getParentRoute: () => appRouteRoute,
   } as any)
+const appSettingsUserRolePermissionMatrixRoute =
+  appSettingsUserRolePermissionMatrixRouteImport.update({
+    id: '/settings/user-role/permission-matrix',
+    path: '/settings/user-role/permission-matrix',
+    getParentRoute: () => appRouteRoute,
+  } as any)
 const appSettingsApprovalWorkflowIdIndexRoute =
   appSettingsApprovalWorkflowIdIndexRouteImport.update({
     id: '/settings/approval-workflow/$id/',
@@ -325,6 +334,18 @@ const appSettingsApprovalWorkflowIdTestRoute =
   appSettingsApprovalWorkflowIdTestRouteImport.update({
     id: '/settings/approval-workflow/$id/test',
     path: '/settings/approval-workflow/$id/test',
+    getParentRoute: () => appRouteRoute,
+  } as any)
+const appSettingsUserRoleRoleIdAssignUsersRoute =
+  appSettingsUserRoleRoleIdAssignUsersRouteImport.update({
+    id: '/settings/user-role/$roleId/assign-users',
+    path: '/settings/user-role/$roleId/assign-users',
+    getParentRoute: () => appRouteRoute,
+  } as any)
+const appSettingsUserRoleRoleIdEditRoute =
+  appSettingsUserRoleRoleIdEditRouteImport.update({
+    id: '/settings/user-role/$roleId/edit',
+    path: '/settings/user-role/$roleId/edit',
     getParentRoute: () => appRouteRoute,
   } as any)
 
@@ -363,6 +384,7 @@ export interface FileRoutesByFullPath {
   '/settings/master-data/positions': typeof appSettingsMasterDataPositionsRoute
   '/settings/master-data/shifts': typeof appSettingsMasterDataShiftsRoute
   '/settings/user-role/create-role': typeof appSettingsUserRoleCreateRoleRoute
+  '/settings/user-role/permission-matrix': typeof appSettingsUserRolePermissionMatrixRoute
   '/company/document/': typeof appCompanyDocumentIndexRoute
   '/company/employee/': typeof appCompanyEmployeeIndexRoute
   '/company/organization/': typeof appCompanyOrganizationIndexRoute
@@ -375,6 +397,8 @@ export interface FileRoutesByFullPath {
   '/settings/approval-workflow/$id/conditions': typeof appSettingsApprovalWorkflowIdConditionsRoute
   '/settings/approval-workflow/$id/levels': typeof appSettingsApprovalWorkflowIdLevelsRoute
   '/settings/approval-workflow/$id/test': typeof appSettingsApprovalWorkflowIdTestRoute
+  '/settings/user-role/$roleId/assign-users': typeof appSettingsUserRoleRoleIdAssignUsersRoute
+  '/settings/user-role/$roleId/edit': typeof appSettingsUserRoleRoleIdEditRoute
   '/settings/approval-workflow/$id/': typeof appSettingsApprovalWorkflowIdIndexRoute
 }
 export interface FileRoutesByTo {
@@ -412,6 +436,7 @@ export interface FileRoutesByTo {
   '/settings/master-data/positions': typeof appSettingsMasterDataPositionsRoute
   '/settings/master-data/shifts': typeof appSettingsMasterDataShiftsRoute
   '/settings/user-role/create-role': typeof appSettingsUserRoleCreateRoleRoute
+  '/settings/user-role/permission-matrix': typeof appSettingsUserRolePermissionMatrixRoute
   '/company/document': typeof appCompanyDocumentIndexRoute
   '/company/employee': typeof appCompanyEmployeeIndexRoute
   '/company/organization': typeof appCompanyOrganizationIndexRoute
@@ -424,6 +449,8 @@ export interface FileRoutesByTo {
   '/settings/approval-workflow/$id/conditions': typeof appSettingsApprovalWorkflowIdConditionsRoute
   '/settings/approval-workflow/$id/levels': typeof appSettingsApprovalWorkflowIdLevelsRoute
   '/settings/approval-workflow/$id/test': typeof appSettingsApprovalWorkflowIdTestRoute
+  '/settings/user-role/$roleId/assign-users': typeof appSettingsUserRoleRoleIdAssignUsersRoute
+  '/settings/user-role/$roleId/edit': typeof appSettingsUserRoleRoleIdEditRoute
   '/settings/approval-workflow/$id': typeof appSettingsApprovalWorkflowIdIndexRoute
 }
 export interface FileRoutesById {
@@ -463,6 +490,7 @@ export interface FileRoutesById {
   '/(app)/settings/master-data/positions': typeof appSettingsMasterDataPositionsRoute
   '/(app)/settings/master-data/shifts': typeof appSettingsMasterDataShiftsRoute
   '/(app)/settings/user-role/create-role': typeof appSettingsUserRoleCreateRoleRoute
+  '/(app)/settings/user-role/permission-matrix': typeof appSettingsUserRolePermissionMatrixRoute
   '/(app)/company/document/': typeof appCompanyDocumentIndexRoute
   '/(app)/company/employee/': typeof appCompanyEmployeeIndexRoute
   '/(app)/company/organization/': typeof appCompanyOrganizationIndexRoute
@@ -475,6 +503,8 @@ export interface FileRoutesById {
   '/(app)/settings/approval-workflow/$id/conditions': typeof appSettingsApprovalWorkflowIdConditionsRoute
   '/(app)/settings/approval-workflow/$id/levels': typeof appSettingsApprovalWorkflowIdLevelsRoute
   '/(app)/settings/approval-workflow/$id/test': typeof appSettingsApprovalWorkflowIdTestRoute
+  '/(app)/settings/user-role/$roleId/assign-users': typeof appSettingsUserRoleRoleIdAssignUsersRoute
+  '/(app)/settings/user-role/$roleId/edit': typeof appSettingsUserRoleRoleIdEditRoute
   '/(app)/settings/approval-workflow/$id/': typeof appSettingsApprovalWorkflowIdIndexRoute
 }
 export interface FileRouteTypes {
@@ -514,6 +544,7 @@ export interface FileRouteTypes {
     | '/settings/master-data/positions'
     | '/settings/master-data/shifts'
     | '/settings/user-role/create-role'
+    | '/settings/user-role/permission-matrix'
     | '/company/document/'
     | '/company/employee/'
     | '/company/organization/'
@@ -526,6 +557,8 @@ export interface FileRouteTypes {
     | '/settings/approval-workflow/$id/conditions'
     | '/settings/approval-workflow/$id/levels'
     | '/settings/approval-workflow/$id/test'
+    | '/settings/user-role/$roleId/assign-users'
+    | '/settings/user-role/$roleId/edit'
     | '/settings/approval-workflow/$id/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -563,6 +596,7 @@ export interface FileRouteTypes {
     | '/settings/master-data/positions'
     | '/settings/master-data/shifts'
     | '/settings/user-role/create-role'
+    | '/settings/user-role/permission-matrix'
     | '/company/document'
     | '/company/employee'
     | '/company/organization'
@@ -575,6 +609,8 @@ export interface FileRouteTypes {
     | '/settings/approval-workflow/$id/conditions'
     | '/settings/approval-workflow/$id/levels'
     | '/settings/approval-workflow/$id/test'
+    | '/settings/user-role/$roleId/assign-users'
+    | '/settings/user-role/$roleId/edit'
     | '/settings/approval-workflow/$id'
   id:
     | '__root__'
@@ -613,6 +649,7 @@ export interface FileRouteTypes {
     | '/(app)/settings/master-data/positions'
     | '/(app)/settings/master-data/shifts'
     | '/(app)/settings/user-role/create-role'
+    | '/(app)/settings/user-role/permission-matrix'
     | '/(app)/company/document/'
     | '/(app)/company/employee/'
     | '/(app)/company/organization/'
@@ -625,6 +662,8 @@ export interface FileRouteTypes {
     | '/(app)/settings/approval-workflow/$id/conditions'
     | '/(app)/settings/approval-workflow/$id/levels'
     | '/(app)/settings/approval-workflow/$id/test'
+    | '/(app)/settings/user-role/$roleId/assign-users'
+    | '/(app)/settings/user-role/$roleId/edit'
     | '/(app)/settings/approval-workflow/$id/'
   fileRoutesById: FileRoutesById
 }
@@ -946,6 +985,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof appSettingsUserRoleCreateRoleRouteImport
       parentRoute: typeof appRouteRoute
     }
+    '/(app)/settings/user-role/permission-matrix': {
+      id: '/(app)/settings/user-role/permission-matrix'
+      path: '/settings/user-role/permission-matrix'
+      fullPath: '/settings/user-role/permission-matrix'
+      preLoaderRoute: typeof appSettingsUserRolePermissionMatrixRouteImport
+      parentRoute: typeof appRouteRoute
+    }
     '/(app)/settings/approval-workflow/$id/': {
       id: '/(app)/settings/approval-workflow/$id/'
       path: '/settings/approval-workflow/$id'
@@ -972,6 +1018,20 @@ declare module '@tanstack/react-router' {
       path: '/settings/approval-workflow/$id/test'
       fullPath: '/settings/approval-workflow/$id/test'
       preLoaderRoute: typeof appSettingsApprovalWorkflowIdTestRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/settings/user-role/$roleId/assign-users': {
+      id: '/(app)/settings/user-role/$roleId/assign-users'
+      path: '/settings/user-role/$roleId/assign-users'
+      fullPath: '/settings/user-role/$roleId/assign-users'
+      preLoaderRoute: typeof appSettingsUserRoleRoleIdAssignUsersRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/settings/user-role/$roleId/edit': {
+      id: '/(app)/settings/user-role/$roleId/edit'
+      path: '/settings/user-role/$roleId/edit'
+      fullPath: '/settings/user-role/$roleId/edit'
+      preLoaderRoute: typeof appSettingsUserRoleRoleIdEditRouteImport
       parentRoute: typeof appRouteRoute
     }
   }
@@ -1008,6 +1068,7 @@ interface appRouteRouteChildren {
   appSettingsMasterDataPositionsRoute: typeof appSettingsMasterDataPositionsRoute
   appSettingsMasterDataShiftsRoute: typeof appSettingsMasterDataShiftsRoute
   appSettingsUserRoleCreateRoleRoute: typeof appSettingsUserRoleCreateRoleRoute
+  appSettingsUserRolePermissionMatrixRoute: typeof appSettingsUserRolePermissionMatrixRoute
   appCompanyDocumentIndexRoute: typeof appCompanyDocumentIndexRoute
   appCompanyEmployeeIndexRoute: typeof appCompanyEmployeeIndexRoute
   appCompanyOrganizationIndexRoute: typeof appCompanyOrganizationIndexRoute
@@ -1020,6 +1081,8 @@ interface appRouteRouteChildren {
   appSettingsApprovalWorkflowIdConditionsRoute: typeof appSettingsApprovalWorkflowIdConditionsRoute
   appSettingsApprovalWorkflowIdLevelsRoute: typeof appSettingsApprovalWorkflowIdLevelsRoute
   appSettingsApprovalWorkflowIdTestRoute: typeof appSettingsApprovalWorkflowIdTestRoute
+  appSettingsUserRoleRoleIdAssignUsersRoute: typeof appSettingsUserRoleRoleIdAssignUsersRoute
+  appSettingsUserRoleRoleIdEditRoute: typeof appSettingsUserRoleRoleIdEditRoute
   appSettingsApprovalWorkflowIdIndexRoute: typeof appSettingsApprovalWorkflowIdIndexRoute
 }
 
@@ -1056,6 +1119,8 @@ const appRouteRouteChildren: appRouteRouteChildren = {
   appSettingsMasterDataPositionsRoute: appSettingsMasterDataPositionsRoute,
   appSettingsMasterDataShiftsRoute: appSettingsMasterDataShiftsRoute,
   appSettingsUserRoleCreateRoleRoute: appSettingsUserRoleCreateRoleRoute,
+  appSettingsUserRolePermissionMatrixRoute:
+    appSettingsUserRolePermissionMatrixRoute,
   appCompanyDocumentIndexRoute: appCompanyDocumentIndexRoute,
   appCompanyEmployeeIndexRoute: appCompanyEmployeeIndexRoute,
   appCompanyOrganizationIndexRoute: appCompanyOrganizationIndexRoute,
@@ -1071,6 +1136,9 @@ const appRouteRouteChildren: appRouteRouteChildren = {
     appSettingsApprovalWorkflowIdLevelsRoute,
   appSettingsApprovalWorkflowIdTestRoute:
     appSettingsApprovalWorkflowIdTestRoute,
+  appSettingsUserRoleRoleIdAssignUsersRoute:
+    appSettingsUserRoleRoleIdAssignUsersRoute,
+  appSettingsUserRoleRoleIdEditRoute: appSettingsUserRoleRoleIdEditRoute,
   appSettingsApprovalWorkflowIdIndexRoute:
     appSettingsApprovalWorkflowIdIndexRoute,
 }

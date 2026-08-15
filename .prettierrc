@@ -1,13 +1,18 @@
 {
-  "plugins": [
-    "@ianvs/prettier-plugin-sort-imports",
-    "prettier-plugin-tailwindcss"
-  ],
+  "plugins": ["@ianvs/prettier-plugin-sort-imports", "prettier-plugin-tailwindcss"],
   "printWidth": 100,
   "semi": false,
   "singleQuote": true,
   "jsxSingleQuote": true,
-  "importOrder": ["<BUILTIN_MODULES>", "", "^@/(.*)$", "", "^[./]"],
+  "importOrder": [
+    "<BUILTIN_MODULES>",
+    "",
+    "^@/shared/(.*)$",
+    "^@/features/(.*)$",
+    "^@/(.*)$",
+    "",
+    "^[./]"
+  ],
   "importOrderParserPlugins": ["typescript", "jsx", "decorators-legacy"],
   "importOrderTypeScriptVersion": "5.0.0",
   "importOrderCaseSensitive": false,

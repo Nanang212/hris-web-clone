@@ -1,12 +1,18 @@
 import axios from 'axios'
+
 import { apiClient } from '@/shared/lib/axios'
 import type { Envelope } from '@/shared/types'
 import type {
+  AssignRoleUsersPayload,
   CreateRolePayload,
   Role,
+  RoleAssignments,
+  RoleEligibilityOptions,
   RoleFilterParams,
+  RolePermissionMatrix,
   RoleStats,
   UpdateRolePayload,
+  UpdateRolePermissionsPayload,
 } from '@/features/settings/user-role/data/types'
 
 /**
@@ -22,7 +28,8 @@ function handleApiError(err: unknown): never {
 }
 
 /**
- * GET /api/v1/user-roles/stats
+ * Endpoint: `/api/v1/user-roles/stats`
+ * Method: `GET`
  *
  * Ekspektasi Response JSON:
  * ```json
@@ -32,8 +39,7 @@ function handleApiError(err: unknown): never {
  *   "data": {
  *     "activeRoles": 6,
  *     "userAssignments": 202,
- *     "permissionSets": 3,
- *     "accessReviews": 4
+ *     "permissionSets": 3
  *   },
  *   "messages": []
  * }
@@ -41,7 +47,7 @@ function handleApiError(err: unknown): never {
  */
 export async function getRoleStats(): Promise<RoleStats> {
   try {
-    const res = await apiClient.get<Envelope<RoleStats>>('/user-roles/stats')
+    const res = await apiClient.get<Envelope<RoleStats>>('/api/v1/user-roles/stats')
     return res.data.data
   } catch (err) {
     handleApiError(err)
@@ -49,7 +55,42 @@ export async function getRoleStats(): Promise<RoleStats> {
 }
 
 /**
- * GET /api/v1/user-roles
+ * Endpoint: `/api/v1/user-roles/eligibility-options`
+ * Method: `GET`
+ *
+ * Ekspektasi Response JSON:
+ * ```json
+ * {
+ *   "success": true,
+ *   "code": "OK",
+ *   "data": {
+ *     "departments": [
+ *       { "id": "dept-hr", "name": "Human Resources" },
+ *       { "id": "dept-tech", "name": "Technology" }
+ *     ],
+ *     "branches": [
+ *       { "id": "branch-jakarta", "name": "Jakarta HQ" },
+ *       { "id": "branch-bandung", "name": "Bandung" }
+ *     ]
+ *   },
+ *   "messages": []
+ * }
+ * ```
+ */
+export async function getRoleEligibilityOptions(): Promise<RoleEligibilityOptions> {
+  try {
+    const res = await apiClient.get<Envelope<RoleEligibilityOptions>>(
+      '/api/v1/user-roles/eligibility-options',
+    )
+    return res.data.data
+  } catch (err) {
+    handleApiError(err)
+  }
+}
+
+/**
+ * Endpoint: `/api/v1/user-roles`
+ * Method: `GET`
  * Query Params: ?search=...&status=...
  *
  * Ekspektasi Response JSON:
@@ -87,7 +128,7 @@ export async function getRoleStats(): Promise<RoleStats> {
  */
 export async function getRoles(params?: RoleFilterParams): Promise<Role[]> {
   try {
-    const res = await apiClient.get<Envelope<Role[]>>('/user-roles', { params })
+    const res = await apiClient.get<Envelope<Role[]>>('/api/v1/user-roles', { params })
     return res.data.data
   } catch (err) {
     handleApiError(err)
@@ -95,7 +136,8 @@ export async function getRoles(params?: RoleFilterParams): Promise<Role[]> {
 }
 
 /**
- * GET /api/v1/user-roles/:id
+ * Endpoint: `/api/v1/user-roles/edit/:id`
+ * Method: `GET`
  *
  * Ekspektasi Response JSON:
  * ```json
@@ -111,7 +153,9 @@ export async function getRoles(params?: RoleFilterParams): Promise<Role[]> {
  *     "coverage": "100%",
  *     "updatedAt": "08 Aug 2026",
  *     "status": "Active",
- *     "description": "Full system access and administrator controls."
+ *     "description": "Full system access and administrator controls.",
+ *     "eligibleDepartments": ["dept-hr", "dept-tech"],
+ *     "eligibleBranches": ["branch-jakarta", "branch-bandung"]
  *   },
  *   "messages": []
  * }
@@ -119,7 +163,7 @@ export async function getRoles(params?: RoleFilterParams): Promise<Role[]> {
  */
 export async function getRoleById(id: string): Promise<Role> {
   try {
-    const res = await apiClient.get<Envelope<Role>>(`/user-roles/${id}`)
+    const res = await apiClient.get<Envelope<Role>>(`/api/v1/user-roles/edit/${id}`)
     return res.data.data
   } catch (err) {
     handleApiError(err)
@@ -127,7 +171,8 @@ export async function getRoleById(id: string): Promise<Role> {
 }
 
 /**
- * POST /api/v1/user-roles
+ * Endpoint: `/api/v1/user-roles`
+ * Method: `POST`
  * Body Payload: CreateRolePayload
  *
  * Ekspektasi Response JSON:
@@ -146,9 +191,9 @@ export async function getRoleById(id: string): Promise<Role> {
  *     "status": "Active",
  *     "description": "Supervises HR operations, employee data, attendance approvals.",
  *     "allowMultipleRoles": true,
- *     "requireReview": true,
- *     "reviewFrequency": "90 days",
- *     "accessExpiry": "No expiry"
+ *     "accessExpiry": "No expiry",
+ *     "eligibleDepartments": ["dept-hr", "dept-tech"],
+ *     "eligibleBranches": ["branch-jakarta", "branch-bandung"]
  *   },
  *   "messages": ["Role created successfully"]
  * }
@@ -156,7 +201,7 @@ export async function getRoleById(id: string): Promise<Role> {
  */
 export async function createRole(payload: CreateRolePayload): Promise<Role> {
   try {
-    const res = await apiClient.post<Envelope<Role>>('/user-roles', payload)
+    const res = await apiClient.post<Envelope<Role>>('/api/v1/user-roles', payload)
     return res.data.data
   } catch (err) {
     handleApiError(err)
@@ -164,7 +209,8 @@ export async function createRole(payload: CreateRolePayload): Promise<Role> {
 }
 
 /**
- * PUT /api/v1/user-roles/:id
+ * Endpoint: `/api/v1/user-roles/:id`
+ * Method: `PUT`
  * Body Payload: UpdateRolePayload
  *
  * Ekspektasi Response JSON:
@@ -180,7 +226,9 @@ export async function createRole(payload: CreateRolePayload): Promise<Role> {
  *     "scope": "Company",
  *     "coverage": "100%",
  *     "updatedAt": "14 Aug 2026",
- *     "status": "Active"
+ *     "status": "Active",
+ *     "eligibleDepartments": ["dept-hr"],
+ *     "eligibleBranches": ["branch-jakarta"]
  *   },
  *   "messages": ["Role updated successfully"]
  * }
@@ -188,7 +236,7 @@ export async function createRole(payload: CreateRolePayload): Promise<Role> {
  */
 export async function updateRole(id: string, payload: UpdateRolePayload): Promise<Role> {
   try {
-    const res = await apiClient.put<Envelope<Role>>(`/user-roles/${id}`, payload)
+    const res = await apiClient.put<Envelope<Role>>(`/api/v1/user-roles/${id}`, payload)
     return res.data.data
   } catch (err) {
     handleApiError(err)
@@ -196,7 +244,8 @@ export async function updateRole(id: string, payload: UpdateRolePayload): Promis
 }
 
 /**
- * DELETE /api/v1/user-roles/:id
+ * Endpoint: `/api/v1/user-roles/:id`
+ * Method: `DELETE`
  *
  * Ekspektasi Response JSON:
  * ```json
@@ -210,7 +259,283 @@ export async function updateRole(id: string, payload: UpdateRolePayload): Promis
  */
 export async function deleteRole(id: string): Promise<void> {
   try {
-    await apiClient.delete<Envelope<null>>(`/user-roles/${id}`)
+    await apiClient.delete<Envelope<null>>(`/api/v1/user-roles/${id}`)
+  } catch (err) {
+    handleApiError(err)
+  }
+}
+
+/**
+ * Endpoint: `/api/v1/user-roles/:id/assignments`
+ * Method: `GET`
+ * Mengembalikan user yang sudah assigned serta user dari department dan branch yang eligible.
+ *
+ * Ekspektasi Response JSON:
+ * ```json
+ * {
+ *   "success": true,
+ *   "code": "OK",
+ *   "data": {
+ *     "roleId": "role-1",
+ *     "users": [
+ *       {
+ *         "id": "user-1",
+ *         "employeeId": "NIP 10034",
+ *         "name": "Rama Wijaya",
+ *         "position": "HR Manager",
+ *         "department": "Human Resources",
+ *         "branch": "Jakarta HQ",
+ *         "status": "Assigned"
+ *       },
+ *       {
+ *         "id": "user-2",
+ *         "employeeId": "NIP 10041",
+ *         "name": "Dewi Kartika",
+ *         "position": "HR Specialist",
+ *         "department": "Human Resources",
+ *         "branch": "Jakarta HQ",
+ *         "status": "Eligible"
+ *       }
+ *     ]
+ *   },
+ *   "messages": []
+ * }
+ * ```
+ */
+export async function getRoleAssignments(id: string): Promise<RoleAssignments> {
+  try {
+    const res = await apiClient.get<Envelope<RoleAssignments>>(
+      `/api/v1/user-roles/${id}/assignments`,
+    )
+    return res.data.data
+  } catch (err) {
+    handleApiError(err)
+  }
+}
+
+/**
+ * Endpoint: `/api/v1/user-roles/:id/assignments`
+ * Method: `POST`
+ * Body Payload: `AssignRoleUsersPayload`
+ *
+ * Contoh Request JSON:
+ * ```json
+ * {
+ *   "userIds": ["user-2", "user-3"],
+ *   "effectiveDate": "2026-08-15",
+ *   "notifyUsers": true
+ * }
+ * ```
+ *
+ * Ekspektasi Response JSON:
+ * ```json
+ * {
+ *   "success": true,
+ *   "code": "OK",
+ *   "data": {
+ *     "roleId": "role-1",
+ *     "users": [
+ *       {
+ *         "id": "user-2",
+ *         "employeeId": "NIP 10041",
+ *         "name": "Dewi Kartika",
+ *         "position": "HR Specialist",
+ *         "department": "Human Resources",
+ *         "branch": "Jakarta HQ",
+ *         "status": "Assigned"
+ *       },
+ *       {
+ *         "id": "user-3",
+ *         "employeeId": "NIP 10115",
+ *         "name": "Budi Setiawan",
+ *         "position": "Employee",
+ *         "department": "Technology",
+ *         "branch": "Bandung",
+ *         "status": "Assigned"
+ *       }
+ *     ]
+ *   },
+ *   "messages": ["2 users assigned successfully"]
+ * }
+ * ```
+ */
+export async function assignRoleUsers(
+  id: string,
+  payload: AssignRoleUsersPayload,
+): Promise<RoleAssignments> {
+  try {
+    const res = await apiClient.post<Envelope<RoleAssignments>>(
+      `/api/v1/user-roles/${id}/assignments`,
+      payload,
+    )
+    return res.data.data
+  } catch (err) {
+    handleApiError(err)
+  }
+}
+
+/**
+ * Endpoint: `/api/v1/user-roles/:id/assignments/:userId`
+ * Method: `DELETE`
+ *
+ * Ekspektasi Response JSON:
+ * ```json
+ * {
+ *   "success": true,
+ *   "code": "OK",
+ *   "data": null,
+ *   "messages": ["User removed from role successfully"]
+ * }
+ * ```
+ */
+export async function removeRoleUser(id: string, userId: string): Promise<void> {
+  try {
+    await apiClient.delete<Envelope<null>>(`/api/v1/user-roles/${id}/assignments/${userId}`)
+  } catch (err) {
+    handleApiError(err)
+  }
+}
+
+/**
+ * Endpoint: `/api/v1/user-roles/:id/assignments`
+ * Method: `DELETE`
+ *
+ * Ekspektasi Response JSON:
+ * ```json
+ * {
+ *   "success": true,
+ *   "code": "OK",
+ *   "data": null,
+ *   "messages": ["All users removed from role successfully"]
+ * }
+ * ```
+ */
+export async function removeAllRoleUsers(id: string): Promise<void> {
+  try {
+    await apiClient.delete<Envelope<null>>(`/api/v1/user-roles/${id}/assignments`)
+  } catch (err) {
+    handleApiError(err)
+  }
+}
+
+/**
+ * Endpoint: `/api/v1/user-roles/:id/permissions`
+ * Method: `GET`
+ *
+ * Ekspektasi Response JSON:
+ * ```json
+ * {
+ *   "success": true,
+ *   "code": "OK",
+ *   "data": {
+ *     "roleId": "role-1",
+ *     "roleName": "Super Admin",
+ *     "userCount": 2,
+ *     "defaultDataScope": "Company",
+ *     "modules": [
+ *       {
+ *         "id": "employee-management",
+ *         "name": "Employee Management",
+ *         "category": "HR Core",
+ *         "scope": "Company",
+ *         "permissions": {
+ *           "view": true,
+ *           "create": true,
+ *           "edit": true,
+ *           "delete": false,
+ *           "approve": false,
+ *           "export": true,
+ *           "configure": false
+ *         }
+ *       }
+ *     ]
+ *   },
+ *   "messages": []
+ * }
+ * ```
+ */
+export async function getRolePermissions(id: string): Promise<RolePermissionMatrix> {
+  try {
+    const res = await apiClient.get<Envelope<RolePermissionMatrix>>(
+      `/api/v1/user-roles/${id}/permissions`,
+    )
+    return res.data.data
+  } catch (err) {
+    handleApiError(err)
+  }
+}
+
+/**
+ * Endpoint: `/api/v1/user-roles/:id/permissions`
+ * Method: `PUT`
+ * Body Payload: `UpdateRolePermissionsPayload`
+ *
+ * Contoh Request JSON:
+ * ```json
+ * {
+ *   "defaultDataScope": "Company",
+ *   "modules": [
+ *     {
+ *       "id": "employee-management",
+ *       "name": "Employee Management",
+ *       "category": "HR Core",
+ *       "scope": "Company",
+ *       "permissions": {
+ *         "view": true,
+ *         "create": true,
+ *         "edit": true,
+ *         "delete": false,
+ *         "approve": false,
+ *         "export": true,
+ *         "configure": false
+ *       }
+ *     }
+ *   ]
+ * }
+ * ```
+ *
+ * Ekspektasi Response JSON:
+ * ```json
+ * {
+ *   "success": true,
+ *   "code": "OK",
+ *   "data": {
+ *     "roleId": "role-1",
+ *     "roleName": "Super Admin",
+ *     "userCount": 2,
+ *     "defaultDataScope": "Company",
+ *     "modules": [
+ *       {
+ *         "id": "employee-management",
+ *         "name": "Employee Management",
+ *         "category": "HR Core",
+ *         "scope": "Company",
+ *         "permissions": {
+ *           "view": true,
+ *           "create": true,
+ *           "edit": true,
+ *           "delete": false,
+ *           "approve": false,
+ *           "export": true,
+ *           "configure": false
+ *         }
+ *       }
+ *     ]
+ *   },
+ *   "messages": ["Role permissions updated successfully"]
+ * }
+ * ```
+ */
+export async function updateRolePermissions(
+  id: string,
+  payload: UpdateRolePermissionsPayload,
+): Promise<RolePermissionMatrix> {
+  try {
+    const res = await apiClient.put<Envelope<RolePermissionMatrix>>(
+      `/api/v1/user-roles/${id}/permissions`,
+      payload,
+    )
+    return res.data.data
   } catch (err) {
     handleApiError(err)
   }
