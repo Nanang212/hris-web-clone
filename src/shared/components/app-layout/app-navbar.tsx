@@ -176,7 +176,7 @@ export function AppNavbar({
     <nav
       className={cn(
         'flex h-16 items-center gap-4 bg-sidebar px-4 transition-all',
-        open && 'lg:px-0',
+        open && 'lg:ps-0',
         className,
       )}
     >
