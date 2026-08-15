@@ -39,5 +39,6 @@ dist-ssr
 .claude
 .antigravitycli
 .github
+.agents
 CLAUDE.md
 CONVENTIONS.md
