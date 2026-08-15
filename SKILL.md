@@ -26,6 +26,16 @@ src/features/<feature-name>/
 - Component export names: **PascalCase**, matching the file's purpose, e.g. `export function EmployeeDashboardPage()`, `export function SignInPage()`.
 - One page component per file. Small private sub-components used only within that page can live in the same file (see `SecureAccessNotice` inside `signin-page.tsx`), but anything reused across pages goes in `components/`.
 
+## 1.1 Shared component first
+
+Before building any feature UI, inspect `src/shared/components/` and reuse an existing component whenever it covers the need. Do not recreate a shared primitive or its behavior inside a feature page.
+
+- Use `@/shared/components/app-layout/app-main` for page chrome and `@/shared/components/app-layout/*` for app-layout concerns.
+- Use the primitives in `@/shared/components/ui/` for controls and structure: for example `Button`, `Card`, `Table`, `Tabs`, `Select`, `Input`, `Textarea`, `Badge`, `Dialog`, `Drawer`, `Popover`, `Pagination`, `Tooltip`, `Skeleton`, `Spinner`, and `Map`.
+- For dates, use the existing `DatePicker` from `@/shared/components/ui/date-picker` rather than building a date input or calendar popover.
+- Feature-local components are only appropriate for domain-specific compositions that cannot be represented by a shared component. If that composition is reused across feature pages, place it in the feature's `components/` folder.
+- Never copy shared component markup, variants, accessibility behavior, or styling into a feature just to make a small visual variation. Pass `className` or supported props to the shared component instead.
+
 ## 2. `types.ts`
 
 - Plain `export interface Name { ... }` — no `type` aliases for object shapes, no default export.
@@ -201,6 +211,13 @@ function RouteComponent() {
 - No semicolons, single quotes, 2-space indent (match existing files exactly — run `prettier --write` if unsure).
 - Use `type` keyword for type-only imports: `import type { Auth, SignIn } from '@/features/auth/types'`.
 - Variables/functions: camelCase. Components/types/interfaces: PascalCase. Constants that are truly global/static may be SCREAMING_SNAKE_CASE (rare in features).
+
+## 7.1 Dates and times
+
+- Use `dayjs` for all parsing, manipulation, comparison, and display formatting of dates and times. Do not use native `Date` formatting, `Intl.DateTimeFormat`, `date-fns`, or hand-written date strings in feature code.
+- Import it as `import dayjs from 'dayjs'` and format display values explicitly, for example `dayjs(value).format('DD MMM YYYY')` or `dayjs(value).format('HH:mm')`.
+- When the interface needs a locale-specific month/day name, configure the required Day.js locale/plugin before formatting; keep format tokens consistent within the feature.
+- Use the shared `DatePicker` for date selection, and use Day.js to convert API values to and from the `Date` values it requires.
 
 ## 8. i18n (Paraglide)
 
