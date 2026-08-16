@@ -1,12 +1,15 @@
 ---
 name: hris-feature-module
-description: "Use this skill whenever creating or editing a feature module in the HRIS web app (src/features/**) — new pages, api.ts, hooks.ts, or types.ts files, React Query data fetching/mutation, i18n message usage, or any file/variable/type naming inside src/features. Triggers include: 'buat fitur baru', 'tambah halaman', 'buat api.ts/hooks.ts/types.ts', 'pakai react query', 'tambah translation/i18n', or any request to scaffold a module following the auth/dashboard feature reference pattern. Every page component must be wrapped in <AppMain />. Do NOT use for shared UI primitives in src/shared/components/ui (shadcn components) or for backend code."
+description: "Use this skill whenever creating or editing a feature module in the HRIS web app (src/features/**) — new pages, api.ts, hooks.ts, or types.ts files, React Query data fetching/mutation, i18n message usage, or any file/variable/type naming inside src/features. Also use this skill for any shadcn/ui work in this project — adding, searching, fixing, debugging, styling, or composing UI, working with components.json, presets, or --preset codes. Triggers include: 'buat fitur baru', 'tambah halaman', 'buat api.ts/hooks.ts/types.ts', 'pakai react query', 'tambah translation/i18n', 'shadcn init', 'add a component', or any request to scaffold a module following the auth/dashboard feature reference pattern. Every page component must be wrapped in <AppMain />. Do NOT use for backend code."
+user-invocable: false
+allowed-tools: Bash(npx shadcn@latest *), Bash(pnpm dlx shadcn@latest *), Bash(bunx --bun shadcn@latest *)
 ---
 
 # HRIS Feature Module Conventions
 
 Reference implementation: `src/features/auth/` and `src/features/dashboard/`.
 Follow these exactly when creating or editing any feature module in `src/features/**`.
+This skill also covers shadcn/ui usage (Part B) since every feature page is built from shadcn primitives in `src/shared/components/ui`.
 
 ## 1. Folder & file layout
 
@@ -28,13 +31,14 @@ src/features/<feature-name>/
 
 ## 1.1 Shared component first
 
-Before building any feature UI, inspect `src/shared/components/` and reuse an existing component whenever it covers the need. Do not recreate a shared primitive or its behavior inside a feature page.
+Before building any feature UI, inspect `src/shared/components/` and reuse an existing component whenever it covers the need. Do not recreate a shared primitive or its behavior inside a feature page. This is the project-specific instance of shadcn's general principle: **use existing components before writing custom markup** — see Part B, §B.2.
 
 - Use `@/shared/components/app-layout/app-main` for page chrome and `@/shared/components/app-layout/*` for app-layout concerns.
 - Use the primitives in `@/shared/components/ui/` for controls and structure: for example `Button`, `Card`, `Table`, `Tabs`, `Select`, `Input`, `Textarea`, `Badge`, `Dialog`, `Drawer`, `Popover`, `Pagination`, `Tooltip`, `Skeleton`, `Spinner`, and `Map`.
 - For dates, use the existing `DatePicker` from `@/shared/components/ui/date-picker` rather than building a date input or calendar popover.
 - Feature-local components are only appropriate for domain-specific compositions that cannot be represented by a shared component. If that composition is reused across feature pages, place it in the feature's `components/` folder.
 - Never copy shared component markup, variants, accessibility behavior, or styling into a feature just to make a small visual variation. Pass `className` or supported props to the shared component instead.
+- If the component you need doesn't exist yet under `src/shared/components/ui/`, don't hand-roll it — follow the shadcn CLI workflow in Part B, §B.5 to search and add it first.
 
 ## 2. `types.ts`
 
@@ -241,6 +245,7 @@ const formSchema = useSchema(() => ({
 
 - Use `snackbar` from `@/shared/lib/snackbar` for all toasts (`snackbar.success(...)`, `snackbar.error(...)`).
 - On a mutation's `onError`, always call `snackbar.exception(error)` — it already extracts backend `messages[]` from the `Envelope` error response and falls back to a generic message.
+- shadcn's default toast primitive is `sonner` (Part B, §B.2). This project's `snackbar` wrapper is the sanctioned layer on top of it — call `snackbar.*`, never `toast()` from `sonner` directly in feature code.
 
 ## 10. Checklist for a new feature module
 
@@ -250,10 +255,11 @@ const formSchema = useSchema(() => ({
 4. `en.json` + `id.json` — add every new message key in both files.
 5. `pages/<feature>-page.tsx` — fetch via hook, render inside `<AppMain>` with `title`/`subtitle`/`breadcrumbs`/`actions`, guard `pending`/`error`/`notFound` before the full render.
 6. `src/routes/...` — a `createFileRoute` file that renders the page component.
+7. Any new UI primitive needed → check `src/shared/components/ui/` first, then Part B, §B.5 (shadcn CLI) before writing custom markup.
 
 ## 11. React Hook Form & Form Field components
 
-All feature forms must use **React Hook Form** (`react-hook-form`) combined with **Zod** validation. Form UI must be built with the shared `Field` primitives — never hand-roll `<label>` / `<input>` / `<span>` for errors.
+All feature forms must use **React Hook Form** (`react-hook-form`) combined with **Zod** validation. Form UI must be built with the shared `Field` primitives — never hand-roll `<label>` / `<input>` / `<span>` for errors. This section is the feature-layer application of shadcn's forms rules (Part B, §B.3) — read both together.
 
 ### 11.1 Schema definition
 
@@ -296,19 +302,21 @@ const {
 
 Import from `@/shared/components/ui/field`:
 
-| Component    | Purpose                                                                        |
-| ------------ | ------------------------------------------------------------------------------ |
-| `FieldGroup` | Wrapper around the whole form (adds spacing).                                  |
-| `Field`      | Wrapper around a single label + input + error.                                 |
-| `FieldLabel` | Label text. Use `htmlFor` matching the input `id`.                             |
-| `FieldError` | Error message list. Pass `errors={errors.field ? [errors.field] : undefined}`. |
+| Component    | Purpose                                                                                                           |
+| ------------ | ----------------------------------------------------------------------------------------------------------------- |
+| `FieldGroup` | Wrapper around the whole form (adds spacing). Never a raw `div` with `space-y-*`/`grid gap-*` — see Part B, §B.1. |
+| `Field`      | Wrapper around a single label + input + error.                                                                    |
+| `FieldLabel` | Label text. Use `htmlFor` matching the input `id`.                                                                |
+| `FieldError` | Error message list. Pass `errors={errors.field ? [errors.field] : undefined}`.                                    |
 
 Rules:
 
 - Every `Field` must have `data-invalid={!!errors.<fieldName>}` so the UI can style invalid states.
 - Every `Input` must have `aria-invalid={!!errors.<fieldName>}` for a11y.
 - Every `Input` must have a matching `id` and the `FieldLabel` must reference it via `htmlFor`.
-- Place icons (e.g. `IconMail`, `IconLock`) as decorative elements with `pointer-events-none` inside a relative wrapper; do **not** use them as labels.
+- Place icons (e.g. `IconMail`, `IconLock`) as decorative elements with `pointer-events-none` inside a relative wrapper; do **not** use them as labels. This applies to icons placed _inside an input_ — icons inside a `Button` follow the different `data-icon` convention in Part B, §B.4.
+- For a set of 2–7 mutually-exclusive choices, use `ToggleGroup` (Part B, §B.1) instead of looping `Button` with manual active state.
+- Group related checkboxes/radios with `FieldSet` + `FieldLegend`, not a `div` with a heading.
 
 ```tsx
 <Field data-invalid={!!errors.email}>
@@ -356,7 +364,7 @@ Rules:
 - Call `handleSubmit(yourHandler)` on the `<form>` element.
 - Inside the handler, call the mutation's `.mutate()` and put navigation / toast side effects in the mutation's `onSuccess` / `onError` callbacks (see §6).
 - Disable the submit button with `disabled={isPending}` while the mutation is in flight.
-- Show a loading spinner inside the button when `isPending` is true.
+- Show a loading spinner inside the button when `isPending` is true. shadcn's `Button` has no built-in `isPending`/`isLoading` prop — compose `Spinner` + `disabled` yourself, as below.
 
 ```tsx
 <form className='space-y-5' onSubmit={handleSubmit(onSubmit)} noValidate>
@@ -369,6 +377,12 @@ Rules:
   </FieldGroup>
 </form>
 ```
+
+> **Note (needs a decision):** shadcn's icon rule (Part B, §B.4) says icons inside a `Button` should carry `data-icon="inline-start"`/`"inline-end"` and no manual sizing classes, so the component handles spacing/sizing itself. The spinner above uses a bare `animate-spin` class with no `data-icon`, and existing HRIS code follows this older pattern. Decide once and apply consistently:
+>
+> - Adopt shadcn's convention: `<IconLoader2 data-icon="inline-start" className="animate-spin" />`, and audit existing buttons for the same fix, or
+> - Keep the current HRIS pattern as an intentional project deviation and note it here explicitly.
+>   This skill currently documents the existing HRIS pattern above; update this section once the team decides.
 
 ### 11.6 Password visibility toggle
 
@@ -403,7 +417,238 @@ const [showPassword, setShowPassword] = useState(false)
 3. Every field wrapped in `<Field data-invalid={!!errors.x}>`.
 4. Every input has matching `id` / `htmlFor`, `aria-invalid`, and `FieldError`.
 5. Controlled non-native inputs use `<Controller name='x' control={control} render={...} />`.
-6. Submit button is disabled during `isPending` and shows a spinner.
+6. Submit button is disabled during `isPending` and shows a spinner (see the data-icon note in §11.5).
 7. No hardcoded strings — all labels, placeholders, errors, and aria-labels come from `m.<key>()`.
+8. Option sets of 2–7 choices use `ToggleGroup`, not looped `Button`s.
 
 ---
+
+# Part B: shadcn/ui (component library rules)
+
+Everything under `src/shared/components/ui/` in this project is a shadcn component — source code added to the repo via the CLI, not an npm dependency. The rules below govern how those primitives are added, updated, styled, and composed. Feature code (Part A) consumes these; it should never fork or restyle them.
+
+> **IMPORTANT:** Run all CLI commands using the project's package runner: `npx shadcn@latest`, `pnpm dlx shadcn@latest`, or `bunx --bun shadcn@latest` — based on the project's `packageManager` field from project context. Examples below use `npx shadcn@latest`; substitute the correct runner.
+
+## B.0 Current project context
+
+```json
+!`npx shadcn@latest info --json`
+```
+
+Use `npx shadcn@latest docs <component>` to get documentation and example URLs for any component.
+
+## B.1 Critical rules — Styling & Tailwind
+
+- **`className` for layout, not styling.** Never override component colors or typography.
+- **No `space-x-*` or `space-y-*`.** Use `flex` with `gap-*`. For vertical stacks, `flex flex-col gap-*`.
+- **Use `size-*` when width and height are equal.** `size-10` not `w-10 h-10`.
+- **Use `truncate` shorthand.** Not `overflow-hidden text-ellipsis whitespace-nowrap`.
+- **No manual `dark:` color overrides.** Use semantic tokens (`bg-background`, `text-muted-foreground`).
+- **Use `cn()` for conditional classes.** Don't write manual template literal ternaries.
+- **No manual `z-index` on overlay components.** Dialog, Sheet, Popover, etc. handle their own stacking.
+- **Use semantic colors.** `bg-primary`, `text-muted-foreground` — never raw values like `bg-blue-500`.
+- **Use built-in variants before custom styles.** `variant="outline"`, `size="sm"`, etc.
+
+## B.2 Critical rules — Composition & existing components
+
+- **Use existing components first.** Run `npx shadcn@latest search` to check registries (and community registries) before writing custom UI. In this project, also check `src/shared/components/ui/` per Part A, §1.1.
+- **Compose, don't reinvent.** Settings page = Tabs + Card + form controls. Dashboard = Sidebar + Card + Chart + Table.
+- **Items always inside their Group.** `SelectItem` → `SelectGroup`. `DropdownMenuItem` → `DropdownMenuGroup`. `CommandItem` → `CommandGroup`.
+- **Use `asChild` (radix) or `render` (base) for custom triggers.** Check the `base` field from `npx shadcn@latest info`.
+- **Dialog, Sheet, and Drawer always need a Title.** `DialogTitle`, `SheetTitle`, `DrawerTitle` required for accessibility. Use `className="sr-only"` if visually hidden.
+- **Use full Card composition.** `CardHeader`/`CardTitle`/`CardDescription`/`CardContent`/`CardFooter`. Don't dump everything in `CardContent`.
+- **Button has no `isPending`/`isLoading`.** Compose with `Spinner` + `data-icon` + `disabled` (see Part A, §11.5 for this project's current pattern and the open decision on `data-icon`).
+- **`TabsTrigger` must be inside `TabsList`.** Never render triggers directly in `Tabs`.
+- **`Avatar` always needs `AvatarFallback`.** For when the image fails to load.
+- **Callouts use `Alert`.** Don't build custom styled divs.
+- **Empty states use `Empty`.** Don't build custom empty state markup.
+- **Toast via `sonner`** at the primitive level — in this project, always go through the `snackbar` wrapper (Part A, §9), never call `toast()` directly in feature code.
+- **Use `Separator`** instead of `<hr>` or `<div className="border-t">`.
+- **Use `Skeleton`** for loading placeholders. No custom `animate-pulse` divs.
+- **Use `Badge`** instead of custom styled spans.
+
+## B.3 Critical rules — Forms & Inputs
+
+- **Forms use `FieldGroup` + `Field`.** Never use raw `div` with `space-y-*` or `grid gap-*` for form layout. See Part A, §11.3 for this project's `Field` import path and usage.
+- **`InputGroup` uses `InputGroupInput`/`InputGroupTextarea`.** Never raw `Input`/`Textarea` inside `InputGroup`.
+- **Buttons inside inputs use `InputGroup` + `InputGroupAddon`.**
+- **Option sets (2–7 choices) use `ToggleGroup`.** Don't loop `Button` with manual active state.
+- **`FieldSet` + `FieldLegend` for grouping related checkboxes/radios.** Don't use a `div` with a heading.
+- **Field validation uses `data-invalid` + `aria-invalid`.** `data-invalid` on `Field`, `aria-invalid` on the control. For disabled: `data-disabled` on `Field`, `disabled` on the control.
+
+## B.4 Critical rules — Icons
+
+- **Icons in `Button` use `data-icon`.** `data-icon="inline-start"` or `data-icon="inline-end"` on the icon.
+- **No sizing classes on icons inside components.** Components handle icon sizing via CSS. No `size-4` or `w-4 h-4`.
+- **Pass icons as objects, not string keys.** `icon={CheckIcon}`, not a string lookup.
+- **Check `iconLibrary` from project context before importing.** Don't assume `lucide-react` — this project's form examples (Part A, §11) use Tabler-style names (`IconMail`, `IconLock`, `IconEye`, `IconEyeOff`, `IconLoader2`), which points to `@tabler/icons-react`. Confirm against `npx shadcn@latest info --json` rather than assuming.
+- Icons placed _decoratively inside an input_ (Part A, §11.3) are a different case from icons inside a `Button` — the `pointer-events-none` wrapper pattern there is correct and is not superseded by `data-icon`.
+
+## B.5 Key Patterns
+
+```tsx
+// Form layout: FieldGroup + Field, not div + Label.
+<FieldGroup>
+  <Field>
+    <FieldLabel htmlFor="email">Email</FieldLabel>
+    <Input id="email" />
+  </Field>
+</FieldGroup>
+
+// Validation: data-invalid on Field, aria-invalid on the control.
+<Field data-invalid>
+  <FieldLabel>Email</FieldLabel>
+  <Input aria-invalid />
+  <FieldDescription>Invalid email.</FieldDescription>
+</Field>
+
+// Icons in buttons: data-icon, no sizing classes.
+<Button>
+  <SearchIcon data-icon="inline-start" />
+  Search
+</Button>
+
+// Spacing: gap-*, not space-y-*.
+<div className="flex flex-col gap-4">  // correct
+<div className="space-y-4">           // wrong
+
+// Equal dimensions: size-*, not w-* h-*.
+<Avatar className="size-10">   // correct
+<Avatar className="w-10 h-10"> // wrong
+
+// Status colors: Badge variants or semantic tokens, not raw colors.
+<Badge variant="secondary">+20.1%</Badge>    // correct
+<span className="text-emerald-600">+20.1%</span> // wrong
+```
+
+## B.6 Component selection
+
+| Need                       | Use                                                                                                 |
+| -------------------------- | --------------------------------------------------------------------------------------------------- |
+| Button/action              | `Button` with appropriate variant                                                                   |
+| Form inputs                | `Input`, `Select`, `Combobox`, `Switch`, `Checkbox`, `RadioGroup`, `Textarea`, `InputOTP`, `Slider` |
+| Toggle between 2–5 options | `ToggleGroup` + `ToggleGroupItem`                                                                   |
+| Data display               | `Table`, `Card`, `Badge`, `Avatar`                                                                  |
+| Navigation                 | `Sidebar`, `NavigationMenu`, `Breadcrumb`, `Tabs`, `Pagination`                                     |
+| Overlays                   | `Dialog` (modal), `Sheet` (side panel), `Drawer` (bottom sheet), `AlertDialog` (confirmation)       |
+| Feedback                   | `sonner` (toast, via `snackbar` in this project), `Alert`, `Progress`, `Skeleton`, `Spinner`        |
+| Command palette            | `Command` inside `Dialog`                                                                           |
+| Charts                     | `Chart` (wraps Recharts)                                                                            |
+| Layout                     | `Card`, `Separator`, `Resizable`, `ScrollArea`, `Accordion`, `Collapsible`                          |
+| Empty states               | `Empty`                                                                                             |
+| Menus                      | `DropdownMenu`, `ContextMenu`, `Menubar`                                                            |
+| Tooltips/info              | `Tooltip`, `HoverCard`, `Popover`                                                                   |
+
+## B.7 Key fields from project context
+
+- **`aliases`** → use the actual alias prefix for imports (e.g. `@/`), never hardcode.
+- **`isRSC`** → when `true`, components using `useState`, `useEffect`, event handlers, or browser APIs need `"use client"` at the top of the file.
+- **`tailwindVersion`** → `"v4"` uses `@theme inline` blocks; `"v3"` uses `tailwind.config.js`.
+- **`tailwindCssFile`** → the global CSS file where custom CSS variables are defined. Always edit this file, never create a new one.
+- **`style`** → component visual treatment (e.g. `nova`, `vega`).
+- **`base`** → primitive library (`radix` or `base`). Affects component APIs and available props.
+- **`iconLibrary`** → determines icon imports (see B.4).
+- **`resolvedPaths`** → exact file-system destinations for components, utils, hooks, etc. — in this project, `resolvedPaths.ui` should resolve to `src/shared/components/ui`.
+- **`framework`** → routing and file conventions (this project uses TanStack Router file routes, see Part A, §6).
+- **`packageManager`** → use this for any non-shadcn dependency installs.
+- **`preset`** → resolved preset code and values for the current project.
+
+## B.8 Component docs, examples, and usage
+
+Run `npx shadcn@latest docs <component>` to get the URLs for a component's documentation, examples, and API reference, then fetch those URLs.
+
+```bash
+npx shadcn@latest docs button dialog select
+```
+
+**When creating, fixing, debugging, or using a component, always run `npx shadcn@latest docs` and fetch the URLs first.** This ensures you're working with the correct API and usage patterns rather than guessing.
+
+## B.9 Workflow — adding/updating shadcn components in this project
+
+1. **Get project context** — `npx shadcn@latest info` (or `--json`).
+2. **Check installed components first** — before running `add`, check the `components` list from project context or list `resolvedPaths.ui` (`src/shared/components/ui`). Don't import components that haven't been added, and don't re-add ones already installed. Cross-check against Part A, §1.1's list of shared primitives already in use.
+3. **Find components** — `npx shadcn@latest search`.
+4. **Get docs and examples** — `npx shadcn@latest docs <component>`, then fetch the URLs. Use `npx shadcn@latest view` to browse registry items not yet installed. Use `npx shadcn@latest add --diff` to preview changes to installed components.
+5. **Install or update** — `npx shadcn@latest add`. When updating existing components, use `--dry-run` and `--diff` first (§B.10).
+6. **Fix imports in third-party components** — after adding from a community registry (e.g. `@bundui`, `@magicui`), check added non-UI files for hardcoded `@/components/ui/...` paths that won't match this project's `@/shared/components/ui` alias. Rewrite them.
+7. **Review added components** — always read the added files. Check for missing sub-components (e.g. `SelectItem` without `SelectGroup`), missing imports, incorrect composition, or violations of §B.1–B.4. Swap icon imports to match this project's `iconLibrary` (§B.4). Fix all issues before moving on.
+8. **Registry must be explicit** — when the user asks to add a block or component, do not guess the registry (`@shadcn`, `@tailark`, `owner/repo`, etc.). If unspecified, ask.
+9. **Switching presets** — ask the user first: overwrite, partial, merge, or skip? See §B.11 for the exact commands. Always run preset commands inside the project directory (`components.json` must exist).
+
+## B.10 Updating components from upstream
+
+**NEVER fetch raw files from GitHub manually — always use the CLI.**
+
+1. `npx shadcn@latest add <component> --dry-run` to see all files that would be affected.
+2. `npx shadcn@latest add <component> --diff <file>` per file to see upstream vs local changes.
+3. Decide per file: no local changes → safe to overwrite; has local changes → read the local file, analyze the diff, apply upstream updates while preserving local modifications.
+4. **Never use `--overwrite` without the user's explicit approval**, even if they say "just update everything" — confirm first.
+
+## B.11 Preset commands
+
+- Inspect current preset: `npx shadcn@latest preset resolve` (`--json` for structured values).
+- Inspect incoming preset: `npx shadcn@latest preset decode <code>`; share/open with `preset url <code>` / `preset open <code>`.
+- Overwrite: `npx shadcn@latest apply <code>`.
+- Partial: `npx shadcn@latest apply <code> --only theme,font` (only `theme`/`font` supported; `icon` intentionally excluded since it may require full component reinstall).
+- Merge: `npx shadcn@latest init --preset <code> --force --no-reinstall`, then `npx shadcn@latest info` to list installed components, then `--dry-run`/`--diff` (§B.10) per component.
+- Skip: `npx shadcn@latest init --preset <code> --force --no-reinstall`.
+- The CLI preserves the current `base` (`radix` vs `base`) from `components.json` automatically. If working from a scratch directory, pass `--base <current-base>` explicitly.
+
+## B.12 Quick reference
+
+```bash
+# Project context
+npx shadcn@latest info
+npx shadcn@latest info --json
+
+# Add components
+npx shadcn@latest add button card dialog
+npx shadcn@latest add @magicui/shimmer-button
+npx shadcn@latest add owner/repo/item
+npx shadcn@latest add --all
+
+# Preview changes before adding/updating
+npx shadcn@latest add button --dry-run
+npx shadcn@latest add button --diff button.tsx
+npx shadcn@latest add owner/repo/item --dry-run
+
+# Search registries
+npx shadcn@latest search @shadcn -q "sidebar"
+npx shadcn@latest search @tailark -q "stats"
+npx shadcn@latest search owner/repo -q "login"
+npx shadcn@latest search
+npx shadcn@latest search @shadcn -q "menu" -t ui
+
+# Component docs
+npx shadcn@latest docs button dialog select
+
+# View registry item details
+npx shadcn@latest view @shadcn/button
+npx shadcn@latest view owner/repo/item
+
+# Presets
+npx shadcn@latest preset decode a2r6bw
+npx shadcn@latest preset url a2r6bw
+npx shadcn@latest preset open a2r6bw
+npx shadcn@latest preset resolve
+npx shadcn@latest preset resolve --json
+npx shadcn@latest apply a2r6bw
+npx shadcn@latest apply a2r6bw --only theme,font
+```
+
+**Named presets:** `nova`, `vega`, `maia`, `lyra`, `mira`, `luma`
+**Templates:** `next`, `vite`, `start`, `react-router`, `astro` (all support `--monorepo`) and `laravel` (not supported for monorepo)
+**Preset codes:** Version-prefixed base62 strings (e.g. `a2r6bw` or `b0`), from [ui.shadcn.com](https://ui.shadcn.com).
+
+## B.13 Detailed references (upstream shadcn skill files — not bundled here)
+
+If your environment has the full shadcn skill package installed alongside this one, these files contain the exhaustive Incorrect/Correct pairs behind each rule above:
+
+- `rules/forms.md` — FieldGroup, Field, InputGroup, ToggleGroup, FieldSet, validation states
+- `rules/composition.md` — Groups, overlays, Card, Tabs, Avatar, Alert, Empty, Toast, Separator, Skeleton, Badge, Button loading
+- `rules/icons.md` — data-icon, icon sizing, passing icons as objects
+- `rules/styling.md` — Semantic colors, variants, className, spacing, size, truncate, dark mode, cn(), z-index
+- `rules/base-vs-radix.md` — asChild vs render, Select, ToggleGroup, Slider, Accordion
+- `cli.md` — Commands, flags, presets, templates
+- `registry.md` — Authoring source registries, include, item definitions, dependencies, GitHub registry rules
+- `customization.md` — Theming, CSS variables, extending components
