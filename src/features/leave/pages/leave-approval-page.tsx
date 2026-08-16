@@ -1,7 +1,6 @@
 import { Link } from '@tanstack/react-router'
 
 import { AppMain } from '@/shared/components/app-layout/app-main'
-import { Button } from '@/shared/components/ui/button'
 import {
   Table,
   TableBody,
@@ -105,11 +104,13 @@ export function LeaveApprovalPage() {
                   </span>
                 </TableCell>
                 <TableCell>
-                  <Button size='sm' asChild>
-                    <Link to='/leave/approval/$requestId' params={{ requestId: request.id }}>
-                      {m.leave_approval_review()}
-                    </Link>
-                  </Button>
+                  <Link
+                    to='/leave/approval/$requestId'
+                    params={{ requestId: request.id }}
+                    className='text-xs font-medium text-primary hover:underline'
+                  >
+                    {m.leave_approval_review()}
+                  </Link>
                 </TableCell>
               </TableRow>
             ))}

@@ -1,3 +1,4 @@
+import { IconCircleCheck, IconX } from '@tabler/icons-react'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
 
@@ -62,11 +63,15 @@ export function LeaveApprovalDetailPage({ requestId }: Readonly<{ requestId: str
               placeholder={m.leave_approval_note_placeholder()}
             />
           </Field>
-          <div className='mt-4 flex justify-between'>
-            <Button variant='outline' asChild>
-              <Link to='/leave/approval'>{m.leave_reject()}</Link>
+          <div className='mt-4 flex justify-end gap-4'>
+            <Button variant='destructive' asChild>
+              <Link to='/leave/approval'>
+                <IconX />
+                {m.leave_reject()}
+              </Link>
             </Button>
             <Button onClick={() => complete(m.leave_approval_toast_success())}>
+              <IconCircleCheck />
               {m.leave_approve_request()}
             </Button>
           </div>
