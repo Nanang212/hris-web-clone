@@ -3,6 +3,7 @@ import { IconSearch, IconUserPlus } from '@tabler/icons-react'
 import { useMemo, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 
+import { m } from '@/i18n/paraglide/messages'
 import { Button } from '@/shared/components/ui/button'
 import { Checkbox } from '@/shared/components/ui/checkbox'
 import {
@@ -35,10 +36,6 @@ type AssignUsersDialogProps = Readonly<{
   onAssign: (userIds: string[], effectiveDate: string, notifyUsers: boolean) => Promise<void>
 }>
 
-function getUserLabel(size: number) {
-  return size === 1 ? 'user' : 'users'
-}
-
 export function AssignUsersDialog({
   roleName,
   users,
@@ -52,8 +49,8 @@ export function AssignUsersDialog({
   const [branch, setBranch] = useState('All')
 
   const formSchema = useSchema((z) => ({
-    userIds: z.array(z.string().min(1)).min(1, { message: 'Select at least one user.' }),
-    effectiveDate: z.string().min(1, { message: 'Effective date is required.' }),
+    userIds: z.array(z.string().min(1)).min(1, { message: m.role_access_validation_user() }),
+    effectiveDate: z.string().min(1, { message: m.role_access_validation_effective_date() }),
     notifyUsers: z.boolean(),
   }))
 
@@ -128,9 +125,9 @@ export function AssignUsersDialog({
           <div className='mb-1 flex h-11 w-11 items-center justify-center rounded-full bg-primary/10 text-primary'>
             <IconUserPlus size={20} />
           </div>
-          <DialogTitle>Assign Users to {roleName}</DialogTitle>
+          <DialogTitle>{m.role_access_assign_dialog_title({ roleName })}</DialogTitle>
           <DialogDescription>
-            Select eligible employees and define when their access becomes effective.
+            {m.role_access_assign_dialog_description()}
           </DialogDescription>
         </DialogHeader>
 
@@ -143,7 +140,7 @@ export function AssignUsersDialog({
             <Input
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              placeholder='Search employee, NIP, or department...'
+              placeholder={m.role_access_search_employee()}
               className='h-10 rounded-lg border-input bg-background pl-9'
             />
           </div>
@@ -151,30 +148,30 @@ export function AssignUsersDialog({
           <div className='grid gap-2 sm:grid-cols-2'>
             <Select value={department} onValueChange={setDepartment}>
               <SelectTrigger
-                aria-label='Filter department'
+                aria-label={m.role_access_filter_department()}
                 className='h-9 w-full rounded-lg border-input bg-background text-xs'
               >
-                <SelectValue placeholder='Department: All' />
+                <SelectValue placeholder={m.role_access_department_filter({ value: m.role_access_all() })} />
               </SelectTrigger>
               <SelectContent>
                 {departments.map((value) => (
                   <SelectItem key={value} value={value}>
-                    Department: {value}
+                    {m.role_access_department_filter({ value: value === 'All' ? m.role_access_all() : value })}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
             <Select value={branch} onValueChange={setBranch}>
               <SelectTrigger
-                aria-label='Filter branch'
+                aria-label={m.role_access_filter_branch()}
                 className='h-9 w-full rounded-lg border-input bg-background text-xs'
               >
-                <SelectValue placeholder='Branch: All' />
+                <SelectValue placeholder={m.role_access_branch_filter({ value: m.role_access_all() })} />
               </SelectTrigger>
               <SelectContent>
                 {branches.map((value) => (
                   <SelectItem key={value} value={value}>
-                    Branch: {value}
+                    {m.role_access_branch_filter({ value: value === 'All' ? m.role_access_all() : value })}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -188,10 +185,10 @@ export function AssignUsersDialog({
                 checked={allFilteredSelected}
                 onCheckedChange={(checked) => toggleAll(checked === true)}
               />
-              Select all eligible users
+              {m.role_access_select_all_eligible()}
             </Label>
             <span className='text-xs font-medium text-primary'>
-              {filteredUsers.length} eligible
+              {m.role_access_eligible_count({ count: filteredUsers.length })}
             </span>
           </div>
 
@@ -223,12 +220,12 @@ export function AssignUsersDialog({
             ))}
             {filteredUsers.length === 0 && (
               <p className='py-8 text-center text-sm text-muted-foreground'>
-                No eligible users match the filters.
+                {m.role_access_no_eligible_users()}
               </p>
             )}
           </div>
 
-          <p className='text-xs font-semibold text-primary'>{selectedIds.size} users selected</p>
+          <p className='text-xs font-semibold text-primary'>{m.role_access_selected_users_count({ count: selectedIds.size })}</p>
           {errors.userIds?.message && (
             <p role='alert' className='text-xs font-medium text-destructive'>
               {errors.userIds.message}
@@ -238,7 +235,7 @@ export function AssignUsersDialog({
           <div className='grid items-end gap-3 sm:grid-cols-[1fr_1.4fr]'>
             <div>
               <Label htmlFor='assign-effective-date' className='mb-2 text-xs'>
-                Effective date
+                {m.role_access_effective_date()}
               </Label>
               <Input
                 id='assign-effective-date'
@@ -264,21 +261,21 @@ export function AssignUsersDialog({
                   setValue('notifyUsers', checked === true, { shouldDirty: true })
                 }
               />
-              Notify users about this role change
+              {m.role_access_notify_users()}
             </Label>
           </div>
 
           <p className='rounded-lg bg-blue-50 px-3 py-2.5 text-xs font-medium text-blue-700 dark:bg-blue-950/30 dark:text-blue-400'>
-            Daftar ini hanya menampilkan user dari department dan branch yang eligible untuk role.
+            {m.role_access_eligible_info()}
           </p>
           <DialogFooter>
             <Button type='button' variant='outline' onClick={onClose} disabled={isPending}>
-              Cancel
+              {m.role_access_cancel()}
             </Button>
             <Button type='submit' disabled={isPending || isSubmitting}>
               {isPending
-                ? 'Assigning...'
-                : `Assign ${selectedIds.size} ${getUserLabel(selectedIds.size)}`}
+                ? m.role_access_assigning()
+                : m.role_access_assign_count({ count: selectedIds.size })}
             </Button>
           </DialogFooter>
         </form>

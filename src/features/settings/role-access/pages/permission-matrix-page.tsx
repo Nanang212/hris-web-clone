@@ -3,6 +3,7 @@ import { IconLock, IconSearch } from '@tabler/icons-react'
 import { useMemo, useState } from 'react'
 import { Controller, useForm, useWatch, type FieldErrors } from 'react-hook-form'
 
+import { m } from '@/i18n/paraglide/messages'
 import { AppMain } from '@/shared/components/app-layout/app-main'
 import { SkeletonPattern } from '@/shared/components/skeleton-pattern'
 import { Badge } from '@/shared/components/ui/badge'
@@ -52,14 +53,14 @@ const permissionActions: PermissionAction[] = [
   'configure',
 ]
 
-const actionLabels: Record<PermissionAction, string> = {
-  view: 'View',
-  create: 'Create',
-  edit: 'Edit',
-  delete: 'Delete',
-  approve: 'Approve',
-  export: 'Export',
-  configure: 'Configure',
+const actionLabels: Record<PermissionAction, () => string> = {
+  view: m.role_access_permission_view,
+  create: m.role_access_permission_create,
+  edit: m.role_access_permission_edit,
+  delete: m.role_access_permission_delete,
+  approve: m.role_access_permission_approve,
+  export: m.role_access_permission_export,
+  configure: m.role_access_permission_configure,
 }
 
 const permissionScopeClasses: Record<PermissionDataScope, string> = {
@@ -70,6 +71,15 @@ const permissionScopeClasses: Record<PermissionDataScope, string> = {
 
 function getPermissionModuleKey(module: Pick<RolePermissionModule, 'id' | 'scope'>) {
   return `${module.id}:${module.scope}`
+}
+
+function getScopeLabel(scope: PermissionDataScope) {
+  const labels: Record<PermissionDataScope, string> = {
+    Company: m.role_access_scope_company(),
+    Administrator: m.role_access_scope_administrator(),
+    Self: m.role_access_scope_self(),
+  }
+  return labels[scope]
 }
 
 type PermissionMatrixFormValues = {
@@ -99,7 +109,7 @@ function PermissionMatrixForm({
   const updatePermissionsMutation = useUpdateRolePermissions()
 
   const formSchema = useSchema((z) => ({
-    roleId: z.string().min(1, { message: 'Role is required.' }),
+    roleId: z.string().min(1, { message: m.role_access_permission_role_required() }),
     defaultDataScope: z.enum(['Company', 'Administrator', 'Self']),
     modules: z
       .array(
@@ -119,7 +129,7 @@ function PermissionMatrixForm({
           }),
         }),
       )
-      .min(1, { message: 'At least one permission module is required.' }),
+      .min(1, { message: m.role_access_permission_module_required() }),
   }))
 
   const {
@@ -264,9 +274,9 @@ function PermissionMatrixForm({
           modules: values.modules,
         },
       })
-      snackbar.success('Role permissions updated successfully.')
+      snackbar.success(m.role_access_permission_save_success())
     } catch (error) {
-      snackbar.exception(error, 'Failed to update role permissions.')
+      snackbar.exception(error, m.role_access_permission_save_error())
     }
   }
 
@@ -280,8 +290,11 @@ function PermissionMatrixForm({
       formErrors.defaultDataScope?.message ??
       formErrors.modules?.message ??
       (invalidModule
-        ? `${invalidModule.name} (${invalidModule.scope}) contains invalid permission data.`
-        : 'Permission configuration contains invalid data.')
+        ? m.role_access_permission_invalid_module({
+            name: invalidModule.name,
+            scope: getScopeLabel(invalidModule.scope),
+          })
+        : m.role_access_permission_invalid())
 
     snackbar.error(message)
   }
@@ -293,19 +306,19 @@ function PermissionMatrixForm({
     <AppMain
       backTo='/settings/role-access'
       breadcrumbs={[
-        { to: '/', label: 'Pengaturan' },
-        { to: '/settings/role-access', label: 'Role & Access' },
-        { label: 'Permission Matrix' },
+        { to: '/', label: m.role_access_breadcrumb_settings() },
+        { to: '/settings/role-access', label: m.role_access_title() },
+        { label: m.role_access_permission_matrix() },
       ]}
-      title='Permission Matrix'
-      subtitle='Atur akses modul dan tindakan yang tersedia untuk setiap role.'
+      title={m.role_access_permission_matrix()}
+      subtitle={m.role_access_permission_subtitle()}
       actions={
         <>
           <Button type='button' variant='outline' onClick={handleReset} disabled={controlsDisabled}>
-            Reset
+            {m.role_access_reset()}
           </Button>
           <Button type='submit' form='permission-matrix-form' disabled={controlsDisabled}>
-            {submitting ? 'Saving...' : 'Save Permissions'}
+            {submitting ? m.role_access_saving() : m.role_access_save_permissions()}
           </Button>
         </>
       }
@@ -319,7 +332,7 @@ function PermissionMatrixForm({
           <section className='rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6'>
             <div className='grid gap-5 lg:grid-cols-2 lg:items-start'>
               <Field className='gap-2' data-invalid={!!errors.roleId}>
-                <FieldLabel htmlFor='permission-role'>Role</FieldLabel>
+                <FieldLabel htmlFor='permission-role'>{m.role_access_role()}</FieldLabel>
                 <Controller
                   name='roleId'
                   control={control}
@@ -336,7 +349,7 @@ function PermissionMatrixForm({
                         aria-invalid={!!errors.roleId}
                         className='h-10 w-full rounded-lg border-input bg-background'
                       >
-                        <SelectValue placeholder='Select role' />
+                        <SelectValue placeholder={m.role_access_select_role()} />
                       </SelectTrigger>
                       <SelectContent>
                         {roles.map((role) => (
@@ -352,7 +365,7 @@ function PermissionMatrixForm({
               </Field>
 
               <Field className='gap-2' data-invalid={!!errors.defaultDataScope}>
-                <FieldLabel htmlFor='permission-data-scope'>Default Data Scope</FieldLabel>
+                <FieldLabel htmlFor='permission-data-scope'>{m.role_access_default_data_scope()}</FieldLabel>
                 <Controller
                   name='defaultDataScope'
                   control={control}
@@ -370,12 +383,12 @@ function PermissionMatrixForm({
                         aria-invalid={!!errors.defaultDataScope}
                         className='h-10 w-full rounded-lg border-input bg-background'
                       >
-                        <SelectValue placeholder='Select data scope' />
+                        <SelectValue placeholder={m.role_access_select_data_scope()} />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value='Company'>Company</SelectItem>
-                        <SelectItem value='Administrator'>Administrator</SelectItem>
-                        <SelectItem value='Self'>Self</SelectItem>
+                        <SelectItem value='Company'>{m.role_access_scope_company()}</SelectItem>
+                        <SelectItem value='Administrator'>{m.role_access_scope_administrator()}</SelectItem>
+                        <SelectItem value='Self'>{m.role_access_scope_self()}</SelectItem>
                       </SelectContent>
                     </Select>
                   )}
@@ -389,9 +402,9 @@ function PermissionMatrixForm({
 
           <section className='overflow-hidden rounded-2xl border border-border bg-card shadow-sm'>
             <div className='border-b border-border p-5 sm:p-6'>
-              <h2 className='text-base font-bold text-foreground'>Permission Configuration</h2>
+              <h2 className='text-base font-bold text-foreground'>{m.role_access_permission_configuration()}</h2>
               <p className='mt-1 text-sm text-muted-foreground'>
-                Konfigurasikan tindakan pada modul dengan scope {selectedDataScope}.
+                {m.role_access_permission_configuration_scope({ scope: getScopeLabel(selectedDataScope) })}
               </p>
 
               {errors.modules?.message && (
@@ -411,21 +424,21 @@ function PermissionMatrixForm({
                       value={search}
                       disabled={isReloading}
                       onChange={(event) => setSearch(event.target.value)}
-                      placeholder='Search module or category...'
+                      placeholder={m.role_access_search_module()}
                       className='h-10 rounded-lg border-input bg-background pl-9'
                     />
                   </div>
                   <Select value={category} onValueChange={setCategory} disabled={isReloading}>
                     <SelectTrigger
-                      aria-label='Filter permission category'
+                      aria-label={m.role_access_filter_category()}
                       className='h-10 w-full rounded-lg border-input bg-background sm:w-52'
                     >
-                      <SelectValue placeholder='Category: All' />
+                      <SelectValue placeholder={m.role_access_category_filter({ value: m.role_access_all() })} />
                     </SelectTrigger>
                     <SelectContent>
                       {categories.map((value) => (
                         <SelectItem key={value} value={value}>
-                          Category: {value}
+                          {m.role_access_category_filter({ value: value === 'All' ? m.role_access_all() : value })}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -443,7 +456,7 @@ function PermissionMatrixForm({
                       checked={enabledOnly}
                       onCheckedChange={(checked) => setEnabledOnly(checked === true)}
                     />
-                    Enabled only
+                    {m.role_access_enabled_only()}
                   </Label>
                   <Label htmlFor='permission-select-all' className='cursor-pointer text-foreground'>
                     <Checkbox
@@ -452,7 +465,7 @@ function PermissionMatrixForm({
                       checked={allFilteredSelected}
                       onCheckedChange={(checked) => toggleAllFiltered(checked === true)}
                     />
-                    Select all permissions
+                    {m.role_access_select_all_permissions()}
                   </Label>
                 </div>
               </div>
@@ -462,14 +475,14 @@ function PermissionMatrixForm({
               <Table className='min-w-245 text-left' aria-busy={isReloading}>
                 <TableHeader>
                   <TableRow className='border-b border-border bg-muted/50 text-xs font-semibold tracking-wide text-muted-foreground uppercase'>
-                    <TableHead className='px-5 py-3'>Module</TableHead>
-                    <TableHead className='px-3 py-3'>Scope</TableHead>
+                    <TableHead className='px-5 py-3'>{m.role_access_module()}</TableHead>
+                    <TableHead className='px-3 py-3'>{m.role_access_table_data_scope()}</TableHead>
                     {permissionActions.map((action) => (
                       <TableHead key={action} className='px-3 py-3 text-center'>
-                        {actionLabels[action]}
+                        {actionLabels[action]()}
                       </TableHead>
                     ))}
-                    <TableHead className='px-5 py-3 text-center'>All</TableHead>
+                    <TableHead className='px-5 py-3 text-center'>{m.role_access_permission_all()}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -519,7 +532,7 @@ function PermissionMatrixForm({
                               variant='secondary'
                               className={permissionScopeClasses[module.scope]}
                             >
-                              {module.scope}
+                              {getScopeLabel(module.scope)}
                             </Badge>
                           </TableCell>
                           {permissionActions.map((action) => (
@@ -529,7 +542,10 @@ function PermissionMatrixForm({
                                 onCheckedChange={() =>
                                   togglePermission(module.id, module.scope, action)
                                 }
-                                aria-label={`${actionLabels[action]} permission for ${module.name}`}
+                                aria-label={m.role_access_permission_for({
+                                  action: actionLabels[action](),
+                                  module: module.name,
+                                })}
                                 className='mx-auto'
                               />
                             </TableCell>
@@ -540,7 +556,7 @@ function PermissionMatrixForm({
                               onCheckedChange={(checked) =>
                                 toggleModule(module.id, module.scope, checked === true)
                               }
-                              aria-label={`Select all permissions for ${module.name}`}
+                              aria-label={m.role_access_select_all_for({ module: module.name })}
                               className='mx-auto'
                             />
                           </TableCell>
@@ -553,7 +569,7 @@ function PermissionMatrixForm({
                         colSpan={permissionActions.length + 3}
                         className='px-5 py-14 text-center text-sm text-muted-foreground'
                       >
-                        No modules match the {selectedDataScope} scope and selected filters.
+                        {m.role_access_no_modules({ scope: getScopeLabel(selectedDataScope) })}
                       </TableCell>
                     </TableRow>
                   )}
@@ -563,10 +579,7 @@ function PermissionMatrixForm({
 
             <div className='flex items-start gap-2 border-t border-blue-100 bg-blue-50 px-5 py-3.5 text-xs font-medium text-blue-700 dark:border-blue-950 dark:bg-blue-950/30 dark:text-blue-400'>
               <IconLock size={15} className='mt-0.5 shrink-0' />
-              <span>
-                Select All hanya diterapkan pada module yang terlihat. Perubahan permission akan
-                dicatat di Audit Trail.
-              </span>
+              <span>{m.role_access_permission_audit_note()}</span>
             </div>
           </section>
         </div>

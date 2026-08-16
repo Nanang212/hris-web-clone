@@ -1,5 +1,6 @@
 import { useNavigate } from '@tanstack/react-router'
 
+import { m } from '@/i18n/paraglide/messages'
 import { AppMain } from '@/shared/components/app-layout/app-main'
 import { snackbar } from '@/shared/lib/snackbar'
 import { RoleForm } from '@/features/settings/role-access/components/role-form'
@@ -41,10 +42,10 @@ function EditRoleForm({
   const handleSubmit = async (values: CreateRolePayload) => {
     try {
       await updateRoleMutation.mutateAsync({ id: role.id, payload: values })
-      snackbar.success('Role updated successfully!')
+      snackbar.success(m.role_access_update_success())
       navigate({ to: '/settings/role-access' })
     } catch (error) {
-      snackbar.exception(error, 'Failed to update role. Please try again.')
+      snackbar.exception(error, m.role_access_update_error())
     }
   }
 

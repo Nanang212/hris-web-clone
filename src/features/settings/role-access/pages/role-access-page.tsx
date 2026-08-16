@@ -13,6 +13,7 @@ import {
 import { Link } from '@tanstack/react-router'
 import { useState } from 'react'
 
+import { m } from '@/i18n/paraglide/messages'
 import { AppMain } from '@/shared/components/app-layout/app-main'
 import { SkeletonPattern } from '@/shared/components/skeleton-pattern'
 import { Badge } from '@/shared/components/ui/badge'
@@ -77,6 +78,24 @@ function getScopeColorClass(scope: string): import('clsx').ClassValue {
   return scopeClasses[scope] ?? 'bg-gray-50 text-gray-600 dark:bg-gray-950/40 dark:text-gray-400'
 }
 
+function getScopeLabel(scope: string) {
+  const labels: Record<string, string> = {
+    Company: m.role_access_scope_company(),
+    Administrator: m.role_access_scope_administrator(),
+    Self: m.role_access_scope_self(),
+  }
+  return labels[scope] ?? scope
+}
+
+function getStatusLabel(status: string) {
+  const labels: Record<string, string> = {
+    Active: m.role_access_status_active(),
+    Inactive: m.role_access_status_inactive(),
+    Draft: m.role_access_status_draft(),
+  }
+  return labels[status] ?? status
+}
+
 function StatCard({
   icon: Icon,
   label,
@@ -137,7 +156,7 @@ export default function RoleAccessPage() {
 
     try {
       await deleteRoleMutation.mutateAsync(roleToDelete.id)
-      snackbar.success(`${roleToDelete.name} role deleted successfully.`)
+      snackbar.success(m.role_access_delete_success({ name: roleToDelete.name }))
       setRoleToDelete(null)
     } catch (error) {
       snackbar.exception(error)
@@ -146,9 +165,9 @@ export default function RoleAccessPage() {
 
   return (
     <AppMain
-      breadcrumbs={[{ to: '/', label: 'Pengaturan' }, { label: 'Role & Access' }]}
-      title='Role & Access'
-      subtitle='Kelola role, assignment user, scope data, dan permission setiap modul.'
+      breadcrumbs={[{ to: '/', label: m.role_access_breadcrumb_settings() }, { label: m.role_access_title() }]}
+      title={m.role_access_title()}
+      subtitle={m.role_access_page_subtitle()}
       pending={isInitialPageLoading}
       loadingComponent={
         <SkeletonPattern
@@ -163,10 +182,10 @@ export default function RoleAccessPage() {
       }
       actions={
         <>
-          <Button variant='outline'>Export Roles</Button>
+          <Button variant='outline'>{m.role_access_export_roles()}</Button>
           <Button asChild>
             <Link to='/settings/role-access/create-role'>
-              <IconPlus size={16} /> Create Role
+              <IconPlus size={16} /> {m.role_access_create_role()}
             </Link>
           </Button>
         </>
@@ -175,23 +194,23 @@ export default function RoleAccessPage() {
       <div className='grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3'>
         <StatCard
           icon={IconShieldCheck}
-          label='Active Roles'
+          label={m.role_access_active_roles()}
           value={isStatsPending ? '...' : (stats?.activeRoles ?? 0)}
-          note='Configured roles'
+          note={m.role_access_configured_roles()}
           tone='violet'
         />
         <StatCard
           icon={IconUsers}
-          label='User Assignments'
+          label={m.role_access_user_assignments()}
           value={isStatsPending ? '...' : (stats?.userAssignments ?? 0)}
-          note='Across all roles'
+          note={m.role_access_across_all_roles()}
           tone='blue'
         />
         <StatCard
           icon={IconSparkles}
-          label='Permission Sets'
+          label={m.role_access_permission_sets()}
           value={isStatsPending ? '...' : (stats?.permissionSets ?? 0)}
-          note='Across all modules'
+          note={m.role_access_across_all_modules()}
           tone='orange'
         />
       </div>
@@ -199,13 +218,13 @@ export default function RoleAccessPage() {
       <section className='rounded-xl border border-border bg-card p-4 shadow-sm sm:p-5'>
         <div className='flex flex-col justify-between gap-3 lg:flex-row lg:items-start'>
           <div>
-            <h2 className='text-base font-bold text-foreground'>Role Directory</h2>
+            <h2 className='text-base font-bold text-foreground'>{m.role_access_role_directory()}</h2>
             <p className='mt-1 text-sm text-muted-foreground'>
-              Cari role, cek scope data, permission coverage, dan assignment user.
+              {m.role_access_directory_description()}
             </p>
           </div>
           <Button asChild variant='outline'>
-            <Link to='/settings/role-access/permission-matrix'>Permission Matrix</Link>
+            <Link to='/settings/role-access/permission-matrix'>{m.role_access_permission_matrix()}</Link>
           </Button>
         </div>
 
@@ -216,22 +235,22 @@ export default function RoleAccessPage() {
               className='pointer-events-none absolute top-1/2 left-3 z-10 -translate-y-1/2 text-muted-foreground'
             />
             <Input
-              aria-label='Search role'
+              aria-label={m.role_access_search_role()}
               className='h-10 rounded-lg border-input bg-background pl-9'
-              placeholder='Search role...'
+              placeholder={m.role_access_search_role()}
               value={searchRole}
               onChange={(event) => setSearchRole(event.target.value)}
             />
           </div>
           <Select value={statusFilter} onValueChange={setStatusFilter}>
             <SelectTrigger className='h-10 w-full rounded-lg border-input bg-background sm:w-44'>
-              <SelectValue placeholder='Status: All' />
+              <SelectValue placeholder={m.role_access_status_all()} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value='All'>Status: All</SelectItem>
-              <SelectItem value='Active'>Status: Active</SelectItem>
-              <SelectItem value='Inactive'>Status: Inactive</SelectItem>
-              <SelectItem value='Draft'>Status: Draft</SelectItem>
+              <SelectItem value='All'>{m.role_access_status_all()}</SelectItem>
+              <SelectItem value='Active'>{m.role_access_status_filter({ status: m.role_access_status_active() })}</SelectItem>
+              <SelectItem value='Inactive'>{m.role_access_status_filter({ status: m.role_access_status_inactive() })}</SelectItem>
+              <SelectItem value='Draft'>{m.role_access_status_filter({ status: m.role_access_status_draft() })}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -240,13 +259,13 @@ export default function RoleAccessPage() {
           <Table className='min-w-190 text-left' aria-busy={isRoleTableLoading}>
             <TableHeader className='border-b border-border/60 bg-muted/40 text-xs font-semibold tracking-wide text-muted-foreground uppercase'>
               <TableRow>
-                <TableHead className='px-4 py-3'>Role</TableHead>
-                <TableHead className='px-4 py-3'>Users</TableHead>
-                <TableHead className='px-4 py-3'>Data Scope</TableHead>
-                <TableHead className='px-4 py-3'>Coverage</TableHead>
-                <TableHead className='px-4 py-3'>Last Updated</TableHead>
-                <TableHead className='px-4 py-3'>Status</TableHead>
-                <TableHead className='px-4 py-3 text-center'>Action</TableHead>
+                <TableHead className='px-4 py-3'>{m.role_access_table_role()}</TableHead>
+                <TableHead className='px-4 py-3'>{m.role_access_table_users()}</TableHead>
+                <TableHead className='px-4 py-3'>{m.role_access_table_data_scope()}</TableHead>
+                <TableHead className='px-4 py-3'>{m.role_access_table_coverage()}</TableHead>
+                <TableHead className='px-4 py-3'>{m.role_access_table_last_updated()}</TableHead>
+                <TableHead className='px-4 py-3'>{m.role_access_status()}</TableHead>
+                <TableHead className='px-4 py-3 text-center'>{m.role_access_action()}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -282,7 +301,7 @@ export default function RoleAccessPage() {
               {!isRoleTableLoading && roles.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={7} className='py-8 text-center text-sm text-muted-foreground'>
-                    No roles found.
+                    {m.role_access_no_roles()}
                   </TableCell>
                 </TableRow>
               )}
@@ -302,7 +321,7 @@ export default function RoleAccessPage() {
                     <TableCell className='px-4 py-3'>{role.users}</TableCell>
                     <TableCell className='px-4 py-3'>
                       <Badge variant='secondary' className={cn(getScopeColorClass(role.scope))}>
-                        {role.scope}
+                        {getScopeLabel(role.scope)}
                       </Badge>
                     </TableCell>
                     <TableCell className='px-4 py-3 font-medium text-blue-600 dark:text-blue-400'>
@@ -313,7 +332,7 @@ export default function RoleAccessPage() {
                     </TableCell>
                     <TableCell className='px-4 py-3'>
                       <Badge className='bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400'>
-                        {role.status}
+                        {getStatusLabel(role.status)}
                       </Badge>
                     </TableCell>
                     <TableCell className='px-4 py-3 text-center'>
@@ -322,7 +341,7 @@ export default function RoleAccessPage() {
                           <Button
                             variant='outline'
                             size='icon-xs'
-                            aria-label={`Actions for ${role.name}`}
+                            aria-label={m.role_access_actions_for({ name: role.name })}
                           >
                             <IconDots size={16} />
                           </Button>
@@ -336,7 +355,7 @@ export default function RoleAccessPage() {
                               params={{ roleId: role.id }}
                             >
                               <IconEdit />
-                              Edit Role
+                              {m.role_access_edit_role()}
                             </Link>
                           </DropdownMenuItem>
                           <DropdownMenuItem asChild>
@@ -345,7 +364,7 @@ export default function RoleAccessPage() {
                               params={{ roleId: role.id }}
                             >
                               <IconUserPlus />
-                              Assign Users
+                              {m.role_access_assign_users()}
                             </Link>
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
@@ -355,7 +374,7 @@ export default function RoleAccessPage() {
                             onSelect={() => setRoleToDelete(role)}
                           >
                             <IconTrash />
-                            {deleteRoleMutation.isPending ? 'Deleting...' : 'Delete'}
+                            {deleteRoleMutation.isPending ? m.role_access_deleting() : m.role_access_delete()}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -366,8 +385,7 @@ export default function RoleAccessPage() {
           </Table>
         </div>
         <div className='mt-4 flex items-center gap-2 rounded-lg bg-blue-50 px-3.5 py-2.5 text-xs font-medium text-blue-600 dark:bg-blue-950/40 dark:text-blue-400'>
-          <IconLock size={15} /> Role changes, permission updates, dan assignments are recorded in
-          Audit Trail.
+          <IconLock size={15} /> {m.role_access_audit_note()}
         </div>
       </section>
 
@@ -382,16 +400,15 @@ export default function RoleAccessPage() {
             <div className='mb-2 flex h-11 w-11 items-center justify-center rounded-full bg-red-100 text-red-600 dark:bg-red-950/50 dark:text-red-400'>
               <IconTrash size={20} />
             </div>
-            <DialogTitle>Delete Role</DialogTitle>
+            <DialogTitle>{m.role_access_delete_role()}</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete the <strong>{roleToDelete?.name}</strong> role? This
-              action cannot be undone and may affect assigned users.
+              {m.role_access_delete_description({ name: roleToDelete?.name ?? '' })}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <DialogClose asChild>
               <Button type='button' variant='outline' disabled={deleteRoleMutation.isPending}>
-                Cancel
+                {m.role_access_cancel()}
               </Button>
             </DialogClose>
             <Button
@@ -401,7 +418,7 @@ export default function RoleAccessPage() {
               onClick={() => void handleDeleteRole()}
             >
               <IconTrash size={16} />
-              {deleteRoleMutation.isPending ? 'Deleting...' : 'Delete Role'}
+              {deleteRoleMutation.isPending ? m.role_access_deleting() : m.role_access_delete_role()}
             </Button>
           </DialogFooter>
         </DialogContent>

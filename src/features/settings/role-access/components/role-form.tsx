@@ -4,6 +4,7 @@ import { Link } from '@tanstack/react-router'
 import { useRef, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 
+import { m } from '@/i18n/paraglide/messages'
 import { AppMain } from '@/shared/components/app-layout/app-main'
 import { Button } from '@/shared/components/ui/button'
 import {
@@ -72,7 +73,7 @@ function EligibilityDropdown({
     if (selectedOptions.length === 1) {
       return selectedOptions[0].name
     }
-    return `${selectedOptions.length} ${countLabel} selected`
+    return m.role_access_selected_count({ count: selectedOptions.length, label: countLabel })
   }
   const triggerLabel = getTriggerLabel()
 
@@ -103,7 +104,7 @@ function EligibilityDropdown({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align='start' className='max-h-64 rounded-xl bg-popover'>
-        <section className='p-1.5' aria-label={`Search ${countLabel}`}>
+        <section className='p-1.5' aria-label={m.role_access_search_options({ label: countLabel })}>
           <div className='relative'>
             <IconSearch
               size={15}
@@ -113,15 +114,15 @@ function EligibilityDropdown({
               ref={searchInputRef}
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              placeholder={`Search ${countLabel}...`}
-              aria-label={`Search ${countLabel}`}
+              placeholder={m.role_access_search_options({ label: countLabel })}
+              aria-label={m.role_access_search_options({ label: countLabel })}
               className='h-9 rounded-lg pl-9'
             />
           </div>
         </section>
         <DropdownMenuSeparator />
         {filteredOptions.length === 0 ? (
-          <DropdownMenuLabel>No matching options</DropdownMenuLabel>
+          <DropdownMenuLabel>{m.role_access_no_matching_options()}</DropdownMenuLabel>
         ) : (
           filteredOptions.map((option) => (
             <DropdownMenuCheckboxItem
@@ -156,30 +157,30 @@ export function RoleForm({
     name: z
       .string()
       .trim()
-      .min(2, { message: 'Role name must contain at least 2 characters.' })
-      .max(100, { message: 'Role name cannot exceed 100 characters.' }),
+      .min(2, { message: m.role_access_validation_role_name_min() })
+      .max(100, { message: m.role_access_validation_role_name_max() }),
     code: z
       .string()
       .trim()
-      .min(2, { message: 'Role code must contain at least 2 characters.' })
-      .max(50, { message: 'Role code cannot exceed 50 characters.' })
+      .min(2, { message: m.role_access_validation_role_code_min() })
+      .max(50, { message: m.role_access_validation_role_code_max() })
       .regex(/^[A-Z][A-Z0-9_]*$/, {
-        message: 'Use uppercase letters, numbers, and underscores only.',
+        message: m.role_access_validation_role_code_format(),
       }),
     status: z.enum(['Active', 'Inactive', 'Draft']),
     description: z
       .string()
       .trim()
-      .min(10, { message: 'Description must contain at least 10 characters.' })
-      .max(500, { message: 'Description cannot exceed 500 characters.' }),
+      .min(10, { message: m.role_access_validation_description_min() })
+      .max(500, { message: m.role_access_validation_description_max() }),
     allowMultipleRoles: z.boolean(),
-    accessExpiry: z.string().trim().min(1, { message: 'Access expiry is required.' }),
+    accessExpiry: z.string().trim().min(1, { message: m.role_access_validation_access_expiry() }),
     eligibleDepartments: z
       .array(z.string().min(1))
-      .min(1, { message: 'Select at least one eligible department.' }),
+      .min(1, { message: m.role_access_validation_department() }),
     eligibleBranches: z
       .array(z.string().min(1))
-      .min(1, { message: 'Select at least one eligible branch.' }),
+      .min(1, { message: m.role_access_validation_branch() }),
   }))
 
   const {
@@ -197,37 +198,37 @@ export function RoleForm({
   const isEdit = mode === 'edit'
   const formId = isEdit ? 'edit-role-form' : 'create-role-form'
   const submitting = isPending || isSubmitting
-  const title = isEdit ? 'Edit Role' : 'Create Role'
-  const submitLabel = isEdit ? 'Save Changes' : 'Save Role'
+  const title = isEdit ? m.role_access_edit_title() : m.role_access_create_title()
+  const submitLabel = isEdit ? m.role_access_save_changes() : m.role_access_save_role()
 
   return (
     <AppMain
       backTo='/settings/role-access'
       breadcrumbs={[
-        { to: '/', label: 'Pengaturan' },
-        { to: '/settings/role-access', label: 'Role & Access' },
+        { to: '/', label: m.role_access_breadcrumb_settings() },
+        { to: '/settings/role-access', label: m.role_access_title() },
         { label: title },
       ]}
       title={title}
       subtitle={
         isEdit
-          ? 'Perbarui informasi dasar dan eligibility role.'
-          : 'Input informasi dasar dan tentukan user yang eligible untuk role.'
+          ? m.role_access_edit_subtitle()
+          : m.role_access_create_subtitle()
       }
       actions={
         <>
           <Button asChild variant='outline'>
-            <Link to='/settings/role-access'>Cancel</Link>
+            <Link to='/settings/role-access'>{m.role_access_cancel()}</Link>
           </Button>
           <Button
             type='button'
             variant='outline'
             onClick={() => setValue('status', 'Draft', { shouldDirty: true })}
           >
-            {isEdit ? 'Set as Draft' : 'Save Draft'}
+            {isEdit ? m.role_access_set_as_draft() : m.role_access_save_draft()}
           </Button>
           <Button type='submit' form={formId} disabled={submitting}>
-            {submitting ? 'Saving...' : submitLabel}
+            {submitting ? m.role_access_saving() : submitLabel}
           </Button>
         </>
       }
@@ -235,26 +236,26 @@ export function RoleForm({
       <form id={formId} onSubmit={handleSubmit(onSubmit)} noValidate>
         <div className='grid gap-5 xl:grid-cols-[minmax(0,1.9fr)_minmax(320px,0.95fr)]'>
           <section className='rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6'>
-            <h2 className='text-base font-bold text-foreground'>Role Information</h2>
+            <h2 className='text-base font-bold text-foreground'>{m.role_access_role_information()}</h2>
             <p className='mt-1 text-sm text-muted-foreground'>
-              Identity and basic behavior for this role.
+              {m.role_access_role_information_description()}
             </p>
 
             <div className='mt-6 grid gap-5 md:grid-cols-2'>
               <Field className='gap-2' data-invalid={!!errors.name}>
-                <FieldLabel htmlFor={`${formId}-name`}>Role Name</FieldLabel>
+                <FieldLabel htmlFor={`${formId}-name`}>{m.role_access_role_name()}</FieldLabel>
                 <Input
                   id={`${formId}-name`}
                   aria-invalid={!!errors.name}
                   className='h-10 rounded-lg border-input bg-background'
                   {...register('name')}
                 />
-                <FieldDescription>Shown to administrators and assignees.</FieldDescription>
+                <FieldDescription>{m.role_access_role_name_help()}</FieldDescription>
                 <FieldError errors={errors.name ? [errors.name] : undefined} />
               </Field>
 
               <Field className='gap-2' data-invalid={!!errors.code}>
-                <FieldLabel htmlFor={`${formId}-code`}>Role Code</FieldLabel>
+                <FieldLabel htmlFor={`${formId}-code`}>{m.role_access_role_code()}</FieldLabel>
                 <Input
                   id={`${formId}-code`}
                   aria-invalid={!!errors.code}
@@ -265,13 +266,13 @@ export function RoleForm({
                     },
                   })}
                 />
-                <FieldDescription>Unique code used by API and audit logs.</FieldDescription>
+                <FieldDescription>{m.role_access_role_code_help()}</FieldDescription>
                 <FieldError errors={errors.code ? [errors.code] : undefined} />
               </Field>
             </div>
 
             <Field className='mt-5 gap-2' data-invalid={!!errors.status}>
-              <FieldLabel htmlFor={`${formId}-status`}>Status</FieldLabel>
+              <FieldLabel htmlFor={`${formId}-status`}>{m.role_access_status()}</FieldLabel>
               <Controller
                 name='status'
                 control={control}
@@ -282,25 +283,24 @@ export function RoleForm({
                       aria-invalid={!!errors.status}
                       className='h-10 w-full rounded-lg border-input bg-background'
                     >
-                      <SelectValue placeholder='Select status' />
+                      <SelectValue placeholder={m.role_access_select_status()} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value='Active'>Active</SelectItem>
-                      <SelectItem value='Inactive'>Inactive</SelectItem>
-                      <SelectItem value='Draft'>Draft</SelectItem>
+                      <SelectItem value='Active'>{m.role_access_status_active()}</SelectItem>
+                      <SelectItem value='Inactive'>{m.role_access_status_inactive()}</SelectItem>
+                      <SelectItem value='Draft'>{m.role_access_status_draft()}</SelectItem>
                     </SelectContent>
                   </Select>
                 )}
               />
               <FieldDescription>
-                Draft = belum digunakan · Active = bisa di-assign · Inactive = tidak dapat
-                digunakan.
+                {m.role_access_status_help()}
               </FieldDescription>
               <FieldError errors={errors.status ? [errors.status] : undefined} />
             </Field>
 
             <Field className='mt-5 gap-2' data-invalid={!!errors.description}>
-              <FieldLabel htmlFor={`${formId}-description`}>Description</FieldLabel>
+              <FieldLabel htmlFor={`${formId}-description`}>{m.role_access_description()}</FieldLabel>
               <Textarea
                 id={`${formId}-description`}
                 aria-invalid={!!errors.description}
@@ -312,9 +312,9 @@ export function RoleForm({
           </section>
 
           <section className='rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6'>
-            <h2 className='text-base font-bold text-foreground'>Role Eligibility</h2>
+            <h2 className='text-base font-bold text-foreground'>{m.role_access_role_eligibility()}</h2>
             <p className='mt-1 text-sm text-muted-foreground'>
-              Tentukan department dan branch yang user-nya dapat menerima role ini.
+              {m.role_access_role_eligibility_description()}
             </p>
 
             <div className='mt-6 space-y-6'>
@@ -323,17 +323,17 @@ export function RoleForm({
                 control={control}
                 render={({ field }) => (
                   <Field className='gap-2' data-invalid={!!errors.eligibleDepartments}>
-                    <FieldLabel>Eligible Departments</FieldLabel>
+                    <FieldLabel>{m.role_access_eligible_departments()}</FieldLabel>
                     <EligibilityDropdown
                       options={eligibilityOptions.departments}
                       selectedIds={field.value}
-                      placeholder='Select departments'
-                      countLabel='departments'
+                      placeholder={m.role_access_select_departments()}
+                      countLabel={m.role_access_departments()}
                       invalid={!!errors.eligibleDepartments}
                       onChange={field.onChange}
                     />
                     <FieldDescription>
-                      Hanya user dari department terpilih yang eligible untuk role ini.
+                      {m.role_access_department_help()}
                     </FieldDescription>
                     {errors.eligibleDepartments?.message && (
                       <p role='alert' className='text-xs text-destructive'>
@@ -349,17 +349,17 @@ export function RoleForm({
                 control={control}
                 render={({ field }) => (
                   <Field className='gap-2' data-invalid={!!errors.eligibleBranches}>
-                    <FieldLabel>Eligible Branches</FieldLabel>
+                    <FieldLabel>{m.role_access_eligible_branches()}</FieldLabel>
                     <EligibilityDropdown
                       options={eligibilityOptions.branches}
                       selectedIds={field.value}
-                      placeholder='Select branches'
-                      countLabel='branches'
+                      placeholder={m.role_access_select_branches()}
+                      countLabel={m.role_access_branches()}
                       invalid={!!errors.eligibleBranches}
                       onChange={field.onChange}
                     />
                     <FieldDescription>
-                      Hanya user dari branch terpilih yang eligible untuk role ini.
+                      {m.role_access_branch_help()}
                     </FieldDescription>
                     {errors.eligibleBranches?.message && (
                       <p role='alert' className='text-xs text-destructive'>
@@ -376,13 +376,13 @@ export function RoleForm({
                 render={({ field }) => (
                   <div className='flex items-start justify-between gap-4'>
                     <div>
-                      <p className='text-sm font-medium text-foreground'>Allow multiple roles</p>
+                      <p className='text-sm font-medium text-foreground'>{m.role_access_allow_multiple_roles()}</p>
                       <p className='mt-1 text-xs text-muted-foreground'>
-                        Users may keep existing roles when this role is assigned.
+                        {m.role_access_allow_multiple_roles_help()}
                       </p>
                     </div>
                     <Switch
-                      aria-label='Allow multiple roles'
+                      aria-label={m.role_access_allow_multiple_roles()}
                       checked={field.value}
                       onCheckedChange={field.onChange}
                     />
@@ -392,7 +392,7 @@ export function RoleForm({
             </div>
 
             <Field className='mt-5 gap-2' data-invalid={!!errors.accessExpiry}>
-              <FieldLabel htmlFor={`${formId}-access-expiry`}>Access Expiry</FieldLabel>
+              <FieldLabel htmlFor={`${formId}-access-expiry`}>{m.role_access_access_expiry()}</FieldLabel>
               <Controller
                 name='accessExpiry'
                 control={control}
@@ -403,25 +403,25 @@ export function RoleForm({
                       aria-invalid={!!errors.accessExpiry}
                       className='h-10 w-full rounded-lg border-input bg-background'
                     >
-                      <SelectValue placeholder='Select access expiry' />
+                      <SelectValue placeholder={m.role_access_select_access_expiry()} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value='No expiry'>No expiry</SelectItem>
-                      <SelectItem value='30 days'>30 days</SelectItem>
-                      <SelectItem value='90 days'>90 days</SelectItem>
-                      <SelectItem value='180 days'>180 days</SelectItem>
+                      <SelectItem value='No expiry'>{m.role_access_no_expiry()}</SelectItem>
+                      <SelectItem value='30 days'>{m.role_access_days_30()}</SelectItem>
+                      <SelectItem value='90 days'>{m.role_access_days_90()}</SelectItem>
+                      <SelectItem value='180 days'>{m.role_access_days_180()}</SelectItem>
                     </SelectContent>
                   </Select>
                 )}
               />
               <FieldDescription>
-                Access Expiry: No expiry · 30 hari · 90 hari · Custom date.
+                {m.role_access_access_expiry_help()}
               </FieldDescription>
               <FieldError errors={errors.accessExpiry ? [errors.accessExpiry] : undefined} />
             </Field>
 
             <Button type='submit' form={formId} disabled={submitting} className='mt-8 w-full'>
-              {submitting ? 'Saving...' : submitLabel}
+              {submitting ? m.role_access_saving() : submitLabel}
             </Button>
           </section>
         </div>

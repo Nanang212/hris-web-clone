@@ -1,5 +1,6 @@
 import { useNavigate } from '@tanstack/react-router'
 
+import { m } from '@/i18n/paraglide/messages'
 import { AppMain } from '@/shared/components/app-layout/app-main'
 import { snackbar } from '@/shared/lib/snackbar'
 import { RoleForm } from '@/features/settings/role-access/components/role-form'
@@ -9,17 +10,16 @@ import {
 } from '@/features/settings/role-access/data/hooks'
 import type { CreateRolePayload } from '@/features/settings/role-access/data/types'
 
-const createRoleDefaults: CreateRolePayload = {
+const getCreateRoleDefaults = (): CreateRolePayload => ({
   name: 'HR Supervisor',
   code: 'HR_SUPERVISOR',
   status: 'Active',
-  description:
-    'Supervises HR operations, employee data, attendance approvals, and leave workflows.',
+  description: m.role_access_create_default_description(),
   allowMultipleRoles: true,
   accessExpiry: 'No expiry',
   eligibleDepartments: [],
   eligibleBranches: [],
-}
+})
 
 export function CreateRolePage() {
   const navigate = useNavigate()
@@ -32,10 +32,10 @@ export function CreateRolePage() {
   const handleSubmit = async (values: CreateRolePayload) => {
     try {
       await createRoleMutation.mutateAsync(values)
-      snackbar.success('Role created successfully!')
+      snackbar.success(m.role_access_create_success())
       navigate({ to: '/settings/role-access' })
     } catch (error) {
-      snackbar.exception(error, 'Failed to create role. Please try again.')
+      snackbar.exception(error, m.role_access_create_error())
     }
   }
 
@@ -54,7 +54,7 @@ export function CreateRolePage() {
   return (
     <RoleForm
       mode='create'
-      defaultValues={createRoleDefaults}
+      defaultValues={getCreateRoleDefaults()}
       eligibilityOptions={eligibilityData}
       isPending={createRoleMutation.isPending}
       onSubmit={handleSubmit}

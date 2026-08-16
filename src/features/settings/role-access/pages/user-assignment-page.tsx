@@ -7,6 +7,7 @@ import {
 } from '@tabler/icons-react'
 import { useMemo, useState } from 'react'
 
+import { m } from '@/i18n/paraglide/messages'
 import { AppMain } from '@/shared/components/app-layout/app-main'
 import { Badge } from '@/shared/components/ui/badge'
 import { Button } from '@/shared/components/ui/button'
@@ -68,6 +69,30 @@ function getStatusClass(status: UserAssignmentStatus): string {
   return 'bg-blue-100 text-blue-700 dark:bg-blue-950/50 dark:text-blue-400'
 }
 
+function getStatusLabel(status: string) {
+  return status === 'Assigned'
+    ? m.role_access_status_assigned()
+    : m.role_access_status_eligible()
+}
+
+function getRoleStatusLabel(status: string) {
+  const labels: Record<string, string> = {
+    Active: m.role_access_status_active(),
+    Inactive: m.role_access_status_inactive(),
+    Draft: m.role_access_status_draft(),
+  }
+  return labels[status] ?? status
+}
+
+function getScopeLabel(scope: string) {
+  const labels: Record<string, string> = {
+    Company: m.role_access_scope_company(),
+    Administrator: m.role_access_scope_administrator(),
+    Self: m.role_access_scope_self(),
+  }
+  return labels[scope] ?? scope
+}
+
 export function UserAssignmentPage({ roleId }: UserAssignmentPageProps) {
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<UserAssignmentStatus | 'All'>('All')
@@ -125,29 +150,27 @@ export function UserAssignmentPage({ roleId }: UserAssignmentPageProps) {
         payload: { userIds, effectiveDate, notifyUsers },
       })
       setAssignmentDialog(null)
-      snackbar.success(
-        `${userIds.length} ${userIds.length === 1 ? 'user' : 'users'} assigned successfully.`,
-      )
+      snackbar.success(m.role_access_assign_success({ count: userIds.length }))
     } catch (mutationError) {
-      snackbar.exception(mutationError, 'Failed to assign users.')
+      snackbar.exception(mutationError, m.role_access_assign_error())
     }
   }
 
   const handleRemove = async (userId: string, name: string) => {
     try {
       await removeUserMutation.mutateAsync({ id: roleId, userId })
-      snackbar.success(`${name} removed from ${role?.name}.`)
+      snackbar.success(m.role_access_remove_success({ name, roleName: role?.name ?? '' }))
     } catch (mutationError) {
-      snackbar.exception(mutationError, `Failed to remove ${name} from this role.`)
+      snackbar.exception(mutationError, m.role_access_remove_error({ name }))
     }
   }
 
   const handleBulkUnassign = async () => {
     try {
       await removeAllUsersMutation.mutateAsync(roleId)
-      snackbar.success(`All users removed from ${role?.name}.`)
+      snackbar.success(m.role_access_remove_all_success({ roleName: role?.name ?? '' }))
     } catch (mutationError) {
-      snackbar.exception(mutationError, `Failed to remove users from ${role?.name}.`)
+      snackbar.exception(mutationError, m.role_access_remove_all_error({ roleName: role?.name ?? '' }))
     }
   }
 
@@ -155,16 +178,16 @@ export function UserAssignmentPage({ roleId }: UserAssignmentPageProps) {
     <AppMain
       backTo='/settings/role-access'
       breadcrumbs={[
-        { to: '/', label: 'Pengaturan' },
-        { to: '/settings/role-access', label: 'Role & Access' },
-        { label: 'User Assignment' },
+        { to: '/', label: m.role_access_breadcrumb_settings() },
+        { to: '/settings/role-access', label: m.role_access_title() },
+        { label: m.role_access_user_assignment_title() },
       ]}
-      title='User Assignment'
-      subtitle='Kelola user yang memenuhi eligibility department dan branch untuk role ini.'
+      title={m.role_access_user_assignment_title()}
+      subtitle={m.role_access_user_assignment_subtitle()}
       actions={
         <Button type='button' onClick={() => setAssignmentDialog({ initialUserIds: [] })}>
           <IconUserPlus size={16} />
-          Assign Users
+          {m.role_access_assign_users()}
         </Button>
       }
     >
@@ -175,16 +198,19 @@ export function UserAssignmentPage({ roleId }: UserAssignmentPageProps) {
               <IconShieldCheck size={21} />
             </div>
             <div>
-              <p className='text-xs font-medium text-muted-foreground'>Selected Role</p>
+              <p className='text-xs font-medium text-muted-foreground'>{m.role_access_selected_role()}</p>
               <h2 className='text-lg font-bold text-foreground'>{role?.name}</h2>
               <p className='text-xs text-muted-foreground'>
-                {role?.code} · {role?.scope} scope · {role?.status}
+                {m.role_access_selected_role_meta({
+                  code: role?.code ?? '',
+                  scope: getScopeLabel(role?.scope ?? ''),
+                  status: getRoleStatusLabel(role?.status ?? ''),
+                })}
               </p>
             </div>
           </div>
           <p className='max-w-xl text-sm text-muted-foreground'>
-            Users assigned to this role inherit its module permissions and data scope. Eligibility
-            ditentukan oleh department dan branch pada konfigurasi role.
+            {m.role_access_selected_role_description()}
           </p>
         </div>
       </section>
@@ -192,16 +218,16 @@ export function UserAssignmentPage({ roleId }: UserAssignmentPageProps) {
       <div className='grid grid-cols-1 gap-3 sm:grid-cols-2'>
         {[
           {
-            label: 'Assigned Users',
+            label: m.role_access_assigned_users(),
             value: assignedCount,
-            note: 'Active role members',
+            note: m.role_access_active_role_members(),
             icon: IconUserCheck,
             tone: 'text-emerald-600 bg-emerald-100 dark:bg-emerald-950/50',
           },
           {
-            label: 'Eligible Users',
+            label: m.role_access_eligible_users(),
             value: eligibleCount,
-            note: 'Available to assign',
+            note: m.role_access_available_to_assign(),
             icon: IconUsers,
             tone: 'text-blue-600 bg-blue-100 dark:bg-blue-950/50',
           },
@@ -232,9 +258,9 @@ export function UserAssignmentPage({ roleId }: UserAssignmentPageProps) {
         <div className='border-b border-border p-5 sm:p-6'>
           <div className='flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between'>
             <div>
-              <h2 className='text-base font-bold'>Role Members</h2>
+              <h2 className='text-base font-bold'>{m.role_access_role_members()}</h2>
               <p className='mt-1 text-sm text-muted-foreground'>
-                Current members and employees eligible for this role.
+                {m.role_access_role_members_description()}
               </p>
             </div>
             <Button
@@ -243,7 +269,7 @@ export function UserAssignmentPage({ roleId }: UserAssignmentPageProps) {
               disabled={assignedCount === 0 || removeAllUsersMutation.isPending}
               onClick={() => void handleBulkUnassign()}
             >
-              {removeAllUsersMutation.isPending ? 'Removing...' : 'Bulk Unassign'}
+              {removeAllUsersMutation.isPending ? m.role_access_removing() : m.role_access_bulk_unassign()}
             </Button>
           </div>
 
@@ -256,7 +282,7 @@ export function UserAssignmentPage({ roleId }: UserAssignmentPageProps) {
               <Input
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
-                placeholder='Search employee, NIP, or department...'
+                placeholder={m.role_access_search_employee()}
                 className='h-10 rounded-lg border-input bg-background pl-9'
               />
             </div>
@@ -265,12 +291,12 @@ export function UserAssignmentPage({ roleId }: UserAssignmentPageProps) {
               onValueChange={(value) => setStatusFilter(value as UserAssignmentStatus | 'All')}
             >
               <SelectTrigger className='h-10 w-full rounded-lg border-input bg-background sm:w-48'>
-                <SelectValue placeholder='Status: All' />
+                <SelectValue placeholder={m.role_access_status_all()} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value='All'>Status: All</SelectItem>
-                <SelectItem value='Assigned'>Status: Assigned</SelectItem>
-                <SelectItem value='Eligible'>Status: Eligible</SelectItem>
+                <SelectItem value='All'>{m.role_access_status_all()}</SelectItem>
+                <SelectItem value='Assigned'>{m.role_access_status_filter({ status: m.role_access_status_assigned() })}</SelectItem>
+                <SelectItem value='Eligible'>{m.role_access_status_filter({ status: m.role_access_status_eligible() })}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -280,11 +306,11 @@ export function UserAssignmentPage({ roleId }: UserAssignmentPageProps) {
           <Table className='min-w-190 text-left'>
             <TableHeader>
               <TableRow className='border-b border-border bg-muted/40 text-xs font-semibold tracking-wide text-muted-foreground uppercase'>
-                <TableHead className='px-5 py-3'>Employee</TableHead>
-                <TableHead className='px-4 py-3'>Department</TableHead>
-                <TableHead className='px-4 py-3'>Branch</TableHead>
-                <TableHead className='px-4 py-3'>Status</TableHead>
-                <TableHead className='px-5 py-3 text-center'>Action</TableHead>
+                <TableHead className='px-5 py-3'>{m.role_access_employee()}</TableHead>
+                <TableHead className='px-4 py-3'>{m.role_access_department()}</TableHead>
+                <TableHead className='px-4 py-3'>{m.role_access_branch()}</TableHead>
+                <TableHead className='px-4 py-3'>{m.role_access_status()}</TableHead>
+                <TableHead className='px-5 py-3 text-center'>{m.role_access_action()}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -310,7 +336,7 @@ export function UserAssignmentPage({ roleId }: UserAssignmentPageProps) {
                   <TableCell className='px-4 py-3.5 text-muted-foreground'>{user.branch}</TableCell>
                   <TableCell className='px-4 py-3.5'>
                     <Badge variant='secondary' className={getStatusClass(user.status)}>
-                      {user.status}
+                      {getStatusLabel(user.status)}
                     </Badge>
                   </TableCell>
                   <TableCell className='px-5 py-3.5 text-center'>
@@ -322,7 +348,7 @@ export function UserAssignmentPage({ roleId }: UserAssignmentPageProps) {
                         disabled={removeUserMutation.isPending}
                         onClick={() => void handleRemove(user.id, user.name)}
                       >
-                        Remove
+                        {m.role_access_remove()}
                       </Button>
                     ) : (
                       <Button
@@ -331,7 +357,7 @@ export function UserAssignmentPage({ roleId }: UserAssignmentPageProps) {
                         variant='outline'
                         onClick={() => setAssignmentDialog({ initialUserIds: [user.id] })}
                       >
-                        Assign
+                        {m.role_access_assign_users()}
                       </Button>
                     )}
                   </TableCell>
@@ -340,7 +366,7 @@ export function UserAssignmentPage({ roleId }: UserAssignmentPageProps) {
               {filteredUsers.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={5} className='px-5 py-14 text-center text-muted-foreground'>
-                    No users match the selected filters.
+                    {m.role_access_no_users()}
                   </TableCell>
                 </TableRow>
               )}
@@ -349,7 +375,7 @@ export function UserAssignmentPage({ roleId }: UserAssignmentPageProps) {
         </div>
 
         <div className='border-t border-blue-100 bg-blue-50 px-5 py-3 text-xs font-medium text-blue-700 dark:border-blue-950 dark:bg-blue-950/30 dark:text-blue-400'>
-          Role permission and assignment changes are recorded in Audit Trail.
+          {m.role_access_assignment_audit_note()}
         </div>
       </section>
 
