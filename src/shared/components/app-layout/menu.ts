@@ -143,9 +143,9 @@ export const mainMenu: Menu[] = [
         icon: IconBuilding,
       },
       {
-        key: 'user-role',
-        title: m.app_layout_nav_user_role,
-        to: '/settings/user-role',
+        key: 'role-access',
+        title: m.app_layout_nav_role_access,
+        to: '/settings/role-access',
         icon: IconUsers,
       },
       {

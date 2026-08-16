@@ -2,9 +2,12 @@ import { useNavigate } from '@tanstack/react-router'
 
 import { AppMain } from '@/shared/components/app-layout/app-main'
 import { snackbar } from '@/shared/lib/snackbar'
-import { RoleForm } from '@/features/settings/user-role/components/role-form'
-import { useCreateRole, useRoleEligibilityOptions } from '@/features/settings/user-role/data/hooks'
-import type { CreateRolePayload } from '@/features/settings/user-role/data/types'
+import { RoleForm } from '@/features/settings/role-access/components/role-form'
+import {
+  useCreateRole,
+  useRoleEligibilityOptions,
+} from '@/features/settings/role-access/data/hooks'
+import type { CreateRolePayload } from '@/features/settings/role-access/data/types'
 
 const createRoleDefaults: CreateRolePayload = {
   name: 'HR Supervisor',
@@ -30,7 +33,7 @@ export function CreateRolePage() {
     try {
       await createRoleMutation.mutateAsync(values)
       snackbar.success('Role created successfully!')
-      navigate({ to: '/settings/user-role' })
+      navigate({ to: '/settings/role-access' })
     } catch (error) {
       snackbar.exception(error, 'Failed to create role. Please try again.')
     }
@@ -39,7 +42,7 @@ export function CreateRolePage() {
   if (eligibilityQuery.isPending || eligibilityQuery.error || !eligibilityData) {
     return (
       <AppMain
-        backTo='/settings/user-role'
+        backTo='/settings/role-access'
         pending={eligibilityQuery.isPending}
         error={eligibilityQuery.error}
         retry={() => void eligibilityQuery.refetch()}

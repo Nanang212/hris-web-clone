@@ -1,5 +1,4 @@
 import {
-  IconChevronDown,
   IconSearch,
   IconShieldCheck,
   IconUserCheck,
@@ -9,22 +8,39 @@ import {
 import { useMemo, useState } from 'react'
 
 import { AppMain } from '@/shared/components/app-layout/app-main'
+import { Badge } from '@/shared/components/ui/badge'
 import { Button } from '@/shared/components/ui/button'
+import { Card, CardContent } from '@/shared/components/ui/card'
 import { Input } from '@/shared/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/shared/components/ui/select'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/shared/components/ui/table'
 import { snackbar } from '@/shared/lib/snackbar'
 import { cn } from '@/shared/lib/utils'
-import { AssignUsersDialog } from '@/features/settings/user-role/components/assign-users-dialog'
+import { AssignUsersDialog } from '@/features/settings/role-access/components/assign-users-dialog'
 import {
   useAssignRoleUsers,
   useRemoveAllRoleUsers,
   useRemoveRoleUser,
   useRole,
   useRoleAssignments,
-} from '@/features/settings/user-role/data/hooks'
+} from '@/features/settings/role-access/data/hooks'
 import type {
   RoleAssignmentUser,
   UserAssignmentStatus,
-} from '@/features/settings/user-role/data/types'
+} from '@/features/settings/role-access/data/types'
 
 type UserAssignmentPageProps = Readonly<{
   roleId: string
@@ -84,7 +100,7 @@ export function UserAssignmentPage({ roleId }: UserAssignmentPageProps) {
   if (pending || error || notFound) {
     return (
       <AppMain
-        backTo='/settings/user-role'
+        backTo='/settings/role-access'
         pending={pending}
         error={error}
         retry={() => {
@@ -120,7 +136,7 @@ export function UserAssignmentPage({ roleId }: UserAssignmentPageProps) {
   const handleRemove = async (userId: string, name: string) => {
     try {
       await removeUserMutation.mutateAsync({ id: roleId, userId })
-      snackbar.success(`${name} removed from ${role.name}.`)
+      snackbar.success(`${name} removed from ${role?.name}.`)
     } catch (mutationError) {
       snackbar.exception(mutationError, `Failed to remove ${name} from this role.`)
     }
@@ -129,18 +145,18 @@ export function UserAssignmentPage({ roleId }: UserAssignmentPageProps) {
   const handleBulkUnassign = async () => {
     try {
       await removeAllUsersMutation.mutateAsync(roleId)
-      snackbar.success(`All users removed from ${role.name}.`)
+      snackbar.success(`All users removed from ${role?.name}.`)
     } catch (mutationError) {
-      snackbar.exception(mutationError, `Failed to remove users from ${role.name}.`)
+      snackbar.exception(mutationError, `Failed to remove users from ${role?.name}.`)
     }
   }
 
   return (
     <AppMain
-      backTo='/settings/user-role'
+      backTo='/settings/role-access'
       breadcrumbs={[
         { to: '/', label: 'Pengaturan' },
-        { to: '/settings/user-role', label: 'User & Role' },
+        { to: '/settings/role-access', label: 'Role & Access' },
         { label: 'User Assignment' },
       ]}
       title='User Assignment'
@@ -160,9 +176,9 @@ export function UserAssignmentPage({ roleId }: UserAssignmentPageProps) {
             </div>
             <div>
               <p className='text-xs font-medium text-muted-foreground'>Selected Role</p>
-              <h2 className='text-lg font-bold text-foreground'>{role.name}</h2>
+              <h2 className='text-lg font-bold text-foreground'>{role?.name}</h2>
               <p className='text-xs text-muted-foreground'>
-                {role.code} · {role.scope} scope · {role.status}
+                {role?.code} · {role?.scope} scope · {role?.status}
               </p>
             </div>
           </div>
@@ -192,19 +208,22 @@ export function UserAssignmentPage({ roleId }: UserAssignmentPageProps) {
         ].map((stat) => {
           const Icon = stat.icon
           return (
-            <div
+            <Card
+              size='sm'
               key={stat.label}
-              className='flex items-center gap-3 rounded-2xl border border-border bg-card p-4 shadow-sm'
+              className='gap-0 rounded-2xl border border-border bg-card py-0 shadow-sm'
             >
-              <div className={cn('rounded-xl p-2.5', stat.tone)}>
-                <Icon size={18} />
-              </div>
-              <div>
-                <p className='text-xs font-medium text-muted-foreground'>{stat.label}</p>
-                <p className='text-2xl font-bold'>{stat.value}</p>
-                <p className='text-xs text-muted-foreground'>{stat.note}</p>
-              </div>
-            </div>
+              <CardContent className='flex items-center gap-3 p-4'>
+                <div className={cn('shrink-0 rounded-xl p-2.5', stat.tone)}>
+                  <Icon size={18} />
+                </div>
+                <div className='min-w-0 flex-1'>
+                  <p className='truncate text-xs font-medium text-muted-foreground'>{stat.label}</p>
+                  <p className='mt-1 text-2xl leading-none font-bold'>{stat.value}</p>
+                  <p className='mt-1.5 truncate text-xs text-muted-foreground'>{stat.note}</p>
+                </div>
+              </CardContent>
+            </Card>
           )
         })}
       </div>
@@ -241,44 +260,40 @@ export function UserAssignmentPage({ roleId }: UserAssignmentPageProps) {
                 className='h-10 rounded-lg border-input bg-background pl-9'
               />
             </div>
-            <div className='relative sm:w-48'>
-              <select
-                value={statusFilter}
-                onChange={(event) =>
-                  setStatusFilter(event.target.value as UserAssignmentStatus | 'All')
-                }
-                className='h-10 w-full appearance-none rounded-lg border border-input bg-background px-3 pr-9 text-sm outline-none focus:border-primary'
-              >
-                <option value='All'>Status: All</option>
-                <option value='Assigned'>Status: Assigned</option>
-                <option value='Eligible'>Status: Eligible</option>
-              </select>
-              <IconChevronDown
-                size={16}
-                className='pointer-events-none absolute top-3 right-3 text-muted-foreground'
-              />
-            </div>
+            <Select
+              value={statusFilter}
+              onValueChange={(value) => setStatusFilter(value as UserAssignmentStatus | 'All')}
+            >
+              <SelectTrigger className='h-10 w-full rounded-lg border-input bg-background sm:w-48'>
+                <SelectValue placeholder='Status: All' />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value='All'>Status: All</SelectItem>
+                <SelectItem value='Assigned'>Status: Assigned</SelectItem>
+                <SelectItem value='Eligible'>Status: Eligible</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
-        <div className='overflow-x-auto'>
-          <table className='w-full min-w-190 text-left text-sm'>
-            <thead>
-              <tr className='border-b border-border bg-muted/40 text-xs font-semibold tracking-wide text-muted-foreground uppercase'>
-                <th className='px-5 py-3'>Employee</th>
-                <th className='px-4 py-3'>Department</th>
-                <th className='px-4 py-3'>Branch</th>
-                <th className='px-4 py-3'>Status</th>
-                <th className='px-5 py-3 text-center'>Action</th>
-              </tr>
-            </thead>
-            <tbody>
+        <div>
+          <Table className='min-w-190 text-left'>
+            <TableHeader>
+              <TableRow className='border-b border-border bg-muted/40 text-xs font-semibold tracking-wide text-muted-foreground uppercase'>
+                <TableHead className='px-5 py-3'>Employee</TableHead>
+                <TableHead className='px-4 py-3'>Department</TableHead>
+                <TableHead className='px-4 py-3'>Branch</TableHead>
+                <TableHead className='px-4 py-3'>Status</TableHead>
+                <TableHead className='px-5 py-3 text-center'>Action</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {filteredUsers.map((user) => (
-                <tr
+                <TableRow
                   key={user.id}
                   className='border-b border-border/70 transition-colors last:border-b-0 hover:bg-muted/30'
                 >
-                  <td className='px-5 py-3.5'>
+                  <TableCell className='px-5 py-3.5'>
                     <div className='flex items-center gap-3'>
                       <div className='flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary'>
                         {getInitials(user.name)}
@@ -290,20 +305,15 @@ export function UserAssignmentPage({ roleId }: UserAssignmentPageProps) {
                         </p>
                       </div>
                     </div>
-                  </td>
-                  <td className='px-4 py-3.5'>{user.department}</td>
-                  <td className='px-4 py-3.5 text-muted-foreground'>{user.branch}</td>
-                  <td className='px-4 py-3.5'>
-                    <span
-                      className={cn(
-                        'inline-flex rounded-full px-2.5 py-1 text-xs font-medium',
-                        getStatusClass(user.status),
-                      )}
-                    >
+                  </TableCell>
+                  <TableCell className='px-4 py-3.5'>{user.department}</TableCell>
+                  <TableCell className='px-4 py-3.5 text-muted-foreground'>{user.branch}</TableCell>
+                  <TableCell className='px-4 py-3.5'>
+                    <Badge variant='secondary' className={getStatusClass(user.status)}>
                       {user.status}
-                    </span>
-                  </td>
-                  <td className='px-5 py-3.5 text-center'>
+                    </Badge>
+                  </TableCell>
+                  <TableCell className='px-5 py-3.5 text-center'>
                     {user.status === 'Assigned' ? (
                       <Button
                         type='button'
@@ -324,18 +334,18 @@ export function UserAssignmentPage({ roleId }: UserAssignmentPageProps) {
                         Assign
                       </Button>
                     )}
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               ))}
               {filteredUsers.length === 0 && (
-                <tr>
-                  <td colSpan={5} className='px-5 py-14 text-center text-muted-foreground'>
+                <TableRow>
+                  <TableCell colSpan={5} className='px-5 py-14 text-center text-muted-foreground'>
                     No users match the selected filters.
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               )}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
 
         <div className='border-t border-blue-100 bg-blue-50 px-5 py-3 text-xs font-medium text-blue-700 dark:border-blue-950 dark:bg-blue-950/30 dark:text-blue-400'>
@@ -345,7 +355,7 @@ export function UserAssignmentPage({ roleId }: UserAssignmentPageProps) {
 
       {assignmentDialog && (
         <AssignUsersDialog
-          roleName={role.name}
+          roleName={role?.name ?? ''}
           users={eligibleUsers}
           initialUserIds={assignmentDialog.initialUserIds}
           isPending={assignUsersMutation.isPending}

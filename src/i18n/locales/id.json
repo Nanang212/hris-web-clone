@@ -37,7 +37,7 @@
   "app_layout_main_error": "Terjadi kesalahan",
   "app_layout_main_error_description": "Gagal memuat data.",
   "app_layout_main_error_retry": "Coba lagi",
-  "app_layout_nav_user_role": "User & Role",
+  "app_layout_nav_role_access": "Role & Access",
   "app_layout_nav_master_data": "Data Master",
   "app_layout_nav_notification": "Notifikasi",
   "app_layout_nav_security": "Keamanan",

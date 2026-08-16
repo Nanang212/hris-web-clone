@@ -1,8 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router'
 
-import { UserAssignmentPage } from '@/features/settings/user-role/pages/user-assignment-page'
+import { UserAssignmentPage } from '@/features/settings/role-access/pages/user-assignment-page'
 
-export const Route = createFileRoute('/(app)/settings/user-role/$roleId/assign-users')({
+export const Route = createFileRoute('/(app)/settings/role-access/$roleId/assign-users')({
   component: RouteComponent,
 })
 

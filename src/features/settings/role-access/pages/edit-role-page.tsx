@@ -2,17 +2,17 @@ import { useNavigate } from '@tanstack/react-router'
 
 import { AppMain } from '@/shared/components/app-layout/app-main'
 import { snackbar } from '@/shared/lib/snackbar'
-import { RoleForm } from '@/features/settings/user-role/components/role-form'
+import { RoleForm } from '@/features/settings/role-access/components/role-form'
 import {
   useRole,
   useRoleEligibilityOptions,
   useUpdateRole,
-} from '@/features/settings/user-role/data/hooks'
+} from '@/features/settings/role-access/data/hooks'
 import type {
   CreateRolePayload,
   Role,
   RoleEligibilityOptions,
-} from '@/features/settings/user-role/data/types'
+} from '@/features/settings/role-access/data/types'
 
 type EditRolePageProps = Readonly<{
   roleId: string
@@ -42,7 +42,7 @@ function EditRoleForm({
     try {
       await updateRoleMutation.mutateAsync({ id: role.id, payload: values })
       snackbar.success('Role updated successfully!')
-      navigate({ to: '/settings/user-role' })
+      navigate({ to: '/settings/role-access' })
     } catch (error) {
       snackbar.exception(error, 'Failed to update role. Please try again.')
     }
@@ -69,7 +69,7 @@ export function EditRolePage({ roleId }: EditRolePageProps) {
   if (pending || error || notFound) {
     return (
       <AppMain
-        backTo='/settings/user-role'
+        backTo='/settings/role-access'
         pending={pending}
         error={error}
         retry={() => {

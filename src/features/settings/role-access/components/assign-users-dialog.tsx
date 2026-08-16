@@ -14,9 +14,17 @@ import {
   DialogTitle,
 } from '@/shared/components/ui/dialog'
 import { Input } from '@/shared/components/ui/input'
+import { Label } from '@/shared/components/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/shared/components/ui/select'
 import { useSchema } from '@/shared/lib/schema'
 import { cn } from '@/shared/lib/utils'
-import type { RoleAssignmentUser } from '@/features/settings/user-role/data/types'
+import type { RoleAssignmentUser } from '@/features/settings/role-access/data/types'
 
 type AssignUsersDialogProps = Readonly<{
   roleName: string
@@ -26,6 +34,10 @@ type AssignUsersDialogProps = Readonly<{
   onClose: () => void
   onAssign: (userIds: string[], effectiveDate: string, notifyUsers: boolean) => Promise<void>
 }>
+
+function getUserLabel(size: number) {
+  return size === 1 ? 'user' : 'users'
+}
 
 export function AssignUsersDialog({
   roleName,
@@ -137,40 +149,47 @@ export function AssignUsersDialog({
           </div>
 
           <div className='grid gap-2 sm:grid-cols-2'>
-            <select
-              value={department}
-              onChange={(event) => setDepartment(event.target.value)}
-              className='h-9 rounded-lg border border-input bg-background px-3 text-xs outline-none focus:border-primary'
-              aria-label='Filter department'
-            >
-              {departments.map((value) => (
-                <option key={value} value={value}>
-                  Department: {value}
-                </option>
-              ))}
-            </select>
-            <select
-              value={branch}
-              onChange={(event) => setBranch(event.target.value)}
-              className='h-9 rounded-lg border border-input bg-background px-3 text-xs outline-none focus:border-primary'
-              aria-label='Filter branch'
-            >
-              {branches.map((value) => (
-                <option key={value} value={value}>
-                  Branch: {value}
-                </option>
-              ))}
-            </select>
+            <Select value={department} onValueChange={setDepartment}>
+              <SelectTrigger
+                aria-label='Filter department'
+                className='h-9 w-full rounded-lg border-input bg-background text-xs'
+              >
+                <SelectValue placeholder='Department: All' />
+              </SelectTrigger>
+              <SelectContent>
+                {departments.map((value) => (
+                  <SelectItem key={value} value={value}>
+                    Department: {value}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={branch} onValueChange={setBranch}>
+              <SelectTrigger
+                aria-label='Filter branch'
+                className='h-9 w-full rounded-lg border-input bg-background text-xs'
+              >
+                <SelectValue placeholder='Branch: All' />
+              </SelectTrigger>
+              <SelectContent>
+                {branches.map((value) => (
+                  <SelectItem key={value} value={value}>
+                    Branch: {value}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className='flex items-center justify-between border-y border-border py-2.5'>
-            <label className='flex cursor-pointer items-center gap-2 text-sm font-medium'>
+            <Label htmlFor='assign-select-all' className='cursor-pointer'>
               <Checkbox
+                id='assign-select-all'
                 checked={allFilteredSelected}
                 onCheckedChange={(checked) => toggleAll(checked === true)}
               />
               Select all eligible users
-            </label>
+            </Label>
             <span className='text-xs font-medium text-primary'>
               {filteredUsers.length} eligible
             </span>
@@ -178,7 +197,8 @@ export function AssignUsersDialog({
 
           <div className='max-h-72 space-y-2 overflow-y-auto pr-1'>
             {filteredUsers.map((user) => (
-              <label
+              <Label
+                htmlFor={`assign-user-${user.id}`}
                 key={user.id}
                 className={cn(
                   'flex cursor-pointer items-center gap-3 rounded-xl border border-border p-3 transition-colors hover:bg-muted/40',
@@ -186,6 +206,7 @@ export function AssignUsersDialog({
                 )}
               >
                 <Checkbox
+                  id={`assign-user-${user.id}`}
                   checked={selectedIds.has(user.id)}
                   onCheckedChange={() => toggleUser(user.id)}
                 />
@@ -198,7 +219,7 @@ export function AssignUsersDialog({
                 <span className='hidden rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground sm:inline-flex'>
                   {user.position}
                 </span>
-              </label>
+              </Label>
             ))}
             {filteredUsers.length === 0 && (
               <p className='py-8 text-center text-sm text-muted-foreground'>
@@ -215,9 +236,12 @@ export function AssignUsersDialog({
           )}
 
           <div className='grid items-end gap-3 sm:grid-cols-[1fr_1.4fr]'>
-            <label className='block'>
-              <span className='mb-2 block text-xs font-medium'>Effective date</span>
+            <div>
+              <Label htmlFor='assign-effective-date' className='mb-2 text-xs'>
+                Effective date
+              </Label>
               <Input
+                id='assign-effective-date'
                 type='date'
                 aria-invalid={!!errors.effectiveDate}
                 {...register('effectiveDate')}
@@ -228,16 +252,20 @@ export function AssignUsersDialog({
                   {errors.effectiveDate.message}
                 </span>
               )}
-            </label>
-            <label className='flex h-10 cursor-pointer items-center gap-2 rounded-lg border border-border px-3 text-xs font-medium'>
+            </div>
+            <Label
+              htmlFor='assign-notify-users'
+              className='flex h-10 cursor-pointer rounded-lg border border-border px-3 text-xs'
+            >
               <Checkbox
+                id='assign-notify-users'
                 checked={notifyUsers}
                 onCheckedChange={(checked) =>
                   setValue('notifyUsers', checked === true, { shouldDirty: true })
                 }
               />
               Notify users about this role change
-            </label>
+            </Label>
           </div>
 
           <p className='rounded-lg bg-blue-50 px-3 py-2.5 text-xs font-medium text-blue-700 dark:bg-blue-950/30 dark:text-blue-400'>
@@ -250,7 +278,7 @@ export function AssignUsersDialog({
             <Button type='submit' disabled={isPending || isSubmitting}>
               {isPending
                 ? 'Assigning...'
-                : `Assign ${selectedIds.size} ${selectedIds.size === 1 ? 'User' : 'Users'}`}
+                : `Assign ${selectedIds.size} ${getUserLabel(selectedIds.size)}`}
             </Button>
           </DialogFooter>
         </form>

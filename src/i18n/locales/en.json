@@ -37,7 +37,7 @@
   "app_layout_main_error": "Error occurred",
   "app_layout_main_error_description": "Failed to execute query",
   "app_layout_main_error_retry": "Try again!",
-  "app_layout_nav_user_role": "User & Role",
+  "app_layout_nav_role_access": "Role & Access",
   "app_layout_nav_master_data": "Master Data",
   "app_layout_nav_notification": "Notification",
   "app_layout_nav_security": "Security",

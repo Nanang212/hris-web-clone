@@ -10,10 +10,17 @@ import type {
   RoleEligibilityOptions,
   RoleFilterParams,
   RolePermissionMatrix,
+  RolePermissionModule,
   RoleStats,
   UpdateRolePayload,
   UpdateRolePermissionsPayload,
-} from '@/features/settings/user-role/data/types'
+} from '@/features/settings/role-access/data/types'
+
+type RolePermissionMatrixApiResponse = Omit<RolePermissionMatrix, 'modules'> & {
+  modules: Array<
+    Omit<RolePermissionModule, 'scope'> & { scope: RolePermissionModule['scope'] | 'Restricted' }
+  >
+}
 
 /**
  * Helper function untuk menangani error HTTP/Axios secara konsisten
@@ -25,6 +32,19 @@ function handleApiError(err: unknown): never {
     throw new Error(errorMessage)
   }
   throw err instanceof Error ? err : new Error('An unexpected error occurred')
+}
+
+function normalizeRolePermissionMatrix(
+  matrix: RolePermissionMatrixApiResponse,
+): RolePermissionMatrix {
+  return {
+    ...matrix,
+    modules: matrix.modules.map((module) => ({
+      ...module,
+      name: module.id === 'user-role' ? 'Role & Access' : module.name,
+      scope: module.scope === 'Restricted' ? 'Administrator' : module.scope,
+    })),
+  }
 }
 
 /**
@@ -421,6 +441,8 @@ export async function removeAllRoleUsers(id: string): Promise<void> {
 /**
  * Endpoint: `/api/v1/user-roles/:id/permissions`
  * Method: `GET`
+ * Nilai `defaultDataScope` dan `modules[].scope`: `Company`, `Administrator`, atau `Self`.
+ * Response legacy dengan scope `Restricted` dinormalisasi menjadi `Administrator`.
  *
  * Ekspektasi Response JSON:
  * ```json
@@ -456,10 +478,10 @@ export async function removeAllRoleUsers(id: string): Promise<void> {
  */
 export async function getRolePermissions(id: string): Promise<RolePermissionMatrix> {
   try {
-    const res = await apiClient.get<Envelope<RolePermissionMatrix>>(
+    const res = await apiClient.get<Envelope<RolePermissionMatrixApiResponse>>(
       `/api/v1/user-roles/${id}/permissions`,
     )
-    return res.data.data
+    return normalizeRolePermissionMatrix(res.data.data)
   } catch (err) {
     handleApiError(err)
   }
@@ -469,6 +491,7 @@ export async function getRolePermissions(id: string): Promise<RolePermissionMatr
  * Endpoint: `/api/v1/user-roles/:id/permissions`
  * Method: `PUT`
  * Body Payload: `UpdateRolePermissionsPayload`
+ * Nilai `defaultDataScope` dan `modules[].scope`: `Company`, `Administrator`, atau `Self`.
  *
  * Contoh Request JSON:
  * ```json
@@ -531,11 +554,11 @@ export async function updateRolePermissions(
   payload: UpdateRolePermissionsPayload,
 ): Promise<RolePermissionMatrix> {
   try {
-    const res = await apiClient.put<Envelope<RolePermissionMatrix>>(
+    const res = await apiClient.put<Envelope<RolePermissionMatrixApiResponse>>(
       `/api/v1/user-roles/${id}/permissions`,
       payload,
     )
-    return res.data.data
+    return normalizeRolePermissionMatrix(res.data.data)
   } catch (err) {
     handleApiError(err)
   }

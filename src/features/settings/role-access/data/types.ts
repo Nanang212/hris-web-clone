@@ -78,8 +78,7 @@ export type RoleEligibilityOptions = {
 export type PermissionAction =
   'view' | 'create' | 'edit' | 'delete' | 'approve' | 'export' | 'configure'
 
-export type PermissionDataScope = 'Self' | 'Department' | 'Branch' | 'Company'
-export type PermissionModuleScope = 'Company' | 'Restricted'
+export type PermissionDataScope = 'Company' | 'Administrator' | 'Self'
 
 export type PermissionFlags = Record<PermissionAction, boolean>
 
@@ -87,7 +86,7 @@ export type RolePermissionModule = {
   id: string
   name: string
   category: string
-  scope: PermissionModuleScope
+  scope: PermissionDataScope
   permissions: PermissionFlags
 }
 

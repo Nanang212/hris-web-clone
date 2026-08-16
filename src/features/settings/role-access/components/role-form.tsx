@@ -16,13 +16,22 @@ import {
 } from '@/shared/components/ui/dropdown-menu'
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/shared/components/ui/field'
 import { Input } from '@/shared/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/shared/components/ui/select'
+import { Switch } from '@/shared/components/ui/switch'
+import { Textarea } from '@/shared/components/ui/textarea'
 import { useSchema } from '@/shared/lib/schema'
 import { cn } from '@/shared/lib/utils'
 import type {
   CreateRolePayload,
   RoleEligibilityOption,
   RoleEligibilityOptions,
-} from '@/features/settings/user-role/data/types'
+} from '@/features/settings/role-access/data/types'
 
 type RoleFormProps = Readonly<{
   mode: 'create' | 'edit'
@@ -31,39 +40,6 @@ type RoleFormProps = Readonly<{
   isPending: boolean
   onSubmit: (values: CreateRolePayload) => Promise<void>
 }>
-
-type ToggleProps = Readonly<{
-  checked: boolean
-  label: string
-  onChange: () => void
-}>
-
-function Toggle({ checked, label, onChange }: ToggleProps) {
-  return (
-    <label className='inline-flex cursor-pointer items-center'>
-      <input
-        type='checkbox'
-        checked={checked}
-        onChange={onChange}
-        aria-label={label}
-        className='peer sr-only'
-      />
-      <span
-        className={cn(
-          'relative h-6 w-10 rounded-full transition-colors peer-focus-visible:ring-2 peer-focus-visible:ring-primary peer-focus-visible:ring-offset-2',
-          checked ? 'bg-primary' : 'bg-muted-foreground/30',
-        )}
-      >
-        <span
-          className={cn(
-            'absolute top-1 left-1 h-4 w-4 rounded-full bg-white shadow-sm transition-transform',
-            checked ? 'translate-x-4' : '',
-          )}
-        />
-      </span>
-    </label>
-  )
-}
 
 type EligibilityDropdownProps = Readonly<{
   options: RoleEligibilityOption[]
@@ -89,15 +65,30 @@ function EligibilityDropdown({
   const filteredOptions = options.filter(
     (option) => !normalizedSearch || option.name.toLowerCase().includes(normalizedSearch),
   )
-  const triggerLabel =
-    selectedOptions.length === 0
-      ? placeholder
-      : selectedOptions.length === 1
-        ? selectedOptions[0].name
-        : `${selectedOptions.length} ${countLabel} selected`
+  const getTriggerLabel = () => {
+    if (selectedOptions.length === 0) {
+      return placeholder
+    }
+    if (selectedOptions.length === 1) {
+      return selectedOptions[0].name
+    }
+    return `${selectedOptions.length} ${countLabel} selected`
+  }
+  const triggerLabel = getTriggerLabel()
 
   return (
-    <DropdownMenu onOpenChange={(open) => !open && setSearch('')}>
+    <DropdownMenu
+      onOpenChange={(open) => {
+        if (!open) {
+          setSearch('')
+          return
+        }
+
+        requestAnimationFrame(() => {
+          searchInputRef.current?.focus()
+        })
+      }}
+    >
       <DropdownMenuTrigger asChild>
         <Button
           type='button'
@@ -111,15 +102,8 @@ function EligibilityDropdown({
           <IconChevronDown size={16} className='shrink-0 text-muted-foreground' />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent
-        align='start'
-        className='max-h-64 rounded-xl bg-popover'
-        onOpenAutoFocus={(event) => {
-          event.preventDefault()
-          searchInputRef.current?.focus()
-        }}
-      >
-        <div className='p-1.5' onKeyDown={(event) => event.stopPropagation()}>
+      <DropdownMenuContent align='start' className='max-h-64 rounded-xl bg-popover'>
+        <section className='p-1.5' aria-label={`Search ${countLabel}`}>
           <div className='relative'>
             <IconSearch
               size={15}
@@ -134,7 +118,7 @@ function EligibilityDropdown({
               className='h-9 rounded-lg pl-9'
             />
           </div>
-        </div>
+        </section>
         <DropdownMenuSeparator />
         {filteredOptions.length === 0 ? (
           <DropdownMenuLabel>No matching options</DropdownMenuLabel>
@@ -218,10 +202,10 @@ export function RoleForm({
 
   return (
     <AppMain
-      backTo='/settings/user-role'
+      backTo='/settings/role-access'
       breadcrumbs={[
         { to: '/', label: 'Pengaturan' },
-        { to: '/settings/user-role', label: 'User & Role' },
+        { to: '/settings/role-access', label: 'Role & Access' },
         { label: title },
       ]}
       title={title}
@@ -233,7 +217,7 @@ export function RoleForm({
       actions={
         <>
           <Button asChild variant='outline'>
-            <Link to='/settings/user-role'>Cancel</Link>
+            <Link to='/settings/role-access'>Cancel</Link>
           </Button>
           <Button
             type='button'
@@ -288,22 +272,26 @@ export function RoleForm({
 
             <Field className='mt-5 gap-2' data-invalid={!!errors.status}>
               <FieldLabel htmlFor={`${formId}-status`}>Status</FieldLabel>
-              <div className='relative'>
-                <select
-                  id={`${formId}-status`}
-                  aria-invalid={!!errors.status}
-                  className='flex h-10 w-full appearance-none items-center justify-between rounded-lg border border-input bg-background px-3 pr-8 text-sm outline-none focus:border-primary'
-                  {...register('status')}
-                >
-                  <option value='Active'>Active</option>
-                  <option value='Inactive'>Inactive</option>
-                  <option value='Draft'>Draft</option>
-                </select>
-                <IconChevronDown
-                  size={16}
-                  className='pointer-events-none absolute top-3 right-3 text-muted-foreground'
-                />
-              </div>
+              <Controller
+                name='status'
+                control={control}
+                render={({ field }) => (
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger
+                      id={`${formId}-status`}
+                      aria-invalid={!!errors.status}
+                      className='h-10 w-full rounded-lg border-input bg-background'
+                    >
+                      <SelectValue placeholder='Select status' />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value='Active'>Active</SelectItem>
+                      <SelectItem value='Inactive'>Inactive</SelectItem>
+                      <SelectItem value='Draft'>Draft</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
               <FieldDescription>
                 Draft = belum digunakan · Active = bisa di-assign · Inactive = tidak dapat
                 digunakan.
@@ -313,7 +301,7 @@ export function RoleForm({
 
             <Field className='mt-5 gap-2' data-invalid={!!errors.description}>
               <FieldLabel htmlFor={`${formId}-description`}>Description</FieldLabel>
-              <textarea
+              <Textarea
                 id={`${formId}-description`}
                 aria-invalid={!!errors.description}
                 className='min-h-28 w-full resize-none rounded-lg border border-input bg-background p-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 aria-invalid:border-destructive'
@@ -393,10 +381,10 @@ export function RoleForm({
                         Users may keep existing roles when this role is assigned.
                       </p>
                     </div>
-                    <Toggle
-                      label='Allow multiple roles'
+                    <Switch
+                      aria-label='Allow multiple roles'
                       checked={field.value}
-                      onChange={() => field.onChange(!field.value)}
+                      onCheckedChange={field.onChange}
                     />
                   </div>
                 )}
@@ -405,23 +393,27 @@ export function RoleForm({
 
             <Field className='mt-5 gap-2' data-invalid={!!errors.accessExpiry}>
               <FieldLabel htmlFor={`${formId}-access-expiry`}>Access Expiry</FieldLabel>
-              <div className='relative'>
-                <select
-                  id={`${formId}-access-expiry`}
-                  aria-invalid={!!errors.accessExpiry}
-                  className='flex h-10 w-full appearance-none items-center justify-between rounded-lg border border-input bg-background px-3 pr-8 text-sm outline-none focus:border-primary'
-                  {...register('accessExpiry')}
-                >
-                  <option value='No expiry'>No expiry</option>
-                  <option value='30 days'>30 days</option>
-                  <option value='90 days'>90 days</option>
-                  <option value='180 days'>180 days</option>
-                </select>
-                <IconChevronDown
-                  size={16}
-                  className='pointer-events-none absolute top-3 right-3 text-muted-foreground'
-                />
-              </div>
+              <Controller
+                name='accessExpiry'
+                control={control}
+                render={({ field }) => (
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger
+                      id={`${formId}-access-expiry`}
+                      aria-invalid={!!errors.accessExpiry}
+                      className='h-10 w-full rounded-lg border-input bg-background'
+                    >
+                      <SelectValue placeholder='Select access expiry' />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value='No expiry'>No expiry</SelectItem>
+                      <SelectItem value='30 days'>30 days</SelectItem>
+                      <SelectItem value='90 days'>90 days</SelectItem>
+                      <SelectItem value='180 days'>180 days</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
               <FieldDescription>
                 Access Expiry: No expiry · 30 hari · 90 hari · Custom date.
               </FieldDescription>
