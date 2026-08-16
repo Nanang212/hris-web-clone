@@ -1,17 +1,12 @@
 import {
-  IconBell,
-  IconBuilding,
   IconCalendarCheck,
   IconCalendarWeek,
   IconChecklist,
   IconCircleCheck,
-  IconDatabase,
-  IconGitBranch,
   IconLayoutDashboard,
   IconReportAnalytics,
   IconReportMoney,
   IconSettings,
-  IconShield,
   IconUserCircle,
   IconUsers,
   type IconProps,
@@ -93,6 +88,38 @@ export const mainMenu: Menu[] = [
     to: '/attendance',
     icon: IconCalendarCheck,
     title: m.app_layout_nav_attendance,
+    items: [
+      {
+        key: 'attendance-overview',
+        to: '/attendance',
+        title: m.app_layout_nav_attendance_overview,
+      },
+      {
+        key: 'attendance-settings',
+        to: '/attendance/settings',
+        title: m.app_layout_nav_attendance_settings,
+      },
+      {
+        key: 'shift-management',
+        to: '/attendance/management/shifts',
+        title: m.app_layout_nav_shift_management,
+      },
+      {
+        key: 'working-calendar',
+        to: '/attendance/calendar',
+        title: m.app_layout_nav_working_calendar,
+      },
+      {
+        key: 'face-recognition',
+        to: '/attendance/face-recognition',
+        title: m.app_layout_nav_face_recognition,
+      },
+      {
+        key: 'gps-security',
+        to: '/attendance/gps-security',
+        title: m.app_layout_nav_gps_security,
+      },
+    ],
   },
   {
     key: 'leave',
@@ -134,13 +161,11 @@ export const mainMenu: Menu[] = [
         key: 'approval-workflow',
         title: m.app_layout_nav_approval_workflow,
         to: '/settings/approval-workflow',
-        icon: IconGitBranch,
       },
       {
         key: 'company',
         title: m.app_layout_nav_company,
         to: '/settings/company',
-        icon: IconBuilding,
       },
       {
         key: 'role-access',
@@ -152,25 +177,19 @@ export const mainMenu: Menu[] = [
         key: 'master-data',
         title: m.app_layout_nav_master_data,
         to: '/settings/master-data',
-        icon: IconDatabase,
       },
       {
         key: 'notification',
         title: m.app_layout_nav_notification,
         to: '/settings/notification',
-        icon: IconBell,
       },
       {
         key: 'security',
         title: m.app_layout_nav_security,
         to: '/settings/security',
-        icon: IconShield,
       },
     ],
   },
 ] as const
 
-export const menu = {
-  ...dashboardMenu,
-  ...mainMenu,
-}
+export const menu = [...dashboardMenu, ...mainMenu] as const
