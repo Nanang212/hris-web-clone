@@ -24,6 +24,8 @@ import { Route as appAttendanceGpsSecurityRouteImport } from './../../routes/(ap
 import { Route as appAttendanceHistoryRouteImport } from './../../routes/(app)/attendance/history'
 import { Route as appAttendanceSettingsRouteImport } from './../../routes/(app)/attendance/settings'
 import { Route as appLeaveIndexRouteImport } from './../../routes/(app)/leave/index'
+import { Route as appLeaveBalanceRouteImport } from './../../routes/(app)/leave/balance'
+import { Route as appLeaveHistoryRouteImport } from './../../routes/(app)/leave/history'
 import { Route as appPayrollIndexRouteImport } from './../../routes/(app)/payroll/index'
 import { Route as appPerformanceIndexRouteImport } from './../../routes/(app)/performance/index'
 import { Route as appReportIndexRouteImport } from './../../routes/(app)/report/index'
@@ -50,6 +52,11 @@ import { Route as appCompanyOrganizationIndexRouteImport } from './../../routes/
 import { Route as appCompanyOrganizationIdRouteImport } from './../../routes/(app)/company/organization/$id'
 import { Route as appCompanyOrganizationNewRouteImport } from './../../routes/(app)/company/organization/new'
 import { Route as appCompanyOrganizationUpdateRouteImport } from './../../routes/(app)/company/organization/update'
+import { Route as appLeaveApprovalIndexRouteImport } from './../../routes/(app)/leave/approval/index'
+import { Route as appLeaveApprovalRequestIdRouteImport } from './../../routes/(app)/leave/approval/$requestId'
+import { Route as appLeaveRequestsIndexRouteImport } from './../../routes/(app)/leave/requests/index'
+import { Route as appLeaveRequestsRequestIdRouteImport } from './../../routes/(app)/leave/requests/$requestId'
+import { Route as appLeaveRequestsNewRouteImport } from './../../routes/(app)/leave/requests/new'
 import { Route as appSettingsApprovalWorkflowIndexRouteImport } from './../../routes/(app)/settings/approval-workflow/index'
 import { Route as appSettingsApprovalWorkflowMatrixRouteImport } from './../../routes/(app)/settings/approval-workflow/matrix'
 import { Route as appSettingsApprovalWorkflowNewRouteImport } from './../../routes/(app)/settings/approval-workflow/new'
@@ -156,6 +163,16 @@ const appAttendanceSettingsRoute = appAttendanceSettingsRouteImport.update({
 const appLeaveIndexRoute = appLeaveIndexRouteImport.update({
   id: '/leave/',
   path: '/leave/',
+  getParentRoute: () => appRouteRoute,
+} as any)
+const appLeaveBalanceRoute = appLeaveBalanceRouteImport.update({
+  id: '/leave/balance',
+  path: '/leave/balance',
+  getParentRoute: () => appRouteRoute,
+} as any)
+const appLeaveHistoryRoute = appLeaveHistoryRouteImport.update({
+  id: '/leave/history',
+  path: '/leave/history',
   getParentRoute: () => appRouteRoute,
 } as any)
 const appPayrollIndexRoute = appPayrollIndexRouteImport.update({
@@ -306,6 +323,33 @@ const appCompanyOrganizationUpdateRoute =
     path: '/company/organization/update',
     getParentRoute: () => appRouteRoute,
   } as any)
+const appLeaveApprovalIndexRoute = appLeaveApprovalIndexRouteImport.update({
+  id: '/leave/approval/',
+  path: '/leave/approval/',
+  getParentRoute: () => appRouteRoute,
+} as any)
+const appLeaveApprovalRequestIdRoute =
+  appLeaveApprovalRequestIdRouteImport.update({
+    id: '/leave/approval/$requestId',
+    path: '/leave/approval/$requestId',
+    getParentRoute: () => appRouteRoute,
+  } as any)
+const appLeaveRequestsIndexRoute = appLeaveRequestsIndexRouteImport.update({
+  id: '/leave/requests/',
+  path: '/leave/requests/',
+  getParentRoute: () => appRouteRoute,
+} as any)
+const appLeaveRequestsRequestIdRoute =
+  appLeaveRequestsRequestIdRouteImport.update({
+    id: '/leave/requests/$requestId',
+    path: '/leave/requests/$requestId',
+    getParentRoute: () => appRouteRoute,
+  } as any)
+const appLeaveRequestsNewRoute = appLeaveRequestsNewRouteImport.update({
+  id: '/leave/requests/new',
+  path: '/leave/requests/new',
+  getParentRoute: () => appRouteRoute,
+} as any)
 const appSettingsApprovalWorkflowIndexRoute =
   appSettingsApprovalWorkflowIndexRouteImport.update({
     id: '/settings/approval-workflow/',
@@ -503,6 +547,8 @@ export interface FileRoutesByFullPath {
   '/attendance/gps-security': typeof appAttendanceGpsSecurityRoute
   '/attendance/history': typeof appAttendanceHistoryRoute
   '/attendance/settings': typeof appAttendanceSettingsRoute
+  '/leave/balance': typeof appLeaveBalanceRoute
+  '/leave/history': typeof appLeaveHistoryRoute
   '/': typeof appdashboardIndexRoute
   '/approval/': typeof appApprovalIndexRoute
   '/attendance/': typeof appAttendanceIndexRoute
@@ -526,6 +572,9 @@ export interface FileRoutesByFullPath {
   '/company/organization/$id': typeof appCompanyOrganizationIdRoute
   '/company/organization/new': typeof appCompanyOrganizationNewRoute
   '/company/organization/update': typeof appCompanyOrganizationUpdateRoute
+  '/leave/approval/$requestId': typeof appLeaveApprovalRequestIdRoute
+  '/leave/requests/$requestId': typeof appLeaveRequestsRequestIdRoute
+  '/leave/requests/new': typeof appLeaveRequestsNewRoute
   '/settings/approval-workflow/matrix': typeof appSettingsApprovalWorkflowMatrixRoute
   '/settings/approval-workflow/new': typeof appSettingsApprovalWorkflowNewRoute
   '/settings/master-data/departments': typeof appSettingsMasterDataDepartmentsRoute
@@ -546,6 +595,8 @@ export interface FileRoutesByFullPath {
   '/company/document/': typeof appCompanyDocumentIndexRoute
   '/company/employee/': typeof appCompanyEmployeeIndexRoute
   '/company/organization/': typeof appCompanyOrganizationIndexRoute
+  '/leave/approval/': typeof appLeaveApprovalIndexRoute
+  '/leave/requests/': typeof appLeaveRequestsIndexRoute
   '/settings/approval-workflow/': typeof appSettingsApprovalWorkflowIndexRoute
   '/settings/company/': typeof appSettingsCompanyIndexRoute
   '/settings/master-data/': typeof appSettingsMasterDataIndexRoute
@@ -576,6 +627,8 @@ export interface FileRoutesByTo {
   '/attendance/gps-security': typeof appAttendanceGpsSecurityRoute
   '/attendance/history': typeof appAttendanceHistoryRoute
   '/attendance/settings': typeof appAttendanceSettingsRoute
+  '/leave/balance': typeof appLeaveBalanceRoute
+  '/leave/history': typeof appLeaveHistoryRoute
   '/': typeof appdashboardIndexRoute
   '/approval': typeof appApprovalIndexRoute
   '/attendance': typeof appAttendanceIndexRoute
@@ -599,6 +652,9 @@ export interface FileRoutesByTo {
   '/company/organization/$id': typeof appCompanyOrganizationIdRoute
   '/company/organization/new': typeof appCompanyOrganizationNewRoute
   '/company/organization/update': typeof appCompanyOrganizationUpdateRoute
+  '/leave/approval/$requestId': typeof appLeaveApprovalRequestIdRoute
+  '/leave/requests/$requestId': typeof appLeaveRequestsRequestIdRoute
+  '/leave/requests/new': typeof appLeaveRequestsNewRoute
   '/settings/approval-workflow/matrix': typeof appSettingsApprovalWorkflowMatrixRoute
   '/settings/approval-workflow/new': typeof appSettingsApprovalWorkflowNewRoute
   '/settings/master-data/departments': typeof appSettingsMasterDataDepartmentsRoute
@@ -619,6 +675,8 @@ export interface FileRoutesByTo {
   '/company/document': typeof appCompanyDocumentIndexRoute
   '/company/employee': typeof appCompanyEmployeeIndexRoute
   '/company/organization': typeof appCompanyOrganizationIndexRoute
+  '/leave/approval': typeof appLeaveApprovalIndexRoute
+  '/leave/requests': typeof appLeaveRequestsIndexRoute
   '/settings/approval-workflow': typeof appSettingsApprovalWorkflowIndexRoute
   '/settings/company': typeof appSettingsCompanyIndexRoute
   '/settings/master-data': typeof appSettingsMasterDataIndexRoute
@@ -651,6 +709,8 @@ export interface FileRoutesById {
   '/(app)/attendance/gps-security': typeof appAttendanceGpsSecurityRoute
   '/(app)/attendance/history': typeof appAttendanceHistoryRoute
   '/(app)/attendance/settings': typeof appAttendanceSettingsRoute
+  '/(app)/leave/balance': typeof appLeaveBalanceRoute
+  '/(app)/leave/history': typeof appLeaveHistoryRoute
   '/(app)/(dashboard)/': typeof appdashboardIndexRoute
   '/(app)/approval/': typeof appApprovalIndexRoute
   '/(app)/attendance/': typeof appAttendanceIndexRoute
@@ -674,6 +734,9 @@ export interface FileRoutesById {
   '/(app)/company/organization/$id': typeof appCompanyOrganizationIdRoute
   '/(app)/company/organization/new': typeof appCompanyOrganizationNewRoute
   '/(app)/company/organization/update': typeof appCompanyOrganizationUpdateRoute
+  '/(app)/leave/approval/$requestId': typeof appLeaveApprovalRequestIdRoute
+  '/(app)/leave/requests/$requestId': typeof appLeaveRequestsRequestIdRoute
+  '/(app)/leave/requests/new': typeof appLeaveRequestsNewRoute
   '/(app)/settings/approval-workflow/matrix': typeof appSettingsApprovalWorkflowMatrixRoute
   '/(app)/settings/approval-workflow/new': typeof appSettingsApprovalWorkflowNewRoute
   '/(app)/settings/master-data/departments': typeof appSettingsMasterDataDepartmentsRoute
@@ -694,6 +757,8 @@ export interface FileRoutesById {
   '/(app)/company/document/': typeof appCompanyDocumentIndexRoute
   '/(app)/company/employee/': typeof appCompanyEmployeeIndexRoute
   '/(app)/company/organization/': typeof appCompanyOrganizationIndexRoute
+  '/(app)/leave/approval/': typeof appLeaveApprovalIndexRoute
+  '/(app)/leave/requests/': typeof appLeaveRequestsIndexRoute
   '/(app)/settings/approval-workflow/': typeof appSettingsApprovalWorkflowIndexRoute
   '/(app)/settings/company/': typeof appSettingsCompanyIndexRoute
   '/(app)/settings/master-data/': typeof appSettingsMasterDataIndexRoute
@@ -726,6 +791,8 @@ export interface FileRouteTypes {
     | '/attendance/gps-security'
     | '/attendance/history'
     | '/attendance/settings'
+    | '/leave/balance'
+    | '/leave/history'
     | '/'
     | '/approval/'
     | '/attendance/'
@@ -749,6 +816,9 @@ export interface FileRouteTypes {
     | '/company/organization/$id'
     | '/company/organization/new'
     | '/company/organization/update'
+    | '/leave/approval/$requestId'
+    | '/leave/requests/$requestId'
+    | '/leave/requests/new'
     | '/settings/approval-workflow/matrix'
     | '/settings/approval-workflow/new'
     | '/settings/master-data/departments'
@@ -769,6 +839,8 @@ export interface FileRouteTypes {
     | '/company/document/'
     | '/company/employee/'
     | '/company/organization/'
+    | '/leave/approval/'
+    | '/leave/requests/'
     | '/settings/approval-workflow/'
     | '/settings/company/'
     | '/settings/master-data/'
@@ -799,6 +871,8 @@ export interface FileRouteTypes {
     | '/attendance/gps-security'
     | '/attendance/history'
     | '/attendance/settings'
+    | '/leave/balance'
+    | '/leave/history'
     | '/'
     | '/approval'
     | '/attendance'
@@ -822,6 +896,9 @@ export interface FileRouteTypes {
     | '/company/organization/$id'
     | '/company/organization/new'
     | '/company/organization/update'
+    | '/leave/approval/$requestId'
+    | '/leave/requests/$requestId'
+    | '/leave/requests/new'
     | '/settings/approval-workflow/matrix'
     | '/settings/approval-workflow/new'
     | '/settings/master-data/departments'
@@ -842,6 +919,8 @@ export interface FileRouteTypes {
     | '/company/document'
     | '/company/employee'
     | '/company/organization'
+    | '/leave/approval'
+    | '/leave/requests'
     | '/settings/approval-workflow'
     | '/settings/company'
     | '/settings/master-data'
@@ -873,6 +952,8 @@ export interface FileRouteTypes {
     | '/(app)/attendance/gps-security'
     | '/(app)/attendance/history'
     | '/(app)/attendance/settings'
+    | '/(app)/leave/balance'
+    | '/(app)/leave/history'
     | '/(app)/(dashboard)/'
     | '/(app)/approval/'
     | '/(app)/attendance/'
@@ -896,6 +977,9 @@ export interface FileRouteTypes {
     | '/(app)/company/organization/$id'
     | '/(app)/company/organization/new'
     | '/(app)/company/organization/update'
+    | '/(app)/leave/approval/$requestId'
+    | '/(app)/leave/requests/$requestId'
+    | '/(app)/leave/requests/new'
     | '/(app)/settings/approval-workflow/matrix'
     | '/(app)/settings/approval-workflow/new'
     | '/(app)/settings/master-data/departments'
@@ -916,6 +1000,8 @@ export interface FileRouteTypes {
     | '/(app)/company/document/'
     | '/(app)/company/employee/'
     | '/(app)/company/organization/'
+    | '/(app)/leave/approval/'
+    | '/(app)/leave/requests/'
     | '/(app)/settings/approval-workflow/'
     | '/(app)/settings/company/'
     | '/(app)/settings/master-data/'
@@ -1049,6 +1135,20 @@ declare module '@tanstack/react-router' {
       path: '/leave'
       fullPath: '/leave/'
       preLoaderRoute: typeof appLeaveIndexRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/leave/balance': {
+      id: '/(app)/leave/balance'
+      path: '/leave/balance'
+      fullPath: '/leave/balance'
+      preLoaderRoute: typeof appLeaveBalanceRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/leave/history': {
+      id: '/(app)/leave/history'
+      path: '/leave/history'
+      fullPath: '/leave/history'
+      preLoaderRoute: typeof appLeaveHistoryRouteImport
       parentRoute: typeof appRouteRoute
     }
     '/(app)/payroll/': {
@@ -1231,6 +1331,41 @@ declare module '@tanstack/react-router' {
       path: '/company/organization/update'
       fullPath: '/company/organization/update'
       preLoaderRoute: typeof appCompanyOrganizationUpdateRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/leave/approval/': {
+      id: '/(app)/leave/approval/'
+      path: '/leave/approval'
+      fullPath: '/leave/approval/'
+      preLoaderRoute: typeof appLeaveApprovalIndexRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/leave/approval/$requestId': {
+      id: '/(app)/leave/approval/$requestId'
+      path: '/leave/approval/$requestId'
+      fullPath: '/leave/approval/$requestId'
+      preLoaderRoute: typeof appLeaveApprovalRequestIdRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/leave/requests/': {
+      id: '/(app)/leave/requests/'
+      path: '/leave/requests'
+      fullPath: '/leave/requests/'
+      preLoaderRoute: typeof appLeaveRequestsIndexRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/leave/requests/$requestId': {
+      id: '/(app)/leave/requests/$requestId'
+      path: '/leave/requests/$requestId'
+      fullPath: '/leave/requests/$requestId'
+      preLoaderRoute: typeof appLeaveRequestsRequestIdRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/leave/requests/new': {
+      id: '/(app)/leave/requests/new'
+      path: '/leave/requests/new'
+      fullPath: '/leave/requests/new'
+      preLoaderRoute: typeof appLeaveRequestsNewRouteImport
       parentRoute: typeof appRouteRoute
     }
     '/(app)/settings/approval-workflow/': {
@@ -1475,6 +1610,8 @@ interface appRouteRouteChildren {
   appAttendanceGpsSecurityRoute: typeof appAttendanceGpsSecurityRoute
   appAttendanceHistoryRoute: typeof appAttendanceHistoryRoute
   appAttendanceSettingsRoute: typeof appAttendanceSettingsRoute
+  appLeaveBalanceRoute: typeof appLeaveBalanceRoute
+  appLeaveHistoryRoute: typeof appLeaveHistoryRoute
   appdashboardIndexRoute: typeof appdashboardIndexRoute
   appApprovalIndexRoute: typeof appApprovalIndexRoute
   appAttendanceIndexRoute: typeof appAttendanceIndexRoute
@@ -1498,6 +1635,9 @@ interface appRouteRouteChildren {
   appCompanyOrganizationIdRoute: typeof appCompanyOrganizationIdRoute
   appCompanyOrganizationNewRoute: typeof appCompanyOrganizationNewRoute
   appCompanyOrganizationUpdateRoute: typeof appCompanyOrganizationUpdateRoute
+  appLeaveApprovalRequestIdRoute: typeof appLeaveApprovalRequestIdRoute
+  appLeaveRequestsRequestIdRoute: typeof appLeaveRequestsRequestIdRoute
+  appLeaveRequestsNewRoute: typeof appLeaveRequestsNewRoute
   appSettingsApprovalWorkflowMatrixRoute: typeof appSettingsApprovalWorkflowMatrixRoute
   appSettingsApprovalWorkflowNewRoute: typeof appSettingsApprovalWorkflowNewRoute
   appSettingsMasterDataDepartmentsRoute: typeof appSettingsMasterDataDepartmentsRoute
@@ -1518,6 +1658,8 @@ interface appRouteRouteChildren {
   appCompanyDocumentIndexRoute: typeof appCompanyDocumentIndexRoute
   appCompanyEmployeeIndexRoute: typeof appCompanyEmployeeIndexRoute
   appCompanyOrganizationIndexRoute: typeof appCompanyOrganizationIndexRoute
+  appLeaveApprovalIndexRoute: typeof appLeaveApprovalIndexRoute
+  appLeaveRequestsIndexRoute: typeof appLeaveRequestsIndexRoute
   appSettingsApprovalWorkflowIndexRoute: typeof appSettingsApprovalWorkflowIndexRoute
   appSettingsCompanyIndexRoute: typeof appSettingsCompanyIndexRoute
   appSettingsMasterDataIndexRoute: typeof appSettingsMasterDataIndexRoute
@@ -1544,6 +1686,8 @@ const appRouteRouteChildren: appRouteRouteChildren = {
   appAttendanceGpsSecurityRoute: appAttendanceGpsSecurityRoute,
   appAttendanceHistoryRoute: appAttendanceHistoryRoute,
   appAttendanceSettingsRoute: appAttendanceSettingsRoute,
+  appLeaveBalanceRoute: appLeaveBalanceRoute,
+  appLeaveHistoryRoute: appLeaveHistoryRoute,
   appdashboardIndexRoute: appdashboardIndexRoute,
   appApprovalIndexRoute: appApprovalIndexRoute,
   appAttendanceIndexRoute: appAttendanceIndexRoute,
@@ -1568,6 +1712,9 @@ const appRouteRouteChildren: appRouteRouteChildren = {
   appCompanyOrganizationIdRoute: appCompanyOrganizationIdRoute,
   appCompanyOrganizationNewRoute: appCompanyOrganizationNewRoute,
   appCompanyOrganizationUpdateRoute: appCompanyOrganizationUpdateRoute,
+  appLeaveApprovalRequestIdRoute: appLeaveApprovalRequestIdRoute,
+  appLeaveRequestsRequestIdRoute: appLeaveRequestsRequestIdRoute,
+  appLeaveRequestsNewRoute: appLeaveRequestsNewRoute,
   appSettingsApprovalWorkflowMatrixRoute:
     appSettingsApprovalWorkflowMatrixRoute,
   appSettingsApprovalWorkflowNewRoute: appSettingsApprovalWorkflowNewRoute,
@@ -1591,6 +1738,8 @@ const appRouteRouteChildren: appRouteRouteChildren = {
   appCompanyDocumentIndexRoute: appCompanyDocumentIndexRoute,
   appCompanyEmployeeIndexRoute: appCompanyEmployeeIndexRoute,
   appCompanyOrganizationIndexRoute: appCompanyOrganizationIndexRoute,
+  appLeaveApprovalIndexRoute: appLeaveApprovalIndexRoute,
+  appLeaveRequestsIndexRoute: appLeaveRequestsIndexRoute,
   appSettingsApprovalWorkflowIndexRoute: appSettingsApprovalWorkflowIndexRoute,
   appSettingsCompanyIndexRoute: appSettingsCompanyIndexRoute,
   appSettingsMasterDataIndexRoute: appSettingsMasterDataIndexRoute,
