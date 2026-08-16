@@ -1,9 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 
-export const Route = createFileRoute('/(app)/settings/notification/')({
-  component: RouteComponent,
-})
+import { NotificationOverviewPage } from '@/features/settings/notification/pages/notification-overview-page'
 
-function RouteComponent() {
-  return <div>Hello "/(app)/settings/notification/"!</div>
-}
+export const Route = createFileRoute('/(app)/settings/notification/')({
+  component: NotificationOverviewPage,
+})
