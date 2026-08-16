@@ -5,7 +5,7 @@ user-invocable: false
 allowed-tools: Bash(npx shadcn@latest *), Bash(pnpm dlx shadcn@latest *), Bash(bunx --bun shadcn@latest *)
 ---
 
-# HRIS Feature Module Conventions
+# Part A: HRIS Feature Module Conventions
 
 Reference implementation: `src/features/auth/` and `src/features/dashboard/`.
 Follow these exactly when creating or editing any feature module in `src/features/**`.
@@ -473,17 +473,17 @@ The `Badge` component in `@/shared/components/ui/badge.tsx` provides semantic an
 
 ### Status & operation states
 
-| State | Variant | Usage | Example |
-| --- | --- | --- | --- |
-| **Active / Success** | `green` | Approved, active, success, completed | Leave approved, system online |
-| **Warning** | `amber` or `orange` | Pending, in-progress, caution, requires attention | Pending approval, processing payment |
-| **Error / Rejected** | `red` or `destructive` | Rejected, failed, error, critical | Leave rejected, failed upload |
-| **Info / Neutral** | `blue` or `slate` | Informational, neutral, default state | Submitted, archived, neutral status |
-| **Secondary info** | `secondary` | Supporting data, less critical | Additional labels, secondary tags |
-| **Default** | `default` | Primary status, highlights | Main status value |
-| **Link** | `link` | Interactive status, clickable badge | — |
-| **Outline** | `outline` | Bordered, non-filled status | Alternative state display |
-| **Ghost** | `ghost` | Subtle, de-emphasized status | Muted or less important states |
+| State                | Variant                | Usage                                             | Example                              |
+| -------------------- | ---------------------- | ------------------------------------------------- | ------------------------------------ |
+| **Active / Success** | `green`                | Approved, active, success, completed              | Leave approved, system online        |
+| **Warning**          | `amber` or `orange`    | Pending, in-progress, caution, requires attention | Pending approval, processing payment |
+| **Error / Rejected** | `red` or `destructive` | Rejected, failed, error, critical                 | Leave rejected, failed upload        |
+| **Info / Neutral**   | `blue` or `slate`      | Informational, neutral, default state             | Submitted, archived, neutral status  |
+| **Secondary info**   | `secondary`            | Supporting data, less critical                    | Additional labels, secondary tags    |
+| **Default**          | `default`              | Primary status, highlights                        | Main status value                    |
+| **Link**             | `link`                 | Interactive status, clickable badge               | —                                    |
+| **Outline**          | `outline`              | Bordered, non-filled status                       | Alternative state display            |
+| **Ghost**            | `ghost`                | Subtle, de-emphasized status                      | Muted or less important states       |
 
 ### Color-specific variants for domain states
 
@@ -547,6 +547,7 @@ const getStatusBadgeVariant = (status: string) => {
 ### All available variants
 
 Badge component supports the following variants (from `src/shared/components/ui/badge.tsx`):
+
 - **Semantic:** `default`, `secondary`, `destructive`
 - **Status colors:** `red`, `orange`, `amber`, `yellow`, `lime`, `green`, `emerald`, `teal`, `cyan`, `sky`, `blue`, `indigo`, `violet`, `purple`, `fuchsia`, `pink`, `rose`
 - **Neutral tones:** `slate`, `gray`, `zinc`, `neutral`, `stone`
