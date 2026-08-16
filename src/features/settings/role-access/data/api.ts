@@ -48,7 +48,7 @@ function normalizeRolePermissionMatrix(
 }
 
 /**
- * Endpoint: `/api/v1/user-roles/stats`
+ * Endpoint: `/api/v1/role-access/stats`
  * Method: `GET`
  *
  * Ekspektasi Response JSON:
@@ -67,7 +67,7 @@ function normalizeRolePermissionMatrix(
  */
 export async function getRoleStats(): Promise<RoleStats> {
   try {
-    const res = await apiClient.get<Envelope<RoleStats>>('/api/v1/user-roles/stats')
+    const res = await apiClient.get<Envelope<RoleStats>>('/api/v1/role-access/stats')
     return res.data.data
   } catch (err) {
     handleApiError(err)
@@ -75,7 +75,7 @@ export async function getRoleStats(): Promise<RoleStats> {
 }
 
 /**
- * Endpoint: `/api/v1/user-roles/eligibility-options`
+ * Endpoint: `/api/v1/role-access/eligibility-options`
  * Method: `GET`
  *
  * Ekspektasi Response JSON:
@@ -100,7 +100,7 @@ export async function getRoleStats(): Promise<RoleStats> {
 export async function getRoleEligibilityOptions(): Promise<RoleEligibilityOptions> {
   try {
     const res = await apiClient.get<Envelope<RoleEligibilityOptions>>(
-      '/api/v1/user-roles/eligibility-options',
+      '/api/v1/role-access/eligibility-options',
     )
     return res.data.data
   } catch (err) {
@@ -109,7 +109,7 @@ export async function getRoleEligibilityOptions(): Promise<RoleEligibilityOption
 }
 
 /**
- * Endpoint: `/api/v1/user-roles`
+ * Endpoint: `/api/v1/role-access`
  * Method: `GET`
  * Query Params: ?search=...&status=...
  *
@@ -148,7 +148,7 @@ export async function getRoleEligibilityOptions(): Promise<RoleEligibilityOption
  */
 export async function getRoles(params?: RoleFilterParams): Promise<Role[]> {
   try {
-    const res = await apiClient.get<Envelope<Role[]>>('/api/v1/user-roles', { params })
+    const res = await apiClient.get<Envelope<Role[]>>('/api/v1/role-access', { params })
     return res.data.data
   } catch (err) {
     handleApiError(err)
@@ -156,7 +156,7 @@ export async function getRoles(params?: RoleFilterParams): Promise<Role[]> {
 }
 
 /**
- * Endpoint: `/api/v1/user-roles/edit/:id`
+ * Endpoint: `/api/v1/role-access/edit/:id`
  * Method: `GET`
  *
  * Ekspektasi Response JSON:
@@ -183,7 +183,7 @@ export async function getRoles(params?: RoleFilterParams): Promise<Role[]> {
  */
 export async function getRoleById(id: string): Promise<Role> {
   try {
-    const res = await apiClient.get<Envelope<Role>>(`/api/v1/user-roles/edit/${id}`)
+    const res = await apiClient.get<Envelope<Role>>(`/api/v1/role-access/edit/${id}`)
     return res.data.data
   } catch (err) {
     handleApiError(err)
@@ -191,7 +191,7 @@ export async function getRoleById(id: string): Promise<Role> {
 }
 
 /**
- * Endpoint: `/api/v1/user-roles`
+ * Endpoint: `/api/v1/role-access`
  * Method: `POST`
  * Body Payload: CreateRolePayload
  *
@@ -221,7 +221,7 @@ export async function getRoleById(id: string): Promise<Role> {
  */
 export async function createRole(payload: CreateRolePayload): Promise<Role> {
   try {
-    const res = await apiClient.post<Envelope<Role>>('/api/v1/user-roles', payload)
+    const res = await apiClient.post<Envelope<Role>>('/api/v1/role-access', payload)
     return res.data.data
   } catch (err) {
     handleApiError(err)
@@ -229,7 +229,7 @@ export async function createRole(payload: CreateRolePayload): Promise<Role> {
 }
 
 /**
- * Endpoint: `/api/v1/user-roles/:id`
+ * Endpoint: `/api/v1/role-access/:id`
  * Method: `PUT`
  * Body Payload: UpdateRolePayload
  *
@@ -256,7 +256,7 @@ export async function createRole(payload: CreateRolePayload): Promise<Role> {
  */
 export async function updateRole(id: string, payload: UpdateRolePayload): Promise<Role> {
   try {
-    const res = await apiClient.put<Envelope<Role>>(`/api/v1/user-roles/${id}`, payload)
+    const res = await apiClient.put<Envelope<Role>>(`/api/v1/role-access/${id}`, payload)
     return res.data.data
   } catch (err) {
     handleApiError(err)
@@ -264,7 +264,7 @@ export async function updateRole(id: string, payload: UpdateRolePayload): Promis
 }
 
 /**
- * Endpoint: `/api/v1/user-roles/:id`
+ * Endpoint: `/api/v1/role-access/:id`
  * Method: `DELETE`
  *
  * Ekspektasi Response JSON:
@@ -279,14 +279,14 @@ export async function updateRole(id: string, payload: UpdateRolePayload): Promis
  */
 export async function deleteRole(id: string): Promise<void> {
   try {
-    await apiClient.delete<Envelope<null>>(`/api/v1/user-roles/${id}`)
+    await apiClient.delete<Envelope<null>>(`/api/v1/role-access/${id}`)
   } catch (err) {
     handleApiError(err)
   }
 }
 
 /**
- * Endpoint: `/api/v1/user-roles/:id/assignments`
+ * Endpoint: `/api/v1/role-access/:id/assignments`
  * Method: `GET`
  * Mengembalikan user yang sudah assigned serta user dari department dan branch yang eligible.
  *
@@ -325,7 +325,7 @@ export async function deleteRole(id: string): Promise<void> {
 export async function getRoleAssignments(id: string): Promise<RoleAssignments> {
   try {
     const res = await apiClient.get<Envelope<RoleAssignments>>(
-      `/api/v1/user-roles/${id}/assignments`,
+      `/api/v1/role-access/${id}/assignments`,
     )
     return res.data.data
   } catch (err) {
@@ -334,7 +334,7 @@ export async function getRoleAssignments(id: string): Promise<RoleAssignments> {
 }
 
 /**
- * Endpoint: `/api/v1/user-roles/:id/assignments`
+ * Endpoint: `/api/v1/role-access/:id/assignments`
  * Method: `POST`
  * Body Payload: `AssignRoleUsersPayload`
  *
@@ -385,7 +385,7 @@ export async function assignRoleUsers(
 ): Promise<RoleAssignments> {
   try {
     const res = await apiClient.post<Envelope<RoleAssignments>>(
-      `/api/v1/user-roles/${id}/assignments`,
+      `/api/v1/role-access/${id}/assignments`,
       payload,
     )
     return res.data.data
@@ -395,7 +395,7 @@ export async function assignRoleUsers(
 }
 
 /**
- * Endpoint: `/api/v1/user-roles/:id/assignments/:userId`
+ * Endpoint: `/api/v1/role-access/:id/assignments/:userId`
  * Method: `DELETE`
  *
  * Ekspektasi Response JSON:
@@ -410,14 +410,14 @@ export async function assignRoleUsers(
  */
 export async function removeRoleUser(id: string, userId: string): Promise<void> {
   try {
-    await apiClient.delete<Envelope<null>>(`/api/v1/user-roles/${id}/assignments/${userId}`)
+    await apiClient.delete<Envelope<null>>(`/api/v1/role-access/${id}/assignments/${userId}`)
   } catch (err) {
     handleApiError(err)
   }
 }
 
 /**
- * Endpoint: `/api/v1/user-roles/:id/assignments`
+ * Endpoint: `/api/v1/role-access/:id/assignments`
  * Method: `DELETE`
  *
  * Ekspektasi Response JSON:
@@ -432,14 +432,14 @@ export async function removeRoleUser(id: string, userId: string): Promise<void> 
  */
 export async function removeAllRoleUsers(id: string): Promise<void> {
   try {
-    await apiClient.delete<Envelope<null>>(`/api/v1/user-roles/${id}/assignments`)
+    await apiClient.delete<Envelope<null>>(`/api/v1/role-access/${id}/assignments`)
   } catch (err) {
     handleApiError(err)
   }
 }
 
 /**
- * Endpoint: `/api/v1/user-roles/:id/permissions`
+ * Endpoint: `/api/v1/role-access/:id/permissions`
  * Method: `GET`
  * Nilai `defaultDataScope` dan `modules[].scope`: `Company`, `Administrator`, atau `Self`.
  * Response legacy dengan scope `Restricted` dinormalisasi menjadi `Administrator`.
@@ -479,7 +479,7 @@ export async function removeAllRoleUsers(id: string): Promise<void> {
 export async function getRolePermissions(id: string): Promise<RolePermissionMatrix> {
   try {
     const res = await apiClient.get<Envelope<RolePermissionMatrixApiResponse>>(
-      `/api/v1/user-roles/${id}/permissions`,
+      `/api/v1/role-access/${id}/permissions`,
     )
     return normalizeRolePermissionMatrix(res.data.data)
   } catch (err) {
@@ -488,7 +488,7 @@ export async function getRolePermissions(id: string): Promise<RolePermissionMatr
 }
 
 /**
- * Endpoint: `/api/v1/user-roles/:id/permissions`
+ * Endpoint: `/api/v1/role-access/:id/permissions`
  * Method: `PUT`
  * Body Payload: `UpdateRolePermissionsPayload`
  * Nilai `defaultDataScope` dan `modules[].scope`: `Company`, `Administrator`, atau `Self`.
@@ -555,7 +555,7 @@ export async function updateRolePermissions(
 ): Promise<RolePermissionMatrix> {
   try {
     const res = await apiClient.put<Envelope<RolePermissionMatrixApiResponse>>(
-      `/api/v1/user-roles/${id}/permissions`,
+      `/api/v1/role-access/${id}/permissions`,
       payload,
     )
     return normalizeRolePermissionMatrix(res.data.data)
