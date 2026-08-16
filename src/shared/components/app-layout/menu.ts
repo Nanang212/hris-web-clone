@@ -6,8 +6,10 @@ import {
   IconChecklist,
   IconCircleCheck,
   IconDatabase,
+  IconFaceId,
   IconGitBranch,
   IconLayoutDashboard,
+  IconMapPin,
   IconReportAnalytics,
   IconReportMoney,
   IconSettings,
@@ -93,6 +95,38 @@ export const mainMenu: Menu[] = [
     to: '/attendance',
     icon: IconCalendarCheck,
     title: m.app_layout_nav_attendance,
+    items: [
+      {
+        key: 'attendance-overview',
+        to: '/attendance',
+        title: m.app_layout_nav_attendance_overview,
+      },
+      {
+        key: 'attendance-settings',
+        to: '/attendance/settings',
+        title: m.app_layout_nav_attendance_settings,
+      },
+      {
+        key: 'shift-management',
+        to: '/attendance/management/shifts',
+        title: m.app_layout_nav_shift_management,
+      },
+      {
+        key: 'working-calendar',
+        to: '/attendance/calendar',
+        title: m.app_layout_nav_working_calendar,
+      },
+      {
+        key: 'face-recognition',
+        to: '/attendance/face-recognition',
+        title: m.app_layout_nav_face_recognition,
+      },
+      {
+        key: 'gps-security',
+        to: '/attendance/gps-security',
+        title: m.app_layout_nav_gps_security,
+      },
+    ],
   },
   {
     key: 'leave',
@@ -170,7 +204,4 @@ export const mainMenu: Menu[] = [
   },
 ] as const
 
-export const menu = {
-  ...dashboardMenu,
-  ...mainMenu,
-}
+export const menu = [...dashboardMenu, ...mainMenu] as const

@@ -1,8 +1,6 @@
-// app-sidebar.tsx
 import { IconChevronRight } from '@tabler/icons-react'
 import { Link, useRouterState } from '@tanstack/react-router'
 
-import { m } from '@/i18n/paraglide/messages'
 import { dashboardMenu, mainMenu } from '@/shared/components/app-layout/menu'
 import IconHris from '@/shared/components/icon-hris'
 import {
@@ -24,6 +22,7 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from '@/shared/components/ui/sidebar'
+import { m } from '@/i18n/paraglide/messages'
 
 export function AppSidebar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname })
@@ -92,6 +91,7 @@ export function AppSidebar() {
                               <SidebarMenuSubItem key={subItem.key}>
                                 <SidebarMenuSubButton asChild isActive={isSubActive}>
                                   <Link to={subItem.to}>
+                                    {subItem.icon && <subItem.icon size={16} stroke={1.75} />}
                                     <span>{subItem.title()}</span>
                                   </Link>
                                 </SidebarMenuSubButton>
@@ -154,11 +154,12 @@ export function AppSidebar() {
                       <CollapsibleContent>
                         <SidebarMenuSub>
                           {item.items?.map((subItem) => {
-                            const isSubActive = subItem.to && pathname.startsWith(subItem.to)
+                            const isSubActive = subItem.to === pathname
                             return (
                               <SidebarMenuSubItem key={subItem.to}>
                                 <SidebarMenuSubButton asChild isActive={isSubActive}>
                                   <Link to={subItem.to}>
+                                    {subItem.icon && <subItem.icon size={16} stroke={1.75} />}
                                     <span>{subItem.title()}</span>
                                   </Link>
                                 </SidebarMenuSubButton>

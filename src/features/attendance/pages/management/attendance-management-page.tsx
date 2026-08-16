@@ -60,9 +60,14 @@ export function AttendanceManagementPage() {
       subtitle={m.attendance_management_subtitle()}
       className='gap-5 bg-muted/30'
       actions={
-        <Button asChild>
-          <Link to='/attendance/management/manual'>{m.attendance_management_manual()}</Link>
-        </Button>
+        <div className='flex gap-2'>
+          <Button variant='outline' asChild>
+            <Link to='/attendance/management/shifts'>Shift Management</Link>
+          </Button>
+          <Button asChild>
+            <Link to='/attendance/management/manual'>{m.attendance_management_manual()}</Link>
+          </Button>
+        </div>
       }
     >
       <AttendanceTabs active='management' />

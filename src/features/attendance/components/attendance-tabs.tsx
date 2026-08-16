@@ -4,7 +4,15 @@ import { Button } from '@/shared/components/ui/button'
 import { m } from '@/i18n/paraglide/messages'
 
 interface AttendanceTabsProps {
-  active: 'overview' | 'clock' | 'history' | 'requests' | 'approval' | 'management' | 'all-menu'
+  active:
+    | 'overview'
+    | 'clock'
+    | 'history'
+    | 'requests'
+    | 'approval'
+    | 'management'
+    | 'settings'
+    | 'all-menu'
 }
 
 export function AttendanceTabs({ active }: Readonly<AttendanceTabsProps>) {
@@ -19,7 +27,7 @@ export function AttendanceTabs({ active }: Readonly<AttendanceTabsProps>) {
       label: m.attendance_tab_management(),
       to: '/attendance/management' as const,
     },
-    { key: 'settings', label: m.attendance_tab_settings() },
+    { key: 'settings', label: m.attendance_tab_settings(), to: '/attendance/settings' as const },
   ]
 
   return (
