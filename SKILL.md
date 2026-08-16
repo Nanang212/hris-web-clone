@@ -465,7 +465,95 @@ Use `npx shadcn@latest docs <component>` to get documentation and example URLs f
 - **Toast via `sonner`** at the primitive level — in this project, always go through the `snackbar` wrapper (Part A, §9), never call `toast()` directly in feature code.
 - **Use `Separator`** instead of `<hr>` or `<div className="border-t">`.
 - **Use `Skeleton`** for loading placeholders. No custom `animate-pulse` divs.
-- **Use `Badge`** instead of custom styled spans.
+- **Use `Badge`** for status, state, and tags instead of custom styled spans. Never use raw `span` with color classes. See §B.2a for comprehensive variant mapping and state usage patterns.
+
+## B.2a Badge variants for status & state
+
+The `Badge` component in `@/shared/components/ui/badge.tsx` provides semantic and status-specific variants. Always use the appropriate variant to communicate state; never override colors with `className`.
+
+### Status & operation states
+
+| State | Variant | Usage | Example |
+| --- | --- | --- | --- |
+| **Active / Success** | `green` | Approved, active, success, completed | Leave approved, system online |
+| **Warning** | `amber` or `orange` | Pending, in-progress, caution, requires attention | Pending approval, processing payment |
+| **Error / Rejected** | `red` or `destructive` | Rejected, failed, error, critical | Leave rejected, failed upload |
+| **Info / Neutral** | `blue` or `slate` | Informational, neutral, default state | Submitted, archived, neutral status |
+| **Secondary info** | `secondary` | Supporting data, less critical | Additional labels, secondary tags |
+| **Default** | `default` | Primary status, highlights | Main status value |
+| **Link** | `link` | Interactive status, clickable badge | — |
+| **Outline** | `outline` | Bordered, non-filled status | Alternative state display |
+| **Ghost** | `ghost` | Subtle, de-emphasized status | Muted or less important states |
+
+### Color-specific variants for domain states
+
+When semantic variants (`green`, `red`, `amber`, etc.) are not specific enough, use domain-specific color variants:
+
+- **Employee states:** `green` (active), `gray` (inactive), `amber` (on-leave), `blue` (probation)
+- **Leave states:** `green` (approved), `amber` (pending), `red` (rejected), `cyan` (on-leave)
+- **Attendance:** `emerald` (present), `red` (absent), `amber` (late), `sky` (working-remotely)
+- **Performance:** `green` (exceeds), `blue` (meets), `amber` (developing), `red` (below)
+- **Priority:** `red` (high), `amber` (medium), `blue` (low), `gray` (no-priority)
+
+### Usage patterns
+
+```tsx
+// Simple status badge
+<Badge variant="green">Active</Badge>
+<Badge variant="amber">Pending</Badge>
+<Badge variant="red">Rejected</Badge>
+
+// With text and icon (if variant supports icons via data-icon)
+<Badge variant="emerald" data-icon="inline-start">
+  <CheckIcon data-icon="inline-start" />
+  Approved
+</Badge>
+
+// In tables or lists
+<Table>
+  <TableBody>
+    {employees.map(emp => (
+      <TableRow key={emp.id}>
+        <TableCell>{emp.name}</TableCell>
+        <TableCell>
+          <Badge variant={emp.status === 'active' ? 'green' : 'gray'}>
+            {emp.status}
+          </Badge>
+        </TableCell>
+      </TableRow>
+    ))}
+  </TableBody>
+</Table>
+
+// Conditional variant selection
+const getStatusBadgeVariant = (status: string) => {
+  switch (status) {
+    case 'approved':
+      return 'green'
+    case 'pending':
+      return 'amber'
+    case 'rejected':
+      return 'red'
+    default:
+      return 'secondary'
+  }
+}
+
+<Badge variant={getStatusBadgeVariant(leaveStatus)}>
+  {leaveStatus}
+</Badge>
+```
+
+### All available variants
+
+Badge component supports the following variants (from `src/shared/components/ui/badge.tsx`):
+- **Semantic:** `default`, `secondary`, `destructive`
+- **Status colors:** `red`, `orange`, `amber`, `yellow`, `lime`, `green`, `emerald`, `teal`, `cyan`, `sky`, `blue`, `indigo`, `violet`, `purple`, `fuchsia`, `pink`, `rose`
+- **Neutral tones:** `slate`, `gray`, `zinc`, `neutral`, `stone`
+- **Custom colors:** `taupe`, `mauve`, `mist`, `olive`
+- **Interactive:** `outline`, `ghost`, `link`
+
+**Rule:** Select the variant based on semantic meaning (green for success, red for error) rather than arbitrary preference. If a variant doesn't exist for your use case, add a new one to `badge.tsx` rather than using `className` overrides.
 
 ## B.3 Critical rules — Forms & Inputs
 
@@ -516,9 +604,11 @@ Use `npx shadcn@latest docs <component>` to get documentation and example URLs f
 <Avatar className="size-10">   // correct
 <Avatar className="w-10 h-10"> // wrong
 
-// Status colors: Badge variants or semantic tokens, not raw colors.
-<Badge variant="secondary">+20.1%</Badge>    // correct
-<span className="text-emerald-600">+20.1%</span> // wrong
+// Status colors: Badge variants (never raw colors or className overrides).
+<Badge variant="green">Approved</Badge>              // correct
+<Badge variant="amber">Pending</Badge>               // correct
+<Badge variant="red">Rejected</Badge>               // correct
+<span className="text-emerald-600">+20.1%</span> // wrong — use Badge instead
 ```
 
 ## B.6 Component selection
