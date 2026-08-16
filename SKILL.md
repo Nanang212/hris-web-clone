@@ -639,16 +639,3 @@ npx shadcn@latest apply a2r6bw --only theme,font
 **Named presets:** `nova`, `vega`, `maia`, `lyra`, `mira`, `luma`
 **Templates:** `next`, `vite`, `start`, `react-router`, `astro` (all support `--monorepo`) and `laravel` (not supported for monorepo)
 **Preset codes:** Version-prefixed base62 strings (e.g. `a2r6bw` or `b0`), from [ui.shadcn.com](https://ui.shadcn.com).
-
-## B.13 Detailed references (upstream shadcn skill files — not bundled here)
-
-If your environment has the full shadcn skill package installed alongside this one, these files contain the exhaustive Incorrect/Correct pairs behind each rule above:
-
-- `rules/forms.md` — FieldGroup, Field, InputGroup, ToggleGroup, FieldSet, validation states
-- `rules/composition.md` — Groups, overlays, Card, Tabs, Avatar, Alert, Empty, Toast, Separator, Skeleton, Badge, Button loading
-- `rules/icons.md` — data-icon, icon sizing, passing icons as objects
-- `rules/styling.md` — Semantic colors, variants, className, spacing, size, truncate, dark mode, cn(), z-index
-- `rules/base-vs-radix.md` — asChild vs render, Select, ToggleGroup, Slider, Accordion
-- `cli.md` — Commands, flags, presets, templates
-- `registry.md` — Authoring source registries, include, item definitions, dependencies, GitHub registry rules
-- `customization.md` — Theming, CSS variables, extending components
