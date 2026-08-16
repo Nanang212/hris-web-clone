@@ -724,6 +724,8 @@
   "role_access_validation_description_min": "Description must contain at least 10 characters.",
   "role_access_validation_description_max": "Description cannot exceed 500 characters.",
   "role_access_validation_access_expiry": "Access expiry is required.",
+  "role_access_validation_status": "Select a valid role status.",
+  "role_access_validation_data_scope": "Select a valid data scope.",
   "role_access_validation_department": "Select at least one eligible department.",
   "role_access_validation_branch": "Select at least one eligible branch.",
   "role_access_user_assignment_title": "User Assignment",

@@ -13,7 +13,6 @@ import {
 import { Link } from '@tanstack/react-router'
 import { useState } from 'react'
 
-import { m } from '@/i18n/paraglide/messages'
 import { AppMain } from '@/shared/components/app-layout/app-main'
 import { SkeletonPattern } from '@/shared/components/skeleton-pattern'
 import { Badge } from '@/shared/components/ui/badge'
@@ -55,8 +54,9 @@ import {
 } from '@/shared/components/ui/table'
 import { snackbar } from '@/shared/lib/snackbar'
 import { cn } from '@/shared/lib/utils'
-import { useDeleteRole, useRoles, useRoleStats } from '@/features/settings/role-access/data/hooks'
-import type { Role } from '@/features/settings/role-access/data/types'
+import { useDeleteRole, useGetRoles, useGetRoleStats } from '@/features/settings/role-access/hooks'
+import type { Role } from '@/features/settings/role-access/types'
+import { m } from '@/i18n/paraglide/messages'
 
 const toneClasses = {
   violet: 'text-violet-600 dark:text-violet-400',
@@ -138,12 +138,12 @@ export default function RoleAccessPage() {
   const [roleToDelete, setRoleToDelete] = useState<Role | null>(null)
 
   const deleteRoleMutation = useDeleteRole()
-  const { data: stats, isPending: isStatsPending } = useRoleStats()
+  const { data: stats, isPending: isStatsPending } = useGetRoleStats()
   const {
     data: roles = [],
     isPending: isRolesPending,
     isFetching: isRolesFetching,
-  } = useRoles({
+  } = useGetRoles({
     search: searchRole,
     status: statusFilter,
   })
@@ -151,21 +151,24 @@ export default function RoleAccessPage() {
   const isInitialPageLoading = isStatsPending || (isRolesPending && !hasActiveRoleFilters)
   const isRoleTableLoading = isRolesFetching && !isInitialPageLoading
 
-  const handleDeleteRole = async () => {
+  const handleDeleteRole = () => {
     if (!roleToDelete) return
 
-    try {
-      await deleteRoleMutation.mutateAsync(roleToDelete.id)
-      snackbar.success(m.role_access_delete_success({ name: roleToDelete.name }))
-      setRoleToDelete(null)
-    } catch (error) {
-      snackbar.exception(error)
-    }
+    deleteRoleMutation.mutate(roleToDelete.id, {
+      onSuccess: () => {
+        snackbar.success(m.role_access_delete_success({ name: roleToDelete.name }))
+        setRoleToDelete(null)
+      },
+      onError: (error) => snackbar.exception(error),
+    })
   }
 
   return (
     <AppMain
-      breadcrumbs={[{ to: '/', label: m.role_access_breadcrumb_settings() }, { label: m.role_access_title() }]}
+      breadcrumbs={[
+        { to: '/', label: m.role_access_breadcrumb_settings() },
+        { label: m.role_access_title() },
+      ]}
       title={m.role_access_title()}
       subtitle={m.role_access_page_subtitle()}
       pending={isInitialPageLoading}
@@ -218,13 +221,17 @@ export default function RoleAccessPage() {
       <section className='rounded-xl border border-border bg-card p-4 shadow-sm sm:p-5'>
         <div className='flex flex-col justify-between gap-3 lg:flex-row lg:items-start'>
           <div>
-            <h2 className='text-base font-bold text-foreground'>{m.role_access_role_directory()}</h2>
+            <h2 className='text-base font-bold text-foreground'>
+              {m.role_access_role_directory()}
+            </h2>
             <p className='mt-1 text-sm text-muted-foreground'>
               {m.role_access_directory_description()}
             </p>
           </div>
           <Button asChild variant='outline'>
-            <Link to='/settings/role-access/permission-matrix'>{m.role_access_permission_matrix()}</Link>
+            <Link to='/settings/role-access/permission-matrix'>
+              {m.role_access_permission_matrix()}
+            </Link>
           </Button>
         </div>
 
@@ -248,9 +255,15 @@ export default function RoleAccessPage() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value='All'>{m.role_access_status_all()}</SelectItem>
-              <SelectItem value='Active'>{m.role_access_status_filter({ status: m.role_access_status_active() })}</SelectItem>
-              <SelectItem value='Inactive'>{m.role_access_status_filter({ status: m.role_access_status_inactive() })}</SelectItem>
-              <SelectItem value='Draft'>{m.role_access_status_filter({ status: m.role_access_status_draft() })}</SelectItem>
+              <SelectItem value='Active'>
+                {m.role_access_status_filter({ status: m.role_access_status_active() })}
+              </SelectItem>
+              <SelectItem value='Inactive'>
+                {m.role_access_status_filter({ status: m.role_access_status_inactive() })}
+              </SelectItem>
+              <SelectItem value='Draft'>
+                {m.role_access_status_filter({ status: m.role_access_status_draft() })}
+              </SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -374,7 +387,9 @@ export default function RoleAccessPage() {
                             onSelect={() => setRoleToDelete(role)}
                           >
                             <IconTrash />
-                            {deleteRoleMutation.isPending ? m.role_access_deleting() : m.role_access_delete()}
+                            {deleteRoleMutation.isPending
+                              ? m.role_access_deleting()
+                              : m.role_access_delete()}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -415,10 +430,12 @@ export default function RoleAccessPage() {
               type='button'
               variant='destructive'
               disabled={deleteRoleMutation.isPending}
-              onClick={() => void handleDeleteRole()}
+              onClick={handleDeleteRole}
             >
               <IconTrash size={16} />
-              {deleteRoleMutation.isPending ? m.role_access_deleting() : m.role_access_delete_role()}
+              {deleteRoleMutation.isPending
+                ? m.role_access_deleting()
+                : m.role_access_delete_role()}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -7,7 +7,6 @@ import {
 } from '@tabler/icons-react'
 import { useMemo, useState } from 'react'
 
-import { m } from '@/i18n/paraglide/messages'
 import { AppMain } from '@/shared/components/app-layout/app-main'
 import { Badge } from '@/shared/components/ui/badge'
 import { Button } from '@/shared/components/ui/button'
@@ -33,15 +32,16 @@ import { cn } from '@/shared/lib/utils'
 import { AssignUsersDialog } from '@/features/settings/role-access/components/assign-users-dialog'
 import {
   useAssignRoleUsers,
+  useGetRole,
+  useGetRoleAssignments,
   useRemoveAllRoleUsers,
   useRemoveRoleUser,
-  useRole,
-  useRoleAssignments,
-} from '@/features/settings/role-access/data/hooks'
+} from '@/features/settings/role-access/hooks'
 import type {
   RoleAssignmentUser,
   UserAssignmentStatus,
-} from '@/features/settings/role-access/data/types'
+} from '@/features/settings/role-access/types'
+import { m } from '@/i18n/paraglide/messages'
 
 type UserAssignmentPageProps = Readonly<{
   roleId: string
@@ -70,9 +70,7 @@ function getStatusClass(status: UserAssignmentStatus): string {
 }
 
 function getStatusLabel(status: string) {
-  return status === 'Assigned'
-    ? m.role_access_status_assigned()
-    : m.role_access_status_eligible()
+  return status === 'Assigned' ? m.role_access_status_assigned() : m.role_access_status_eligible()
 }
 
 function getRoleStatusLabel(status: string) {
@@ -97,8 +95,8 @@ export function UserAssignmentPage({ roleId }: UserAssignmentPageProps) {
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<UserAssignmentStatus | 'All'>('All')
   const [assignmentDialog, setAssignmentDialog] = useState<AssignmentDialogState | null>(null)
-  const roleQuery = useRole(roleId)
-  const assignmentsQuery = useRoleAssignments(roleId)
+  const roleQuery = useGetRole(roleId)
+  const assignmentsQuery = useGetRoleAssignments(roleId)
   const assignUsersMutation = useAssignRoleUsers()
   const removeUserMutation = useRemoveRoleUser()
   const removeAllUsersMutation = useRemoveAllRoleUsers()
@@ -143,35 +141,39 @@ export function UserAssignmentPage({ roleId }: UserAssignmentPageProps) {
   const eligibleCount = users.filter((user) => user.status !== 'Assigned').length
   const eligibleUsers = users.filter((user) => user.status !== 'Assigned')
 
-  const handleAssign = async (userIds: string[], effectiveDate: string, notifyUsers: boolean) => {
-    try {
-      await assignUsersMutation.mutateAsync({
+  const handleAssign = (userIds: string[], effectiveDate: string, notifyUsers: boolean) => {
+    assignUsersMutation.mutate(
+      {
         id: roleId,
         payload: { userIds, effectiveDate, notifyUsers },
-      })
-      setAssignmentDialog(null)
-      snackbar.success(m.role_access_assign_success({ count: userIds.length }))
-    } catch (mutationError) {
-      snackbar.exception(mutationError, m.role_access_assign_error())
-    }
+      },
+      {
+        onSuccess: () => {
+          setAssignmentDialog(null)
+          snackbar.success(m.role_access_assign_success({ count: userIds.length }))
+        },
+        onError: (error) => snackbar.exception(error),
+      },
+    )
   }
 
-  const handleRemove = async (userId: string, name: string) => {
-    try {
-      await removeUserMutation.mutateAsync({ id: roleId, userId })
-      snackbar.success(m.role_access_remove_success({ name, roleName: role?.name ?? '' }))
-    } catch (mutationError) {
-      snackbar.exception(mutationError, m.role_access_remove_error({ name }))
-    }
+  const handleRemove = (userId: string, name: string) => {
+    removeUserMutation.mutate(
+      { id: roleId, userId },
+      {
+        onSuccess: () =>
+          snackbar.success(m.role_access_remove_success({ name, roleName: role?.name ?? '' })),
+        onError: (error) => snackbar.exception(error),
+      },
+    )
   }
 
-  const handleBulkUnassign = async () => {
-    try {
-      await removeAllUsersMutation.mutateAsync(roleId)
-      snackbar.success(m.role_access_remove_all_success({ roleName: role?.name ?? '' }))
-    } catch (mutationError) {
-      snackbar.exception(mutationError, m.role_access_remove_all_error({ roleName: role?.name ?? '' }))
-    }
+  const handleBulkUnassign = () => {
+    removeAllUsersMutation.mutate(roleId, {
+      onSuccess: () =>
+        snackbar.success(m.role_access_remove_all_success({ roleName: role?.name ?? '' })),
+      onError: (error) => snackbar.exception(error),
+    })
   }
 
   return (
@@ -198,7 +200,9 @@ export function UserAssignmentPage({ roleId }: UserAssignmentPageProps) {
               <IconShieldCheck size={21} />
             </div>
             <div>
-              <p className='text-xs font-medium text-muted-foreground'>{m.role_access_selected_role()}</p>
+              <p className='text-xs font-medium text-muted-foreground'>
+                {m.role_access_selected_role()}
+              </p>
               <h2 className='text-lg font-bold text-foreground'>{role?.name}</h2>
               <p className='text-xs text-muted-foreground'>
                 {m.role_access_selected_role_meta({
@@ -267,9 +271,11 @@ export function UserAssignmentPage({ roleId }: UserAssignmentPageProps) {
               type='button'
               variant='outline'
               disabled={assignedCount === 0 || removeAllUsersMutation.isPending}
-              onClick={() => void handleBulkUnassign()}
+              onClick={handleBulkUnassign}
             >
-              {removeAllUsersMutation.isPending ? m.role_access_removing() : m.role_access_bulk_unassign()}
+              {removeAllUsersMutation.isPending
+                ? m.role_access_removing()
+                : m.role_access_bulk_unassign()}
             </Button>
           </div>
 
@@ -295,8 +301,12 @@ export function UserAssignmentPage({ roleId }: UserAssignmentPageProps) {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value='All'>{m.role_access_status_all()}</SelectItem>
-                <SelectItem value='Assigned'>{m.role_access_status_filter({ status: m.role_access_status_assigned() })}</SelectItem>
-                <SelectItem value='Eligible'>{m.role_access_status_filter({ status: m.role_access_status_eligible() })}</SelectItem>
+                <SelectItem value='Assigned'>
+                  {m.role_access_status_filter({ status: m.role_access_status_assigned() })}
+                </SelectItem>
+                <SelectItem value='Eligible'>
+                  {m.role_access_status_filter({ status: m.role_access_status_eligible() })}
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -346,7 +356,7 @@ export function UserAssignmentPage({ roleId }: UserAssignmentPageProps) {
                         size='sm'
                         variant='outline'
                         disabled={removeUserMutation.isPending}
-                        onClick={() => void handleRemove(user.id, user.name)}
+                        onClick={() => handleRemove(user.id, user.name)}
                       >
                         {m.role_access_remove()}
                       </Button>

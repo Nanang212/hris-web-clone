@@ -3,8 +3,8 @@ import { IconChevronDown, IconSearch } from '@tabler/icons-react'
 import { Link } from '@tanstack/react-router'
 import { useRef, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
+import { z } from 'zod'
 
-import { m } from '@/i18n/paraglide/messages'
 import { AppMain } from '@/shared/components/app-layout/app-main'
 import { Button } from '@/shared/components/ui/button'
 import {
@@ -15,7 +15,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/shared/components/ui/dropdown-menu'
-import { Field, FieldDescription, FieldError, FieldLabel } from '@/shared/components/ui/field'
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from '@/shared/components/ui/field'
 import { Input } from '@/shared/components/ui/input'
 import {
   Select,
@@ -24,6 +30,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/shared/components/ui/select'
+import { Spinner } from '@/shared/components/ui/spinner'
 import { Switch } from '@/shared/components/ui/switch'
 import { Textarea } from '@/shared/components/ui/textarea'
 import { useSchema } from '@/shared/lib/schema'
@@ -32,17 +39,19 @@ import type {
   CreateRolePayload,
   RoleEligibilityOption,
   RoleEligibilityOptions,
-} from '@/features/settings/role-access/data/types'
+} from '@/features/settings/role-access/types'
+import { m } from '@/i18n/paraglide/messages'
 
 type RoleFormProps = Readonly<{
   mode: 'create' | 'edit'
   defaultValues: CreateRolePayload
   eligibilityOptions: RoleEligibilityOptions
   isPending: boolean
-  onSubmit: (values: CreateRolePayload) => Promise<void>
+  onSubmit: (values: CreateRolePayload) => void
 }>
 
 type EligibilityDropdownProps = Readonly<{
+  id: string
   options: RoleEligibilityOption[]
   selectedIds: string[]
   placeholder: string
@@ -52,6 +61,7 @@ type EligibilityDropdownProps = Readonly<{
 }>
 
 function EligibilityDropdown({
+  id,
   options,
   selectedIds,
   placeholder,
@@ -92,6 +102,7 @@ function EligibilityDropdown({
     >
       <DropdownMenuTrigger asChild>
         <Button
+          id={id}
           type='button'
           variant='outline'
           aria-invalid={invalid}
@@ -153,7 +164,7 @@ export function RoleForm({
   isPending,
   onSubmit,
 }: RoleFormProps) {
-  const formSchema = useSchema((z) => ({
+  const formSchema = useSchema(() => ({
     name: z
       .string()
       .trim()
@@ -167,7 +178,9 @@ export function RoleForm({
       .regex(/^[A-Z][A-Z0-9_]*$/, {
         message: m.role_access_validation_role_code_format(),
       }),
-    status: z.enum(['Active', 'Inactive', 'Draft']),
+    status: z.enum(['Active', 'Inactive', 'Draft'], {
+      message: m.role_access_validation_status(),
+    }),
     description: z
       .string()
       .trim()
@@ -189,7 +202,7 @@ export function RoleForm({
     handleSubmit,
     setValue,
     formState: { errors, isSubmitting },
-  } = useForm<CreateRolePayload>({
+  } = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues,
     mode: 'onBlur',
@@ -210,11 +223,7 @@ export function RoleForm({
         { label: title },
       ]}
       title={title}
-      subtitle={
-        isEdit
-          ? m.role_access_edit_subtitle()
-          : m.role_access_create_subtitle()
-      }
+      subtitle={isEdit ? m.role_access_edit_subtitle() : m.role_access_create_subtitle()}
       actions={
         <>
           <Button asChild variant='outline'>
@@ -228,203 +237,214 @@ export function RoleForm({
             {isEdit ? m.role_access_set_as_draft() : m.role_access_save_draft()}
           </Button>
           <Button type='submit' form={formId} disabled={submitting}>
+            {submitting && <Spinner />}
             {submitting ? m.role_access_saving() : submitLabel}
           </Button>
         </>
       }
     >
       <form id={formId} onSubmit={handleSubmit(onSubmit)} noValidate>
-        <div className='grid gap-5 xl:grid-cols-[minmax(0,1.9fr)_minmax(320px,0.95fr)]'>
-          <section className='rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6'>
-            <h2 className='text-base font-bold text-foreground'>{m.role_access_role_information()}</h2>
-            <p className='mt-1 text-sm text-muted-foreground'>
-              {m.role_access_role_information_description()}
-            </p>
+        <FieldGroup>
+          <div className='grid gap-5 xl:grid-cols-[minmax(0,1.9fr)_minmax(320px,0.95fr)]'>
+            <section className='rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6'>
+              <h2 className='text-base font-bold text-foreground'>
+                {m.role_access_role_information()}
+              </h2>
+              <p className='mt-1 text-sm text-muted-foreground'>
+                {m.role_access_role_information_description()}
+              </p>
 
-            <div className='mt-6 grid gap-5 md:grid-cols-2'>
-              <Field className='gap-2' data-invalid={!!errors.name}>
-                <FieldLabel htmlFor={`${formId}-name`}>{m.role_access_role_name()}</FieldLabel>
-                <Input
-                  id={`${formId}-name`}
-                  aria-invalid={!!errors.name}
-                  className='h-10 rounded-lg border-input bg-background'
-                  {...register('name')}
+              <div className='mt-6 grid gap-5 md:grid-cols-2'>
+                <Field className='gap-2' data-invalid={!!errors.name}>
+                  <FieldLabel htmlFor={`${formId}-name`}>{m.role_access_role_name()}</FieldLabel>
+                  <Input
+                    id={`${formId}-name`}
+                    aria-invalid={!!errors.name}
+                    className='h-10 rounded-lg border-input bg-background'
+                    {...register('name')}
+                  />
+                  <FieldDescription>{m.role_access_role_name_help()}</FieldDescription>
+                  <FieldError errors={errors.name ? [errors.name] : undefined} />
+                </Field>
+
+                <Field className='gap-2' data-invalid={!!errors.code}>
+                  <FieldLabel htmlFor={`${formId}-code`}>{m.role_access_role_code()}</FieldLabel>
+                  <Input
+                    id={`${formId}-code`}
+                    aria-invalid={!!errors.code}
+                    className='h-10 rounded-lg border-input bg-background uppercase'
+                    {...register('code', {
+                      onChange: (event) => {
+                        event.target.value = event.target.value.toUpperCase()
+                      },
+                    })}
+                  />
+                  <FieldDescription>{m.role_access_role_code_help()}</FieldDescription>
+                  <FieldError errors={errors.code ? [errors.code] : undefined} />
+                </Field>
+              </div>
+
+              <Field className='mt-5 gap-2' data-invalid={!!errors.status}>
+                <FieldLabel htmlFor={`${formId}-status`}>{m.role_access_status()}</FieldLabel>
+                <Controller
+                  name='status'
+                  control={control}
+                  render={({ field }) => (
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger
+                        id={`${formId}-status`}
+                        aria-invalid={!!errors.status}
+                        className='h-10 w-full rounded-lg border-input bg-background'
+                      >
+                        <SelectValue placeholder={m.role_access_select_status()} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value='Active'>{m.role_access_status_active()}</SelectItem>
+                        <SelectItem value='Inactive'>{m.role_access_status_inactive()}</SelectItem>
+                        <SelectItem value='Draft'>{m.role_access_status_draft()}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
                 />
-                <FieldDescription>{m.role_access_role_name_help()}</FieldDescription>
-                <FieldError errors={errors.name ? [errors.name] : undefined} />
+                <FieldDescription>{m.role_access_status_help()}</FieldDescription>
+                <FieldError errors={errors.status ? [errors.status] : undefined} />
               </Field>
 
-              <Field className='gap-2' data-invalid={!!errors.code}>
-                <FieldLabel htmlFor={`${formId}-code`}>{m.role_access_role_code()}</FieldLabel>
-                <Input
-                  id={`${formId}-code`}
-                  aria-invalid={!!errors.code}
-                  className='h-10 rounded-lg border-input bg-background uppercase'
-                  {...register('code', {
-                    onChange: (event) => {
-                      event.target.value = event.target.value.toUpperCase()
-                    },
-                  })}
+              <Field className='mt-5 gap-2' data-invalid={!!errors.description}>
+                <FieldLabel htmlFor={`${formId}-description`}>
+                  {m.role_access_description()}
+                </FieldLabel>
+                <Textarea
+                  id={`${formId}-description`}
+                  aria-invalid={!!errors.description}
+                  className='min-h-28 w-full resize-none rounded-lg border border-input bg-background p-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 aria-invalid:border-destructive'
+                  {...register('description')}
                 />
-                <FieldDescription>{m.role_access_role_code_help()}</FieldDescription>
-                <FieldError errors={errors.code ? [errors.code] : undefined} />
+                <FieldError errors={errors.description ? [errors.description] : undefined} />
               </Field>
-            </div>
+            </section>
 
-            <Field className='mt-5 gap-2' data-invalid={!!errors.status}>
-              <FieldLabel htmlFor={`${formId}-status`}>{m.role_access_status()}</FieldLabel>
-              <Controller
-                name='status'
-                control={control}
-                render={({ field }) => (
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger
-                      id={`${formId}-status`}
-                      aria-invalid={!!errors.status}
-                      className='h-10 w-full rounded-lg border-input bg-background'
-                    >
-                      <SelectValue placeholder={m.role_access_select_status()} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value='Active'>{m.role_access_status_active()}</SelectItem>
-                      <SelectItem value='Inactive'>{m.role_access_status_inactive()}</SelectItem>
-                      <SelectItem value='Draft'>{m.role_access_status_draft()}</SelectItem>
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-              <FieldDescription>
-                {m.role_access_status_help()}
-              </FieldDescription>
-              <FieldError errors={errors.status ? [errors.status] : undefined} />
-            </Field>
+            <section className='rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6'>
+              <h2 className='text-base font-bold text-foreground'>
+                {m.role_access_role_eligibility()}
+              </h2>
+              <p className='mt-1 text-sm text-muted-foreground'>
+                {m.role_access_role_eligibility_description()}
+              </p>
 
-            <Field className='mt-5 gap-2' data-invalid={!!errors.description}>
-              <FieldLabel htmlFor={`${formId}-description`}>{m.role_access_description()}</FieldLabel>
-              <Textarea
-                id={`${formId}-description`}
-                aria-invalid={!!errors.description}
-                className='min-h-28 w-full resize-none rounded-lg border border-input bg-background p-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 aria-invalid:border-destructive'
-                {...register('description')}
-              />
-              <FieldError errors={errors.description ? [errors.description] : undefined} />
-            </Field>
-          </section>
+              <div className='mt-6 space-y-6'>
+                <Controller
+                  name='eligibleDepartments'
+                  control={control}
+                  render={({ field }) => (
+                    <Field className='gap-2' data-invalid={!!errors.eligibleDepartments}>
+                      <FieldLabel htmlFor={`${formId}-eligible-departments`}>
+                        {m.role_access_eligible_departments()}
+                      </FieldLabel>
+                      <EligibilityDropdown
+                        id={`${formId}-eligible-departments`}
+                        options={eligibilityOptions.departments}
+                        selectedIds={field.value}
+                        placeholder={m.role_access_select_departments()}
+                        countLabel={m.role_access_departments()}
+                        invalid={!!errors.eligibleDepartments}
+                        onChange={field.onChange}
+                      />
+                      <FieldDescription>{m.role_access_department_help()}</FieldDescription>
+                      <FieldError
+                        errors={
+                          errors.eligibleDepartments ? [errors.eligibleDepartments] : undefined
+                        }
+                      />
+                    </Field>
+                  )}
+                />
 
-          <section className='rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6'>
-            <h2 className='text-base font-bold text-foreground'>{m.role_access_role_eligibility()}</h2>
-            <p className='mt-1 text-sm text-muted-foreground'>
-              {m.role_access_role_eligibility_description()}
-            </p>
+                <Controller
+                  name='eligibleBranches'
+                  control={control}
+                  render={({ field }) => (
+                    <Field className='gap-2' data-invalid={!!errors.eligibleBranches}>
+                      <FieldLabel htmlFor={`${formId}-eligible-branches`}>
+                        {m.role_access_eligible_branches()}
+                      </FieldLabel>
+                      <EligibilityDropdown
+                        id={`${formId}-eligible-branches`}
+                        options={eligibilityOptions.branches}
+                        selectedIds={field.value}
+                        placeholder={m.role_access_select_branches()}
+                        countLabel={m.role_access_branches()}
+                        invalid={!!errors.eligibleBranches}
+                        onChange={field.onChange}
+                      />
+                      <FieldDescription>{m.role_access_branch_help()}</FieldDescription>
+                      <FieldError
+                        errors={errors.eligibleBranches ? [errors.eligibleBranches] : undefined}
+                      />
+                    </Field>
+                  )}
+                />
 
-            <div className='mt-6 space-y-6'>
-              <Controller
-                name='eligibleDepartments'
-                control={control}
-                render={({ field }) => (
-                  <Field className='gap-2' data-invalid={!!errors.eligibleDepartments}>
-                    <FieldLabel>{m.role_access_eligible_departments()}</FieldLabel>
-                    <EligibilityDropdown
-                      options={eligibilityOptions.departments}
-                      selectedIds={field.value}
-                      placeholder={m.role_access_select_departments()}
-                      countLabel={m.role_access_departments()}
-                      invalid={!!errors.eligibleDepartments}
-                      onChange={field.onChange}
-                    />
-                    <FieldDescription>
-                      {m.role_access_department_help()}
-                    </FieldDescription>
-                    {errors.eligibleDepartments?.message && (
-                      <p role='alert' className='text-xs text-destructive'>
-                        {errors.eligibleDepartments.message}
-                      </p>
-                    )}
-                  </Field>
-                )}
-              />
+                <Controller
+                  name='allowMultipleRoles'
+                  control={control}
+                  render={({ field }) => (
+                    <Field orientation='horizontal'>
+                      <div>
+                        <FieldLabel htmlFor={`${formId}-allow-multiple-roles`}>
+                          {m.role_access_allow_multiple_roles()}
+                        </FieldLabel>
+                        <p className='mt-1 text-xs text-muted-foreground'>
+                          {m.role_access_allow_multiple_roles_help()}
+                        </p>
+                      </div>
+                      <Switch
+                        id={`${formId}-allow-multiple-roles`}
+                        aria-label={m.role_access_allow_multiple_roles()}
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </Field>
+                  )}
+                />
+              </div>
 
-              <Controller
-                name='eligibleBranches'
-                control={control}
-                render={({ field }) => (
-                  <Field className='gap-2' data-invalid={!!errors.eligibleBranches}>
-                    <FieldLabel>{m.role_access_eligible_branches()}</FieldLabel>
-                    <EligibilityDropdown
-                      options={eligibilityOptions.branches}
-                      selectedIds={field.value}
-                      placeholder={m.role_access_select_branches()}
-                      countLabel={m.role_access_branches()}
-                      invalid={!!errors.eligibleBranches}
-                      onChange={field.onChange}
-                    />
-                    <FieldDescription>
-                      {m.role_access_branch_help()}
-                    </FieldDescription>
-                    {errors.eligibleBranches?.message && (
-                      <p role='alert' className='text-xs text-destructive'>
-                        {errors.eligibleBranches.message}
-                      </p>
-                    )}
-                  </Field>
-                )}
-              />
+              <Field className='mt-5 gap-2' data-invalid={!!errors.accessExpiry}>
+                <FieldLabel htmlFor={`${formId}-access-expiry`}>
+                  {m.role_access_access_expiry()}
+                </FieldLabel>
+                <Controller
+                  name='accessExpiry'
+                  control={control}
+                  render={({ field }) => (
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger
+                        id={`${formId}-access-expiry`}
+                        aria-invalid={!!errors.accessExpiry}
+                        className='h-10 w-full rounded-lg border-input bg-background'
+                      >
+                        <SelectValue placeholder={m.role_access_select_access_expiry()} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value='No expiry'>{m.role_access_no_expiry()}</SelectItem>
+                        <SelectItem value='30 days'>{m.role_access_days_30()}</SelectItem>
+                        <SelectItem value='90 days'>{m.role_access_days_90()}</SelectItem>
+                        <SelectItem value='180 days'>{m.role_access_days_180()}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+                <FieldDescription>{m.role_access_access_expiry_help()}</FieldDescription>
+                <FieldError errors={errors.accessExpiry ? [errors.accessExpiry] : undefined} />
+              </Field>
 
-              <Controller
-                name='allowMultipleRoles'
-                control={control}
-                render={({ field }) => (
-                  <div className='flex items-start justify-between gap-4'>
-                    <div>
-                      <p className='text-sm font-medium text-foreground'>{m.role_access_allow_multiple_roles()}</p>
-                      <p className='mt-1 text-xs text-muted-foreground'>
-                        {m.role_access_allow_multiple_roles_help()}
-                      </p>
-                    </div>
-                    <Switch
-                      aria-label={m.role_access_allow_multiple_roles()}
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </div>
-                )}
-              />
-            </div>
-
-            <Field className='mt-5 gap-2' data-invalid={!!errors.accessExpiry}>
-              <FieldLabel htmlFor={`${formId}-access-expiry`}>{m.role_access_access_expiry()}</FieldLabel>
-              <Controller
-                name='accessExpiry'
-                control={control}
-                render={({ field }) => (
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger
-                      id={`${formId}-access-expiry`}
-                      aria-invalid={!!errors.accessExpiry}
-                      className='h-10 w-full rounded-lg border-input bg-background'
-                    >
-                      <SelectValue placeholder={m.role_access_select_access_expiry()} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value='No expiry'>{m.role_access_no_expiry()}</SelectItem>
-                      <SelectItem value='30 days'>{m.role_access_days_30()}</SelectItem>
-                      <SelectItem value='90 days'>{m.role_access_days_90()}</SelectItem>
-                      <SelectItem value='180 days'>{m.role_access_days_180()}</SelectItem>
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-              <FieldDescription>
-                {m.role_access_access_expiry_help()}
-              </FieldDescription>
-              <FieldError errors={errors.accessExpiry ? [errors.accessExpiry] : undefined} />
-            </Field>
-
-            <Button type='submit' form={formId} disabled={submitting} className='mt-8 w-full'>
-              {submitting ? m.role_access_saving() : submitLabel}
-            </Button>
-          </section>
-        </div>
+              <Button type='submit' form={formId} disabled={submitting} className='mt-8 w-full'>
+                {submitting && <Spinner />}
+                {submitting ? m.role_access_saving() : submitLabel}
+              </Button>
+            </section>
+          </div>
+        </FieldGroup>
       </form>
     </AppMain>
   )

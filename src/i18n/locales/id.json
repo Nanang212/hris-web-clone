@@ -723,6 +723,8 @@
   "role_access_validation_description_min": "Deskripsi minimal 10 karakter.",
   "role_access_validation_description_max": "Deskripsi maksimal 500 karakter.",
   "role_access_validation_access_expiry": "Masa berlaku akses wajib diisi.",
+  "role_access_validation_status": "Pilih status peran yang valid.",
+  "role_access_validation_data_scope": "Pilih cakupan data yang valid.",
   "role_access_validation_department": "Pilih minimal satu departemen yang memenuhi syarat.",
   "role_access_validation_branch": "Pilih minimal satu cabang yang memenuhi syarat.",
   "role_access_user_assignment_title": "Penugasan Pengguna",

@@ -14,14 +14,14 @@ import {
   removeRoleUser,
   updateRole,
   updateRolePermissions,
-} from '@/features/settings/role-access/data/api'
+} from '@/features/settings/role-access/api'
 import type {
   AssignRoleUsersPayload,
   CreateRolePayload,
   RoleFilterParams,
   UpdateRolePayload,
   UpdateRolePermissionsPayload,
-} from '@/features/settings/role-access/data/types'
+} from '@/features/settings/role-access/types'
 
 export const roleAccessQueryKeys = {
   all: ['role-access'] as const,
@@ -33,49 +33,55 @@ export const roleAccessQueryKeys = {
   eligibilityOptions: () => [...roleAccessQueryKeys.all, 'eligibility-options'] as const,
 }
 
-export function useRoleStats() {
+export function useGetRoleStats() {
   return useQuery({
     queryKey: roleAccessQueryKeys.stats(),
     queryFn: getRoleStats,
+    select: (response) => response.data,
   })
 }
 
-export function useRoles(params?: RoleFilterParams) {
+export function useGetRoles(params?: RoleFilterParams) {
   return useQuery({
     queryKey: roleAccessQueryKeys.list(params),
     queryFn: () => getRoles(params),
+    select: (response) => response.data,
   })
 }
 
-export function useRole(id: string) {
+export function useGetRole(id: string) {
   return useQuery({
     queryKey: roleAccessQueryKeys.detail(id),
     queryFn: () => getRoleById(id),
+    select: (response) => response.data,
     enabled: Boolean(id),
   })
 }
 
-export function useRolePermissions(id: string) {
+export function useGetRolePermissions(id: string) {
   return useQuery({
     queryKey: roleAccessQueryKeys.permissions(id),
     queryFn: () => getRolePermissions(id),
+    select: (response) => response.data,
     enabled: Boolean(id),
     placeholderData: keepPreviousData,
   })
 }
 
-export function useRoleAssignments(id: string) {
+export function useGetRoleAssignments(id: string) {
   return useQuery({
     queryKey: roleAccessQueryKeys.assignments(id),
     queryFn: () => getRoleAssignments(id),
+    select: (response) => response.data,
     enabled: Boolean(id),
   })
 }
 
-export function useRoleEligibilityOptions() {
+export function useGetRoleEligibilityOptions() {
   return useQuery({
     queryKey: roleAccessQueryKeys.eligibilityOptions(),
     queryFn: getRoleEligibilityOptions,
+    select: (response) => response.data,
   })
 }
 

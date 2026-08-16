@@ -2,14 +2,14 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { IconLock, IconSearch } from '@tabler/icons-react'
 import { useMemo, useState } from 'react'
 import { Controller, useForm, useWatch, type FieldErrors } from 'react-hook-form'
+import { z } from 'zod'
 
-import { m } from '@/i18n/paraglide/messages'
 import { AppMain } from '@/shared/components/app-layout/app-main'
 import { SkeletonPattern } from '@/shared/components/skeleton-pattern'
 import { Badge } from '@/shared/components/ui/badge'
 import { Button } from '@/shared/components/ui/button'
 import { Checkbox } from '@/shared/components/ui/checkbox'
-import { Field, FieldError, FieldLabel } from '@/shared/components/ui/field'
+import { Field, FieldError, FieldGroup, FieldLabel } from '@/shared/components/ui/field'
 import { Input } from '@/shared/components/ui/input'
 import { Label } from '@/shared/components/ui/label'
 import {
@@ -20,6 +20,7 @@ import {
   SelectValue,
 } from '@/shared/components/ui/select'
 import { Skeleton } from '@/shared/components/ui/skeleton'
+import { Spinner } from '@/shared/components/ui/spinner'
 import {
   Table,
   TableBody,
@@ -31,17 +32,18 @@ import {
 import { useSchema } from '@/shared/lib/schema'
 import { snackbar } from '@/shared/lib/snackbar'
 import {
-  useRolePermissions,
-  useRoles,
+  useGetRolePermissions,
+  useGetRoles,
   useUpdateRolePermissions,
-} from '@/features/settings/role-access/data/hooks'
+} from '@/features/settings/role-access/hooks'
 import type {
   PermissionAction,
   PermissionDataScope,
   Role,
   RolePermissionMatrix,
   RolePermissionModule,
-} from '@/features/settings/role-access/data/types'
+} from '@/features/settings/role-access/types'
+import { m } from '@/i18n/paraglide/messages'
 
 const permissionActions: PermissionAction[] = [
   'view',
@@ -108,16 +110,20 @@ function PermissionMatrixForm({
   const [enabledOnly, setEnabledOnly] = useState(false)
   const updatePermissionsMutation = useUpdateRolePermissions()
 
-  const formSchema = useSchema((z) => ({
+  const formSchema = useSchema(() => ({
     roleId: z.string().min(1, { message: m.role_access_permission_role_required() }),
-    defaultDataScope: z.enum(['Company', 'Administrator', 'Self']),
+    defaultDataScope: z.enum(['Company', 'Administrator', 'Self'], {
+      message: m.role_access_validation_data_scope(),
+    }),
     modules: z
       .array(
         z.object({
           id: z.string().min(1),
           name: z.string().min(1),
           category: z.string().min(1),
-          scope: z.enum(['Company', 'Administrator', 'Self']),
+          scope: z.enum(['Company', 'Administrator', 'Self'], {
+            message: m.role_access_validation_data_scope(),
+          }),
           permissions: z.object({
             view: z.boolean(),
             create: z.boolean(),
@@ -138,7 +144,7 @@ function PermissionMatrixForm({
     setValue,
     control,
     formState: { errors, isSubmitting },
-  } = useForm<PermissionMatrixFormValues>({
+  } = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       roleId: activeRoleId,
@@ -265,19 +271,20 @@ function PermissionMatrixForm({
     setEnabledOnly(false)
   }
 
-  const handleSave = async (values: PermissionMatrixFormValues) => {
-    try {
-      await updatePermissionsMutation.mutateAsync({
+  const handleSave = (values: PermissionMatrixFormValues) => {
+    updatePermissionsMutation.mutate(
+      {
         id: values.roleId,
         payload: {
           defaultDataScope: values.defaultDataScope,
           modules: values.modules,
         },
-      })
-      snackbar.success(m.role_access_permission_save_success())
-    } catch (error) {
-      snackbar.exception(error, m.role_access_permission_save_error())
-    }
+      },
+      {
+        onSuccess: () => snackbar.success(m.role_access_permission_save_success()),
+        onError: (error) => snackbar.exception(error),
+      },
+    )
   }
 
   const handleInvalidSubmit = (formErrors: FieldErrors<PermissionMatrixFormValues>) => {
@@ -318,6 +325,7 @@ function PermissionMatrixForm({
             {m.role_access_reset()}
           </Button>
           <Button type='submit' form='permission-matrix-form' disabled={controlsDisabled}>
+            {submitting && <Spinner />}
             {submitting ? m.role_access_saving() : m.role_access_save_permissions()}
           </Button>
         </>
@@ -328,7 +336,7 @@ function PermissionMatrixForm({
         onSubmit={handleSubmit(handleSave, handleInvalidSubmit)}
         noValidate
       >
-        <div className='space-y-6'>
+        <FieldGroup className='gap-6'>
           <section className='rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6'>
             <div className='grid gap-5 lg:grid-cols-2 lg:items-start'>
               <Field className='gap-2' data-invalid={!!errors.roleId}>
@@ -365,7 +373,9 @@ function PermissionMatrixForm({
               </Field>
 
               <Field className='gap-2' data-invalid={!!errors.defaultDataScope}>
-                <FieldLabel htmlFor='permission-data-scope'>{m.role_access_default_data_scope()}</FieldLabel>
+                <FieldLabel htmlFor='permission-data-scope'>
+                  {m.role_access_default_data_scope()}
+                </FieldLabel>
                 <Controller
                   name='defaultDataScope'
                   control={control}
@@ -387,7 +397,9 @@ function PermissionMatrixForm({
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value='Company'>{m.role_access_scope_company()}</SelectItem>
-                        <SelectItem value='Administrator'>{m.role_access_scope_administrator()}</SelectItem>
+                        <SelectItem value='Administrator'>
+                          {m.role_access_scope_administrator()}
+                        </SelectItem>
                         <SelectItem value='Self'>{m.role_access_scope_self()}</SelectItem>
                       </SelectContent>
                     </Select>
@@ -402,16 +414,19 @@ function PermissionMatrixForm({
 
           <section className='overflow-hidden rounded-2xl border border-border bg-card shadow-sm'>
             <div className='border-b border-border p-5 sm:p-6'>
-              <h2 className='text-base font-bold text-foreground'>{m.role_access_permission_configuration()}</h2>
+              <h2 className='text-base font-bold text-foreground'>
+                {m.role_access_permission_configuration()}
+              </h2>
               <p className='mt-1 text-sm text-muted-foreground'>
-                {m.role_access_permission_configuration_scope({ scope: getScopeLabel(selectedDataScope) })}
+                {m.role_access_permission_configuration_scope({
+                  scope: getScopeLabel(selectedDataScope),
+                })}
               </p>
 
-              {errors.modules?.message && (
-                <p role='alert' className='mt-2 text-sm text-destructive'>
-                  {errors.modules.message}
-                </p>
-              )}
+              <FieldError
+                className='mt-2'
+                errors={errors.modules?.message ? [errors.modules] : undefined}
+              />
 
               <div className='mt-5 flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between'>
                 <div className='flex flex-1 flex-col gap-3 sm:flex-row'>
@@ -433,12 +448,16 @@ function PermissionMatrixForm({
                       aria-label={m.role_access_filter_category()}
                       className='h-10 w-full rounded-lg border-input bg-background sm:w-52'
                     >
-                      <SelectValue placeholder={m.role_access_category_filter({ value: m.role_access_all() })} />
+                      <SelectValue
+                        placeholder={m.role_access_category_filter({ value: m.role_access_all() })}
+                      />
                     </SelectTrigger>
                     <SelectContent>
                       {categories.map((value) => (
                         <SelectItem key={value} value={value}>
-                          {m.role_access_category_filter({ value: value === 'All' ? m.role_access_all() : value })}
+                          {m.role_access_category_filter({
+                            value: value === 'All' ? m.role_access_all() : value,
+                          })}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -482,7 +501,9 @@ function PermissionMatrixForm({
                         {actionLabels[action]()}
                       </TableHead>
                     ))}
-                    <TableHead className='px-5 py-3 text-center'>{m.role_access_permission_all()}</TableHead>
+                    <TableHead className='px-5 py-3 text-center'>
+                      {m.role_access_permission_all()}
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -582,7 +603,7 @@ function PermissionMatrixForm({
               <span>{m.role_access_permission_audit_note()}</span>
             </div>
           </section>
-        </div>
+        </FieldGroup>
       </form>
     </AppMain>
   )
@@ -590,10 +611,10 @@ function PermissionMatrixForm({
 
 export function PermissionMatrixPage() {
   const [selectedRoleId, setSelectedRoleId] = useState('')
-  const rolesQuery = useRoles()
+  const rolesQuery = useGetRoles()
   const roles = rolesQuery.data ?? []
   const activeRoleId = selectedRoleId || roles[0]?.id || ''
-  const permissionsQuery = useRolePermissions(activeRoleId)
+  const permissionsQuery = useGetRolePermissions(activeRoleId)
 
   const pending =
     rolesQuery.isPending ||

@@ -1,19 +1,19 @@
 import { useNavigate } from '@tanstack/react-router'
 
-import { m } from '@/i18n/paraglide/messages'
 import { AppMain } from '@/shared/components/app-layout/app-main'
 import { snackbar } from '@/shared/lib/snackbar'
 import { RoleForm } from '@/features/settings/role-access/components/role-form'
 import {
-  useRole,
-  useRoleEligibilityOptions,
+  useGetRole,
+  useGetRoleEligibilityOptions,
   useUpdateRole,
-} from '@/features/settings/role-access/data/hooks'
+} from '@/features/settings/role-access/hooks'
 import type {
   CreateRolePayload,
   Role,
   RoleEligibilityOptions,
-} from '@/features/settings/role-access/data/types'
+} from '@/features/settings/role-access/types'
+import { m } from '@/i18n/paraglide/messages'
 
 type EditRolePageProps = Readonly<{
   roleId: string
@@ -39,14 +39,17 @@ function EditRoleForm({
   const navigate = useNavigate()
   const updateRoleMutation = useUpdateRole()
 
-  const handleSubmit = async (values: CreateRolePayload) => {
-    try {
-      await updateRoleMutation.mutateAsync({ id: role.id, payload: values })
-      snackbar.success(m.role_access_update_success())
-      navigate({ to: '/settings/role-access' })
-    } catch (error) {
-      snackbar.exception(error, m.role_access_update_error())
-    }
+  const handleSubmit = (values: CreateRolePayload) => {
+    updateRoleMutation.mutate(
+      { id: role.id, payload: values },
+      {
+        onSuccess: () => {
+          snackbar.success(m.role_access_update_success())
+          navigate({ to: '/settings/role-access' })
+        },
+        onError: (error) => snackbar.exception(error),
+      },
+    )
   }
 
   return (
@@ -61,8 +64,8 @@ function EditRoleForm({
 }
 
 export function EditRolePage({ roleId }: EditRolePageProps) {
-  const roleQuery = useRole(roleId)
-  const eligibilityQuery = useRoleEligibilityOptions()
+  const roleQuery = useGetRole(roleId)
+  const eligibilityQuery = useGetRoleEligibilityOptions()
   const pending = roleQuery.isPending || eligibilityQuery.isPending
   const error = roleQuery.error ?? eligibilityQuery.error
   const notFound = !pending && !error && (!roleQuery.data || !eligibilityQuery.data)

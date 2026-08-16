@@ -1,7 +1,7 @@
 export type RoleScope = 'Company' | 'Team' | 'Self'
 export type RoleStatus = 'Active' | 'Inactive' | 'Draft'
 
-export type Role = {
+export interface Role {
   id: string
   name: string
   code: string
@@ -18,18 +18,18 @@ export type Role = {
   action?: string
 }
 
-export type RoleStats = {
+export interface RoleStats {
   activeRoles: number
   userAssignments: number
   permissionSets: number
 }
 
-export type RoleFilterParams = {
+export interface RoleFilterParams {
   search?: string
   status?: string
 }
 
-export type CreateRolePayload = {
+export interface CreateRolePayload {
   name: string
   code: string
   status: RoleStatus
@@ -44,7 +44,7 @@ export type UpdateRolePayload = Partial<CreateRolePayload>
 
 export type UserAssignmentStatus = 'Assigned' | 'Eligible'
 
-export type RoleAssignmentUser = {
+export interface RoleAssignmentUser {
   id: string
   employeeId: string
   name: string
@@ -54,23 +54,23 @@ export type RoleAssignmentUser = {
   status: UserAssignmentStatus
 }
 
-export type RoleAssignments = {
+export interface RoleAssignments {
   roleId: string
   users: RoleAssignmentUser[]
 }
 
-export type AssignRoleUsersPayload = {
+export interface AssignRoleUsersPayload {
   userIds: string[]
   effectiveDate: string
   notifyUsers: boolean
 }
 
-export type RoleEligibilityOption = {
+export interface RoleEligibilityOption {
   id: string
   name: string
 }
 
-export type RoleEligibilityOptions = {
+export interface RoleEligibilityOptions {
   departments: RoleEligibilityOption[]
   branches: RoleEligibilityOption[]
 }
@@ -82,7 +82,7 @@ export type PermissionDataScope = 'Company' | 'Administrator' | 'Self'
 
 export type PermissionFlags = Record<PermissionAction, boolean>
 
-export type RolePermissionModule = {
+export interface RolePermissionModule {
   id: string
   name: string
   category: string
@@ -90,7 +90,7 @@ export type RolePermissionModule = {
   permissions: PermissionFlags
 }
 
-export type RolePermissionMatrix = {
+export interface RolePermissionMatrix {
   roleId: string
   roleName: string
   userCount: number
@@ -98,7 +98,7 @@ export type RolePermissionMatrix = {
   modules: RolePermissionModule[]
 }
 
-export type UpdateRolePermissionsPayload = {
+export interface UpdateRolePermissionsPayload {
   defaultDataScope: PermissionDataScope
   modules: RolePermissionModule[]
 }
