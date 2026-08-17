@@ -1,5 +1,5 @@
 ---
-name: hris-feature-module
+name: hris-web
 description: "Use this skill whenever creating or editing a feature module in the HRIS web app (src/features/**) — new pages, api.ts, hooks.ts, or types.ts files, React Query data fetching/mutation, i18n message usage, or any file/variable/type naming inside src/features. Also use this skill for any shadcn/ui work in this project — adding, searching, fixing, debugging, styling, or composing UI, working with components.json, presets, or --preset codes. Triggers include: 'buat fitur baru', 'tambah halaman', 'buat api.ts/hooks.ts/types.ts', 'pakai react query', 'tambah translation/i18n', 'shadcn init', 'add a component', or any request to scaffold a module following the auth/dashboard feature reference pattern. Every page component must be wrapped in <AppMain />. Do NOT use for backend code."
 user-invocable: false
 allowed-tools: Bash(npx shadcn@latest *), Bash(pnpm dlx shadcn@latest *), Bash(bunx --bun shadcn@latest *)
@@ -629,6 +629,7 @@ Badge component supports the following variants (from `src/shared/components/ui/
 | Empty states               | `Empty`                                                                                             |
 | Menus                      | `DropdownMenu`, `ContextMenu`, `Menubar`                                                            |
 | Tooltips/info              | `Tooltip`, `HoverCard`, `Popover`                                                                   |
+| Chart                      | `Chart` (recharts)                                                                                  |
 
 ## B.7 Key fields from project context
 
