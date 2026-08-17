@@ -3,6 +3,7 @@ import {
   IconCalendarWeek,
   IconChecklist,
   IconCircleCheck,
+  IconClockHour4,
   IconLayoutDashboard,
   IconReportAnalytics,
   IconReportMoney,
@@ -126,6 +127,12 @@ export const mainMenu: Menu[] = [
     to: '/leave',
     icon: IconCalendarWeek,
     title: m.app_layout_nav_leave,
+  },
+  {
+    key: 'overtime',
+    to: '/overtime',
+    icon: IconClockHour4,
+    title: m.app_layout_nav_overtime,
   },
   {
     key: 'payroll',

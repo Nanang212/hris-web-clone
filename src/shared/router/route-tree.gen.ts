@@ -26,6 +26,8 @@ import { Route as appAttendanceSettingsRouteImport } from './../../routes/(app)/
 import { Route as appLeaveIndexRouteImport } from './../../routes/(app)/leave/index'
 import { Route as appLeaveBalanceRouteImport } from './../../routes/(app)/leave/balance'
 import { Route as appLeaveHistoryRouteImport } from './../../routes/(app)/leave/history'
+import { Route as appOvertimeIndexRouteImport } from './../../routes/(app)/overtime/index'
+import { Route as appOvertimeHistoryRouteImport } from './../../routes/(app)/overtime/history'
 import { Route as appPayrollIndexRouteImport } from './../../routes/(app)/payroll/index'
 import { Route as appPerformanceIndexRouteImport } from './../../routes/(app)/performance/index'
 import { Route as appReportIndexRouteImport } from './../../routes/(app)/report/index'
@@ -57,6 +59,13 @@ import { Route as appLeaveApprovalRequestIdRouteImport } from './../../routes/(a
 import { Route as appLeaveRequestsIndexRouteImport } from './../../routes/(app)/leave/requests/index'
 import { Route as appLeaveRequestsRequestIdRouteImport } from './../../routes/(app)/leave/requests/$requestId'
 import { Route as appLeaveRequestsNewRouteImport } from './../../routes/(app)/leave/requests/new'
+import { Route as appOvertimeApprovalIndexRouteImport } from './../../routes/(app)/overtime/approval/index'
+import { Route as appOvertimeApprovalRequestIdRouteImport } from './../../routes/(app)/overtime/approval/$requestId'
+import { Route as appOvertimeCalculationIndexRouteImport } from './../../routes/(app)/overtime/calculation/index'
+import { Route as appOvertimeCalculationRequestIdRouteImport } from './../../routes/(app)/overtime/calculation/$requestId'
+import { Route as appOvertimeCalculationRulesRouteImport } from './../../routes/(app)/overtime/calculation/rules'
+import { Route as appOvertimeRequestsRequestIdRouteImport } from './../../routes/(app)/overtime/requests/$requestId'
+import { Route as appOvertimeRequestsNewRouteImport } from './../../routes/(app)/overtime/requests/new'
 import { Route as appSettingsApprovalWorkflowIndexRouteImport } from './../../routes/(app)/settings/approval-workflow/index'
 import { Route as appSettingsApprovalWorkflowMatrixRouteImport } from './../../routes/(app)/settings/approval-workflow/matrix'
 import { Route as appSettingsApprovalWorkflowNewRouteImport } from './../../routes/(app)/settings/approval-workflow/new'
@@ -173,6 +182,16 @@ const appLeaveBalanceRoute = appLeaveBalanceRouteImport.update({
 const appLeaveHistoryRoute = appLeaveHistoryRouteImport.update({
   id: '/leave/history',
   path: '/leave/history',
+  getParentRoute: () => appRouteRoute,
+} as any)
+const appOvertimeIndexRoute = appOvertimeIndexRouteImport.update({
+  id: '/overtime/',
+  path: '/overtime/',
+  getParentRoute: () => appRouteRoute,
+} as any)
+const appOvertimeHistoryRoute = appOvertimeHistoryRouteImport.update({
+  id: '/overtime/history',
+  path: '/overtime/history',
   getParentRoute: () => appRouteRoute,
 } as any)
 const appPayrollIndexRoute = appPayrollIndexRouteImport.update({
@@ -348,6 +367,47 @@ const appLeaveRequestsRequestIdRoute =
 const appLeaveRequestsNewRoute = appLeaveRequestsNewRouteImport.update({
   id: '/leave/requests/new',
   path: '/leave/requests/new',
+  getParentRoute: () => appRouteRoute,
+} as any)
+const appOvertimeApprovalIndexRoute =
+  appOvertimeApprovalIndexRouteImport.update({
+    id: '/overtime/approval/',
+    path: '/overtime/approval/',
+    getParentRoute: () => appRouteRoute,
+  } as any)
+const appOvertimeApprovalRequestIdRoute =
+  appOvertimeApprovalRequestIdRouteImport.update({
+    id: '/overtime/approval/$requestId',
+    path: '/overtime/approval/$requestId',
+    getParentRoute: () => appRouteRoute,
+  } as any)
+const appOvertimeCalculationIndexRoute =
+  appOvertimeCalculationIndexRouteImport.update({
+    id: '/overtime/calculation/',
+    path: '/overtime/calculation/',
+    getParentRoute: () => appRouteRoute,
+  } as any)
+const appOvertimeCalculationRequestIdRoute =
+  appOvertimeCalculationRequestIdRouteImport.update({
+    id: '/overtime/calculation/$requestId',
+    path: '/overtime/calculation/$requestId',
+    getParentRoute: () => appRouteRoute,
+  } as any)
+const appOvertimeCalculationRulesRoute =
+  appOvertimeCalculationRulesRouteImport.update({
+    id: '/overtime/calculation/rules',
+    path: '/overtime/calculation/rules',
+    getParentRoute: () => appRouteRoute,
+  } as any)
+const appOvertimeRequestsRequestIdRoute =
+  appOvertimeRequestsRequestIdRouteImport.update({
+    id: '/overtime/requests/$requestId',
+    path: '/overtime/requests/$requestId',
+    getParentRoute: () => appRouteRoute,
+  } as any)
+const appOvertimeRequestsNewRoute = appOvertimeRequestsNewRouteImport.update({
+  id: '/overtime/requests/new',
+  path: '/overtime/requests/new',
   getParentRoute: () => appRouteRoute,
 } as any)
 const appSettingsApprovalWorkflowIndexRoute =
@@ -549,10 +609,12 @@ export interface FileRoutesByFullPath {
   '/attendance/settings': typeof appAttendanceSettingsRoute
   '/leave/balance': typeof appLeaveBalanceRoute
   '/leave/history': typeof appLeaveHistoryRoute
+  '/overtime/history': typeof appOvertimeHistoryRoute
   '/': typeof appdashboardIndexRoute
   '/approval/': typeof appApprovalIndexRoute
   '/attendance/': typeof appAttendanceIndexRoute
   '/leave/': typeof appLeaveIndexRoute
+  '/overtime/': typeof appOvertimeIndexRoute
   '/payroll/': typeof appPayrollIndexRoute
   '/performance/': typeof appPerformanceIndexRoute
   '/report/': typeof appReportIndexRoute
@@ -575,6 +637,11 @@ export interface FileRoutesByFullPath {
   '/leave/approval/$requestId': typeof appLeaveApprovalRequestIdRoute
   '/leave/requests/$requestId': typeof appLeaveRequestsRequestIdRoute
   '/leave/requests/new': typeof appLeaveRequestsNewRoute
+  '/overtime/approval/$requestId': typeof appOvertimeApprovalRequestIdRoute
+  '/overtime/calculation/$requestId': typeof appOvertimeCalculationRequestIdRoute
+  '/overtime/calculation/rules': typeof appOvertimeCalculationRulesRoute
+  '/overtime/requests/$requestId': typeof appOvertimeRequestsRequestIdRoute
+  '/overtime/requests/new': typeof appOvertimeRequestsNewRoute
   '/settings/approval-workflow/matrix': typeof appSettingsApprovalWorkflowMatrixRoute
   '/settings/approval-workflow/new': typeof appSettingsApprovalWorkflowNewRoute
   '/settings/master-data/departments': typeof appSettingsMasterDataDepartmentsRoute
@@ -597,6 +664,8 @@ export interface FileRoutesByFullPath {
   '/company/organization/': typeof appCompanyOrganizationIndexRoute
   '/leave/approval/': typeof appLeaveApprovalIndexRoute
   '/leave/requests/': typeof appLeaveRequestsIndexRoute
+  '/overtime/approval/': typeof appOvertimeApprovalIndexRoute
+  '/overtime/calculation/': typeof appOvertimeCalculationIndexRoute
   '/settings/approval-workflow/': typeof appSettingsApprovalWorkflowIndexRoute
   '/settings/company/': typeof appSettingsCompanyIndexRoute
   '/settings/master-data/': typeof appSettingsMasterDataIndexRoute
@@ -629,10 +698,12 @@ export interface FileRoutesByTo {
   '/attendance/settings': typeof appAttendanceSettingsRoute
   '/leave/balance': typeof appLeaveBalanceRoute
   '/leave/history': typeof appLeaveHistoryRoute
+  '/overtime/history': typeof appOvertimeHistoryRoute
   '/': typeof appdashboardIndexRoute
   '/approval': typeof appApprovalIndexRoute
   '/attendance': typeof appAttendanceIndexRoute
   '/leave': typeof appLeaveIndexRoute
+  '/overtime': typeof appOvertimeIndexRoute
   '/payroll': typeof appPayrollIndexRoute
   '/performance': typeof appPerformanceIndexRoute
   '/report': typeof appReportIndexRoute
@@ -655,6 +726,11 @@ export interface FileRoutesByTo {
   '/leave/approval/$requestId': typeof appLeaveApprovalRequestIdRoute
   '/leave/requests/$requestId': typeof appLeaveRequestsRequestIdRoute
   '/leave/requests/new': typeof appLeaveRequestsNewRoute
+  '/overtime/approval/$requestId': typeof appOvertimeApprovalRequestIdRoute
+  '/overtime/calculation/$requestId': typeof appOvertimeCalculationRequestIdRoute
+  '/overtime/calculation/rules': typeof appOvertimeCalculationRulesRoute
+  '/overtime/requests/$requestId': typeof appOvertimeRequestsRequestIdRoute
+  '/overtime/requests/new': typeof appOvertimeRequestsNewRoute
   '/settings/approval-workflow/matrix': typeof appSettingsApprovalWorkflowMatrixRoute
   '/settings/approval-workflow/new': typeof appSettingsApprovalWorkflowNewRoute
   '/settings/master-data/departments': typeof appSettingsMasterDataDepartmentsRoute
@@ -677,6 +753,8 @@ export interface FileRoutesByTo {
   '/company/organization': typeof appCompanyOrganizationIndexRoute
   '/leave/approval': typeof appLeaveApprovalIndexRoute
   '/leave/requests': typeof appLeaveRequestsIndexRoute
+  '/overtime/approval': typeof appOvertimeApprovalIndexRoute
+  '/overtime/calculation': typeof appOvertimeCalculationIndexRoute
   '/settings/approval-workflow': typeof appSettingsApprovalWorkflowIndexRoute
   '/settings/company': typeof appSettingsCompanyIndexRoute
   '/settings/master-data': typeof appSettingsMasterDataIndexRoute
@@ -711,10 +789,12 @@ export interface FileRoutesById {
   '/(app)/attendance/settings': typeof appAttendanceSettingsRoute
   '/(app)/leave/balance': typeof appLeaveBalanceRoute
   '/(app)/leave/history': typeof appLeaveHistoryRoute
+  '/(app)/overtime/history': typeof appOvertimeHistoryRoute
   '/(app)/(dashboard)/': typeof appdashboardIndexRoute
   '/(app)/approval/': typeof appApprovalIndexRoute
   '/(app)/attendance/': typeof appAttendanceIndexRoute
   '/(app)/leave/': typeof appLeaveIndexRoute
+  '/(app)/overtime/': typeof appOvertimeIndexRoute
   '/(app)/payroll/': typeof appPayrollIndexRoute
   '/(app)/performance/': typeof appPerformanceIndexRoute
   '/(app)/report/': typeof appReportIndexRoute
@@ -737,6 +817,11 @@ export interface FileRoutesById {
   '/(app)/leave/approval/$requestId': typeof appLeaveApprovalRequestIdRoute
   '/(app)/leave/requests/$requestId': typeof appLeaveRequestsRequestIdRoute
   '/(app)/leave/requests/new': typeof appLeaveRequestsNewRoute
+  '/(app)/overtime/approval/$requestId': typeof appOvertimeApprovalRequestIdRoute
+  '/(app)/overtime/calculation/$requestId': typeof appOvertimeCalculationRequestIdRoute
+  '/(app)/overtime/calculation/rules': typeof appOvertimeCalculationRulesRoute
+  '/(app)/overtime/requests/$requestId': typeof appOvertimeRequestsRequestIdRoute
+  '/(app)/overtime/requests/new': typeof appOvertimeRequestsNewRoute
   '/(app)/settings/approval-workflow/matrix': typeof appSettingsApprovalWorkflowMatrixRoute
   '/(app)/settings/approval-workflow/new': typeof appSettingsApprovalWorkflowNewRoute
   '/(app)/settings/master-data/departments': typeof appSettingsMasterDataDepartmentsRoute
@@ -759,6 +844,8 @@ export interface FileRoutesById {
   '/(app)/company/organization/': typeof appCompanyOrganizationIndexRoute
   '/(app)/leave/approval/': typeof appLeaveApprovalIndexRoute
   '/(app)/leave/requests/': typeof appLeaveRequestsIndexRoute
+  '/(app)/overtime/approval/': typeof appOvertimeApprovalIndexRoute
+  '/(app)/overtime/calculation/': typeof appOvertimeCalculationIndexRoute
   '/(app)/settings/approval-workflow/': typeof appSettingsApprovalWorkflowIndexRoute
   '/(app)/settings/company/': typeof appSettingsCompanyIndexRoute
   '/(app)/settings/master-data/': typeof appSettingsMasterDataIndexRoute
@@ -793,10 +880,12 @@ export interface FileRouteTypes {
     | '/attendance/settings'
     | '/leave/balance'
     | '/leave/history'
+    | '/overtime/history'
     | '/'
     | '/approval/'
     | '/attendance/'
     | '/leave/'
+    | '/overtime/'
     | '/payroll/'
     | '/performance/'
     | '/report/'
@@ -819,6 +908,11 @@ export interface FileRouteTypes {
     | '/leave/approval/$requestId'
     | '/leave/requests/$requestId'
     | '/leave/requests/new'
+    | '/overtime/approval/$requestId'
+    | '/overtime/calculation/$requestId'
+    | '/overtime/calculation/rules'
+    | '/overtime/requests/$requestId'
+    | '/overtime/requests/new'
     | '/settings/approval-workflow/matrix'
     | '/settings/approval-workflow/new'
     | '/settings/master-data/departments'
@@ -841,6 +935,8 @@ export interface FileRouteTypes {
     | '/company/organization/'
     | '/leave/approval/'
     | '/leave/requests/'
+    | '/overtime/approval/'
+    | '/overtime/calculation/'
     | '/settings/approval-workflow/'
     | '/settings/company/'
     | '/settings/master-data/'
@@ -873,10 +969,12 @@ export interface FileRouteTypes {
     | '/attendance/settings'
     | '/leave/balance'
     | '/leave/history'
+    | '/overtime/history'
     | '/'
     | '/approval'
     | '/attendance'
     | '/leave'
+    | '/overtime'
     | '/payroll'
     | '/performance'
     | '/report'
@@ -899,6 +997,11 @@ export interface FileRouteTypes {
     | '/leave/approval/$requestId'
     | '/leave/requests/$requestId'
     | '/leave/requests/new'
+    | '/overtime/approval/$requestId'
+    | '/overtime/calculation/$requestId'
+    | '/overtime/calculation/rules'
+    | '/overtime/requests/$requestId'
+    | '/overtime/requests/new'
     | '/settings/approval-workflow/matrix'
     | '/settings/approval-workflow/new'
     | '/settings/master-data/departments'
@@ -921,6 +1024,8 @@ export interface FileRouteTypes {
     | '/company/organization'
     | '/leave/approval'
     | '/leave/requests'
+    | '/overtime/approval'
+    | '/overtime/calculation'
     | '/settings/approval-workflow'
     | '/settings/company'
     | '/settings/master-data'
@@ -954,10 +1059,12 @@ export interface FileRouteTypes {
     | '/(app)/attendance/settings'
     | '/(app)/leave/balance'
     | '/(app)/leave/history'
+    | '/(app)/overtime/history'
     | '/(app)/(dashboard)/'
     | '/(app)/approval/'
     | '/(app)/attendance/'
     | '/(app)/leave/'
+    | '/(app)/overtime/'
     | '/(app)/payroll/'
     | '/(app)/performance/'
     | '/(app)/report/'
@@ -980,6 +1087,11 @@ export interface FileRouteTypes {
     | '/(app)/leave/approval/$requestId'
     | '/(app)/leave/requests/$requestId'
     | '/(app)/leave/requests/new'
+    | '/(app)/overtime/approval/$requestId'
+    | '/(app)/overtime/calculation/$requestId'
+    | '/(app)/overtime/calculation/rules'
+    | '/(app)/overtime/requests/$requestId'
+    | '/(app)/overtime/requests/new'
     | '/(app)/settings/approval-workflow/matrix'
     | '/(app)/settings/approval-workflow/new'
     | '/(app)/settings/master-data/departments'
@@ -1002,6 +1114,8 @@ export interface FileRouteTypes {
     | '/(app)/company/organization/'
     | '/(app)/leave/approval/'
     | '/(app)/leave/requests/'
+    | '/(app)/overtime/approval/'
+    | '/(app)/overtime/calculation/'
     | '/(app)/settings/approval-workflow/'
     | '/(app)/settings/company/'
     | '/(app)/settings/master-data/'
@@ -1149,6 +1263,20 @@ declare module '@tanstack/react-router' {
       path: '/leave/history'
       fullPath: '/leave/history'
       preLoaderRoute: typeof appLeaveHistoryRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/overtime/': {
+      id: '/(app)/overtime/'
+      path: '/overtime'
+      fullPath: '/overtime/'
+      preLoaderRoute: typeof appOvertimeIndexRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/overtime/history': {
+      id: '/(app)/overtime/history'
+      path: '/overtime/history'
+      fullPath: '/overtime/history'
+      preLoaderRoute: typeof appOvertimeHistoryRouteImport
       parentRoute: typeof appRouteRoute
     }
     '/(app)/payroll/': {
@@ -1366,6 +1494,55 @@ declare module '@tanstack/react-router' {
       path: '/leave/requests/new'
       fullPath: '/leave/requests/new'
       preLoaderRoute: typeof appLeaveRequestsNewRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/overtime/approval/': {
+      id: '/(app)/overtime/approval/'
+      path: '/overtime/approval'
+      fullPath: '/overtime/approval/'
+      preLoaderRoute: typeof appOvertimeApprovalIndexRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/overtime/approval/$requestId': {
+      id: '/(app)/overtime/approval/$requestId'
+      path: '/overtime/approval/$requestId'
+      fullPath: '/overtime/approval/$requestId'
+      preLoaderRoute: typeof appOvertimeApprovalRequestIdRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/overtime/calculation/': {
+      id: '/(app)/overtime/calculation/'
+      path: '/overtime/calculation'
+      fullPath: '/overtime/calculation/'
+      preLoaderRoute: typeof appOvertimeCalculationIndexRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/overtime/calculation/$requestId': {
+      id: '/(app)/overtime/calculation/$requestId'
+      path: '/overtime/calculation/$requestId'
+      fullPath: '/overtime/calculation/$requestId'
+      preLoaderRoute: typeof appOvertimeCalculationRequestIdRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/overtime/calculation/rules': {
+      id: '/(app)/overtime/calculation/rules'
+      path: '/overtime/calculation/rules'
+      fullPath: '/overtime/calculation/rules'
+      preLoaderRoute: typeof appOvertimeCalculationRulesRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/overtime/requests/$requestId': {
+      id: '/(app)/overtime/requests/$requestId'
+      path: '/overtime/requests/$requestId'
+      fullPath: '/overtime/requests/$requestId'
+      preLoaderRoute: typeof appOvertimeRequestsRequestIdRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/overtime/requests/new': {
+      id: '/(app)/overtime/requests/new'
+      path: '/overtime/requests/new'
+      fullPath: '/overtime/requests/new'
+      preLoaderRoute: typeof appOvertimeRequestsNewRouteImport
       parentRoute: typeof appRouteRoute
     }
     '/(app)/settings/approval-workflow/': {
@@ -1612,10 +1789,12 @@ interface appRouteRouteChildren {
   appAttendanceSettingsRoute: typeof appAttendanceSettingsRoute
   appLeaveBalanceRoute: typeof appLeaveBalanceRoute
   appLeaveHistoryRoute: typeof appLeaveHistoryRoute
+  appOvertimeHistoryRoute: typeof appOvertimeHistoryRoute
   appdashboardIndexRoute: typeof appdashboardIndexRoute
   appApprovalIndexRoute: typeof appApprovalIndexRoute
   appAttendanceIndexRoute: typeof appAttendanceIndexRoute
   appLeaveIndexRoute: typeof appLeaveIndexRoute
+  appOvertimeIndexRoute: typeof appOvertimeIndexRoute
   appPayrollIndexRoute: typeof appPayrollIndexRoute
   appPerformanceIndexRoute: typeof appPerformanceIndexRoute
   appReportIndexRoute: typeof appReportIndexRoute
@@ -1638,6 +1817,11 @@ interface appRouteRouteChildren {
   appLeaveApprovalRequestIdRoute: typeof appLeaveApprovalRequestIdRoute
   appLeaveRequestsRequestIdRoute: typeof appLeaveRequestsRequestIdRoute
   appLeaveRequestsNewRoute: typeof appLeaveRequestsNewRoute
+  appOvertimeApprovalRequestIdRoute: typeof appOvertimeApprovalRequestIdRoute
+  appOvertimeCalculationRequestIdRoute: typeof appOvertimeCalculationRequestIdRoute
+  appOvertimeCalculationRulesRoute: typeof appOvertimeCalculationRulesRoute
+  appOvertimeRequestsRequestIdRoute: typeof appOvertimeRequestsRequestIdRoute
+  appOvertimeRequestsNewRoute: typeof appOvertimeRequestsNewRoute
   appSettingsApprovalWorkflowMatrixRoute: typeof appSettingsApprovalWorkflowMatrixRoute
   appSettingsApprovalWorkflowNewRoute: typeof appSettingsApprovalWorkflowNewRoute
   appSettingsMasterDataDepartmentsRoute: typeof appSettingsMasterDataDepartmentsRoute
@@ -1660,6 +1844,8 @@ interface appRouteRouteChildren {
   appCompanyOrganizationIndexRoute: typeof appCompanyOrganizationIndexRoute
   appLeaveApprovalIndexRoute: typeof appLeaveApprovalIndexRoute
   appLeaveRequestsIndexRoute: typeof appLeaveRequestsIndexRoute
+  appOvertimeApprovalIndexRoute: typeof appOvertimeApprovalIndexRoute
+  appOvertimeCalculationIndexRoute: typeof appOvertimeCalculationIndexRoute
   appSettingsApprovalWorkflowIndexRoute: typeof appSettingsApprovalWorkflowIndexRoute
   appSettingsCompanyIndexRoute: typeof appSettingsCompanyIndexRoute
   appSettingsMasterDataIndexRoute: typeof appSettingsMasterDataIndexRoute
@@ -1688,10 +1874,12 @@ const appRouteRouteChildren: appRouteRouteChildren = {
   appAttendanceSettingsRoute: appAttendanceSettingsRoute,
   appLeaveBalanceRoute: appLeaveBalanceRoute,
   appLeaveHistoryRoute: appLeaveHistoryRoute,
+  appOvertimeHistoryRoute: appOvertimeHistoryRoute,
   appdashboardIndexRoute: appdashboardIndexRoute,
   appApprovalIndexRoute: appApprovalIndexRoute,
   appAttendanceIndexRoute: appAttendanceIndexRoute,
   appLeaveIndexRoute: appLeaveIndexRoute,
+  appOvertimeIndexRoute: appOvertimeIndexRoute,
   appPayrollIndexRoute: appPayrollIndexRoute,
   appPerformanceIndexRoute: appPerformanceIndexRoute,
   appReportIndexRoute: appReportIndexRoute,
@@ -1715,6 +1903,11 @@ const appRouteRouteChildren: appRouteRouteChildren = {
   appLeaveApprovalRequestIdRoute: appLeaveApprovalRequestIdRoute,
   appLeaveRequestsRequestIdRoute: appLeaveRequestsRequestIdRoute,
   appLeaveRequestsNewRoute: appLeaveRequestsNewRoute,
+  appOvertimeApprovalRequestIdRoute: appOvertimeApprovalRequestIdRoute,
+  appOvertimeCalculationRequestIdRoute: appOvertimeCalculationRequestIdRoute,
+  appOvertimeCalculationRulesRoute: appOvertimeCalculationRulesRoute,
+  appOvertimeRequestsRequestIdRoute: appOvertimeRequestsRequestIdRoute,
+  appOvertimeRequestsNewRoute: appOvertimeRequestsNewRoute,
   appSettingsApprovalWorkflowMatrixRoute:
     appSettingsApprovalWorkflowMatrixRoute,
   appSettingsApprovalWorkflowNewRoute: appSettingsApprovalWorkflowNewRoute,
@@ -1740,6 +1933,8 @@ const appRouteRouteChildren: appRouteRouteChildren = {
   appCompanyOrganizationIndexRoute: appCompanyOrganizationIndexRoute,
   appLeaveApprovalIndexRoute: appLeaveApprovalIndexRoute,
   appLeaveRequestsIndexRoute: appLeaveRequestsIndexRoute,
+  appOvertimeApprovalIndexRoute: appOvertimeApprovalIndexRoute,
+  appOvertimeCalculationIndexRoute: appOvertimeCalculationIndexRoute,
   appSettingsApprovalWorkflowIndexRoute: appSettingsApprovalWorkflowIndexRoute,
   appSettingsCompanyIndexRoute: appSettingsCompanyIndexRoute,
   appSettingsMasterDataIndexRoute: appSettingsMasterDataIndexRoute,

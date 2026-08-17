@@ -43,7 +43,7 @@
   --font-sans: 'Montserrat Variable', sans-serif;
   --font-serif: 'Merriweather', serif;
   --font-mono: 'JetBrains Mono', monospace;
-  --radius: 1.4rem;
+  --radius: 1rem;
   --shadow-x: 0px;
   --shadow-y: 4px;
   --shadow-blur: 15px;
@@ -98,7 +98,7 @@
   --font-sans: 'Montserrat Variable', sans-serif;
   --font-serif: 'Merriweather', serif;
   --font-mono: 'JetBrains Mono', monospace;
-  --radius: 1.4rem;
+  --radius: 1rem;
   --shadow-x: 0px;
   --shadow-y: 10px;
   --shadow-blur: 25px;
