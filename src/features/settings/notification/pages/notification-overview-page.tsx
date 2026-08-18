@@ -9,6 +9,7 @@ import {
   IconSearch,
   IconTemplate,
 } from '@tabler/icons-react'
+import { Link } from '@tanstack/react-router'
 import dayjs from 'dayjs'
 import { useState } from 'react'
 
@@ -226,12 +227,11 @@ export function NotificationOverviewPage() {
       title={m.notification_overview_title()}
       subtitle={m.notification_overview_subtitle()}
       actions={
-        <Button
-          type='button'
-          onClick={() => snackbar.info(m.notification_overview_templates_coming_soon())}
-        >
-          <IconPlus size={16} />
-          {m.notification_overview_manage_templates()}
+        <Button asChild>
+          <Link to='/settings/notification/templates'>
+            <IconPlus data-icon='inline-start' />
+            {m.notification_overview_manage_templates()}
+          </Link>
         </Button>
       }
     >

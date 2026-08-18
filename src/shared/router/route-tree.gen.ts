@@ -81,6 +81,7 @@ import { Route as appSettingsMasterDataPayrollComponentsRouteImport } from './..
 import { Route as appSettingsMasterDataPositionsRouteImport } from './../../routes/(app)/settings/master-data/positions'
 import { Route as appSettingsMasterDataShiftsRouteImport } from './../../routes/(app)/settings/master-data/shifts'
 import { Route as appSettingsNotificationIndexRouteImport } from './../../routes/(app)/settings/notification/index'
+import { Route as appSettingsNotificationTemplatesRouteImport } from './../../routes/(app)/settings/notification/templates'
 import { Route as appSettingsRoleAccessIndexRouteImport } from './../../routes/(app)/settings/role-access/index'
 import { Route as appSettingsRoleAccessCreateRoleRouteImport } from './../../routes/(app)/settings/role-access/create-role'
 import { Route as appSettingsRoleAccessPermissionMatrixRouteImport } from './../../routes/(app)/settings/role-access/permission-matrix'
@@ -95,6 +96,7 @@ import { Route as appSettingsApprovalWorkflowIdIndexRouteImport } from './../../
 import { Route as appSettingsApprovalWorkflowIdConditionsRouteImport } from './../../routes/(app)/settings/approval-workflow/$id/conditions'
 import { Route as appSettingsApprovalWorkflowIdLevelsRouteImport } from './../../routes/(app)/settings/approval-workflow/$id/levels'
 import { Route as appSettingsApprovalWorkflowIdTestRouteImport } from './../../routes/(app)/settings/approval-workflow/$id/test'
+import { Route as appSettingsNotificationTemplatesCreateRouteImport } from './../../routes/(app)/settings/notification/templates_.create'
 import { Route as appSettingsRoleAccessRoleIdAssignUsersRouteImport } from './../../routes/(app)/settings/role-access/$roleId/assign-users'
 import { Route as appSettingsRoleAccessRoleIdEditRouteImport } from './../../routes/(app)/settings/role-access/$roleId/edit'
 
@@ -499,6 +501,12 @@ const appSettingsNotificationIndexRoute =
     path: '/settings/notification/',
     getParentRoute: () => appRouteRoute,
   } as any)
+const appSettingsNotificationTemplatesRoute =
+  appSettingsNotificationTemplatesRouteImport.update({
+    id: '/settings/notification/templates',
+    path: '/settings/notification/templates',
+    getParentRoute: () => appRouteRoute,
+  } as any)
 const appSettingsRoleAccessIndexRoute =
   appSettingsRoleAccessIndexRouteImport.update({
     id: '/settings/role-access/',
@@ -583,6 +591,12 @@ const appSettingsApprovalWorkflowIdTestRoute =
     path: '/settings/approval-workflow/$id/test',
     getParentRoute: () => appRouteRoute,
   } as any)
+const appSettingsNotificationTemplatesCreateRoute =
+  appSettingsNotificationTemplatesCreateRouteImport.update({
+    id: '/settings/notification/templates_/create',
+    path: '/settings/notification/templates/create',
+    getParentRoute: () => appRouteRoute,
+  } as any)
 const appSettingsRoleAccessRoleIdAssignUsersRoute =
   appSettingsRoleAccessRoleIdAssignUsersRouteImport.update({
     id: '/settings/role-access/$roleId/assign-users',
@@ -653,6 +667,7 @@ export interface FileRoutesByFullPath {
   '/settings/master-data/payroll-components': typeof appSettingsMasterDataPayrollComponentsRoute
   '/settings/master-data/positions': typeof appSettingsMasterDataPositionsRoute
   '/settings/master-data/shifts': typeof appSettingsMasterDataShiftsRoute
+  '/settings/notification/templates': typeof appSettingsNotificationTemplatesRoute
   '/settings/role-access/create-role': typeof appSettingsRoleAccessCreateRoleRoute
   '/settings/role-access/permission-matrix': typeof appSettingsRoleAccessPermissionMatrixRoute
   '/attendance/approval/': typeof appAttendanceApprovalIndexRoute
@@ -680,6 +695,7 @@ export interface FileRoutesByFullPath {
   '/settings/approval-workflow/$id/conditions': typeof appSettingsApprovalWorkflowIdConditionsRoute
   '/settings/approval-workflow/$id/levels': typeof appSettingsApprovalWorkflowIdLevelsRoute
   '/settings/approval-workflow/$id/test': typeof appSettingsApprovalWorkflowIdTestRoute
+  '/settings/notification/templates/create': typeof appSettingsNotificationTemplatesCreateRoute
   '/settings/role-access/$roleId/assign-users': typeof appSettingsRoleAccessRoleIdAssignUsersRoute
   '/settings/role-access/$roleId/edit': typeof appSettingsRoleAccessRoleIdEditRoute
   '/attendance/management/shifts/': typeof appAttendanceManagementShiftsIndexRoute
@@ -742,6 +758,7 @@ export interface FileRoutesByTo {
   '/settings/master-data/payroll-components': typeof appSettingsMasterDataPayrollComponentsRoute
   '/settings/master-data/positions': typeof appSettingsMasterDataPositionsRoute
   '/settings/master-data/shifts': typeof appSettingsMasterDataShiftsRoute
+  '/settings/notification/templates': typeof appSettingsNotificationTemplatesRoute
   '/settings/role-access/create-role': typeof appSettingsRoleAccessCreateRoleRoute
   '/settings/role-access/permission-matrix': typeof appSettingsRoleAccessPermissionMatrixRoute
   '/attendance/approval': typeof appAttendanceApprovalIndexRoute
@@ -769,6 +786,7 @@ export interface FileRoutesByTo {
   '/settings/approval-workflow/$id/conditions': typeof appSettingsApprovalWorkflowIdConditionsRoute
   '/settings/approval-workflow/$id/levels': typeof appSettingsApprovalWorkflowIdLevelsRoute
   '/settings/approval-workflow/$id/test': typeof appSettingsApprovalWorkflowIdTestRoute
+  '/settings/notification/templates/create': typeof appSettingsNotificationTemplatesCreateRoute
   '/settings/role-access/$roleId/assign-users': typeof appSettingsRoleAccessRoleIdAssignUsersRoute
   '/settings/role-access/$roleId/edit': typeof appSettingsRoleAccessRoleIdEditRoute
   '/attendance/management/shifts': typeof appAttendanceManagementShiftsIndexRoute
@@ -833,6 +851,7 @@ export interface FileRoutesById {
   '/(app)/settings/master-data/payroll-components': typeof appSettingsMasterDataPayrollComponentsRoute
   '/(app)/settings/master-data/positions': typeof appSettingsMasterDataPositionsRoute
   '/(app)/settings/master-data/shifts': typeof appSettingsMasterDataShiftsRoute
+  '/(app)/settings/notification/templates': typeof appSettingsNotificationTemplatesRoute
   '/(app)/settings/role-access/create-role': typeof appSettingsRoleAccessCreateRoleRoute
   '/(app)/settings/role-access/permission-matrix': typeof appSettingsRoleAccessPermissionMatrixRoute
   '/(app)/attendance/approval/': typeof appAttendanceApprovalIndexRoute
@@ -860,6 +879,7 @@ export interface FileRoutesById {
   '/(app)/settings/approval-workflow/$id/conditions': typeof appSettingsApprovalWorkflowIdConditionsRoute
   '/(app)/settings/approval-workflow/$id/levels': typeof appSettingsApprovalWorkflowIdLevelsRoute
   '/(app)/settings/approval-workflow/$id/test': typeof appSettingsApprovalWorkflowIdTestRoute
+  '/(app)/settings/notification/templates_/create': typeof appSettingsNotificationTemplatesCreateRoute
   '/(app)/settings/role-access/$roleId/assign-users': typeof appSettingsRoleAccessRoleIdAssignUsersRoute
   '/(app)/settings/role-access/$roleId/edit': typeof appSettingsRoleAccessRoleIdEditRoute
   '/(app)/attendance/management/shifts/': typeof appAttendanceManagementShiftsIndexRoute
@@ -924,6 +944,7 @@ export interface FileRouteTypes {
     | '/settings/master-data/payroll-components'
     | '/settings/master-data/positions'
     | '/settings/master-data/shifts'
+    | '/settings/notification/templates'
     | '/settings/role-access/create-role'
     | '/settings/role-access/permission-matrix'
     | '/attendance/approval/'
@@ -951,6 +972,7 @@ export interface FileRouteTypes {
     | '/settings/approval-workflow/$id/conditions'
     | '/settings/approval-workflow/$id/levels'
     | '/settings/approval-workflow/$id/test'
+    | '/settings/notification/templates/create'
     | '/settings/role-access/$roleId/assign-users'
     | '/settings/role-access/$roleId/edit'
     | '/attendance/management/shifts/'
@@ -1013,6 +1035,7 @@ export interface FileRouteTypes {
     | '/settings/master-data/payroll-components'
     | '/settings/master-data/positions'
     | '/settings/master-data/shifts'
+    | '/settings/notification/templates'
     | '/settings/role-access/create-role'
     | '/settings/role-access/permission-matrix'
     | '/attendance/approval'
@@ -1040,6 +1063,7 @@ export interface FileRouteTypes {
     | '/settings/approval-workflow/$id/conditions'
     | '/settings/approval-workflow/$id/levels'
     | '/settings/approval-workflow/$id/test'
+    | '/settings/notification/templates/create'
     | '/settings/role-access/$roleId/assign-users'
     | '/settings/role-access/$roleId/edit'
     | '/attendance/management/shifts'
@@ -1103,6 +1127,7 @@ export interface FileRouteTypes {
     | '/(app)/settings/master-data/payroll-components'
     | '/(app)/settings/master-data/positions'
     | '/(app)/settings/master-data/shifts'
+    | '/(app)/settings/notification/templates'
     | '/(app)/settings/role-access/create-role'
     | '/(app)/settings/role-access/permission-matrix'
     | '/(app)/attendance/approval/'
@@ -1130,6 +1155,7 @@ export interface FileRouteTypes {
     | '/(app)/settings/approval-workflow/$id/conditions'
     | '/(app)/settings/approval-workflow/$id/levels'
     | '/(app)/settings/approval-workflow/$id/test'
+    | '/(app)/settings/notification/templates_/create'
     | '/(app)/settings/role-access/$roleId/assign-users'
     | '/(app)/settings/role-access/$roleId/edit'
     | '/(app)/attendance/management/shifts/'
@@ -1650,6 +1676,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof appSettingsNotificationIndexRouteImport
       parentRoute: typeof appRouteRoute
     }
+    '/(app)/settings/notification/templates': {
+      id: '/(app)/settings/notification/templates'
+      path: '/settings/notification/templates'
+      fullPath: '/settings/notification/templates'
+      preLoaderRoute: typeof appSettingsNotificationTemplatesRouteImport
+      parentRoute: typeof appRouteRoute
+    }
     '/(app)/settings/role-access/': {
       id: '/(app)/settings/role-access/'
       path: '/settings/role-access'
@@ -1748,6 +1781,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof appSettingsApprovalWorkflowIdTestRouteImport
       parentRoute: typeof appRouteRoute
     }
+    '/(app)/settings/notification/templates_/create': {
+      id: '/(app)/settings/notification/templates_/create'
+      path: '/settings/notification/templates/create'
+      fullPath: '/settings/notification/templates/create'
+      preLoaderRoute: typeof appSettingsNotificationTemplatesCreateRouteImport
+      parentRoute: typeof appRouteRoute
+    }
     '/(app)/settings/role-access/$roleId/assign-users': {
       id: '/(app)/settings/role-access/$roleId/assign-users'
       path: '/settings/role-access/$roleId/assign-users'
@@ -1833,6 +1873,7 @@ interface appRouteRouteChildren {
   appSettingsMasterDataPayrollComponentsRoute: typeof appSettingsMasterDataPayrollComponentsRoute
   appSettingsMasterDataPositionsRoute: typeof appSettingsMasterDataPositionsRoute
   appSettingsMasterDataShiftsRoute: typeof appSettingsMasterDataShiftsRoute
+  appSettingsNotificationTemplatesRoute: typeof appSettingsNotificationTemplatesRoute
   appSettingsRoleAccessCreateRoleRoute: typeof appSettingsRoleAccessCreateRoleRoute
   appSettingsRoleAccessPermissionMatrixRoute: typeof appSettingsRoleAccessPermissionMatrixRoute
   appAttendanceApprovalIndexRoute: typeof appAttendanceApprovalIndexRoute
@@ -1859,6 +1900,7 @@ interface appRouteRouteChildren {
   appSettingsApprovalWorkflowIdConditionsRoute: typeof appSettingsApprovalWorkflowIdConditionsRoute
   appSettingsApprovalWorkflowIdLevelsRoute: typeof appSettingsApprovalWorkflowIdLevelsRoute
   appSettingsApprovalWorkflowIdTestRoute: typeof appSettingsApprovalWorkflowIdTestRoute
+  appSettingsNotificationTemplatesCreateRoute: typeof appSettingsNotificationTemplatesCreateRoute
   appSettingsRoleAccessRoleIdAssignUsersRoute: typeof appSettingsRoleAccessRoleIdAssignUsersRoute
   appSettingsRoleAccessRoleIdEditRoute: typeof appSettingsRoleAccessRoleIdEditRoute
   appAttendanceManagementShiftsIndexRoute: typeof appAttendanceManagementShiftsIndexRoute
@@ -1921,6 +1963,7 @@ const appRouteRouteChildren: appRouteRouteChildren = {
     appSettingsMasterDataPayrollComponentsRoute,
   appSettingsMasterDataPositionsRoute: appSettingsMasterDataPositionsRoute,
   appSettingsMasterDataShiftsRoute: appSettingsMasterDataShiftsRoute,
+  appSettingsNotificationTemplatesRoute: appSettingsNotificationTemplatesRoute,
   appSettingsRoleAccessCreateRoleRoute: appSettingsRoleAccessCreateRoleRoute,
   appSettingsRoleAccessPermissionMatrixRoute:
     appSettingsRoleAccessPermissionMatrixRoute,
@@ -1955,6 +1998,8 @@ const appRouteRouteChildren: appRouteRouteChildren = {
     appSettingsApprovalWorkflowIdLevelsRoute,
   appSettingsApprovalWorkflowIdTestRoute:
     appSettingsApprovalWorkflowIdTestRoute,
+  appSettingsNotificationTemplatesCreateRoute:
+    appSettingsNotificationTemplatesCreateRoute,
   appSettingsRoleAccessRoleIdAssignUsersRoute:
     appSettingsRoleAccessRoleIdAssignUsersRoute,
   appSettingsRoleAccessRoleIdEditRoute: appSettingsRoleAccessRoleIdEditRoute,
