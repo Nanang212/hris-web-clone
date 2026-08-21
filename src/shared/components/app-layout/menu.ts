@@ -68,9 +68,36 @@ export const mainMenu: Menu[] = [
     title: m.app_layout_nav_company,
     items: [
       {
-        key: 'employee',
-        title: m.app_layout_nav_employee,
+        key: 'employment',
+        title: m.app_layout_nav_employment,
         to: '/company/employee',
+        items: [
+          {
+            key: 'employment-contract',
+            title: m.app_layout_nav_employment_contract,
+            to: '/company/employee/contract',
+          },
+          {
+            key: 'employment-mutation',
+            title: m.app_layout_nav_employment_mutation,
+            to: '/company/employee/mutation',
+          },
+          {
+            key: 'employment-promotion',
+            title: m.app_layout_nav_employment_promotion,
+            to: '/company/employee/promotion',
+          },
+          {
+            key: 'employment-resignation',
+            title: m.app_layout_nav_employment_resignation,
+            to: '/company/employee/resignation',
+          },
+          {
+            key: 'employment-history',
+            title: m.app_layout_nav_employment_history,
+            to: '/company/employee/history',
+          },
+        ],
       },
       {
         key: 'organization',
