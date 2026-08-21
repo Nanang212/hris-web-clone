@@ -1,4 +1,4 @@
-import type { ModuleType } from '../approval-workflow/types'
+import type { ModuleType } from '@/features/settings/approval-workflow/types'
 
 export interface ApprovalTimelineStep {
   level: number
