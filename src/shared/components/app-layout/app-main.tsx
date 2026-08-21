@@ -112,7 +112,9 @@ function AppMainLoading() {
 
 function AppMainError({ error, retry }: Readonly<{ error?: Error | null; retry?: () => void }>) {
   const messages = isAxiosError(error)
-    ? error.response?.data.messages.join(', ') || error.message
+    ? (Array.isArray(error.response?.data.messages)
+        ? error.response?.data.messages.join(', ')
+        : error.response?.data.messages) || error.message
     : m.app_layout_main_error()
 
   return (
