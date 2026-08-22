@@ -1,9 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 
-export const Route = createFileRoute('/(app)/settings/security/')({
-  component: RouteComponent,
-})
+import { SecurityOverviewPage } from '@/features/settings/security/pages/security-overview-page'
 
-function RouteComponent() {
-  return <div>Hello "/(app)/settings/security/"!</div>
-}
+export const Route = createFileRoute('/(app)/settings/security/')({
+  component: SecurityOverviewPage,
+})

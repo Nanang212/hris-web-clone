@@ -89,6 +89,8 @@ import { Route as appSettingsRoleAccessIndexRouteImport } from './../../routes/(
 import { Route as appSettingsRoleAccessCreateRoleRouteImport } from './../../routes/(app)/settings/role-access/create-role'
 import { Route as appSettingsRoleAccessPermissionMatrixRouteImport } from './../../routes/(app)/settings/role-access/permission-matrix'
 import { Route as appSettingsSecurityIndexRouteImport } from './../../routes/(app)/settings/security/index'
+import { Route as appSettingsSecurityDeviceRouteImport } from './../../routes/(app)/settings/security/device'
+import { Route as appSettingsSecurityPasswordRouteImport } from './../../routes/(app)/settings/security/password'
 import { Route as appAttendanceApprovalRequestIdRejectRouteImport } from './../../routes/(app)/attendance/approval/$requestId/reject'
 import { Route as appAttendanceManagementExceptionsExceptionIdRouteImport } from './../../routes/(app)/attendance/management/exceptions/$exceptionId'
 import { Route as appAttendanceManagementShiftsIndexRouteImport } from './../../routes/(app)/attendance/management/shifts/index'
@@ -106,6 +108,10 @@ import { Route as appSettingsApprovalWorkflowIdTestRouteImport } from './../../r
 import { Route as appSettingsNotificationTemplatesCreateRouteImport } from './../../routes/(app)/settings/notification/templates_.create'
 import { Route as appSettingsRoleAccessRoleIdAssignUsersRouteImport } from './../../routes/(app)/settings/role-access/$roleId/assign-users'
 import { Route as appSettingsRoleAccessRoleIdEditRouteImport } from './../../routes/(app)/settings/role-access/$roleId/edit'
+import { Route as appSettingsSecurityDeviceChangeRequestsRouteImport } from './../../routes/(app)/settings/security/device_.change-requests'
+import { Route as appSettingsSecurityDeviceRegisterRouteImport } from './../../routes/(app)/settings/security/device_.register'
+import { Route as appSettingsSecurityDeviceRegisteredDevicesRouteImport } from './../../routes/(app)/settings/security/device_.registered-devices'
+import { Route as appSettingsSecurityPasswordLockedAccountsRouteImport } from './../../routes/(app)/settings/security/password_.locked-accounts'
 
 const appRouteRoute = appRouteRouteImport.update({
   id: '/(app)',
@@ -555,6 +561,18 @@ const appSettingsSecurityIndexRoute =
     path: '/settings/security/',
     getParentRoute: () => appRouteRoute,
   } as any)
+const appSettingsSecurityDeviceRoute =
+  appSettingsSecurityDeviceRouteImport.update({
+    id: '/settings/security/device',
+    path: '/settings/security/device',
+    getParentRoute: () => appRouteRoute,
+  } as any)
+const appSettingsSecurityPasswordRoute =
+  appSettingsSecurityPasswordRouteImport.update({
+    id: '/settings/security/password',
+    path: '/settings/security/password',
+    getParentRoute: () => appRouteRoute,
+  } as any)
 const appAttendanceApprovalRequestIdRejectRoute =
   appAttendanceApprovalRequestIdRejectRouteImport.update({
     id: '/reject',
@@ -657,6 +675,30 @@ const appSettingsRoleAccessRoleIdEditRoute =
     path: '/settings/role-access/$roleId/edit',
     getParentRoute: () => appRouteRoute,
   } as any)
+const appSettingsSecurityDeviceChangeRequestsRoute =
+  appSettingsSecurityDeviceChangeRequestsRouteImport.update({
+    id: '/settings/security/device_/change-requests',
+    path: '/settings/security/device/change-requests',
+    getParentRoute: () => appRouteRoute,
+  } as any)
+const appSettingsSecurityDeviceRegisterRoute =
+  appSettingsSecurityDeviceRegisterRouteImport.update({
+    id: '/settings/security/device_/register',
+    path: '/settings/security/device/register',
+    getParentRoute: () => appRouteRoute,
+  } as any)
+const appSettingsSecurityDeviceRegisteredDevicesRoute =
+  appSettingsSecurityDeviceRegisteredDevicesRouteImport.update({
+    id: '/settings/security/device_/registered-devices',
+    path: '/settings/security/device/registered-devices',
+    getParentRoute: () => appRouteRoute,
+  } as any)
+const appSettingsSecurityPasswordLockedAccountsRoute =
+  appSettingsSecurityPasswordLockedAccountsRouteImport.update({
+    id: '/settings/security/password_/locked-accounts',
+    path: '/settings/security/password/locked-accounts',
+    getParentRoute: () => appRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/reset': typeof authResetRoute
@@ -721,6 +763,8 @@ export interface FileRoutesByFullPath {
   '/settings/notification/templates': typeof appSettingsNotificationTemplatesRoute
   '/settings/role-access/create-role': typeof appSettingsRoleAccessCreateRoleRoute
   '/settings/role-access/permission-matrix': typeof appSettingsRoleAccessPermissionMatrixRoute
+  '/settings/security/device': typeof appSettingsSecurityDeviceRoute
+  '/settings/security/password': typeof appSettingsSecurityPasswordRoute
   '/attendance/approval/': typeof appAttendanceApprovalIndexRoute
   '/attendance/calendar/': typeof appAttendanceCalendarIndexRoute
   '/attendance/management/': typeof appAttendanceManagementIndexRoute
@@ -750,6 +794,10 @@ export interface FileRoutesByFullPath {
   '/settings/notification/templates/create': typeof appSettingsNotificationTemplatesCreateRoute
   '/settings/role-access/$roleId/assign-users': typeof appSettingsRoleAccessRoleIdAssignUsersRoute
   '/settings/role-access/$roleId/edit': typeof appSettingsRoleAccessRoleIdEditRoute
+  '/settings/security/device/change-requests': typeof appSettingsSecurityDeviceChangeRequestsRoute
+  '/settings/security/device/register': typeof appSettingsSecurityDeviceRegisterRoute
+  '/settings/security/device/registered-devices': typeof appSettingsSecurityDeviceRegisteredDevicesRoute
+  '/settings/security/password/locked-accounts': typeof appSettingsSecurityPasswordLockedAccountsRoute
   '/attendance/management/shifts/': typeof appAttendanceManagementShiftsIndexRoute
   '/company/employee/contract/': typeof appCompanyEmployeeContractIndexRoute
   '/company/employee/mutation/': typeof appCompanyEmployeeMutationIndexRoute
@@ -819,6 +867,8 @@ export interface FileRoutesByTo {
   '/settings/notification/templates': typeof appSettingsNotificationTemplatesRoute
   '/settings/role-access/create-role': typeof appSettingsRoleAccessCreateRoleRoute
   '/settings/role-access/permission-matrix': typeof appSettingsRoleAccessPermissionMatrixRoute
+  '/settings/security/device': typeof appSettingsSecurityDeviceRoute
+  '/settings/security/password': typeof appSettingsSecurityPasswordRoute
   '/attendance/approval': typeof appAttendanceApprovalIndexRoute
   '/attendance/calendar': typeof appAttendanceCalendarIndexRoute
   '/attendance/management': typeof appAttendanceManagementIndexRoute
@@ -848,6 +898,10 @@ export interface FileRoutesByTo {
   '/settings/notification/templates/create': typeof appSettingsNotificationTemplatesCreateRoute
   '/settings/role-access/$roleId/assign-users': typeof appSettingsRoleAccessRoleIdAssignUsersRoute
   '/settings/role-access/$roleId/edit': typeof appSettingsRoleAccessRoleIdEditRoute
+  '/settings/security/device/change-requests': typeof appSettingsSecurityDeviceChangeRequestsRoute
+  '/settings/security/device/register': typeof appSettingsSecurityDeviceRegisterRoute
+  '/settings/security/device/registered-devices': typeof appSettingsSecurityDeviceRegisteredDevicesRoute
+  '/settings/security/password/locked-accounts': typeof appSettingsSecurityPasswordLockedAccountsRoute
   '/attendance/management/shifts': typeof appAttendanceManagementShiftsIndexRoute
   '/company/employee/contract': typeof appCompanyEmployeeContractIndexRoute
   '/company/employee/mutation': typeof appCompanyEmployeeMutationIndexRoute
@@ -919,6 +973,8 @@ export interface FileRoutesById {
   '/(app)/settings/notification/templates': typeof appSettingsNotificationTemplatesRoute
   '/(app)/settings/role-access/create-role': typeof appSettingsRoleAccessCreateRoleRoute
   '/(app)/settings/role-access/permission-matrix': typeof appSettingsRoleAccessPermissionMatrixRoute
+  '/(app)/settings/security/device': typeof appSettingsSecurityDeviceRoute
+  '/(app)/settings/security/password': typeof appSettingsSecurityPasswordRoute
   '/(app)/attendance/approval/': typeof appAttendanceApprovalIndexRoute
   '/(app)/attendance/calendar/': typeof appAttendanceCalendarIndexRoute
   '/(app)/attendance/management/': typeof appAttendanceManagementIndexRoute
@@ -948,6 +1004,10 @@ export interface FileRoutesById {
   '/(app)/settings/notification/templates_/create': typeof appSettingsNotificationTemplatesCreateRoute
   '/(app)/settings/role-access/$roleId/assign-users': typeof appSettingsRoleAccessRoleIdAssignUsersRoute
   '/(app)/settings/role-access/$roleId/edit': typeof appSettingsRoleAccessRoleIdEditRoute
+  '/(app)/settings/security/device_/change-requests': typeof appSettingsSecurityDeviceChangeRequestsRoute
+  '/(app)/settings/security/device_/register': typeof appSettingsSecurityDeviceRegisterRoute
+  '/(app)/settings/security/device_/registered-devices': typeof appSettingsSecurityDeviceRegisteredDevicesRoute
+  '/(app)/settings/security/password_/locked-accounts': typeof appSettingsSecurityPasswordLockedAccountsRoute
   '/(app)/attendance/management/shifts/': typeof appAttendanceManagementShiftsIndexRoute
   '/(app)/company/employee/contract/': typeof appCompanyEmployeeContractIndexRoute
   '/(app)/company/employee/mutation/': typeof appCompanyEmployeeMutationIndexRoute
@@ -1019,6 +1079,8 @@ export interface FileRouteTypes {
     | '/settings/notification/templates'
     | '/settings/role-access/create-role'
     | '/settings/role-access/permission-matrix'
+    | '/settings/security/device'
+    | '/settings/security/password'
     | '/attendance/approval/'
     | '/attendance/calendar/'
     | '/attendance/management/'
@@ -1048,6 +1110,10 @@ export interface FileRouteTypes {
     | '/settings/notification/templates/create'
     | '/settings/role-access/$roleId/assign-users'
     | '/settings/role-access/$roleId/edit'
+    | '/settings/security/device/change-requests'
+    | '/settings/security/device/register'
+    | '/settings/security/device/registered-devices'
+    | '/settings/security/password/locked-accounts'
     | '/attendance/management/shifts/'
     | '/company/employee/contract/'
     | '/company/employee/mutation/'
@@ -1117,6 +1183,8 @@ export interface FileRouteTypes {
     | '/settings/notification/templates'
     | '/settings/role-access/create-role'
     | '/settings/role-access/permission-matrix'
+    | '/settings/security/device'
+    | '/settings/security/password'
     | '/attendance/approval'
     | '/attendance/calendar'
     | '/attendance/management'
@@ -1146,6 +1214,10 @@ export interface FileRouteTypes {
     | '/settings/notification/templates/create'
     | '/settings/role-access/$roleId/assign-users'
     | '/settings/role-access/$roleId/edit'
+    | '/settings/security/device/change-requests'
+    | '/settings/security/device/register'
+    | '/settings/security/device/registered-devices'
+    | '/settings/security/password/locked-accounts'
     | '/attendance/management/shifts'
     | '/company/employee/contract'
     | '/company/employee/mutation'
@@ -1216,6 +1288,8 @@ export interface FileRouteTypes {
     | '/(app)/settings/notification/templates'
     | '/(app)/settings/role-access/create-role'
     | '/(app)/settings/role-access/permission-matrix'
+    | '/(app)/settings/security/device'
+    | '/(app)/settings/security/password'
     | '/(app)/attendance/approval/'
     | '/(app)/attendance/calendar/'
     | '/(app)/attendance/management/'
@@ -1245,6 +1319,10 @@ export interface FileRouteTypes {
     | '/(app)/settings/notification/templates_/create'
     | '/(app)/settings/role-access/$roleId/assign-users'
     | '/(app)/settings/role-access/$roleId/edit'
+    | '/(app)/settings/security/device_/change-requests'
+    | '/(app)/settings/security/device_/register'
+    | '/(app)/settings/security/device_/registered-devices'
+    | '/(app)/settings/security/password_/locked-accounts'
     | '/(app)/attendance/management/shifts/'
     | '/(app)/company/employee/contract/'
     | '/(app)/company/employee/mutation/'
@@ -1822,6 +1900,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof appSettingsSecurityIndexRouteImport
       parentRoute: typeof appRouteRoute
     }
+    '/(app)/settings/security/device': {
+      id: '/(app)/settings/security/device'
+      path: '/settings/security/device'
+      fullPath: '/settings/security/device'
+      preLoaderRoute: typeof appSettingsSecurityDeviceRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/settings/security/password': {
+      id: '/(app)/settings/security/password'
+      path: '/settings/security/password'
+      fullPath: '/settings/security/password'
+      preLoaderRoute: typeof appSettingsSecurityPasswordRouteImport
+      parentRoute: typeof appRouteRoute
+    }
     '/(app)/attendance/approval/$requestId/reject': {
       id: '/(app)/attendance/approval/$requestId/reject'
       path: '/reject'
@@ -1941,6 +2033,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof appSettingsRoleAccessRoleIdEditRouteImport
       parentRoute: typeof appRouteRoute
     }
+    '/(app)/settings/security/device_/change-requests': {
+      id: '/(app)/settings/security/device_/change-requests'
+      path: '/settings/security/device/change-requests'
+      fullPath: '/settings/security/device/change-requests'
+      preLoaderRoute: typeof appSettingsSecurityDeviceChangeRequestsRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/settings/security/device_/register': {
+      id: '/(app)/settings/security/device_/register'
+      path: '/settings/security/device/register'
+      fullPath: '/settings/security/device/register'
+      preLoaderRoute: typeof appSettingsSecurityDeviceRegisterRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/settings/security/device_/registered-devices': {
+      id: '/(app)/settings/security/device_/registered-devices'
+      path: '/settings/security/device/registered-devices'
+      fullPath: '/settings/security/device/registered-devices'
+      preLoaderRoute: typeof appSettingsSecurityDeviceRegisteredDevicesRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/settings/security/password_/locked-accounts': {
+      id: '/(app)/settings/security/password_/locked-accounts'
+      path: '/settings/security/password/locked-accounts'
+      fullPath: '/settings/security/password/locked-accounts'
+      preLoaderRoute: typeof appSettingsSecurityPasswordLockedAccountsRouteImport
+      parentRoute: typeof appRouteRoute
+    }
   }
 }
 
@@ -2018,6 +2138,8 @@ interface appRouteRouteChildren {
   appSettingsNotificationTemplatesRoute: typeof appSettingsNotificationTemplatesRoute
   appSettingsRoleAccessCreateRoleRoute: typeof appSettingsRoleAccessCreateRoleRoute
   appSettingsRoleAccessPermissionMatrixRoute: typeof appSettingsRoleAccessPermissionMatrixRoute
+  appSettingsSecurityDeviceRoute: typeof appSettingsSecurityDeviceRoute
+  appSettingsSecurityPasswordRoute: typeof appSettingsSecurityPasswordRoute
   appAttendanceApprovalIndexRoute: typeof appAttendanceApprovalIndexRoute
   appAttendanceCalendarIndexRoute: typeof appAttendanceCalendarIndexRoute
   appAttendanceManagementIndexRoute: typeof appAttendanceManagementIndexRoute
@@ -2046,6 +2168,10 @@ interface appRouteRouteChildren {
   appSettingsNotificationTemplatesCreateRoute: typeof appSettingsNotificationTemplatesCreateRoute
   appSettingsRoleAccessRoleIdAssignUsersRoute: typeof appSettingsRoleAccessRoleIdAssignUsersRoute
   appSettingsRoleAccessRoleIdEditRoute: typeof appSettingsRoleAccessRoleIdEditRoute
+  appSettingsSecurityDeviceChangeRequestsRoute: typeof appSettingsSecurityDeviceChangeRequestsRoute
+  appSettingsSecurityDeviceRegisterRoute: typeof appSettingsSecurityDeviceRegisterRoute
+  appSettingsSecurityDeviceRegisteredDevicesRoute: typeof appSettingsSecurityDeviceRegisteredDevicesRoute
+  appSettingsSecurityPasswordLockedAccountsRoute: typeof appSettingsSecurityPasswordLockedAccountsRoute
   appAttendanceManagementShiftsIndexRoute: typeof appAttendanceManagementShiftsIndexRoute
   appCompanyEmployeeContractIndexRoute: typeof appCompanyEmployeeContractIndexRoute
   appCompanyEmployeeMutationIndexRoute: typeof appCompanyEmployeeMutationIndexRoute
@@ -2116,6 +2242,8 @@ const appRouteRouteChildren: appRouteRouteChildren = {
   appSettingsRoleAccessCreateRoleRoute: appSettingsRoleAccessCreateRoleRoute,
   appSettingsRoleAccessPermissionMatrixRoute:
     appSettingsRoleAccessPermissionMatrixRoute,
+  appSettingsSecurityDeviceRoute: appSettingsSecurityDeviceRoute,
+  appSettingsSecurityPasswordRoute: appSettingsSecurityPasswordRoute,
   appAttendanceApprovalIndexRoute: appAttendanceApprovalIndexRoute,
   appAttendanceCalendarIndexRoute: appAttendanceCalendarIndexRoute,
   appAttendanceManagementIndexRoute: appAttendanceManagementIndexRoute,
@@ -2153,6 +2281,14 @@ const appRouteRouteChildren: appRouteRouteChildren = {
   appSettingsRoleAccessRoleIdAssignUsersRoute:
     appSettingsRoleAccessRoleIdAssignUsersRoute,
   appSettingsRoleAccessRoleIdEditRoute: appSettingsRoleAccessRoleIdEditRoute,
+  appSettingsSecurityDeviceChangeRequestsRoute:
+    appSettingsSecurityDeviceChangeRequestsRoute,
+  appSettingsSecurityDeviceRegisterRoute:
+    appSettingsSecurityDeviceRegisterRoute,
+  appSettingsSecurityDeviceRegisteredDevicesRoute:
+    appSettingsSecurityDeviceRegisteredDevicesRoute,
+  appSettingsSecurityPasswordLockedAccountsRoute:
+    appSettingsSecurityPasswordLockedAccountsRoute,
   appAttendanceManagementShiftsIndexRoute:
     appAttendanceManagementShiftsIndexRoute,
   appCompanyEmployeeContractIndexRoute: appCompanyEmployeeContractIndexRoute,
