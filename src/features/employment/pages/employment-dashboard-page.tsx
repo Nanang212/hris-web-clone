@@ -43,7 +43,7 @@ export function EmploymentDashboardPage() {
     setContractType('all')
   }
 
-  const { data: result, isPending, error, refetch } = useGetEmployees({
+  const { data: result, isPending, isFetching, error, refetch } = useGetEmployees({
     search: searchValue || undefined,
     departmentId: departmentId === 'all' ? undefined : departmentId,
     contractType: contractType === 'all' ? undefined : (contractType as ContractType),
@@ -172,6 +172,7 @@ export function EmploymentDashboardPage() {
           <EmployeeTable
             employees={employees}
             isPending={isPending && employees.length === 0}
+            isFetching={isFetching}
             selectedId={selectedId ?? selectedEmp?.id}
             onSelectEmployee={setSelectedId}
           />

@@ -168,3 +168,43 @@ export interface EmployeeContract {
   reminderActive: boolean
 }
 
+export type MutationStatus = 'pending' | 'approved' | 'rejected' | 'scheduled'
+
+export interface EmployeeMutation {
+  id: string
+  employeeId: string
+  employeeCode: string
+  fullName: string
+  photo: string | null
+  // Current org
+  currentDivision: string
+  currentDepartment: string
+  currentPosition: string
+  currentSupervisor: string
+  currentLocation: string
+  // Proposed org
+  newDivision: string
+  newDepartment: string
+  newPosition: string
+  newSupervisor: string
+  newLocation: string
+  // Meta
+  effectiveDate: string
+  reason: string
+  approvalRoute: string
+  status: MutationStatus
+  submittedAt: string | null
+  approvedAt: string | null
+}
+
+export interface CreateMutationPayload {
+  employeeId: string
+  newDivision: string
+  newDepartment: string
+  newPosition: string
+  newSupervisor: string
+  newLocation: string
+  effectiveDate: string
+  reason: string
+  approvalRoute: string
+}

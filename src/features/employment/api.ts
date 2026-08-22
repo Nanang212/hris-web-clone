@@ -12,6 +12,8 @@ import type {
   EmployeeStats,
   UpdateEmployeePayload,
   EmployeeContract,
+  EmployeeMutation,
+  CreateMutationPayload,
 } from '@/features/employment/types'
 import type { Envelope, PaginatedData } from '@/shared/types'
 
@@ -776,4 +778,173 @@ export const renewContract = async (id: string, startDate: string, endDate: stri
   }
 }
 
+// ─── Mutation Dummy Data ─────────────────────────────────────────────────────
+let mockMutations: EmployeeMutation[] = [
+  {
+    id: 'mut-1',
+    employeeId: 'emp-1',
+    employeeCode: 'EMP001',
+    fullName: 'Rian Wijaya',
+    photo: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
+    currentDivision: 'Product',
+    currentDepartment: 'Design',
+    currentPosition: 'Product Designer',
+    currentSupervisor: 'Budi Setiawan',
+    currentLocation: 'Jakarta HQ',
+    newDivision: 'Product',
+    newDepartment: 'Product Management',
+    newPosition: 'Senior Product Designer',
+    newSupervisor: 'Sinta Maharani',
+    newLocation: 'Jakarta HQ',
+    effectiveDate: '2026-09-01',
+    reason: 'Organization restructuring',
+    approvalRoute: 'HR + Manager',
+    status: 'pending',
+    submittedAt: '2026-08-15T08:00:00Z',
+    approvedAt: null,
+  },
+  {
+    id: 'mut-2',
+    employeeId: 'emp-2',
+    employeeCode: 'EMP002',
+    fullName: 'Siti Aminah',
+    photo: null,
+    currentDivision: 'Engineering',
+    currentDepartment: 'Backend',
+    currentPosition: 'Backend Developer',
+    currentSupervisor: 'Rian Wijaya',
+    currentLocation: 'Jakarta HQ',
+    newDivision: 'Engineering',
+    newDepartment: 'Platform',
+    newPosition: 'Senior Backend Developer',
+    newSupervisor: 'Rian Wijaya',
+    newLocation: 'Bandung Office',
+    effectiveDate: '2026-09-15',
+    reason: 'Team expansion',
+    approvalRoute: 'HR + Manager',
+    status: 'approved',
+    submittedAt: '2026-08-10T08:00:00Z',
+    approvedAt: '2026-08-12T10:00:00Z',
+  },
+  {
+    id: 'mut-3',
+    employeeId: 'emp-3',
+    employeeCode: 'EMP003',
+    fullName: 'Dewi Kartika',
+    photo: null,
+    currentDivision: 'HR',
+    currentDepartment: 'Recruitment',
+    currentPosition: 'HR Specialist',
+    currentSupervisor: 'Siti Aminah',
+    currentLocation: 'Jakarta HQ',
+    newDivision: 'HR',
+    newDepartment: 'Corporate',
+    newPosition: 'HR Business Partner',
+    newSupervisor: 'Siti Aminah',
+    newLocation: 'Jakarta HQ',
+    effectiveDate: '2026-10-01',
+    reason: 'Role alignment',
+    approvalRoute: 'HR Director',
+    status: 'scheduled',
+    submittedAt: '2026-08-20T08:00:00Z',
+    approvedAt: '2026-08-21T14:00:00Z',
+  },
+  {
+    id: 'mut-4',
+    employeeId: 'emp-4',
+    employeeCode: 'EMP004',
+    fullName: 'Budi Santoso',
+    photo: null,
+    currentDivision: 'Finance',
+    currentDepartment: 'Accounting',
+    currentPosition: 'Finance Analyst',
+    currentSupervisor: 'Dewi Kartika',
+    currentLocation: 'Jakarta HQ',
+    newDivision: 'Finance',
+    newDepartment: 'Operations',
+    newPosition: 'Senior Finance Analyst',
+    newSupervisor: 'Dewi Kartika',
+    newLocation: 'Surabaya Branch',
+    effectiveDate: '2026-09-01',
+    reason: 'Branch assignment',
+    approvalRoute: 'Finance Director',
+    status: 'rejected',
+    submittedAt: '2026-08-05T08:00:00Z',
+    approvedAt: null,
+  },
+  {
+    id: 'mut-5',
+    employeeId: 'emp-5',
+    employeeCode: 'EMP005',
+    fullName: 'Ahmad Fauzi',
+    photo: null,
+    currentDivision: 'IT',
+    currentDepartment: 'Infrastructure',
+    currentPosition: 'System Engineer',
+    currentSupervisor: 'Budi Santoso',
+    currentLocation: 'Bandung Office',
+    newDivision: 'IT',
+    newDepartment: 'Cloud & DevOps',
+    newPosition: 'DevOps Engineer',
+    newSupervisor: 'Budi Santoso',
+    newLocation: 'Jakarta HQ',
+    effectiveDate: '2026-09-20',
+    reason: 'Skill match & project need',
+    approvalRoute: 'HR + IT Manager',
+    status: 'pending',
+    submittedAt: '2026-08-18T08:00:00Z',
+    approvedAt: null,
+  },
+]
 
+export const getMutations = async (
+  search?: string,
+  status?: string,
+): Promise<Envelope<EmployeeMutation[]>> => {
+  await sleep()
+  let filtered = [...mockMutations]
+  if (search) {
+    const q = search.toLowerCase()
+    filtered = filtered.filter(
+      (m) =>
+        m.fullName.toLowerCase().includes(q) ||
+        m.employeeCode.toLowerCase().includes(q) ||
+        m.currentPosition.toLowerCase().includes(q) ||
+        m.newPosition.toLowerCase().includes(q),
+    )
+  }
+  if (status && status !== 'all') {
+    filtered = filtered.filter((m) => m.status === status)
+  }
+  return { success: true, code: '200', data: filtered, messages: [] }
+}
+
+export const createMutation = async (payload: CreateMutationPayload): Promise<Envelope<EmployeeMutation>> => {
+  await sleep()
+  const employee = mockEmployees.find((e) => e.id === payload.employeeId)
+  const newMutation: EmployeeMutation = {
+    id: `mut-${Date.now()}`,
+    employeeId: payload.employeeId,
+    employeeCode: employee?.employeeCode ?? 'EMP000',
+    fullName: employee?.fullName ?? 'Unknown',
+    photo: employee?.photo ?? null,
+    currentDivision: employee?.divisionName ?? '-',
+    currentDepartment: employee?.departmentName ?? '-',
+    currentPosition: employee?.positionName ?? '-',
+    currentSupervisor: employee?.managerName ?? '-',
+    currentLocation: employee?.workLocation ?? '-',
+    newDivision: payload.newDivision,
+    newDepartment: payload.newDepartment,
+    newPosition: payload.newPosition,
+    newSupervisor: payload.newSupervisor,
+    newLocation: payload.newLocation,
+    effectiveDate: payload.effectiveDate,
+    reason: payload.reason,
+    approvalRoute: payload.approvalRoute,
+    status: 'pending',
+    submittedAt: null,
+    approvedAt: null,
+  }
+  mockMutations = [newMutation, ...mockMutations]
+  return { success: true, code: '200', data: newMutation, messages: [] }
+}
