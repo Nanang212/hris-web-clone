@@ -50,9 +50,7 @@ import { Route as appCompanyDocumentIndexRouteImport } from './../../routes/(app
 import { Route as appCompanyEmployeeIndexRouteImport } from './../../routes/(app)/company/employee/index'
 import { Route as appCompanyEmployeeIdRouteImport } from './../../routes/(app)/company/employee/$id'
 import { Route as appCompanyEmployeeHistoryRouteImport } from './../../routes/(app)/company/employee/history'
-import { Route as appCompanyEmployeeMutationRouteImport } from './../../routes/(app)/company/employee/mutation'
 import { Route as appCompanyEmployeeNewRouteImport } from './../../routes/(app)/company/employee/new'
-import { Route as appCompanyEmployeePromotionRouteImport } from './../../routes/(app)/company/employee/promotion'
 import { Route as appCompanyEmployeeResignationRouteImport } from './../../routes/(app)/company/employee/resignation'
 import { Route as appCompanyEmployeeUpdateRouteImport } from './../../routes/(app)/company/employee/update'
 import { Route as appCompanyOrganizationIndexRouteImport } from './../../routes/(app)/company/organization/index'
@@ -99,6 +97,8 @@ import { Route as appAttendanceManagementShiftsSetupRouteImport } from './../../
 import { Route as appAttendanceManagementShiftsSwapsRouteImport } from './../../routes/(app)/attendance/management/shifts/swaps'
 import { Route as appCompanyEmployeeContractIndexRouteImport } from './../../routes/(app)/company/employee/contract/index'
 import { Route as appCompanyEmployeeContractNewRouteImport } from './../../routes/(app)/company/employee/contract/new'
+import { Route as appCompanyEmployeeMutationIndexRouteImport } from './../../routes/(app)/company/employee/mutation/index'
+import { Route as appCompanyEmployeePromotionIndexRouteImport } from './../../routes/(app)/company/employee/promotion/index'
 import { Route as appSettingsApprovalWorkflowIdIndexRouteImport } from './../../routes/(app)/settings/approval-workflow/$id/index'
 import { Route as appSettingsApprovalWorkflowIdConditionsRouteImport } from './../../routes/(app)/settings/approval-workflow/$id/conditions'
 import { Route as appSettingsApprovalWorkflowIdLevelsRouteImport } from './../../routes/(app)/settings/approval-workflow/$id/levels'
@@ -327,23 +327,11 @@ const appCompanyEmployeeHistoryRoute =
     path: '/company/employee/history',
     getParentRoute: () => appRouteRoute,
   } as any)
-const appCompanyEmployeeMutationRoute =
-  appCompanyEmployeeMutationRouteImport.update({
-    id: '/company/employee/mutation',
-    path: '/company/employee/mutation',
-    getParentRoute: () => appRouteRoute,
-  } as any)
 const appCompanyEmployeeNewRoute = appCompanyEmployeeNewRouteImport.update({
   id: '/company/employee/new',
   path: '/company/employee/new',
   getParentRoute: () => appRouteRoute,
 } as any)
-const appCompanyEmployeePromotionRoute =
-  appCompanyEmployeePromotionRouteImport.update({
-    id: '/company/employee/promotion',
-    path: '/company/employee/promotion',
-    getParentRoute: () => appRouteRoute,
-  } as any)
 const appCompanyEmployeeResignationRoute =
   appCompanyEmployeeResignationRouteImport.update({
     id: '/company/employee/resignation',
@@ -615,6 +603,18 @@ const appCompanyEmployeeContractNewRoute =
     path: '/company/employee/contract/new',
     getParentRoute: () => appRouteRoute,
   } as any)
+const appCompanyEmployeeMutationIndexRoute =
+  appCompanyEmployeeMutationIndexRouteImport.update({
+    id: '/company/employee/mutation/',
+    path: '/company/employee/mutation/',
+    getParentRoute: () => appRouteRoute,
+  } as any)
+const appCompanyEmployeePromotionIndexRoute =
+  appCompanyEmployeePromotionIndexRouteImport.update({
+    id: '/company/employee/promotion/',
+    path: '/company/employee/promotion/',
+    getParentRoute: () => appRouteRoute,
+  } as any)
 const appSettingsApprovalWorkflowIdIndexRoute =
   appSettingsApprovalWorkflowIdIndexRouteImport.update({
     id: '/settings/approval-workflow/$id/',
@@ -693,9 +693,7 @@ export interface FileRoutesByFullPath {
   '/attendance/requests/new': typeof appAttendanceRequestsNewRoute
   '/company/employee/$id': typeof appCompanyEmployeeIdRoute
   '/company/employee/history': typeof appCompanyEmployeeHistoryRoute
-  '/company/employee/mutation': typeof appCompanyEmployeeMutationRoute
   '/company/employee/new': typeof appCompanyEmployeeNewRoute
-  '/company/employee/promotion': typeof appCompanyEmployeePromotionRoute
   '/company/employee/resignation': typeof appCompanyEmployeeResignationRoute
   '/company/employee/update': typeof appCompanyEmployeeUpdateRoute
   '/company/organization/$id': typeof appCompanyOrganizationIdRoute
@@ -754,6 +752,8 @@ export interface FileRoutesByFullPath {
   '/settings/role-access/$roleId/edit': typeof appSettingsRoleAccessRoleIdEditRoute
   '/attendance/management/shifts/': typeof appAttendanceManagementShiftsIndexRoute
   '/company/employee/contract/': typeof appCompanyEmployeeContractIndexRoute
+  '/company/employee/mutation/': typeof appCompanyEmployeeMutationIndexRoute
+  '/company/employee/promotion/': typeof appCompanyEmployeePromotionIndexRoute
   '/settings/approval-workflow/$id/': typeof appSettingsApprovalWorkflowIdIndexRoute
 }
 export interface FileRoutesByTo {
@@ -791,9 +791,7 @@ export interface FileRoutesByTo {
   '/attendance/requests/new': typeof appAttendanceRequestsNewRoute
   '/company/employee/$id': typeof appCompanyEmployeeIdRoute
   '/company/employee/history': typeof appCompanyEmployeeHistoryRoute
-  '/company/employee/mutation': typeof appCompanyEmployeeMutationRoute
   '/company/employee/new': typeof appCompanyEmployeeNewRoute
-  '/company/employee/promotion': typeof appCompanyEmployeePromotionRoute
   '/company/employee/resignation': typeof appCompanyEmployeeResignationRoute
   '/company/employee/update': typeof appCompanyEmployeeUpdateRoute
   '/company/organization/$id': typeof appCompanyOrganizationIdRoute
@@ -852,6 +850,8 @@ export interface FileRoutesByTo {
   '/settings/role-access/$roleId/edit': typeof appSettingsRoleAccessRoleIdEditRoute
   '/attendance/management/shifts': typeof appAttendanceManagementShiftsIndexRoute
   '/company/employee/contract': typeof appCompanyEmployeeContractIndexRoute
+  '/company/employee/mutation': typeof appCompanyEmployeeMutationIndexRoute
+  '/company/employee/promotion': typeof appCompanyEmployeePromotionIndexRoute
   '/settings/approval-workflow/$id': typeof appSettingsApprovalWorkflowIdIndexRoute
 }
 export interface FileRoutesById {
@@ -891,9 +891,7 @@ export interface FileRoutesById {
   '/(app)/attendance/requests/new': typeof appAttendanceRequestsNewRoute
   '/(app)/company/employee/$id': typeof appCompanyEmployeeIdRoute
   '/(app)/company/employee/history': typeof appCompanyEmployeeHistoryRoute
-  '/(app)/company/employee/mutation': typeof appCompanyEmployeeMutationRoute
   '/(app)/company/employee/new': typeof appCompanyEmployeeNewRoute
-  '/(app)/company/employee/promotion': typeof appCompanyEmployeePromotionRoute
   '/(app)/company/employee/resignation': typeof appCompanyEmployeeResignationRoute
   '/(app)/company/employee/update': typeof appCompanyEmployeeUpdateRoute
   '/(app)/company/organization/$id': typeof appCompanyOrganizationIdRoute
@@ -952,6 +950,8 @@ export interface FileRoutesById {
   '/(app)/settings/role-access/$roleId/edit': typeof appSettingsRoleAccessRoleIdEditRoute
   '/(app)/attendance/management/shifts/': typeof appAttendanceManagementShiftsIndexRoute
   '/(app)/company/employee/contract/': typeof appCompanyEmployeeContractIndexRoute
+  '/(app)/company/employee/mutation/': typeof appCompanyEmployeeMutationIndexRoute
+  '/(app)/company/employee/promotion/': typeof appCompanyEmployeePromotionIndexRoute
   '/(app)/settings/approval-workflow/$id/': typeof appSettingsApprovalWorkflowIdIndexRoute
 }
 export interface FileRouteTypes {
@@ -991,9 +991,7 @@ export interface FileRouteTypes {
     | '/attendance/requests/new'
     | '/company/employee/$id'
     | '/company/employee/history'
-    | '/company/employee/mutation'
     | '/company/employee/new'
-    | '/company/employee/promotion'
     | '/company/employee/resignation'
     | '/company/employee/update'
     | '/company/organization/$id'
@@ -1052,6 +1050,8 @@ export interface FileRouteTypes {
     | '/settings/role-access/$roleId/edit'
     | '/attendance/management/shifts/'
     | '/company/employee/contract/'
+    | '/company/employee/mutation/'
+    | '/company/employee/promotion/'
     | '/settings/approval-workflow/$id/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -1089,9 +1089,7 @@ export interface FileRouteTypes {
     | '/attendance/requests/new'
     | '/company/employee/$id'
     | '/company/employee/history'
-    | '/company/employee/mutation'
     | '/company/employee/new'
-    | '/company/employee/promotion'
     | '/company/employee/resignation'
     | '/company/employee/update'
     | '/company/organization/$id'
@@ -1150,6 +1148,8 @@ export interface FileRouteTypes {
     | '/settings/role-access/$roleId/edit'
     | '/attendance/management/shifts'
     | '/company/employee/contract'
+    | '/company/employee/mutation'
+    | '/company/employee/promotion'
     | '/settings/approval-workflow/$id'
   id:
     | '__root__'
@@ -1188,9 +1188,7 @@ export interface FileRouteTypes {
     | '/(app)/attendance/requests/new'
     | '/(app)/company/employee/$id'
     | '/(app)/company/employee/history'
-    | '/(app)/company/employee/mutation'
     | '/(app)/company/employee/new'
-    | '/(app)/company/employee/promotion'
     | '/(app)/company/employee/resignation'
     | '/(app)/company/employee/update'
     | '/(app)/company/organization/$id'
@@ -1249,6 +1247,8 @@ export interface FileRouteTypes {
     | '/(app)/settings/role-access/$roleId/edit'
     | '/(app)/attendance/management/shifts/'
     | '/(app)/company/employee/contract/'
+    | '/(app)/company/employee/mutation/'
+    | '/(app)/company/employee/promotion/'
     | '/(app)/settings/approval-workflow/$id/'
   fileRoutesById: FileRoutesById
 }
@@ -1549,25 +1549,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof appCompanyEmployeeHistoryRouteImport
       parentRoute: typeof appRouteRoute
     }
-    '/(app)/company/employee/mutation': {
-      id: '/(app)/company/employee/mutation'
-      path: '/company/employee/mutation'
-      fullPath: '/company/employee/mutation'
-      preLoaderRoute: typeof appCompanyEmployeeMutationRouteImport
-      parentRoute: typeof appRouteRoute
-    }
     '/(app)/company/employee/new': {
       id: '/(app)/company/employee/new'
       path: '/company/employee/new'
       fullPath: '/company/employee/new'
       preLoaderRoute: typeof appCompanyEmployeeNewRouteImport
-      parentRoute: typeof appRouteRoute
-    }
-    '/(app)/company/employee/promotion': {
-      id: '/(app)/company/employee/promotion'
-      path: '/company/employee/promotion'
-      fullPath: '/company/employee/promotion'
-      preLoaderRoute: typeof appCompanyEmployeePromotionRouteImport
       parentRoute: typeof appRouteRoute
     }
     '/(app)/company/employee/resignation': {
@@ -1892,6 +1878,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof appCompanyEmployeeContractNewRouteImport
       parentRoute: typeof appRouteRoute
     }
+    '/(app)/company/employee/mutation/': {
+      id: '/(app)/company/employee/mutation/'
+      path: '/company/employee/mutation'
+      fullPath: '/company/employee/mutation/'
+      preLoaderRoute: typeof appCompanyEmployeeMutationIndexRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/company/employee/promotion/': {
+      id: '/(app)/company/employee/promotion/'
+      path: '/company/employee/promotion'
+      fullPath: '/company/employee/promotion/'
+      preLoaderRoute: typeof appCompanyEmployeePromotionIndexRouteImport
+      parentRoute: typeof appRouteRoute
+    }
     '/(app)/settings/approval-workflow/$id/': {
       id: '/(app)/settings/approval-workflow/$id/'
       path: '/settings/approval-workflow/$id'
@@ -1990,9 +1990,7 @@ interface appRouteRouteChildren {
   appAttendanceRequestsNewRoute: typeof appAttendanceRequestsNewRoute
   appCompanyEmployeeIdRoute: typeof appCompanyEmployeeIdRoute
   appCompanyEmployeeHistoryRoute: typeof appCompanyEmployeeHistoryRoute
-  appCompanyEmployeeMutationRoute: typeof appCompanyEmployeeMutationRoute
   appCompanyEmployeeNewRoute: typeof appCompanyEmployeeNewRoute
-  appCompanyEmployeePromotionRoute: typeof appCompanyEmployeePromotionRoute
   appCompanyEmployeeResignationRoute: typeof appCompanyEmployeeResignationRoute
   appCompanyEmployeeUpdateRoute: typeof appCompanyEmployeeUpdateRoute
   appCompanyOrganizationIdRoute: typeof appCompanyOrganizationIdRoute
@@ -2050,6 +2048,8 @@ interface appRouteRouteChildren {
   appSettingsRoleAccessRoleIdEditRoute: typeof appSettingsRoleAccessRoleIdEditRoute
   appAttendanceManagementShiftsIndexRoute: typeof appAttendanceManagementShiftsIndexRoute
   appCompanyEmployeeContractIndexRoute: typeof appCompanyEmployeeContractIndexRoute
+  appCompanyEmployeeMutationIndexRoute: typeof appCompanyEmployeeMutationIndexRoute
+  appCompanyEmployeePromotionIndexRoute: typeof appCompanyEmployeePromotionIndexRoute
   appSettingsApprovalWorkflowIdIndexRoute: typeof appSettingsApprovalWorkflowIdIndexRoute
 }
 
@@ -2085,9 +2085,7 @@ const appRouteRouteChildren: appRouteRouteChildren = {
   appAttendanceRequestsNewRoute: appAttendanceRequestsNewRoute,
   appCompanyEmployeeIdRoute: appCompanyEmployeeIdRoute,
   appCompanyEmployeeHistoryRoute: appCompanyEmployeeHistoryRoute,
-  appCompanyEmployeeMutationRoute: appCompanyEmployeeMutationRoute,
   appCompanyEmployeeNewRoute: appCompanyEmployeeNewRoute,
-  appCompanyEmployeePromotionRoute: appCompanyEmployeePromotionRoute,
   appCompanyEmployeeResignationRoute: appCompanyEmployeeResignationRoute,
   appCompanyEmployeeUpdateRoute: appCompanyEmployeeUpdateRoute,
   appCompanyOrganizationIdRoute: appCompanyOrganizationIdRoute,
@@ -2158,6 +2156,8 @@ const appRouteRouteChildren: appRouteRouteChildren = {
   appAttendanceManagementShiftsIndexRoute:
     appAttendanceManagementShiftsIndexRoute,
   appCompanyEmployeeContractIndexRoute: appCompanyEmployeeContractIndexRoute,
+  appCompanyEmployeeMutationIndexRoute: appCompanyEmployeeMutationIndexRoute,
+  appCompanyEmployeePromotionIndexRoute: appCompanyEmployeePromotionIndexRoute,
   appSettingsApprovalWorkflowIdIndexRoute:
     appSettingsApprovalWorkflowIdIndexRoute,
 }

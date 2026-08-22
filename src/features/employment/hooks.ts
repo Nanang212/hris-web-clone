@@ -20,6 +20,8 @@ import {
   renewContract,
   getMutations,
   createMutation,
+  getPromotions,
+  createPromotion,
 } from '@/features/employment/api'
 import type {
   CreateEmployeePayload,
@@ -28,6 +30,7 @@ import type {
   EmployeePersonalInfo,
   EmployeeEmploymentInfo,
   CreateMutationPayload,
+  CreatePromotionPayload,
 } from '@/features/employment/types'
 
 export const employmentQueryKeys = {
@@ -203,6 +206,25 @@ export function useCreateMutation() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (payload: CreateMutationPayload) => createMutation(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: employmentQueryKeys.all })
+    },
+  })
+}
+
+export function useGetPromotions(search?: string, status?: string) {
+  return useQuery({
+    queryKey: [...employmentQueryKeys.all, 'promotions', search, status],
+    queryFn: () => getPromotions(search, status),
+    select: ({ data }) => data,
+    placeholderData: keepPreviousData,
+  })
+}
+
+export function useCreatePromotion() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (payload: CreatePromotionPayload) => createPromotion(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: employmentQueryKeys.all })
     },

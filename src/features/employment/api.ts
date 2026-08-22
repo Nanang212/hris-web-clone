@@ -14,6 +14,8 @@ import type {
   EmployeeContract,
   EmployeeMutation,
   CreateMutationPayload,
+  EmployeePromotion,
+  CreatePromotionPayload,
 } from '@/features/employment/types'
 import type { Envelope, PaginatedData } from '@/shared/types'
 
@@ -948,3 +950,132 @@ export const createMutation = async (payload: CreateMutationPayload): Promise<En
   mockMutations = [newMutation, ...mockMutations]
   return { success: true, code: '200', data: newMutation, messages: [] }
 }
+
+// ─── Promotion Dummy Data ─────────────────────────────────────────────────────
+let mockPromotions: EmployeePromotion[] = [
+  {
+    id: 'pro-1',
+    employeeId: 'emp-1',
+    employeeCode: 'EMP001',
+    fullName: 'Rian Wijaya',
+    photo: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
+    currentPosition: 'Senior Frontend Engineer',
+    newPosition: 'Frontend Lead',
+    currentGrade: 'G3',
+    newGrade: 'G4',
+    currentSalary: 18000000,
+    newSalary: 21500000,
+    effectiveDate: '2026-09-01',
+    reason: 'Annual performance review',
+    approvalRoute: 'Manager → HR → Director',
+    status: 'pending',
+    submittedAt: '2026-08-15T08:00:00Z',
+    approvedAt: null,
+  },
+  {
+    id: 'pro-2',
+    employeeId: 'emp-2',
+    employeeCode: 'EMP002',
+    fullName: 'Siti Aminah',
+    photo: null,
+    currentPosition: 'Backend Developer',
+    newPosition: 'Senior Backend Developer',
+    currentGrade: 'G2',
+    newGrade: 'G3',
+    currentSalary: 12000000,
+    newSalary: 15500000,
+    effectiveDate: '2026-09-15',
+    reason: 'Exceeded target performance key results',
+    approvalRoute: 'Manager → HR → Director',
+    status: 'approved',
+    submittedAt: '2026-08-10T08:00:00Z',
+    approvedAt: '2026-08-12T10:00:00Z',
+  },
+  {
+    id: 'pro-3',
+    employeeId: 'emp-3',
+    employeeCode: 'EMP003',
+    fullName: 'Budi Santoso',
+    photo: null,
+    currentPosition: 'Engineering Manager',
+    newPosition: 'VP of Engineering',
+    currentGrade: 'G5',
+    newGrade: 'G6',
+    currentSalary: 30000000,
+    newSalary: 42000000,
+    effectiveDate: '2026-10-01',
+    reason: 'Strategic leadership expansion',
+    approvalRoute: 'VP → HR → CEO',
+    status: 'scheduled',
+    submittedAt: '2026-08-20T08:00:00Z',
+    approvedAt: '2026-08-21T14:00:00Z',
+  },
+  {
+    id: 'pro-4',
+    employeeId: 'emp-4',
+    employeeCode: 'EMP004',
+    fullName: 'Dewi Lestari',
+    photo: null,
+    currentPosition: 'HR Manager',
+    newPosition: 'Senior HR Manager',
+    currentGrade: 'G4',
+    newGrade: 'G5',
+    currentSalary: 20000000,
+    newSalary: 25000000,
+    effectiveDate: '2026-09-01',
+    reason: 'Outstanding contribution to org development',
+    approvalRoute: 'Director → CEO',
+    status: 'rejected',
+    submittedAt: '2026-08-05T08:00:00Z',
+    approvedAt: null,
+  },
+]
+
+export const getPromotions = async (
+  search?: string,
+  status?: string,
+): Promise<Envelope<EmployeePromotion[]>> => {
+  await sleep()
+  let filtered = [...mockPromotions]
+  if (search) {
+    const q = search.toLowerCase()
+    filtered = filtered.filter(
+      (p) =>
+        p.fullName.toLowerCase().includes(q) ||
+        p.employeeCode.toLowerCase().includes(q) ||
+        p.currentPosition.toLowerCase().includes(q) ||
+        p.newPosition.toLowerCase().includes(q),
+    )
+  }
+  if (status && status !== 'all') {
+    filtered = filtered.filter((p) => p.status === status)
+  }
+  return { success: true, code: '200', data: filtered, messages: [] }
+}
+
+export const createPromotion = async (payload: CreatePromotionPayload): Promise<Envelope<EmployeePromotion>> => {
+  await sleep()
+  const employee = mockEmployees.find((e) => e.id === payload.employeeId)
+  const newPromotion: EmployeePromotion = {
+    id: `pro-${Date.now()}`,
+    employeeId: payload.employeeId,
+    employeeCode: employee?.employeeCode ?? 'EMP000',
+    fullName: employee?.fullName ?? 'Unknown',
+    photo: employee?.photo ?? null,
+    currentPosition: employee?.positionName ?? '-',
+    newPosition: payload.newPosition,
+    currentGrade: employee?.gradeName ?? '-',
+    newGrade: payload.newGrade,
+    currentSalary: 18000000, // mock current salary from payroll info
+    newSalary: payload.newSalary,
+    effectiveDate: payload.effectiveDate,
+    reason: payload.reason,
+    approvalRoute: payload.approvalRoute,
+    status: 'pending',
+    submittedAt: null,
+    approvedAt: null,
+  }
+  mockPromotions = [newPromotion, ...mockPromotions]
+  return { success: true, code: '200', data: newPromotion, messages: [] }
+}
+
