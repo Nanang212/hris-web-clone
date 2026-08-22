@@ -208,3 +208,35 @@ export interface CreateMutationPayload {
   reason: string
   approvalRoute: string
 }
+
+export type PromotionStatus = 'pending' | 'approved' | 'rejected' | 'scheduled'
+
+export interface EmployeePromotion {
+  id: string
+  employeeId: string
+  employeeCode: string
+  fullName: string
+  photo: string | null
+  currentPosition: string
+  newPosition: string
+  currentGrade: string
+  newGrade: string
+  currentSalary: number
+  newSalary: number
+  effectiveDate: string
+  reason: string
+  approvalRoute: string
+  status: PromotionStatus
+  submittedAt: string | null
+  approvedAt: string | null
+}
+
+export interface CreatePromotionPayload {
+  employeeId: string
+  newPosition: string
+  newGrade: string
+  newSalary: number
+  effectiveDate: string
+  reason: string
+  approvalRoute: string
+}

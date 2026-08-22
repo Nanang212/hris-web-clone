@@ -90,7 +90,12 @@ export function EmployeeDetailPanel({ selectedEmp }: EmployeeDetailPanelProps) {
               </Link>
             </Button>
             <Button variant='outline' size='sm' asChild className='hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors duration-200'>
-              <Link to='/company/employee/promotion'>Promotion</Link>
+              <Link
+                to='/company/employee/promotion'
+                search={{ employeeId: selectedEmp.id, name: selectedEmp.fullName }}
+              >
+                Promotion
+              </Link>
             </Button>
             <Button variant='outline' size='sm' asChild className='hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors duration-200'>
               <Link to='/company/employee/resignation'>Resignation</Link>
