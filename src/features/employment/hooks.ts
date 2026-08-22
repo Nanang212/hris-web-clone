@@ -1,6 +1,6 @@
 // hooks.ts — React Query hooks for Employment feature
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient, keepPreviousData } from '@tanstack/react-query'
 
 import {
   createEmployee,
@@ -18,6 +18,8 @@ import {
   updateEmployeePersonalInfo,
   getContracts,
   renewContract,
+  getMutations,
+  createMutation,
 } from '@/features/employment/api'
 import type {
   CreateEmployeePayload,
@@ -25,6 +27,7 @@ import type {
   UpdateEmployeePayload,
   EmployeePersonalInfo,
   EmployeeEmploymentInfo,
+  CreateMutationPayload,
 } from '@/features/employment/types'
 
 export const employmentQueryKeys = {
@@ -47,6 +50,7 @@ export function useGetEmployees(params?: EmployeeFilterParams) {
     queryKey: employmentQueryKeys.list(params),
     queryFn: () => getEmployees(params),
     select: ({ data }) => data,
+    placeholderData: keepPreviousData,
   })
 }
 
@@ -171,6 +175,7 @@ export function useGetContracts(search?: string, status?: string) {
     queryKey: employmentQueryKeys.contracts(search, status),
     queryFn: () => getContracts(search, status),
     select: ({ data }) => data,
+    placeholderData: keepPreviousData,
   })
 }
 
@@ -179,6 +184,25 @@ export function useRenewContract() {
   return useMutation({
     mutationFn: ({ id, startDate, endDate }: { id: string; startDate: string; endDate: string }) =>
       renewContract(id, startDate, endDate),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: employmentQueryKeys.all })
+    },
+  })
+}
+
+export function useGetMutations(search?: string, status?: string) {
+  return useQuery({
+    queryKey: [...employmentQueryKeys.all, 'mutations', search, status],
+    queryFn: () => getMutations(search, status),
+    select: ({ data }) => data,
+    placeholderData: keepPreviousData,
+  })
+}
+
+export function useCreateMutation() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (payload: CreateMutationPayload) => createMutation(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: employmentQueryKeys.all })
     },

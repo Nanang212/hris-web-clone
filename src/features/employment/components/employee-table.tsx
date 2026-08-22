@@ -25,6 +25,7 @@ const CONTRACT_TYPE_LABEL: Record<string, string> = {
 interface EmployeeTableProps {
   employees: Employee[]
   isPending?: boolean
+  isFetching?: boolean
   /** Currently selected employee id */
   selectedId?: string
   onSelectEmployee: (id: string) => void
@@ -35,6 +36,7 @@ interface EmployeeTableProps {
 export function EmployeeTable({
   employees,
   isPending = false,
+  isFetching = false,
   selectedId,
   onSelectEmployee,
   defaultPageSize = 5,
@@ -61,6 +63,10 @@ export function EmployeeTable({
 
   return (
     <div className='rounded-2xl border border-border/60 bg-card overflow-hidden shadow-sm'>
+      {/* Search loading bar */}
+      <div className={`h-0.5 bg-primary/20 overflow-hidden transition-all ${isFetching && !isPending ? 'opacity-100' : 'opacity-0'}`}>
+        <div className='h-full w-1/2 bg-primary animate-[slide-in-out_1.2s_ease-in-out_infinite]' />
+      </div>
       {/* Table Header Info */}
       <div className='p-5 border-b border-border/60'>
         <h3 className='text-sm font-bold text-foreground'>Employee Employment Data</h3>

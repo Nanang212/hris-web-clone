@@ -73,7 +73,7 @@ export function EmployeeDetailPanel({ selectedEmp }: EmployeeDetailPanelProps) {
             Continue with
           </h4>
           <div className='grid grid-cols-2 gap-2'>
-            <Button size='sm' asChild>
+            <Button variant='outline' size='sm' asChild className='hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors duration-200'>
               <Link
                 to='/company/employee/contract'
                 search={{ employeeId: selectedEmp.id, name: selectedEmp.fullName }}
@@ -81,13 +81,18 @@ export function EmployeeDetailPanel({ selectedEmp }: EmployeeDetailPanelProps) {
                 Contract
               </Link>
             </Button>
-            <Button variant='outline' size='sm' asChild>
-              <Link to='/company/employee/mutation'>Mutation</Link>
+            <Button variant='outline' size='sm' asChild className='hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors duration-200'>
+              <Link
+                to='/company/employee/mutation'
+                search={{ employeeId: selectedEmp.id, name: selectedEmp.fullName }}
+              >
+                Mutation
+              </Link>
             </Button>
-            <Button variant='outline' size='sm' asChild>
+            <Button variant='outline' size='sm' asChild className='hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors duration-200'>
               <Link to='/company/employee/promotion'>Promotion</Link>
             </Button>
-            <Button variant='outline' size='sm' asChild>
+            <Button variant='outline' size='sm' asChild className='hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors duration-200'>
               <Link to='/company/employee/resignation'>Resignation</Link>
             </Button>
           </div>

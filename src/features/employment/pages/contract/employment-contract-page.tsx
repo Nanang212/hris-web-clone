@@ -76,7 +76,7 @@ export function EmploymentContractPage({
   const [activeContract, setActiveContract] = useState<EmployeeContract | null>(null)
   const [backToView, setBackToView] = useState<'list' | 'detail'>('list')
 
-  const { data: contracts = [], isPending, error, refetch } = useGetContracts(
+  const { data: contracts = [], isPending, isFetching, error, refetch } = useGetContracts(
     searchValue || undefined,
     statusFilter || undefined,
   )
@@ -339,6 +339,7 @@ export function EmploymentContractPage({
           <ContractTable
             contracts={contracts}
             isPending={isPending && contracts.length === 0}
+            isFetching={isFetching}
             onAction={(ctr, action) => handleActionClick(ctr, action)}
           />
         </>
