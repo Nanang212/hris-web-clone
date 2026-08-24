@@ -22,6 +22,8 @@ import {
   createMutation,
   getPromotions,
   createPromotion,
+  getResignations,
+  createResignation,
 } from '@/features/employment/api'
 import type {
   CreateEmployeePayload,
@@ -31,6 +33,7 @@ import type {
   EmployeeEmploymentInfo,
   CreateMutationPayload,
   CreatePromotionPayload,
+  CreateResignationPayload,
 } from '@/features/employment/types'
 
 export const employmentQueryKeys = {
@@ -225,6 +228,25 @@ export function useCreatePromotion() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (payload: CreatePromotionPayload) => createPromotion(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: employmentQueryKeys.all })
+    },
+  })
+}
+
+export function useGetResignations(search?: string, status?: string, employeeId?: string) {
+  return useQuery({
+    queryKey: [...employmentQueryKeys.all, 'resignations', search, status, employeeId],
+    queryFn: () => getResignations(search, status, employeeId),
+    select: ({ data }) => data,
+    placeholderData: keepPreviousData,
+  })
+}
+
+export function useCreateResignation() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (payload: CreateResignationPayload) => createResignation(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: employmentQueryKeys.all })
     },

@@ -240,3 +240,45 @@ export interface CreatePromotionPayload {
   reason: string
   approvalRoute: string
 }
+
+export type ResignationStatus = 'submitted' | 'clearance' | 'exit_interview' | 'completed' | 'cancelled'
+
+export interface ResignationClearanceItem {
+  key: string
+  label: string
+  checked: boolean
+}
+
+export interface EmployeeResignation {
+  id: string
+  employeeId: string
+  employeeCode: string
+  fullName: string
+  photo: string | null
+  position: string
+  department: string
+  location: string
+  submissionDate: string
+  resignationType: string // 'Voluntary' | 'Involuntary' | 'Retirement'
+  noticePeriod: string
+  lastWorkingDate: string
+  handoverOwner: string
+  exitInterviewDate: string | null
+  reason: string
+  accessRevocation: string
+  finalStatus: string
+  status: ResignationStatus
+  clearanceChecklist: ResignationClearanceItem[]
+}
+
+export interface CreateResignationPayload {
+  employeeId: string
+  submissionDate: string
+  resignationType: string
+  noticePeriod: string
+  lastWorkingDate: string
+  handoverOwner: string
+  exitInterviewDate: string
+  reason: string
+  accessRevocation: string
+}
