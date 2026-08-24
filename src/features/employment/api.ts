@@ -16,6 +16,8 @@ import type {
   CreateMutationPayload,
   EmployeePromotion,
   CreatePromotionPayload,
+  EmployeeResignation,
+  CreateResignationPayload,
 } from '@/features/employment/types'
 import type { Envelope, PaginatedData } from '@/shared/types'
 
@@ -1079,3 +1081,169 @@ export const createPromotion = async (payload: CreatePromotionPayload): Promise<
   return { success: true, code: '200', data: newPromotion, messages: [] }
 }
 
+// ─── Resignation Dummy Data ─────────────────────────────────────────────────
+let mockResignations: EmployeeResignation[] = [
+  {
+    id: 'res-1',
+    employeeId: 'emp-1',
+    employeeCode: 'EMP001',
+    fullName: 'Rian Wijaya',
+    photo: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
+    position: 'Senior Frontend Engineer',
+    department: 'IT & Engineering',
+    location: 'Head Office Jakarta',
+    submissionDate: '2026-08-01',
+    resignationType: 'Voluntary',
+    noticePeriod: '30 days',
+    lastWorkingDate: '2026-08-31',
+    handoverOwner: 'Budi Santoso',
+    exitInterviewDate: '2026-08-25',
+    reason: 'Career opportunity',
+    accessRevocation: 'After last working date',
+    finalStatus: 'Clearance in progress',
+    status: 'clearance',
+    clearanceChecklist: [
+      { key: 'it_assets', label: 'IT assets returned', checked: true },
+      { key: 'finance', label: 'Finance settlement', checked: true },
+      { key: 'manager_handover', label: 'Manager handover', checked: false },
+      { key: 'hr_docs', label: 'HR exit documents', checked: false },
+    ],
+  },
+  {
+    id: 'res-2',
+    employeeId: 'emp-2',
+    employeeCode: 'EMP002',
+    fullName: 'Siti Aminah',
+    photo: null,
+    position: 'HR Specialist',
+    department: 'Human Resource',
+    location: 'Bandung Office',
+    submissionDate: '2026-08-10',
+    resignationType: 'Voluntary',
+    noticePeriod: '30 days',
+    lastWorkingDate: '2026-09-15',
+    handoverOwner: 'Dewi Lestari',
+    exitInterviewDate: null,
+    reason: 'Personal reasons',
+    accessRevocation: 'After last working date',
+    finalStatus: 'Submitted',
+    status: 'submitted',
+    clearanceChecklist: [
+      { key: 'it_assets', label: 'IT assets returned', checked: false },
+      { key: 'finance', label: 'Finance settlement', checked: false },
+      { key: 'manager_handover', label: 'Manager handover', checked: false },
+      { key: 'hr_docs', label: 'HR exit documents', checked: false },
+    ],
+  },
+  {
+    id: 'res-3',
+    employeeId: 'emp-3',
+    employeeCode: 'EMP003',
+    fullName: 'Budi Santoso',
+    photo: null,
+    position: 'Engineering Manager',
+    department: 'IT & Engineering',
+    location: 'Head Office Jakarta',
+    submissionDate: '2026-08-15',
+    resignationType: 'Voluntary',
+    noticePeriod: '60 days',
+    lastWorkingDate: '2026-09-30',
+    handoverOwner: 'Dewi Lestari',
+    exitInterviewDate: '2026-09-25',
+    reason: 'Career opportunity',
+    accessRevocation: 'After last working date',
+    finalStatus: 'Exit interview scheduled',
+    status: 'exit_interview',
+    clearanceChecklist: [
+      { key: 'it_assets', label: 'IT assets returned', checked: false },
+      { key: 'finance', label: 'Finance settlement', checked: false },
+      { key: 'manager_handover', label: 'Manager handover', checked: false },
+      { key: 'hr_docs', label: 'HR exit documents', checked: false },
+    ],
+  },
+  {
+    id: 'res-4',
+    employeeId: 'emp-4',
+    employeeCode: 'EMP004',
+    fullName: 'Dewi Lestari',
+    photo: null,
+    position: 'HR Manager',
+    department: 'Human Resource',
+    location: 'Head Office Jakarta',
+    submissionDate: '2026-07-01',
+    resignationType: 'Voluntary',
+    noticePeriod: '30 days',
+    lastWorkingDate: '2026-07-31',
+    handoverOwner: 'Budi Santoso',
+    exitInterviewDate: '2026-07-28',
+    reason: 'Retirement',
+    accessRevocation: 'On last working date',
+    finalStatus: 'Offboarded',
+    status: 'completed',
+    clearanceChecklist: [
+      { key: 'it_assets', label: 'IT assets returned', checked: true },
+      { key: 'finance', label: 'Finance settlement', checked: true },
+      { key: 'manager_handover', label: 'Manager handover', checked: true },
+      { key: 'hr_docs', label: 'HR exit documents', checked: true },
+    ],
+  },
+]
+
+export const getResignations = async (
+  search?: string,
+  status?: string,
+  employeeId?: string,
+): Promise<Envelope<EmployeeResignation[]>> => {
+  await sleep()
+  let filtered = [...mockResignations]
+  if (employeeId) {
+    filtered = filtered.filter((r) => r.employeeId === employeeId)
+  }
+  if (search) {
+    const q = search.toLowerCase()
+    filtered = filtered.filter(
+      (r) =>
+        r.fullName.toLowerCase().includes(q) ||
+        r.employeeCode.toLowerCase().includes(q) ||
+        r.position.toLowerCase().includes(q) ||
+        r.department.toLowerCase().includes(q),
+    )
+  }
+  if (status && status !== 'all') {
+    filtered = filtered.filter((r) => r.status === status)
+  }
+  return { success: true, code: '200', data: filtered, messages: [] }
+}
+
+export const createResignation = async (payload: CreateResignationPayload): Promise<Envelope<EmployeeResignation>> => {
+  await sleep()
+  const employee = mockEmployees.find((e) => e.id === payload.employeeId)
+  const newResignation: EmployeeResignation = {
+    id: `res-${Date.now()}`,
+    employeeId: payload.employeeId,
+    employeeCode: employee?.employeeCode ?? 'EMP000',
+    fullName: employee?.fullName ?? 'Unknown',
+    photo: employee?.photo ?? null,
+    position: employee?.positionName ?? '-',
+    department: employee?.departmentName ?? '-',
+    location: employee?.workLocation ?? '-',
+    submissionDate: payload.submissionDate,
+    resignationType: payload.resignationType,
+    noticePeriod: payload.noticePeriod,
+    lastWorkingDate: payload.lastWorkingDate,
+    handoverOwner: payload.handoverOwner,
+    exitInterviewDate: payload.exitInterviewDate || null,
+    reason: payload.reason,
+    accessRevocation: payload.accessRevocation,
+    finalStatus: 'Submitted',
+    status: 'submitted',
+    clearanceChecklist: [
+      { key: 'it_assets', label: 'IT assets returned', checked: false },
+      { key: 'finance', label: 'Finance settlement', checked: false },
+      { key: 'manager_handover', label: 'Manager handover', checked: false },
+      { key: 'hr_docs', label: 'HR exit documents', checked: false },
+    ],
+  }
+  mockResignations = [newResignation, ...mockResignations]
+  return { success: true, code: '200', data: newResignation, messages: [] }
+}

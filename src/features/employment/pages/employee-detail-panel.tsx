@@ -98,7 +98,12 @@ export function EmployeeDetailPanel({ selectedEmp }: EmployeeDetailPanelProps) {
               </Link>
             </Button>
             <Button variant='outline' size='sm' asChild className='hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors duration-200'>
-              <Link to='/company/employee/resignation'>Resignation</Link>
+              <Link
+                to='/company/employee/resignation'
+                search={{ employeeId: selectedEmp.id, name: selectedEmp.fullName }}
+              >
+                Resignation
+              </Link>
             </Button>
           </div>
           <div className='mt-4 text-center'>

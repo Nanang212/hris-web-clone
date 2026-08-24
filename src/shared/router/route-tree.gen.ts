@@ -51,7 +51,6 @@ import { Route as appCompanyEmployeeIndexRouteImport } from './../../routes/(app
 import { Route as appCompanyEmployeeIdRouteImport } from './../../routes/(app)/company/employee/$id'
 import { Route as appCompanyEmployeeHistoryRouteImport } from './../../routes/(app)/company/employee/history'
 import { Route as appCompanyEmployeeNewRouteImport } from './../../routes/(app)/company/employee/new'
-import { Route as appCompanyEmployeeResignationRouteImport } from './../../routes/(app)/company/employee/resignation'
 import { Route as appCompanyEmployeeUpdateRouteImport } from './../../routes/(app)/company/employee/update'
 import { Route as appCompanyOrganizationIndexRouteImport } from './../../routes/(app)/company/organization/index'
 import { Route as appCompanyOrganizationIdRouteImport } from './../../routes/(app)/company/organization/$id'
@@ -101,6 +100,7 @@ import { Route as appCompanyEmployeeContractIndexRouteImport } from './../../rou
 import { Route as appCompanyEmployeeContractNewRouteImport } from './../../routes/(app)/company/employee/contract/new'
 import { Route as appCompanyEmployeeMutationIndexRouteImport } from './../../routes/(app)/company/employee/mutation/index'
 import { Route as appCompanyEmployeePromotionIndexRouteImport } from './../../routes/(app)/company/employee/promotion/index'
+import { Route as appCompanyEmployeeResignationIndexRouteImport } from './../../routes/(app)/company/employee/resignation/index'
 import { Route as appSettingsApprovalWorkflowIdIndexRouteImport } from './../../routes/(app)/settings/approval-workflow/$id/index'
 import { Route as appSettingsApprovalWorkflowIdConditionsRouteImport } from './../../routes/(app)/settings/approval-workflow/$id/conditions'
 import { Route as appSettingsApprovalWorkflowIdLevelsRouteImport } from './../../routes/(app)/settings/approval-workflow/$id/levels'
@@ -338,12 +338,6 @@ const appCompanyEmployeeNewRoute = appCompanyEmployeeNewRouteImport.update({
   path: '/company/employee/new',
   getParentRoute: () => appRouteRoute,
 } as any)
-const appCompanyEmployeeResignationRoute =
-  appCompanyEmployeeResignationRouteImport.update({
-    id: '/company/employee/resignation',
-    path: '/company/employee/resignation',
-    getParentRoute: () => appRouteRoute,
-  } as any)
 const appCompanyEmployeeUpdateRoute =
   appCompanyEmployeeUpdateRouteImport.update({
     id: '/company/employee/update',
@@ -633,6 +627,12 @@ const appCompanyEmployeePromotionIndexRoute =
     path: '/company/employee/promotion/',
     getParentRoute: () => appRouteRoute,
   } as any)
+const appCompanyEmployeeResignationIndexRoute =
+  appCompanyEmployeeResignationIndexRouteImport.update({
+    id: '/company/employee/resignation/',
+    path: '/company/employee/resignation/',
+    getParentRoute: () => appRouteRoute,
+  } as any)
 const appSettingsApprovalWorkflowIdIndexRoute =
   appSettingsApprovalWorkflowIdIndexRouteImport.update({
     id: '/settings/approval-workflow/$id/',
@@ -736,7 +736,6 @@ export interface FileRoutesByFullPath {
   '/company/employee/$id': typeof appCompanyEmployeeIdRoute
   '/company/employee/history': typeof appCompanyEmployeeHistoryRoute
   '/company/employee/new': typeof appCompanyEmployeeNewRoute
-  '/company/employee/resignation': typeof appCompanyEmployeeResignationRoute
   '/company/employee/update': typeof appCompanyEmployeeUpdateRoute
   '/company/organization/$id': typeof appCompanyOrganizationIdRoute
   '/company/organization/new': typeof appCompanyOrganizationNewRoute
@@ -802,6 +801,7 @@ export interface FileRoutesByFullPath {
   '/company/employee/contract/': typeof appCompanyEmployeeContractIndexRoute
   '/company/employee/mutation/': typeof appCompanyEmployeeMutationIndexRoute
   '/company/employee/promotion/': typeof appCompanyEmployeePromotionIndexRoute
+  '/company/employee/resignation/': typeof appCompanyEmployeeResignationIndexRoute
   '/settings/approval-workflow/$id/': typeof appSettingsApprovalWorkflowIdIndexRoute
 }
 export interface FileRoutesByTo {
@@ -840,7 +840,6 @@ export interface FileRoutesByTo {
   '/company/employee/$id': typeof appCompanyEmployeeIdRoute
   '/company/employee/history': typeof appCompanyEmployeeHistoryRoute
   '/company/employee/new': typeof appCompanyEmployeeNewRoute
-  '/company/employee/resignation': typeof appCompanyEmployeeResignationRoute
   '/company/employee/update': typeof appCompanyEmployeeUpdateRoute
   '/company/organization/$id': typeof appCompanyOrganizationIdRoute
   '/company/organization/new': typeof appCompanyOrganizationNewRoute
@@ -906,6 +905,7 @@ export interface FileRoutesByTo {
   '/company/employee/contract': typeof appCompanyEmployeeContractIndexRoute
   '/company/employee/mutation': typeof appCompanyEmployeeMutationIndexRoute
   '/company/employee/promotion': typeof appCompanyEmployeePromotionIndexRoute
+  '/company/employee/resignation': typeof appCompanyEmployeeResignationIndexRoute
   '/settings/approval-workflow/$id': typeof appSettingsApprovalWorkflowIdIndexRoute
 }
 export interface FileRoutesById {
@@ -946,7 +946,6 @@ export interface FileRoutesById {
   '/(app)/company/employee/$id': typeof appCompanyEmployeeIdRoute
   '/(app)/company/employee/history': typeof appCompanyEmployeeHistoryRoute
   '/(app)/company/employee/new': typeof appCompanyEmployeeNewRoute
-  '/(app)/company/employee/resignation': typeof appCompanyEmployeeResignationRoute
   '/(app)/company/employee/update': typeof appCompanyEmployeeUpdateRoute
   '/(app)/company/organization/$id': typeof appCompanyOrganizationIdRoute
   '/(app)/company/organization/new': typeof appCompanyOrganizationNewRoute
@@ -1012,6 +1011,7 @@ export interface FileRoutesById {
   '/(app)/company/employee/contract/': typeof appCompanyEmployeeContractIndexRoute
   '/(app)/company/employee/mutation/': typeof appCompanyEmployeeMutationIndexRoute
   '/(app)/company/employee/promotion/': typeof appCompanyEmployeePromotionIndexRoute
+  '/(app)/company/employee/resignation/': typeof appCompanyEmployeeResignationIndexRoute
   '/(app)/settings/approval-workflow/$id/': typeof appSettingsApprovalWorkflowIdIndexRoute
 }
 export interface FileRouteTypes {
@@ -1052,7 +1052,6 @@ export interface FileRouteTypes {
     | '/company/employee/$id'
     | '/company/employee/history'
     | '/company/employee/new'
-    | '/company/employee/resignation'
     | '/company/employee/update'
     | '/company/organization/$id'
     | '/company/organization/new'
@@ -1118,6 +1117,7 @@ export interface FileRouteTypes {
     | '/company/employee/contract/'
     | '/company/employee/mutation/'
     | '/company/employee/promotion/'
+    | '/company/employee/resignation/'
     | '/settings/approval-workflow/$id/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -1156,7 +1156,6 @@ export interface FileRouteTypes {
     | '/company/employee/$id'
     | '/company/employee/history'
     | '/company/employee/new'
-    | '/company/employee/resignation'
     | '/company/employee/update'
     | '/company/organization/$id'
     | '/company/organization/new'
@@ -1222,6 +1221,7 @@ export interface FileRouteTypes {
     | '/company/employee/contract'
     | '/company/employee/mutation'
     | '/company/employee/promotion'
+    | '/company/employee/resignation'
     | '/settings/approval-workflow/$id'
   id:
     | '__root__'
@@ -1261,7 +1261,6 @@ export interface FileRouteTypes {
     | '/(app)/company/employee/$id'
     | '/(app)/company/employee/history'
     | '/(app)/company/employee/new'
-    | '/(app)/company/employee/resignation'
     | '/(app)/company/employee/update'
     | '/(app)/company/organization/$id'
     | '/(app)/company/organization/new'
@@ -1327,6 +1326,7 @@ export interface FileRouteTypes {
     | '/(app)/company/employee/contract/'
     | '/(app)/company/employee/mutation/'
     | '/(app)/company/employee/promotion/'
+    | '/(app)/company/employee/resignation/'
     | '/(app)/settings/approval-workflow/$id/'
   fileRoutesById: FileRoutesById
 }
@@ -1632,13 +1632,6 @@ declare module '@tanstack/react-router' {
       path: '/company/employee/new'
       fullPath: '/company/employee/new'
       preLoaderRoute: typeof appCompanyEmployeeNewRouteImport
-      parentRoute: typeof appRouteRoute
-    }
-    '/(app)/company/employee/resignation': {
-      id: '/(app)/company/employee/resignation'
-      path: '/company/employee/resignation'
-      fullPath: '/company/employee/resignation'
-      preLoaderRoute: typeof appCompanyEmployeeResignationRouteImport
       parentRoute: typeof appRouteRoute
     }
     '/(app)/company/employee/update': {
@@ -1984,6 +1977,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof appCompanyEmployeePromotionIndexRouteImport
       parentRoute: typeof appRouteRoute
     }
+    '/(app)/company/employee/resignation/': {
+      id: '/(app)/company/employee/resignation/'
+      path: '/company/employee/resignation'
+      fullPath: '/company/employee/resignation/'
+      preLoaderRoute: typeof appCompanyEmployeeResignationIndexRouteImport
+      parentRoute: typeof appRouteRoute
+    }
     '/(app)/settings/approval-workflow/$id/': {
       id: '/(app)/settings/approval-workflow/$id/'
       path: '/settings/approval-workflow/$id'
@@ -2111,7 +2111,6 @@ interface appRouteRouteChildren {
   appCompanyEmployeeIdRoute: typeof appCompanyEmployeeIdRoute
   appCompanyEmployeeHistoryRoute: typeof appCompanyEmployeeHistoryRoute
   appCompanyEmployeeNewRoute: typeof appCompanyEmployeeNewRoute
-  appCompanyEmployeeResignationRoute: typeof appCompanyEmployeeResignationRoute
   appCompanyEmployeeUpdateRoute: typeof appCompanyEmployeeUpdateRoute
   appCompanyOrganizationIdRoute: typeof appCompanyOrganizationIdRoute
   appCompanyOrganizationNewRoute: typeof appCompanyOrganizationNewRoute
@@ -2176,6 +2175,7 @@ interface appRouteRouteChildren {
   appCompanyEmployeeContractIndexRoute: typeof appCompanyEmployeeContractIndexRoute
   appCompanyEmployeeMutationIndexRoute: typeof appCompanyEmployeeMutationIndexRoute
   appCompanyEmployeePromotionIndexRoute: typeof appCompanyEmployeePromotionIndexRoute
+  appCompanyEmployeeResignationIndexRoute: typeof appCompanyEmployeeResignationIndexRoute
   appSettingsApprovalWorkflowIdIndexRoute: typeof appSettingsApprovalWorkflowIdIndexRoute
 }
 
@@ -2212,7 +2212,6 @@ const appRouteRouteChildren: appRouteRouteChildren = {
   appCompanyEmployeeIdRoute: appCompanyEmployeeIdRoute,
   appCompanyEmployeeHistoryRoute: appCompanyEmployeeHistoryRoute,
   appCompanyEmployeeNewRoute: appCompanyEmployeeNewRoute,
-  appCompanyEmployeeResignationRoute: appCompanyEmployeeResignationRoute,
   appCompanyEmployeeUpdateRoute: appCompanyEmployeeUpdateRoute,
   appCompanyOrganizationIdRoute: appCompanyOrganizationIdRoute,
   appCompanyOrganizationNewRoute: appCompanyOrganizationNewRoute,
@@ -2294,6 +2293,8 @@ const appRouteRouteChildren: appRouteRouteChildren = {
   appCompanyEmployeeContractIndexRoute: appCompanyEmployeeContractIndexRoute,
   appCompanyEmployeeMutationIndexRoute: appCompanyEmployeeMutationIndexRoute,
   appCompanyEmployeePromotionIndexRoute: appCompanyEmployeePromotionIndexRoute,
+  appCompanyEmployeeResignationIndexRoute:
+    appCompanyEmployeeResignationIndexRoute,
   appSettingsApprovalWorkflowIdIndexRoute:
     appSettingsApprovalWorkflowIdIndexRoute,
 }
