@@ -49,7 +49,6 @@ import { Route as appAttendanceRequestsNewRouteImport } from './../../routes/(ap
 import { Route as appCompanyDocumentIndexRouteImport } from './../../routes/(app)/company/document/index'
 import { Route as appCompanyEmployeeIndexRouteImport } from './../../routes/(app)/company/employee/index'
 import { Route as appCompanyEmployeeIdRouteImport } from './../../routes/(app)/company/employee/$id'
-import { Route as appCompanyEmployeeHistoryRouteImport } from './../../routes/(app)/company/employee/history'
 import { Route as appCompanyEmployeeNewRouteImport } from './../../routes/(app)/company/employee/new'
 import { Route as appCompanyEmployeeUpdateRouteImport } from './../../routes/(app)/company/employee/update'
 import { Route as appCompanyOrganizationIndexRouteImport } from './../../routes/(app)/company/organization/index'
@@ -98,6 +97,7 @@ import { Route as appAttendanceManagementShiftsSetupRouteImport } from './../../
 import { Route as appAttendanceManagementShiftsSwapsRouteImport } from './../../routes/(app)/attendance/management/shifts/swaps'
 import { Route as appCompanyEmployeeContractIndexRouteImport } from './../../routes/(app)/company/employee/contract/index'
 import { Route as appCompanyEmployeeContractNewRouteImport } from './../../routes/(app)/company/employee/contract/new'
+import { Route as appCompanyEmployeeHistoryIndexRouteImport } from './../../routes/(app)/company/employee/history/index'
 import { Route as appCompanyEmployeeMutationIndexRouteImport } from './../../routes/(app)/company/employee/mutation/index'
 import { Route as appCompanyEmployeePromotionIndexRouteImport } from './../../routes/(app)/company/employee/promotion/index'
 import { Route as appCompanyEmployeeResignationIndexRouteImport } from './../../routes/(app)/company/employee/resignation/index'
@@ -327,12 +327,6 @@ const appCompanyEmployeeIdRoute = appCompanyEmployeeIdRouteImport.update({
   path: '/company/employee/$id',
   getParentRoute: () => appRouteRoute,
 } as any)
-const appCompanyEmployeeHistoryRoute =
-  appCompanyEmployeeHistoryRouteImport.update({
-    id: '/company/employee/history',
-    path: '/company/employee/history',
-    getParentRoute: () => appRouteRoute,
-  } as any)
 const appCompanyEmployeeNewRoute = appCompanyEmployeeNewRouteImport.update({
   id: '/company/employee/new',
   path: '/company/employee/new',
@@ -615,6 +609,12 @@ const appCompanyEmployeeContractNewRoute =
     path: '/company/employee/contract/new',
     getParentRoute: () => appRouteRoute,
   } as any)
+const appCompanyEmployeeHistoryIndexRoute =
+  appCompanyEmployeeHistoryIndexRouteImport.update({
+    id: '/company/employee/history/',
+    path: '/company/employee/history/',
+    getParentRoute: () => appRouteRoute,
+  } as any)
 const appCompanyEmployeeMutationIndexRoute =
   appCompanyEmployeeMutationIndexRouteImport.update({
     id: '/company/employee/mutation/',
@@ -734,7 +734,6 @@ export interface FileRoutesByFullPath {
   '/attendance/management/manual': typeof appAttendanceManagementManualRoute
   '/attendance/requests/new': typeof appAttendanceRequestsNewRoute
   '/company/employee/$id': typeof appCompanyEmployeeIdRoute
-  '/company/employee/history': typeof appCompanyEmployeeHistoryRoute
   '/company/employee/new': typeof appCompanyEmployeeNewRoute
   '/company/employee/update': typeof appCompanyEmployeeUpdateRoute
   '/company/organization/$id': typeof appCompanyOrganizationIdRoute
@@ -799,6 +798,7 @@ export interface FileRoutesByFullPath {
   '/settings/security/password/locked-accounts': typeof appSettingsSecurityPasswordLockedAccountsRoute
   '/attendance/management/shifts/': typeof appAttendanceManagementShiftsIndexRoute
   '/company/employee/contract/': typeof appCompanyEmployeeContractIndexRoute
+  '/company/employee/history/': typeof appCompanyEmployeeHistoryIndexRoute
   '/company/employee/mutation/': typeof appCompanyEmployeeMutationIndexRoute
   '/company/employee/promotion/': typeof appCompanyEmployeePromotionIndexRoute
   '/company/employee/resignation/': typeof appCompanyEmployeeResignationIndexRoute
@@ -838,7 +838,6 @@ export interface FileRoutesByTo {
   '/attendance/management/manual': typeof appAttendanceManagementManualRoute
   '/attendance/requests/new': typeof appAttendanceRequestsNewRoute
   '/company/employee/$id': typeof appCompanyEmployeeIdRoute
-  '/company/employee/history': typeof appCompanyEmployeeHistoryRoute
   '/company/employee/new': typeof appCompanyEmployeeNewRoute
   '/company/employee/update': typeof appCompanyEmployeeUpdateRoute
   '/company/organization/$id': typeof appCompanyOrganizationIdRoute
@@ -903,6 +902,7 @@ export interface FileRoutesByTo {
   '/settings/security/password/locked-accounts': typeof appSettingsSecurityPasswordLockedAccountsRoute
   '/attendance/management/shifts': typeof appAttendanceManagementShiftsIndexRoute
   '/company/employee/contract': typeof appCompanyEmployeeContractIndexRoute
+  '/company/employee/history': typeof appCompanyEmployeeHistoryIndexRoute
   '/company/employee/mutation': typeof appCompanyEmployeeMutationIndexRoute
   '/company/employee/promotion': typeof appCompanyEmployeePromotionIndexRoute
   '/company/employee/resignation': typeof appCompanyEmployeeResignationIndexRoute
@@ -944,7 +944,6 @@ export interface FileRoutesById {
   '/(app)/attendance/management/manual': typeof appAttendanceManagementManualRoute
   '/(app)/attendance/requests/new': typeof appAttendanceRequestsNewRoute
   '/(app)/company/employee/$id': typeof appCompanyEmployeeIdRoute
-  '/(app)/company/employee/history': typeof appCompanyEmployeeHistoryRoute
   '/(app)/company/employee/new': typeof appCompanyEmployeeNewRoute
   '/(app)/company/employee/update': typeof appCompanyEmployeeUpdateRoute
   '/(app)/company/organization/$id': typeof appCompanyOrganizationIdRoute
@@ -1009,6 +1008,7 @@ export interface FileRoutesById {
   '/(app)/settings/security/password_/locked-accounts': typeof appSettingsSecurityPasswordLockedAccountsRoute
   '/(app)/attendance/management/shifts/': typeof appAttendanceManagementShiftsIndexRoute
   '/(app)/company/employee/contract/': typeof appCompanyEmployeeContractIndexRoute
+  '/(app)/company/employee/history/': typeof appCompanyEmployeeHistoryIndexRoute
   '/(app)/company/employee/mutation/': typeof appCompanyEmployeeMutationIndexRoute
   '/(app)/company/employee/promotion/': typeof appCompanyEmployeePromotionIndexRoute
   '/(app)/company/employee/resignation/': typeof appCompanyEmployeeResignationIndexRoute
@@ -1050,7 +1050,6 @@ export interface FileRouteTypes {
     | '/attendance/management/manual'
     | '/attendance/requests/new'
     | '/company/employee/$id'
-    | '/company/employee/history'
     | '/company/employee/new'
     | '/company/employee/update'
     | '/company/organization/$id'
@@ -1115,6 +1114,7 @@ export interface FileRouteTypes {
     | '/settings/security/password/locked-accounts'
     | '/attendance/management/shifts/'
     | '/company/employee/contract/'
+    | '/company/employee/history/'
     | '/company/employee/mutation/'
     | '/company/employee/promotion/'
     | '/company/employee/resignation/'
@@ -1154,7 +1154,6 @@ export interface FileRouteTypes {
     | '/attendance/management/manual'
     | '/attendance/requests/new'
     | '/company/employee/$id'
-    | '/company/employee/history'
     | '/company/employee/new'
     | '/company/employee/update'
     | '/company/organization/$id'
@@ -1219,6 +1218,7 @@ export interface FileRouteTypes {
     | '/settings/security/password/locked-accounts'
     | '/attendance/management/shifts'
     | '/company/employee/contract'
+    | '/company/employee/history'
     | '/company/employee/mutation'
     | '/company/employee/promotion'
     | '/company/employee/resignation'
@@ -1259,7 +1259,6 @@ export interface FileRouteTypes {
     | '/(app)/attendance/management/manual'
     | '/(app)/attendance/requests/new'
     | '/(app)/company/employee/$id'
-    | '/(app)/company/employee/history'
     | '/(app)/company/employee/new'
     | '/(app)/company/employee/update'
     | '/(app)/company/organization/$id'
@@ -1324,6 +1323,7 @@ export interface FileRouteTypes {
     | '/(app)/settings/security/password_/locked-accounts'
     | '/(app)/attendance/management/shifts/'
     | '/(app)/company/employee/contract/'
+    | '/(app)/company/employee/history/'
     | '/(app)/company/employee/mutation/'
     | '/(app)/company/employee/promotion/'
     | '/(app)/company/employee/resignation/'
@@ -1618,13 +1618,6 @@ declare module '@tanstack/react-router' {
       path: '/company/employee/$id'
       fullPath: '/company/employee/$id'
       preLoaderRoute: typeof appCompanyEmployeeIdRouteImport
-      parentRoute: typeof appRouteRoute
-    }
-    '/(app)/company/employee/history': {
-      id: '/(app)/company/employee/history'
-      path: '/company/employee/history'
-      fullPath: '/company/employee/history'
-      preLoaderRoute: typeof appCompanyEmployeeHistoryRouteImport
       parentRoute: typeof appRouteRoute
     }
     '/(app)/company/employee/new': {
@@ -1963,6 +1956,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof appCompanyEmployeeContractNewRouteImport
       parentRoute: typeof appRouteRoute
     }
+    '/(app)/company/employee/history/': {
+      id: '/(app)/company/employee/history/'
+      path: '/company/employee/history'
+      fullPath: '/company/employee/history/'
+      preLoaderRoute: typeof appCompanyEmployeeHistoryIndexRouteImport
+      parentRoute: typeof appRouteRoute
+    }
     '/(app)/company/employee/mutation/': {
       id: '/(app)/company/employee/mutation/'
       path: '/company/employee/mutation'
@@ -2109,7 +2109,6 @@ interface appRouteRouteChildren {
   appAttendanceManagementManualRoute: typeof appAttendanceManagementManualRoute
   appAttendanceRequestsNewRoute: typeof appAttendanceRequestsNewRoute
   appCompanyEmployeeIdRoute: typeof appCompanyEmployeeIdRoute
-  appCompanyEmployeeHistoryRoute: typeof appCompanyEmployeeHistoryRoute
   appCompanyEmployeeNewRoute: typeof appCompanyEmployeeNewRoute
   appCompanyEmployeeUpdateRoute: typeof appCompanyEmployeeUpdateRoute
   appCompanyOrganizationIdRoute: typeof appCompanyOrganizationIdRoute
@@ -2173,6 +2172,7 @@ interface appRouteRouteChildren {
   appSettingsSecurityPasswordLockedAccountsRoute: typeof appSettingsSecurityPasswordLockedAccountsRoute
   appAttendanceManagementShiftsIndexRoute: typeof appAttendanceManagementShiftsIndexRoute
   appCompanyEmployeeContractIndexRoute: typeof appCompanyEmployeeContractIndexRoute
+  appCompanyEmployeeHistoryIndexRoute: typeof appCompanyEmployeeHistoryIndexRoute
   appCompanyEmployeeMutationIndexRoute: typeof appCompanyEmployeeMutationIndexRoute
   appCompanyEmployeePromotionIndexRoute: typeof appCompanyEmployeePromotionIndexRoute
   appCompanyEmployeeResignationIndexRoute: typeof appCompanyEmployeeResignationIndexRoute
@@ -2210,7 +2210,6 @@ const appRouteRouteChildren: appRouteRouteChildren = {
   appAttendanceManagementManualRoute: appAttendanceManagementManualRoute,
   appAttendanceRequestsNewRoute: appAttendanceRequestsNewRoute,
   appCompanyEmployeeIdRoute: appCompanyEmployeeIdRoute,
-  appCompanyEmployeeHistoryRoute: appCompanyEmployeeHistoryRoute,
   appCompanyEmployeeNewRoute: appCompanyEmployeeNewRoute,
   appCompanyEmployeeUpdateRoute: appCompanyEmployeeUpdateRoute,
   appCompanyOrganizationIdRoute: appCompanyOrganizationIdRoute,
@@ -2291,6 +2290,7 @@ const appRouteRouteChildren: appRouteRouteChildren = {
   appAttendanceManagementShiftsIndexRoute:
     appAttendanceManagementShiftsIndexRoute,
   appCompanyEmployeeContractIndexRoute: appCompanyEmployeeContractIndexRoute,
+  appCompanyEmployeeHistoryIndexRoute: appCompanyEmployeeHistoryIndexRoute,
   appCompanyEmployeeMutationIndexRoute: appCompanyEmployeeMutationIndexRoute,
   appCompanyEmployeePromotionIndexRoute: appCompanyEmployeePromotionIndexRoute,
   appCompanyEmployeeResignationIndexRoute:

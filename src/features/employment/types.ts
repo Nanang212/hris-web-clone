@@ -282,3 +282,33 @@ export interface CreateResignationPayload {
   reason: string
   accessRevocation: string
 }
+
+export interface EmploymentTimelineItem {
+  id: string
+  title: string
+  date: string
+  description: string
+  color: 'violet' | 'emerald' | 'blue' | 'amber' | 'rose' | 'sky'
+}
+
+export interface EmploymentRelatedDocument {
+  id: string
+  name: string
+  format: string
+  size: string
+  url?: string
+}
+
+export interface EmployeeEmploymentHistory {
+  id: string
+  employeeId: string
+  employeeCode: string
+  fullName: string
+  photo: string | null
+  position: string
+  department: string
+  joinDate: string
+  status: 'active' | 'probation' | 'resigned' | 'terminated'
+  timeline: EmploymentTimelineItem[]
+  documents: EmploymentRelatedDocument[]
+}
