@@ -18,6 +18,7 @@ import type {
   CreatePromotionPayload,
   EmployeeResignation,
   CreateResignationPayload,
+  EmployeeEmploymentHistory,
 } from '@/features/employment/types'
 import type { Envelope, PaginatedData } from '@/shared/types'
 
@@ -1246,4 +1247,191 @@ export const createResignation = async (payload: CreateResignationPayload): Prom
   }
   mockResignations = [newResignation, ...mockResignations]
   return { success: true, code: '200', data: newResignation, messages: [] }
+}
+
+// ─── Employment History Dummy Data ──────────────────────────────────────────
+const mockEmploymentHistories: EmployeeEmploymentHistory[] = [
+  {
+    id: 'hist-1',
+    employeeId: 'emp-1',
+    employeeCode: 'EMP001',
+    fullName: 'Rian Wijaya',
+    photo: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
+    position: 'Senior Frontend Engineer',
+    department: 'IT & Engineering',
+    joinDate: '2023-01-15',
+    status: 'active',
+    timeline: [
+      {
+        id: 'ev-1',
+        title: 'Joined Company',
+        date: '15 Jan 2023',
+        description: 'Permanent employee created',
+        color: 'violet',
+      },
+      {
+        id: 'ev-2',
+        title: 'Probation Completed',
+        date: '15 Apr 2023',
+        description: 'Status changed to Active',
+        color: 'emerald',
+      },
+      {
+        id: 'ev-3',
+        title: 'Position Changed',
+        date: '01 Jan 2024',
+        description: 'Frontend Engineer → Senior Frontend Engineer',
+        color: 'blue',
+      },
+      {
+        id: 'ev-4',
+        title: 'Salary Grade Updated',
+        date: '01 Jul 2024',
+        description: 'Grade 2 → Grade 3',
+        color: 'amber',
+      },
+      {
+        id: 'ev-5',
+        title: 'Supervisor Changed',
+        date: '01 Feb 2025',
+        description: 'Dewi Lestari → Budi Santoso',
+        color: 'blue',
+      },
+    ],
+    documents: [
+      { id: 'doc-1', name: 'Employment Contract', format: 'PDF', size: '1.2 MB' },
+      { id: 'doc-2', name: 'Promotion Letter', format: 'PDF', size: '840 KB' },
+      { id: 'doc-3', name: 'Salary Adjustment', format: 'PDF', size: '620 KB' },
+      { id: 'doc-4', name: 'Supervisor Change', format: 'PDF', size: '480 KB' },
+    ],
+  },
+  {
+    id: 'hist-2',
+    employeeId: 'emp-2',
+    employeeCode: 'EMP002',
+    fullName: 'Siti Aminah',
+    photo: null,
+    position: 'HR Specialist',
+    department: 'Human Resource',
+    joinDate: '2026-06-01',
+    status: 'probation',
+    timeline: [
+      {
+        id: 'ev-201',
+        title: 'Joined Company',
+        date: '01 Jun 2026',
+        description: 'Contract employee onboarding created',
+        color: 'violet',
+      },
+      {
+        id: 'ev-202',
+        title: 'Supervisor Assigned',
+        date: '01 Jun 2026',
+        description: 'Manager set to Dewi Lestari',
+        color: 'blue',
+      },
+      {
+        id: 'ev-203',
+        title: 'Contract Agreement Signed',
+        date: '05 Jun 2026',
+        description: '1 Year fixed term contract registered',
+        color: 'emerald',
+      },
+    ],
+    documents: [
+      { id: 'doc-201', name: 'Employment Contract', format: 'PDF', size: '1.1 MB' },
+      { id: 'doc-202', name: 'Onboarding Checklist', format: 'PDF', size: '510 KB' },
+    ],
+  },
+  {
+    id: 'hist-3',
+    employeeId: 'emp-3',
+    employeeCode: 'EMP003',
+    fullName: 'Budi Santoso',
+    photo: null,
+    position: 'Engineering Manager',
+    department: 'IT & Engineering',
+    joinDate: '2020-03-10',
+    status: 'active',
+    timeline: [
+      {
+        id: 'ev-301',
+        title: 'Joined Company',
+        date: '10 Mar 2020',
+        description: 'Lead Engineer appointed',
+        color: 'violet',
+      },
+      {
+        id: 'ev-302',
+        title: 'Promoted to Manager',
+        date: '01 Mar 2022',
+        description: 'Lead Engineer → Engineering Manager',
+        color: 'emerald',
+      },
+      {
+        id: 'ev-303',
+        title: 'Grade Updated',
+        date: '01 Jan 2023',
+        description: 'Grade 3 → Grade 4',
+        color: 'amber',
+      },
+    ],
+    documents: [
+      { id: 'doc-301', name: 'Employment Contract', format: 'PDF', size: '1.4 MB' },
+      { id: 'doc-302', name: 'Managerial Appointment Letter', format: 'PDF', size: '920 KB' },
+    ],
+  },
+  {
+    id: 'hist-4',
+    employeeId: 'emp-4',
+    employeeCode: 'EMP004',
+    fullName: 'Dewi Lestari',
+    photo: null,
+    position: 'HR Manager',
+    department: 'Human Resource',
+    joinDate: '2021-05-12',
+    status: 'active',
+    timeline: [
+      {
+        id: 'ev-401',
+        title: 'Joined Company',
+        date: '12 May 2021',
+        description: 'HR Manager onboarded',
+        color: 'violet',
+      },
+      {
+        id: 'ev-402',
+        title: 'Salary Grade Updated',
+        date: '01 Jun 2023',
+        description: 'Grade 3 → Grade 4',
+        color: 'amber',
+      },
+    ],
+    documents: [
+      { id: 'doc-401', name: 'Employment Contract', format: 'PDF', size: '1.3 MB' },
+      { id: 'doc-402', name: 'Annual Review Document', format: 'PDF', size: '750 KB' },
+    ],
+  },
+]
+
+export const getEmploymentHistories = async (
+  search?: string,
+  employeeId?: string,
+): Promise<Envelope<EmployeeEmploymentHistory[]>> => {
+  await sleep()
+  let filtered = [...mockEmploymentHistories]
+  if (employeeId) {
+    filtered = filtered.filter((h) => h.employeeId === employeeId)
+  }
+  if (search) {
+    const q = search.toLowerCase()
+    filtered = filtered.filter(
+      (h) =>
+        h.fullName.toLowerCase().includes(q) ||
+        h.employeeCode.toLowerCase().includes(q) ||
+        h.position.toLowerCase().includes(q) ||
+        h.department.toLowerCase().includes(q),
+    )
+  }
+  return { success: true, code: '200', data: filtered, messages: [] }
 }

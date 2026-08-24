@@ -109,6 +109,7 @@ export function EmployeeDetailPanel({ selectedEmp }: EmployeeDetailPanelProps) {
           <div className='mt-4 text-center'>
             <Link
               to='/company/employee/history'
+              search={{ employeeId: selectedEmp.id, name: selectedEmp.fullName }}
               className='text-xs font-semibold text-primary hover:underline inline-flex items-center gap-1'
             >
               Employment History

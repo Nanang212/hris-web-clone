@@ -24,6 +24,7 @@ import {
   createPromotion,
   getResignations,
   createResignation,
+  getEmploymentHistories,
 } from '@/features/employment/api'
 import type {
   CreateEmployeePayload,
@@ -252,3 +253,13 @@ export function useCreateResignation() {
     },
   })
 }
+
+export function useGetEmploymentHistories(search?: string, employeeId?: string) {
+  return useQuery({
+    queryKey: [...employmentQueryKeys.all, 'employment-histories', search, employeeId],
+    queryFn: () => getEmploymentHistories(search, employeeId),
+    select: ({ data }) => data,
+    placeholderData: keepPreviousData,
+  })
+}
+
