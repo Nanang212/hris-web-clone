@@ -34,6 +34,85 @@ export interface SessionManagementSummary {
   timeoutMinutes: number
 }
 
+export type SessionState = 'Current' | 'Active' | 'Idle'
+
+export interface SessionManagementFilterParams {
+  search?: string
+  roleId?: string
+  branchId?: string
+}
+
+export interface SessionManagementStats {
+  activeUsers: number
+  activeSessions: number
+  idleSessions: number
+  maxConcurrentSessions: number
+}
+
+export interface ActiveSession {
+  id: string
+  userName: string
+  employeeNumber: string
+  roleId: string
+  roleName: string
+  deviceName: string
+  operatingSystem: string
+  startedAt: string
+  lastActivityAt: string
+  branchId: string
+  branchName: string
+  ipAddress: string
+  state: SessionState
+}
+
+export interface SessionManagementFilterOption {
+  id: string
+  name: string
+}
+
+export interface SessionManagementFilterOptions {
+  roles: SessionManagementFilterOption[]
+  branches: SessionManagementFilterOption[]
+}
+
+export interface SessionTimeoutSettings {
+  idleTimeoutMinutes: number
+  timeoutWarningMinutes: number
+  absoluteSessionLifetimeHours: number
+  maxConcurrentSessions: number
+  revokeOnPasswordChange: boolean
+}
+
+export interface SessionManagementData {
+  stats: SessionManagementStats
+  sessions: ActiveSession[]
+  filterOptions: SessionManagementFilterOptions
+  timeoutSettings: SessionTimeoutSettings
+  updatedAt: string
+}
+
+export interface UpdateSessionTimeoutSettingsPayload {
+  idleTimeoutMinutes: number
+  timeoutWarningMinutes: number
+  absoluteSessionLifetimeHours: number
+  maxConcurrentSessions: number
+  revokeOnPasswordChange: boolean
+}
+
+export interface TerminateSessionData {
+  sessionId: string
+  completedAt: string
+}
+
+export interface LogoutAllSessionsPayload {
+  excludeCurrentSession: boolean
+}
+
+export interface LogoutAllSessionsData {
+  terminatedSessions: number
+  completedAt: string
+}
+
 export interface SecurityOverviewData {
   lastUpdated: string
   securityStatus: SecurityStatusMetric
@@ -43,6 +122,118 @@ export interface SecurityOverviewData {
   passwordPolicy: PasswordPolicySummary
   deviceSecurity: DeviceSecuritySummary
   sessionManagement: SessionManagementSummary
+}
+
+export type AuditTrailDateRange = 'Today' | 'Last7Days' | 'Last30Days'
+
+export type AuditTrailResult = 'Success' | 'Failed'
+
+export type AuditTrailSource = 'Web' | 'Mobile' | 'Api'
+
+export interface AuditTrailFilterParams {
+  search?: string
+  dateRange?: AuditTrailDateRange
+  module?: string
+  action?: string
+  roleId?: string
+  branchId?: string
+  entityType?: string
+  result?: AuditTrailResult
+  source?: AuditTrailSource
+  device?: string
+  correlationId?: string
+}
+
+export interface AuditTrailStats {
+  eventsToday: number
+  dataChanges: number
+  approvals: number
+  failedActions: number
+}
+
+export interface AuditTrailEvent {
+  id: string
+  occurredAt: string
+  actorId: string
+  actorName: string
+  actorRole: string
+  module: string
+  action: string
+  entityType: string
+  entityName: string
+  recordId: string
+  result: AuditTrailResult
+  source: AuditTrailSource
+  ipAddress: string
+  device: string
+  branchName: string
+  correlationId: string
+}
+
+export interface AuditTrailFilterOption {
+  value: string
+  name: string
+}
+
+export interface AuditTrailFilterOptions {
+  modules: AuditTrailFilterOption[]
+  actions: AuditTrailFilterOption[]
+  roles: AuditTrailFilterOption[]
+  branches: AuditTrailFilterOption[]
+  entityTypes: AuditTrailFilterOption[]
+  results: AuditTrailFilterOption[]
+  sources: AuditTrailFilterOption[]
+}
+
+export interface AuditTrailData {
+  stats: AuditTrailStats
+  events: AuditTrailEvent[]
+  filterOptions: AuditTrailFilterOptions
+  updatedAt: string
+}
+
+export interface AuditTrailDetailSummary {
+  eventId: string
+  occurredAt: string
+  actorName: string
+  actorRole: string
+  module: string
+  action: string
+  entityName: string
+  recordId: string
+  source: AuditTrailSource
+  ipAddress: string
+  correlationId: string
+}
+
+export interface AuditTrailDetailContext {
+  companyName: string
+  branchName: string
+  sessionId: string
+  device: string
+  result: AuditTrailResult
+}
+
+export interface AuditTrailRequestMetadata {
+  requestSource: string
+  requestPath: string
+  reason: string
+  permissionUsed: string
+  dataClassification: string
+  immutable: boolean
+}
+
+export interface AuditTrailChangeDetail {
+  field: string
+  beforeValue: string | null
+  afterValue: string | null
+}
+
+export interface AuditTrailDetailData {
+  summary: AuditTrailDetailSummary
+  context: AuditTrailDetailContext
+  requestMetadata: AuditTrailRequestMetadata
+  changes: AuditTrailChangeDetail[]
 }
 
 export interface DeviceSecurityCountMetric {
@@ -60,6 +251,76 @@ export interface DeviceSecurityData {
   pendingChanges: DeviceSecurityCountMetric
   blockedDevices: DeviceSecurityCountMetric
   bindingPolicy: DeviceBindingPolicyMetric
+}
+
+export type DeviceBindingReverificationMode = 'Required' | 'RiskBased' | 'Disabled'
+
+export interface DeviceBindingPolicyConfiguration {
+  maximumActiveDevices: number
+  changeCooldownHours: number
+  requireDeviceChangeApproval: boolean
+  blockRootedDevices: boolean
+  blockMockLocationDevices: boolean
+  autoExpireInactiveBindings: boolean
+  inactiveBindingExpiryDays: number
+  reverifyAfterOsReset: DeviceBindingReverificationMode
+}
+
+export interface DeviceBindingPolicyImpact {
+  usersCovered: number
+  auditTrailEnabled: boolean
+}
+
+export type DeviceBindingExceptionTargetType = 'User' | 'ServiceAccount' | 'KioskDevice'
+
+export interface DeviceBindingException {
+  id: string
+  targetId: string
+  targetName: string
+  targetIdentifier: string
+  targetType: DeviceBindingExceptionTargetType
+  reason: string
+  createdBy: string
+  createdAt: string
+}
+
+export interface DeviceBindingPolicyData {
+  policy: DeviceBindingPolicyConfiguration
+  impact: DeviceBindingPolicyImpact
+  exceptions: DeviceBindingException[]
+  updatedAt: string
+}
+
+export interface UpdateDeviceBindingPolicyPayload {
+  maximumActiveDevices: number
+  changeCooldownHours: number
+  requireDeviceChangeApproval: boolean
+  blockRootedDevices: boolean
+  blockMockLocationDevices: boolean
+  autoExpireInactiveBindings: boolean
+  inactiveBindingExpiryDays: number
+  reverifyAfterOsReset: DeviceBindingReverificationMode
+}
+
+export interface DeviceBindingExceptionCandidate {
+  id: string
+  name: string
+  identifier: string
+  type: DeviceBindingExceptionTargetType
+}
+
+export interface DeviceBindingExceptionOptionsData {
+  candidates: DeviceBindingExceptionCandidate[]
+}
+
+export interface CreateDeviceBindingExceptionPayload {
+  targetId: string
+  reason: string
+}
+
+export interface DeviceBindingExceptionActionData {
+  exceptionId: string
+  completedAt: string
 }
 
 export type RegisteredDeviceStatus = 'Active' | 'Review' | 'Blocked'

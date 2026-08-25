@@ -1,7 +1,14 @@
 import { apiClient } from '@/shared/lib/axios'
 import type { Envelope } from '@/shared/types'
 import type {
+  AuditTrailData,
+  AuditTrailDetailData,
+  AuditTrailFilterParams,
+  CreateDeviceBindingExceptionPayload,
   CreateDeviceRegistrationPayload,
+  DeviceBindingExceptionActionData,
+  DeviceBindingExceptionOptionsData,
+  DeviceBindingPolicyData,
   DeviceChangeRequestActionData,
   DeviceChangeRequestFilterParams,
   DeviceChangeRequestsData,
@@ -13,12 +20,20 @@ import type {
   LockedAccountOptionsData,
   LockedAccountsData,
   LockedAccountsStats,
+  LogoutAllSessionsData,
+  LogoutAllSessionsPayload,
   PasswordPolicyData,
   RegisteredDeviceActionData,
   RegisteredDeviceFilterParams,
   RegisteredDevicesData,
   SecurityOverviewData,
+  SessionManagementData,
+  SessionManagementFilterParams,
+  SessionTimeoutSettings,
+  TerminateSessionData,
+  UpdateDeviceBindingPolicyPayload,
   UpdatePasswordPolicyPayload,
+  UpdateSessionTimeoutSettingsPayload,
 } from '@/features/settings/security/types'
 
 /**
@@ -32,12 +47,168 @@ export async function getSecurityOverview() {
 }
 
 /**
+ * Endpoint: `/api/v1/security/audit-trail`
+ * Method: `GET`
+ * Query params: `{ "search": "SEC-POLICY", "dateRange": "Today", "module": "Settings", "action": "UPDATE", "roleId": "role-super-admin", "branchId": "branch-jakarta", "entityType": "PasswordPolicy", "result": "Success", "source": "Web", "device": "Chrome", "correlationId": "corr-20260825-001" }`
+ * Expected response: `{ "success": true, "code": "OK", "data": { "stats": { "eventsToday": 1842, "dataChanges": 684, "approvals": 427, "failedActions": 19 }, "events": [{ "id": "audit-001", "occurredAt": "2026-08-25T00:38:00+07:00", "actorId": "user-001", "actorName": "Siti Maharani", "actorRole": "Super Admin", "module": "Settings", "action": "UPDATE", "entityType": "PasswordPolicy", "entityName": "Password Policy", "recordId": "SEC-POLICY", "result": "Success", "source": "Web", "ipAddress": "10.10.2.14", "device": "Chrome / Windows", "branchName": "Jakarta HQ", "correlationId": "corr-20260825-001" }], "filterOptions": { "modules": [{ "value": "Settings", "name": "Settings" }], "actions": [{ "value": "UPDATE", "name": "Update" }], "roles": [{ "value": "role-super-admin", "name": "Super Admin" }], "branches": [{ "value": "branch-jakarta", "name": "Jakarta HQ" }], "entityTypes": [{ "value": "PasswordPolicy", "name": "Password Policy" }], "results": [{ "value": "Success", "name": "Success" }, { "value": "Failed", "name": "Failed" }], "sources": [{ "value": "Web", "name": "Web" }, { "value": "Mobile", "name": "Mobile" }, { "value": "Api", "name": "API" }] }, "updatedAt": "2026-08-25T00:40:00+07:00" }, "messages": [] }`
+ */
+export async function getAuditTrail(params?: AuditTrailFilterParams) {
+  const res = await apiClient.get<Envelope<AuditTrailData>>('/api/v1/security/audit-trail', {
+    params,
+  })
+  return res.data
+}
+
+/**
+ * Endpoint: `/api/v1/security/audit-trail/:id`
+ * Method: `GET`
+ * Expected response: `{ "success": true, "code": "OK", "data": { "summary": { "eventId": "AUD-20260809-003841", "occurredAt": "2026-08-09T00:38:41+07:00", "actorName": "Siti Maharani", "actorRole": "Super Admin", "module": "Settings / Security", "action": "UPDATE", "entityName": "Password Policy", "recordId": "SEC-POLICY", "source": "Web", "ipAddress": "10.10.2.14", "correlationId": "REQ-8F3A-9921" }, "context": { "companyName": "Bintang Fajar Persada", "branchName": "Jakarta HQ", "sessionId": "SES-10294", "device": "Chrome / Windows", "result": "Success" }, "requestMetadata": { "requestSource": "Settings > Security > Password", "requestPath": "/settings/security/password", "reason": "Security policy review", "permissionUsed": "security.policy.update", "dataClassification": "Security Configuration", "immutable": true }, "changes": [{ "field": "Password expiry", "beforeValue": "60 days", "afterValue": "90 days" }, { "field": "Lock duration", "beforeValue": "15 minutes", "afterValue": "30 minutes" }] }, "messages": [] }`
+ */
+export async function getAuditTrailDetail(id: string) {
+  const res = await apiClient.get<Envelope<AuditTrailDetailData>>(
+    `/api/v1/security/audit-trail/${id}`,
+  )
+  return res.data
+}
+
+/**
+ * Endpoint: `/api/v1/security/audit-trail/export`
+ * Method: `GET`
+ * Query params: same active filters as `GET /api/v1/security/audit-trail`
+ * Expected response: CSV file (`Content-Type: text/csv`) containing the filtered audit events with columns `occurred_at,actor,module,action,entity,record_id,result,source,ip_address,device,branch,correlation_id`.
+ */
+export async function exportAuditTrail(params?: AuditTrailFilterParams) {
+  const res = await apiClient.get<Blob>('/api/v1/security/audit-trail/export', {
+    params,
+    responseType: 'blob',
+  })
+  return res.data
+}
+
+/**
+ * Endpoint: `/api/v1/security/sessions`
+ * Method: `GET`
+ * Query params: `{ "search": "Rama", "roleId": "role-hr", "branchId": "branch-jakarta" }`
+ * Expected response: `{ "success": true, "code": "OK", "data": { "stats": { "activeUsers": 1248, "activeSessions": 1394, "idleSessions": 14, "maxConcurrentSessions": 3 }, "sessions": [{ "id": "session-001", "userName": "Rama Aditya", "employeeNumber": "10024", "roleId": "role-hr", "roleName": "HR", "deviceName": "Chrome", "operatingSystem": "Windows 11", "startedAt": "2026-08-25T23:40:00+07:00", "lastActivityAt": "2026-08-26T00:35:00+07:00", "branchId": "branch-jakarta", "branchName": "Jakarta HQ", "ipAddress": "10.10.24.8", "state": "Current" }], "filterOptions": { "roles": [{ "id": "role-hr", "name": "HR" }], "branches": [{ "id": "branch-jakarta", "name": "Jakarta HQ" }] }, "timeoutSettings": { "idleTimeoutMinutes": 20, "timeoutWarningMinutes": 5, "absoluteSessionLifetimeHours": 12, "maxConcurrentSessions": 3, "revokeOnPasswordChange": true }, "updatedAt": "2026-08-26T00:40:00+07:00" }, "messages": [] }`
+ */
+export async function getSessionManagement(params?: SessionManagementFilterParams) {
+  const res = await apiClient.get<Envelope<SessionManagementData>>('/api/v1/security/sessions', {
+    params,
+  })
+  return res.data
+}
+
+/**
+ * Endpoint: `/api/v1/security/sessions/:id`
+ * Method: `DELETE`
+ * Expected response: `{ "success": true, "code": "OK", "data": { "sessionId": "session-002", "completedAt": "2026-08-26T00:45:00+07:00" }, "messages": ["Session terminated successfully"] }`
+ */
+export async function terminateSession(id: string) {
+  const res = await apiClient.delete<Envelope<TerminateSessionData>>(
+    `/api/v1/security/sessions/${id}`,
+  )
+  return res.data
+}
+
+/**
+ * Endpoint: `/api/v1/security/sessions/logout-all`
+ * Method: `POST`
+ * Request body: `{ "excludeCurrentSession": true }`
+ * Expected response: `{ "success": true, "code": "OK", "data": { "terminatedSessions": 1393, "completedAt": "2026-08-26T00:50:00+07:00" }, "messages": ["All other sessions logged out successfully"] }`
+ */
+export async function logoutAllSessions(payload: LogoutAllSessionsPayload) {
+  const res = await apiClient.post<Envelope<LogoutAllSessionsData>>(
+    '/api/v1/security/sessions/logout-all',
+    payload,
+  )
+  return res.data
+}
+
+/**
+ * Endpoint: `/api/v1/security/sessions/timeout-settings`
+ * Method: `PUT`
+ * Request body: `{ "idleTimeoutMinutes": 20, "timeoutWarningMinutes": 5, "absoluteSessionLifetimeHours": 12, "maxConcurrentSessions": 3, "revokeOnPasswordChange": true }`
+ * Expected response: `{ "success": true, "code": "OK", "data": { "idleTimeoutMinutes": 20, "timeoutWarningMinutes": 5, "absoluteSessionLifetimeHours": 12, "maxConcurrentSessions": 3, "revokeOnPasswordChange": true }, "messages": ["Session timeout settings updated successfully"] }`
+ */
+export async function updateSessionTimeoutSettings(payload: UpdateSessionTimeoutSettingsPayload) {
+  const res = await apiClient.put<Envelope<SessionTimeoutSettings>>(
+    '/api/v1/security/sessions/timeout-settings',
+    payload,
+  )
+  return res.data
+}
+
+/**
  * Endpoint: `/api/v1/security/device-security`
  * Method: `GET`
  * Expected response: `{ "success": true, "code": "OK", "data": { "updatedAt": "2026-08-22T13:00:00+07:00", "registeredDevices": { "count": 3406, "activeUsers": 2841 }, "pendingChanges": { "count": 12 }, "blockedDevices": { "count": 7 }, "bindingPolicy": { "enabled": true, "activeBindings": 1 } }, "messages": [] }`
  */
 export async function getDeviceSecurity() {
   const res = await apiClient.get<Envelope<DeviceSecurityData>>('/api/v1/security/device-security')
+  return res.data
+}
+
+/**
+ * Endpoint: `/api/v1/security/device-binding-policy`
+ * Method: `GET`
+ * Expected response: `{ "success": true, "code": "OK", "data": { "policy": { "maximumActiveDevices": 1, "changeCooldownHours": 24, "requireDeviceChangeApproval": true, "blockRootedDevices": true, "blockMockLocationDevices": true, "autoExpireInactiveBindings": true, "inactiveBindingExpiryDays": 90, "reverifyAfterOsReset": "Required" }, "impact": { "usersCovered": 1248, "auditTrailEnabled": true }, "exceptions": [{ "id": "exception-001", "targetId": "service-account-payroll", "targetName": "Payroll Integration", "targetIdentifier": "svc-payroll", "targetType": "ServiceAccount", "reason": "Trusted payroll integration account", "createdBy": "Siti Maharani", "createdAt": "2026-08-20T09:00:00+07:00" }], "updatedAt": "2026-08-25T10:00:00+07:00" }, "messages": [] }`
+ */
+export async function getDeviceBindingPolicy() {
+  const res = await apiClient.get<Envelope<DeviceBindingPolicyData>>(
+    '/api/v1/security/device-binding-policy',
+  )
+  return res.data
+}
+
+/**
+ * Endpoint: `/api/v1/security/device-binding-policy`
+ * Method: `PUT`
+ * Request body: `{ "maximumActiveDevices": 1, "changeCooldownHours": 24, "requireDeviceChangeApproval": true, "blockRootedDevices": true, "blockMockLocationDevices": true, "autoExpireInactiveBindings": true, "inactiveBindingExpiryDays": 90, "reverifyAfterOsReset": "Required" }`
+ * Expected response: `{ "success": true, "code": "OK", "data": { "policy": { "maximumActiveDevices": 1, "changeCooldownHours": 24, "requireDeviceChangeApproval": true, "blockRootedDevices": true, "blockMockLocationDevices": true, "autoExpireInactiveBindings": true, "inactiveBindingExpiryDays": 90, "reverifyAfterOsReset": "Required" }, "impact": { "usersCovered": 1248, "auditTrailEnabled": true }, "exceptions": [], "updatedAt": "2026-08-25T10:30:00+07:00" }, "messages": ["Device binding policy updated successfully"] }`
+ */
+export async function updateDeviceBindingPolicy(payload: UpdateDeviceBindingPolicyPayload) {
+  const res = await apiClient.put<Envelope<DeviceBindingPolicyData>>(
+    '/api/v1/security/device-binding-policy',
+    payload,
+  )
+  return res.data
+}
+
+/**
+ * Endpoint: `/api/v1/security/device-binding-policy/exception-options`
+ * Method: `GET`
+ * Expected response: `{ "success": true, "code": "OK", "data": { "candidates": [{ "id": "service-account-payroll", "name": "Payroll Integration", "identifier": "svc-payroll", "type": "ServiceAccount" }, { "id": "kiosk-jakarta-lobby", "name": "Jakarta Lobby Kiosk", "identifier": "KIOSK-JKT-01", "type": "KioskDevice" }] }, "messages": [] }`
+ */
+export async function getDeviceBindingExceptionOptions() {
+  const res = await apiClient.get<Envelope<DeviceBindingExceptionOptionsData>>(
+    '/api/v1/security/device-binding-policy/exception-options',
+  )
+  return res.data
+}
+
+/**
+ * Endpoint: `/api/v1/security/device-binding-policy/exceptions`
+ * Method: `POST`
+ * Request body: `{ "targetId": "kiosk-jakarta-lobby", "reason": "Shared attendance kiosk managed by IT" }`
+ * Expected response: `{ "success": true, "code": "CREATED", "data": { "exceptionId": "exception-002", "completedAt": "2026-08-25T10:40:00+07:00" }, "messages": ["Binding policy exception added successfully"] }`
+ */
+export async function createDeviceBindingException(payload: CreateDeviceBindingExceptionPayload) {
+  const res = await apiClient.post<Envelope<DeviceBindingExceptionActionData>>(
+    '/api/v1/security/device-binding-policy/exceptions',
+    payload,
+  )
+  return res.data
+}
+
+/**
+ * Endpoint: `/api/v1/security/device-binding-policy/exceptions/:id`
+ * Method: `DELETE`
+ * Expected response: `{ "success": true, "code": "OK", "data": { "exceptionId": "exception-002", "completedAt": "2026-08-25T11:00:00+07:00" }, "messages": ["Binding policy exception removed successfully"] }`
+ */
+export async function deleteDeviceBindingException(id: string) {
+  const res = await apiClient.delete<Envelope<DeviceBindingExceptionActionData>>(
+    `/api/v1/security/device-binding-policy/exceptions/${id}`,
+  )
   return res.data
 }
 

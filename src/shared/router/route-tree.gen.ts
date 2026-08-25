@@ -87,8 +87,10 @@ import { Route as appSettingsRoleAccessIndexRouteImport } from './../../routes/(
 import { Route as appSettingsRoleAccessCreateRoleRouteImport } from './../../routes/(app)/settings/role-access/create-role'
 import { Route as appSettingsRoleAccessPermissionMatrixRouteImport } from './../../routes/(app)/settings/role-access/permission-matrix'
 import { Route as appSettingsSecurityIndexRouteImport } from './../../routes/(app)/settings/security/index'
+import { Route as appSettingsSecurityAuditTrailRouteImport } from './../../routes/(app)/settings/security/audit-trail'
 import { Route as appSettingsSecurityDeviceRouteImport } from './../../routes/(app)/settings/security/device'
 import { Route as appSettingsSecurityPasswordRouteImport } from './../../routes/(app)/settings/security/password'
+import { Route as appSettingsSecuritySessionRouteImport } from './../../routes/(app)/settings/security/session'
 import { Route as appAttendanceApprovalRequestIdRejectRouteImport } from './../../routes/(app)/attendance/approval/$requestId/reject'
 import { Route as appAttendanceManagementExceptionsExceptionIdRouteImport } from './../../routes/(app)/attendance/management/exceptions/$exceptionId'
 import { Route as appAttendanceManagementShiftsIndexRouteImport } from './../../routes/(app)/attendance/management/shifts/index'
@@ -108,6 +110,7 @@ import { Route as appSettingsApprovalWorkflowIdTestRouteImport } from './../../r
 import { Route as appSettingsNotificationTemplatesCreateRouteImport } from './../../routes/(app)/settings/notification/templates_.create'
 import { Route as appSettingsRoleAccessRoleIdAssignUsersRouteImport } from './../../routes/(app)/settings/role-access/$roleId/assign-users'
 import { Route as appSettingsRoleAccessRoleIdEditRouteImport } from './../../routes/(app)/settings/role-access/$roleId/edit'
+import { Route as appSettingsSecurityDeviceBindingPolicyRouteImport } from './../../routes/(app)/settings/security/device_.binding-policy'
 import { Route as appSettingsSecurityDeviceChangeRequestsRouteImport } from './../../routes/(app)/settings/security/device_.change-requests'
 import { Route as appSettingsSecurityDeviceRegisterRouteImport } from './../../routes/(app)/settings/security/device_.register'
 import { Route as appSettingsSecurityDeviceRegisteredDevicesRouteImport } from './../../routes/(app)/settings/security/device_.registered-devices'
@@ -549,6 +552,12 @@ const appSettingsSecurityIndexRoute =
     path: '/settings/security/',
     getParentRoute: () => appRouteRoute,
   } as any)
+const appSettingsSecurityAuditTrailRoute =
+  appSettingsSecurityAuditTrailRouteImport.update({
+    id: '/settings/security/audit-trail',
+    path: '/settings/security/audit-trail',
+    getParentRoute: () => appRouteRoute,
+  } as any)
 const appSettingsSecurityDeviceRoute =
   appSettingsSecurityDeviceRouteImport.update({
     id: '/settings/security/device',
@@ -559,6 +568,12 @@ const appSettingsSecurityPasswordRoute =
   appSettingsSecurityPasswordRouteImport.update({
     id: '/settings/security/password',
     path: '/settings/security/password',
+    getParentRoute: () => appRouteRoute,
+  } as any)
+const appSettingsSecuritySessionRoute =
+  appSettingsSecuritySessionRouteImport.update({
+    id: '/settings/security/session',
+    path: '/settings/security/session',
     getParentRoute: () => appRouteRoute,
   } as any)
 const appAttendanceApprovalRequestIdRejectRoute =
@@ -675,6 +690,12 @@ const appSettingsRoleAccessRoleIdEditRoute =
     path: '/settings/role-access/$roleId/edit',
     getParentRoute: () => appRouteRoute,
   } as any)
+const appSettingsSecurityDeviceBindingPolicyRoute =
+  appSettingsSecurityDeviceBindingPolicyRouteImport.update({
+    id: '/settings/security/device_/binding-policy',
+    path: '/settings/security/device/binding-policy',
+    getParentRoute: () => appRouteRoute,
+  } as any)
 const appSettingsSecurityDeviceChangeRequestsRoute =
   appSettingsSecurityDeviceChangeRequestsRouteImport.update({
     id: '/settings/security/device_/change-requests',
@@ -761,8 +782,10 @@ export interface FileRoutesByFullPath {
   '/settings/notification/templates': typeof appSettingsNotificationTemplatesRoute
   '/settings/role-access/create-role': typeof appSettingsRoleAccessCreateRoleRoute
   '/settings/role-access/permission-matrix': typeof appSettingsRoleAccessPermissionMatrixRoute
+  '/settings/security/audit-trail': typeof appSettingsSecurityAuditTrailRoute
   '/settings/security/device': typeof appSettingsSecurityDeviceRoute
   '/settings/security/password': typeof appSettingsSecurityPasswordRoute
+  '/settings/security/session': typeof appSettingsSecuritySessionRoute
   '/attendance/approval/': typeof appAttendanceApprovalIndexRoute
   '/attendance/calendar/': typeof appAttendanceCalendarIndexRoute
   '/attendance/management/': typeof appAttendanceManagementIndexRoute
@@ -792,6 +815,7 @@ export interface FileRoutesByFullPath {
   '/settings/notification/templates/create': typeof appSettingsNotificationTemplatesCreateRoute
   '/settings/role-access/$roleId/assign-users': typeof appSettingsRoleAccessRoleIdAssignUsersRoute
   '/settings/role-access/$roleId/edit': typeof appSettingsRoleAccessRoleIdEditRoute
+  '/settings/security/device/binding-policy': typeof appSettingsSecurityDeviceBindingPolicyRoute
   '/settings/security/device/change-requests': typeof appSettingsSecurityDeviceChangeRequestsRoute
   '/settings/security/device/register': typeof appSettingsSecurityDeviceRegisterRoute
   '/settings/security/device/registered-devices': typeof appSettingsSecurityDeviceRegisteredDevicesRoute
@@ -865,8 +889,10 @@ export interface FileRoutesByTo {
   '/settings/notification/templates': typeof appSettingsNotificationTemplatesRoute
   '/settings/role-access/create-role': typeof appSettingsRoleAccessCreateRoleRoute
   '/settings/role-access/permission-matrix': typeof appSettingsRoleAccessPermissionMatrixRoute
+  '/settings/security/audit-trail': typeof appSettingsSecurityAuditTrailRoute
   '/settings/security/device': typeof appSettingsSecurityDeviceRoute
   '/settings/security/password': typeof appSettingsSecurityPasswordRoute
+  '/settings/security/session': typeof appSettingsSecuritySessionRoute
   '/attendance/approval': typeof appAttendanceApprovalIndexRoute
   '/attendance/calendar': typeof appAttendanceCalendarIndexRoute
   '/attendance/management': typeof appAttendanceManagementIndexRoute
@@ -896,6 +922,7 @@ export interface FileRoutesByTo {
   '/settings/notification/templates/create': typeof appSettingsNotificationTemplatesCreateRoute
   '/settings/role-access/$roleId/assign-users': typeof appSettingsRoleAccessRoleIdAssignUsersRoute
   '/settings/role-access/$roleId/edit': typeof appSettingsRoleAccessRoleIdEditRoute
+  '/settings/security/device/binding-policy': typeof appSettingsSecurityDeviceBindingPolicyRoute
   '/settings/security/device/change-requests': typeof appSettingsSecurityDeviceChangeRequestsRoute
   '/settings/security/device/register': typeof appSettingsSecurityDeviceRegisterRoute
   '/settings/security/device/registered-devices': typeof appSettingsSecurityDeviceRegisteredDevicesRoute
@@ -971,8 +998,10 @@ export interface FileRoutesById {
   '/(app)/settings/notification/templates': typeof appSettingsNotificationTemplatesRoute
   '/(app)/settings/role-access/create-role': typeof appSettingsRoleAccessCreateRoleRoute
   '/(app)/settings/role-access/permission-matrix': typeof appSettingsRoleAccessPermissionMatrixRoute
+  '/(app)/settings/security/audit-trail': typeof appSettingsSecurityAuditTrailRoute
   '/(app)/settings/security/device': typeof appSettingsSecurityDeviceRoute
   '/(app)/settings/security/password': typeof appSettingsSecurityPasswordRoute
+  '/(app)/settings/security/session': typeof appSettingsSecuritySessionRoute
   '/(app)/attendance/approval/': typeof appAttendanceApprovalIndexRoute
   '/(app)/attendance/calendar/': typeof appAttendanceCalendarIndexRoute
   '/(app)/attendance/management/': typeof appAttendanceManagementIndexRoute
@@ -1002,6 +1031,7 @@ export interface FileRoutesById {
   '/(app)/settings/notification/templates_/create': typeof appSettingsNotificationTemplatesCreateRoute
   '/(app)/settings/role-access/$roleId/assign-users': typeof appSettingsRoleAccessRoleIdAssignUsersRoute
   '/(app)/settings/role-access/$roleId/edit': typeof appSettingsRoleAccessRoleIdEditRoute
+  '/(app)/settings/security/device_/binding-policy': typeof appSettingsSecurityDeviceBindingPolicyRoute
   '/(app)/settings/security/device_/change-requests': typeof appSettingsSecurityDeviceChangeRequestsRoute
   '/(app)/settings/security/device_/register': typeof appSettingsSecurityDeviceRegisterRoute
   '/(app)/settings/security/device_/registered-devices': typeof appSettingsSecurityDeviceRegisteredDevicesRoute
@@ -1077,8 +1107,10 @@ export interface FileRouteTypes {
     | '/settings/notification/templates'
     | '/settings/role-access/create-role'
     | '/settings/role-access/permission-matrix'
+    | '/settings/security/audit-trail'
     | '/settings/security/device'
     | '/settings/security/password'
+    | '/settings/security/session'
     | '/attendance/approval/'
     | '/attendance/calendar/'
     | '/attendance/management/'
@@ -1108,6 +1140,7 @@ export interface FileRouteTypes {
     | '/settings/notification/templates/create'
     | '/settings/role-access/$roleId/assign-users'
     | '/settings/role-access/$roleId/edit'
+    | '/settings/security/device/binding-policy'
     | '/settings/security/device/change-requests'
     | '/settings/security/device/register'
     | '/settings/security/device/registered-devices'
@@ -1181,8 +1214,10 @@ export interface FileRouteTypes {
     | '/settings/notification/templates'
     | '/settings/role-access/create-role'
     | '/settings/role-access/permission-matrix'
+    | '/settings/security/audit-trail'
     | '/settings/security/device'
     | '/settings/security/password'
+    | '/settings/security/session'
     | '/attendance/approval'
     | '/attendance/calendar'
     | '/attendance/management'
@@ -1212,6 +1247,7 @@ export interface FileRouteTypes {
     | '/settings/notification/templates/create'
     | '/settings/role-access/$roleId/assign-users'
     | '/settings/role-access/$roleId/edit'
+    | '/settings/security/device/binding-policy'
     | '/settings/security/device/change-requests'
     | '/settings/security/device/register'
     | '/settings/security/device/registered-devices'
@@ -1286,8 +1322,10 @@ export interface FileRouteTypes {
     | '/(app)/settings/notification/templates'
     | '/(app)/settings/role-access/create-role'
     | '/(app)/settings/role-access/permission-matrix'
+    | '/(app)/settings/security/audit-trail'
     | '/(app)/settings/security/device'
     | '/(app)/settings/security/password'
+    | '/(app)/settings/security/session'
     | '/(app)/attendance/approval/'
     | '/(app)/attendance/calendar/'
     | '/(app)/attendance/management/'
@@ -1317,6 +1355,7 @@ export interface FileRouteTypes {
     | '/(app)/settings/notification/templates_/create'
     | '/(app)/settings/role-access/$roleId/assign-users'
     | '/(app)/settings/role-access/$roleId/edit'
+    | '/(app)/settings/security/device_/binding-policy'
     | '/(app)/settings/security/device_/change-requests'
     | '/(app)/settings/security/device_/register'
     | '/(app)/settings/security/device_/registered-devices'
@@ -1886,6 +1925,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof appSettingsSecurityIndexRouteImport
       parentRoute: typeof appRouteRoute
     }
+    '/(app)/settings/security/audit-trail': {
+      id: '/(app)/settings/security/audit-trail'
+      path: '/settings/security/audit-trail'
+      fullPath: '/settings/security/audit-trail'
+      preLoaderRoute: typeof appSettingsSecurityAuditTrailRouteImport
+      parentRoute: typeof appRouteRoute
+    }
     '/(app)/settings/security/device': {
       id: '/(app)/settings/security/device'
       path: '/settings/security/device'
@@ -1898,6 +1944,13 @@ declare module '@tanstack/react-router' {
       path: '/settings/security/password'
       fullPath: '/settings/security/password'
       preLoaderRoute: typeof appSettingsSecurityPasswordRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/settings/security/session': {
+      id: '/(app)/settings/security/session'
+      path: '/settings/security/session'
+      fullPath: '/settings/security/session'
+      preLoaderRoute: typeof appSettingsSecuritySessionRouteImport
       parentRoute: typeof appRouteRoute
     }
     '/(app)/attendance/approval/$requestId/reject': {
@@ -2033,6 +2086,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof appSettingsRoleAccessRoleIdEditRouteImport
       parentRoute: typeof appRouteRoute
     }
+    '/(app)/settings/security/device_/binding-policy': {
+      id: '/(app)/settings/security/device_/binding-policy'
+      path: '/settings/security/device/binding-policy'
+      fullPath: '/settings/security/device/binding-policy'
+      preLoaderRoute: typeof appSettingsSecurityDeviceBindingPolicyRouteImport
+      parentRoute: typeof appRouteRoute
+    }
     '/(app)/settings/security/device_/change-requests': {
       id: '/(app)/settings/security/device_/change-requests'
       path: '/settings/security/device/change-requests'
@@ -2136,8 +2196,10 @@ interface appRouteRouteChildren {
   appSettingsNotificationTemplatesRoute: typeof appSettingsNotificationTemplatesRoute
   appSettingsRoleAccessCreateRoleRoute: typeof appSettingsRoleAccessCreateRoleRoute
   appSettingsRoleAccessPermissionMatrixRoute: typeof appSettingsRoleAccessPermissionMatrixRoute
+  appSettingsSecurityAuditTrailRoute: typeof appSettingsSecurityAuditTrailRoute
   appSettingsSecurityDeviceRoute: typeof appSettingsSecurityDeviceRoute
   appSettingsSecurityPasswordRoute: typeof appSettingsSecurityPasswordRoute
+  appSettingsSecuritySessionRoute: typeof appSettingsSecuritySessionRoute
   appAttendanceApprovalIndexRoute: typeof appAttendanceApprovalIndexRoute
   appAttendanceCalendarIndexRoute: typeof appAttendanceCalendarIndexRoute
   appAttendanceManagementIndexRoute: typeof appAttendanceManagementIndexRoute
@@ -2166,6 +2228,7 @@ interface appRouteRouteChildren {
   appSettingsNotificationTemplatesCreateRoute: typeof appSettingsNotificationTemplatesCreateRoute
   appSettingsRoleAccessRoleIdAssignUsersRoute: typeof appSettingsRoleAccessRoleIdAssignUsersRoute
   appSettingsRoleAccessRoleIdEditRoute: typeof appSettingsRoleAccessRoleIdEditRoute
+  appSettingsSecurityDeviceBindingPolicyRoute: typeof appSettingsSecurityDeviceBindingPolicyRoute
   appSettingsSecurityDeviceChangeRequestsRoute: typeof appSettingsSecurityDeviceChangeRequestsRoute
   appSettingsSecurityDeviceRegisterRoute: typeof appSettingsSecurityDeviceRegisterRoute
   appSettingsSecurityDeviceRegisteredDevicesRoute: typeof appSettingsSecurityDeviceRegisteredDevicesRoute
@@ -2240,8 +2303,10 @@ const appRouteRouteChildren: appRouteRouteChildren = {
   appSettingsRoleAccessCreateRoleRoute: appSettingsRoleAccessCreateRoleRoute,
   appSettingsRoleAccessPermissionMatrixRoute:
     appSettingsRoleAccessPermissionMatrixRoute,
+  appSettingsSecurityAuditTrailRoute: appSettingsSecurityAuditTrailRoute,
   appSettingsSecurityDeviceRoute: appSettingsSecurityDeviceRoute,
   appSettingsSecurityPasswordRoute: appSettingsSecurityPasswordRoute,
+  appSettingsSecuritySessionRoute: appSettingsSecuritySessionRoute,
   appAttendanceApprovalIndexRoute: appAttendanceApprovalIndexRoute,
   appAttendanceCalendarIndexRoute: appAttendanceCalendarIndexRoute,
   appAttendanceManagementIndexRoute: appAttendanceManagementIndexRoute,
@@ -2279,6 +2344,8 @@ const appRouteRouteChildren: appRouteRouteChildren = {
   appSettingsRoleAccessRoleIdAssignUsersRoute:
     appSettingsRoleAccessRoleIdAssignUsersRoute,
   appSettingsRoleAccessRoleIdEditRoute: appSettingsRoleAccessRoleIdEditRoute,
+  appSettingsSecurityDeviceBindingPolicyRoute:
+    appSettingsSecurityDeviceBindingPolicyRoute,
   appSettingsSecurityDeviceChangeRequestsRoute:
     appSettingsSecurityDeviceChangeRequestsRoute,
   appSettingsSecurityDeviceRegisterRoute:

@@ -23,7 +23,6 @@ import {
   CardTitle,
 } from '@/shared/components/ui/card'
 import { Spinner } from '@/shared/components/ui/spinner'
-import { snackbar } from '@/shared/lib/snackbar'
 import { useGetDeviceSecurity } from '@/features/settings/security/hooks'
 import { m } from '@/i18n/paraglide/messages'
 
@@ -210,7 +209,7 @@ export function DeviceSecurityPage() {
             description={m.security_device_policy_description()}
             actionLabel={m.security_device_policy_button()}
             variant='violet'
-            onAction={() => snackbar.info(m.security_overview_coming_soon())}
+            onAction={() => void navigate({ to: '/settings/security/device/binding-policy' })}
           />
         </div>
       </div>

@@ -253,6 +253,7 @@ export function SecurityOverviewPage() {
               minutes: overview.sessionManagement.timeoutMinutes,
             })}
             statusVariant='amber'
+            to='/settings/security/session'
           />
           <SecurityAreaCard
             number='04'
@@ -264,6 +265,7 @@ export function SecurityOverviewPage() {
               events: overview.auditEvents.today.toLocaleString(),
             })}
             statusVariant='violet'
+            to='/settings/security/audit-trail'
           />
         </div>
       </div>
