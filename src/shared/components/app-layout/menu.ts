@@ -68,6 +68,11 @@ export const mainMenu: Menu[] = [
     title: m.app_layout_nav_company,
     items: [
       {
+        key: 'employee-information',
+        title: m.app_layout_nav_employee_information,
+        to: '/company/employee-info',
+      },
+      {
         key: 'employment',
         title: m.app_layout_nav_employment,
         to: '/company/employee',
