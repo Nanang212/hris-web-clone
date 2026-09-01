@@ -87,3 +87,76 @@ export interface ImportEmployeeInformationData {
   failed: number
   completedAt: string
 }
+
+export type EmployeeGender = 'Male' | 'Female'
+
+export interface EmployeeCreationOption {
+  id: string
+  name: string
+}
+
+export interface EmployeeCreationPositionOption extends EmployeeCreationOption {
+  departmentId: string
+}
+
+export interface EmployeeCreationOptionsData {
+  departments: EmployeeCreationOption[]
+  divisions: EmployeeCreationOption[]
+  positions: EmployeeCreationPositionOption[]
+  grades: EmployeeCreationOption[]
+  branches: EmployeeCreationOption[]
+  managers: EmployeeCreationOption[]
+  banks: EmployeeCreationOption[]
+  genders: EmployeeGender[]
+  employmentTypes: EmployeeInformationEmploymentType[]
+}
+
+export interface EmployeePersonalInformationPayload {
+  employeeNumber: string
+  fullName: string
+  workEmail: string
+  phoneNumber?: string
+  gender?: EmployeeGender
+  birthDate?: string
+  address?: string
+}
+
+export interface EmployeeEmploymentInformationPayload {
+  departmentId: string
+  divisionId: string
+  positionId: string
+  gradeId: string
+  branchId: string
+  managerId?: string
+  employmentType: EmployeeInformationEmploymentType
+  joinDate: string
+  workLocation: string
+}
+
+export interface EmployeePayrollIdentificationPayload {
+  bankId: string
+  bankAccountNumber: string
+  bankAccountHolder: string
+  npwpNumber?: string
+  bpjsHealthNumber?: string
+  bpjsEmploymentNumber?: string
+}
+
+export interface CreateEmployeeInformationPayload {
+  status: 'Draft' | 'Active'
+  personalInformation: EmployeePersonalInformationPayload
+  employmentInformation: EmployeeEmploymentInformationPayload
+  payrollAndIdentification: EmployeePayrollIdentificationPayload
+}
+
+export interface CreateEmployeeInformationRequest {
+  payload: CreateEmployeeInformationPayload
+  profilePhoto?: File
+}
+
+export interface CreateEmployeeInformationData {
+  employeeId: string
+  employeeNumber: string
+  status: 'Draft' | 'Active'
+  createdAt: string
+}

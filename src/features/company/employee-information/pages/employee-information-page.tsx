@@ -358,7 +358,7 @@ function QuickActions({ onImport, onExport }: { onImport: () => void; onExport: 
                 className='h-auto w-full justify-start px-2 py-2'
                 asChild
               >
-                <Link to='/company/employee/new'>{content}</Link>
+                <Link to='/company/employee-info/new'>{content}</Link>
               </Button>
             )
           return (
@@ -789,7 +789,7 @@ export function EmployeeInformationPage() {
             {m.employee_information_export()}
           </Button>
           <Button size='sm' asChild>
-            <Link to='/company/employee/new'>
+            <Link to='/company/employee-info/new'>
               <IconPlus data-icon='inline-start' />
               {m.employee_information_add()}
             </Link>
@@ -1056,7 +1056,7 @@ export function EmployeeInformationPage() {
                 <Button
                   variant='link'
                   className='h-auto px-0'
-                  onClick={() => void navigate({ to: '/company/employee/new' })}
+                  onClick={() => void navigate({ to: '/company/employee-info/new' })}
                 >
                   {m.employee_information_tip_action()}
                   <IconArrowRight data-icon='inline-end' />

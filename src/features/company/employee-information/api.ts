@@ -1,6 +1,9 @@
 import { apiClient } from '@/shared/lib/axios'
 import type { Envelope } from '@/shared/types'
 import type {
+  CreateEmployeeInformationData,
+  CreateEmployeeInformationRequest,
+  EmployeeCreationOptionsData,
   EmployeeInformationActionData,
   EmployeeInformationFilterParams,
   EmployeeInformationListData,
@@ -8,6 +11,37 @@ import type {
   ImportEmployeeInformationData,
   UpdateEmployeeStatusPayload,
 } from '@/features/company/employee-information/types'
+
+/**
+ * Endpoint: `/api/v1/company/employee-information/create-options`
+ * Method: `GET`
+ * Expected response: `{ "success": true, "code": "OK", "data": { "departments": [{ "id": "department-hr", "name": "Human Resources" }], "divisions": [{ "id": "division-people", "name": "People Operations" }], "positions": [{ "id": "position-hr-supervisor", "name": "HR Supervisor", "departmentId": "department-hr" }], "grades": [{ "id": "grade-supervisor", "name": "Supervisor" }], "branches": [{ "id": "branch-jakarta", "name": "Jakarta HQ" }], "managers": [{ "id": "employee-10001", "name": "Siti Maharani" }], "banks": [{ "id": "bank-bca", "name": "Bank Central Asia" }], "genders": ["Male", "Female"], "employmentTypes": ["Permanent", "Contract", "Internship", "Freelance"] }, "messages": [] }`
+ */
+export async function getEmployeeCreationOptions() {
+  const res = await apiClient.get<Envelope<EmployeeCreationOptionsData>>(
+    '/api/v1/company/employee-information/create-options',
+  )
+  return res.data
+}
+
+/**
+ * Endpoint: `/api/v1/company/employee-information`
+ * Method: `POST`
+ * Request body: `multipart/form-data` with field `employee` containing the JSON payload and optional field `profilePhoto` containing a JPG, PNG, or WebP file.
+ * The `employee` JSON contains `status: "Draft"` for Save Draft or `status: "Active"` for Create Employee. Reaching the review step does not call this endpoint.
+ * Expected response: `{ "success": true, "code": "CREATED", "data": { "employeeId": "employee-10242", "employeeNumber": "10042", "status": "Active", "createdAt": "2026-09-01T10:30:00+07:00" }, "messages": ["Employee created successfully"] }`
+ */
+export async function createEmployeeInformation(request: CreateEmployeeInformationRequest) {
+  const body = new FormData()
+  body.append('employee', JSON.stringify(request.payload))
+  if (request.profilePhoto) body.append('profilePhoto', request.profilePhoto)
+
+  const res = await apiClient.post<Envelope<CreateEmployeeInformationData>>(
+    '/api/v1/company/employee-information',
+    body,
+  )
+  return res.data
+}
 
 /**
  * Endpoint: `/api/v1/company/employee-information/overview`

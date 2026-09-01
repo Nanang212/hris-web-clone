@@ -47,6 +47,7 @@ import { Route as appAttendanceManagementManualRouteImport } from './../../route
 import { Route as appAttendanceRequestsIndexRouteImport } from './../../routes/(app)/attendance/requests/index'
 import { Route as appAttendanceRequestsNewRouteImport } from './../../routes/(app)/attendance/requests/new'
 import { Route as appCompanyDocumentIndexRouteImport } from './../../routes/(app)/company/document/index'
+import { Route as appCompanyEmployeeInfoNewRouteImport } from './../../routes/(app)/company/employee-info_.new'
 import { Route as appCompanyEmployeeIndexRouteImport } from './../../routes/(app)/company/employee/index'
 import { Route as appCompanyEmployeeIdRouteImport } from './../../routes/(app)/company/employee/$id'
 import { Route as appCompanyEmployeeNewRouteImport } from './../../routes/(app)/company/employee/new'
@@ -320,6 +321,12 @@ const appCompanyDocumentIndexRoute = appCompanyDocumentIndexRouteImport.update({
   path: '/company/document/',
   getParentRoute: () => appRouteRoute,
 } as any)
+const appCompanyEmployeeInfoNewRoute =
+  appCompanyEmployeeInfoNewRouteImport.update({
+    id: '/company/employee-info_/new',
+    path: '/company/employee-info/new',
+    getParentRoute: () => appRouteRoute,
+  } as any)
 const appCompanyEmployeeIndexRoute = appCompanyEmployeeIndexRouteImport.update({
   id: '/company/employee/',
   path: '/company/employee/',
@@ -754,6 +761,7 @@ export interface FileRoutesByFullPath {
   '/attendance/calendar/settings': typeof appAttendanceCalendarSettingsRoute
   '/attendance/management/manual': typeof appAttendanceManagementManualRoute
   '/attendance/requests/new': typeof appAttendanceRequestsNewRoute
+  '/company/employee-info/new': typeof appCompanyEmployeeInfoNewRoute
   '/company/employee/$id': typeof appCompanyEmployeeIdRoute
   '/company/employee/new': typeof appCompanyEmployeeNewRoute
   '/company/employee/update': typeof appCompanyEmployeeUpdateRoute
@@ -861,6 +869,7 @@ export interface FileRoutesByTo {
   '/attendance/calendar/settings': typeof appAttendanceCalendarSettingsRoute
   '/attendance/management/manual': typeof appAttendanceManagementManualRoute
   '/attendance/requests/new': typeof appAttendanceRequestsNewRoute
+  '/company/employee-info/new': typeof appCompanyEmployeeInfoNewRoute
   '/company/employee/$id': typeof appCompanyEmployeeIdRoute
   '/company/employee/new': typeof appCompanyEmployeeNewRoute
   '/company/employee/update': typeof appCompanyEmployeeUpdateRoute
@@ -970,6 +979,7 @@ export interface FileRoutesById {
   '/(app)/attendance/calendar/settings': typeof appAttendanceCalendarSettingsRoute
   '/(app)/attendance/management/manual': typeof appAttendanceManagementManualRoute
   '/(app)/attendance/requests/new': typeof appAttendanceRequestsNewRoute
+  '/(app)/company/employee-info_/new': typeof appCompanyEmployeeInfoNewRoute
   '/(app)/company/employee/$id': typeof appCompanyEmployeeIdRoute
   '/(app)/company/employee/new': typeof appCompanyEmployeeNewRoute
   '/(app)/company/employee/update': typeof appCompanyEmployeeUpdateRoute
@@ -1079,6 +1089,7 @@ export interface FileRouteTypes {
     | '/attendance/calendar/settings'
     | '/attendance/management/manual'
     | '/attendance/requests/new'
+    | '/company/employee-info/new'
     | '/company/employee/$id'
     | '/company/employee/new'
     | '/company/employee/update'
@@ -1186,6 +1197,7 @@ export interface FileRouteTypes {
     | '/attendance/calendar/settings'
     | '/attendance/management/manual'
     | '/attendance/requests/new'
+    | '/company/employee-info/new'
     | '/company/employee/$id'
     | '/company/employee/new'
     | '/company/employee/update'
@@ -1294,6 +1306,7 @@ export interface FileRouteTypes {
     | '/(app)/attendance/calendar/settings'
     | '/(app)/attendance/management/manual'
     | '/(app)/attendance/requests/new'
+    | '/(app)/company/employee-info_/new'
     | '/(app)/company/employee/$id'
     | '/(app)/company/employee/new'
     | '/(app)/company/employee/update'
@@ -1643,6 +1656,13 @@ declare module '@tanstack/react-router' {
       path: '/company/document'
       fullPath: '/company/document/'
       preLoaderRoute: typeof appCompanyDocumentIndexRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/company/employee-info_/new': {
+      id: '/(app)/company/employee-info_/new'
+      path: '/company/employee-info/new'
+      fullPath: '/company/employee-info/new'
+      preLoaderRoute: typeof appCompanyEmployeeInfoNewRouteImport
       parentRoute: typeof appRouteRoute
     }
     '/(app)/company/employee/': {
@@ -2168,6 +2188,7 @@ interface appRouteRouteChildren {
   appAttendanceCalendarSettingsRoute: typeof appAttendanceCalendarSettingsRoute
   appAttendanceManagementManualRoute: typeof appAttendanceManagementManualRoute
   appAttendanceRequestsNewRoute: typeof appAttendanceRequestsNewRoute
+  appCompanyEmployeeInfoNewRoute: typeof appCompanyEmployeeInfoNewRoute
   appCompanyEmployeeIdRoute: typeof appCompanyEmployeeIdRoute
   appCompanyEmployeeNewRoute: typeof appCompanyEmployeeNewRoute
   appCompanyEmployeeUpdateRoute: typeof appCompanyEmployeeUpdateRoute
@@ -2272,6 +2293,7 @@ const appRouteRouteChildren: appRouteRouteChildren = {
   appAttendanceCalendarSettingsRoute: appAttendanceCalendarSettingsRoute,
   appAttendanceManagementManualRoute: appAttendanceManagementManualRoute,
   appAttendanceRequestsNewRoute: appAttendanceRequestsNewRoute,
+  appCompanyEmployeeInfoNewRoute: appCompanyEmployeeInfoNewRoute,
   appCompanyEmployeeIdRoute: appCompanyEmployeeIdRoute,
   appCompanyEmployeeNewRoute: appCompanyEmployeeNewRoute,
   appCompanyEmployeeUpdateRoute: appCompanyEmployeeUpdateRoute,
