@@ -12,7 +12,7 @@ function RouteComponent() {
   return (
     <SidebarProvider className='bg-sidebar'>
       <AppSidebar />
-      <div className='w-full'>
+      <div className='flex-1 min-w-0 w-full overflow-x-hidden'>
         <AppNavbar className='w-full' user={{ name: 'John Doe', role: 'Admin' }} />
         <Outlet />
       </div>
