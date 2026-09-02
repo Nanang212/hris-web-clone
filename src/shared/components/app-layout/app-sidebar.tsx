@@ -178,9 +178,9 @@ export function AppSidebar() {
                               return (
                                 <SidebarMenuSubItem key={subItem.to}>
                                   <SidebarMenuSubButton asChild isActive={isSubActive}>
-                                    <Link to={subItem.to} className='flex items-center gap-2 min-w-0 flex-1 overflow-hidden'>
+                                    <Link to={subItem.to} className='flex items-center gap-2 min-w-0 flex-1 whitespace-nowrap'>
                                       <span className='size-1.5 shrink-0 rounded-full bg-current' />
-                                      <span className='truncate'>{subItem.title()}</span>
+                                      <span>{subItem.title()}</span>
                                     </Link>
                                   </SidebarMenuSubButton>
                                 </SidebarMenuSubItem>
@@ -200,18 +200,18 @@ export function AppSidebar() {
                                       isActive={isSubActive}
                                       className='w-full cursor-pointer justify-between pr-2 text-xs font-medium'
                                     >
-                                      <div className='flex items-center gap-2 min-w-0 flex-1 overflow-hidden'>
+                                      <div className='flex items-center gap-2 min-w-0 flex-1 whitespace-nowrap'>
                                         <span className='size-1.5 shrink-0 rounded-full bg-current' />
-                                        <span className='truncate'>{subItem.title()}</span>
+                                        <span>{subItem.title()}</span>
                                       </div>
                                       <IconChevronRight
                                         size={14}
-                                        className='shrink-0 transition-transform duration-200 group-data-[state=open]/sub-collapsible:rotate-90 text-sidebar-foreground/70'
+                                        className='shrink-0 transition-transform duration-200 group-data-[state=open]/sub-collapsible:rotate-90 text-sidebar-foreground/70 ml-2'
                                       />
                                     </SidebarMenuSubButton>
                                   </CollapsibleTrigger>
                                   <CollapsibleContent className='w-full'>
-                                    <div className='pl-3.5 my-1 flex flex-col gap-0.5 border-l border-sidebar-border ml-2.5'>
+                                    <div className='pl-2.5 my-1 flex flex-col gap-0.5 border-l border-sidebar-border ml-2'>
                                       {subItem.items?.map((subSubItem) => {
                                         const isSubSubActive = isPathActive(subSubItem.to, true)
                                         return (
@@ -219,7 +219,7 @@ export function AppSidebar() {
                                             key={subSubItem.key}
                                             to={subSubItem.to}
                                             className={cn(
-                                              'text-xs py-1.5 px-2.5 rounded-lg font-medium transition-colors truncate block',
+                                              'text-xs py-1.5 px-2.5 rounded-lg font-medium transition-colors whitespace-nowrap block',
                                               isSubSubActive
                                                 ? 'bg-primary/10 text-primary font-semibold'
                                                 : 'text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',

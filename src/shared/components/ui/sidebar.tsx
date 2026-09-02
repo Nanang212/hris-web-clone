@@ -22,8 +22,8 @@ import { cn } from '@/shared/lib/utils'
 
 const SIDEBAR_COOKIE_NAME = 'sidebar_state'
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
-const SIDEBAR_WIDTH = '16rem'
-const SIDEBAR_WIDTH_MOBILE = '18rem'
+const SIDEBAR_WIDTH = '18.75rem'
+const SIDEBAR_WIDTH_MOBILE = '19rem'
 const SIDEBAR_WIDTH_ICON = '3rem'
 const SIDEBAR_KEYBOARD_SHORTCUT = 'b'
 
@@ -597,7 +597,7 @@ function SidebarMenuSub({ className, ...props }: React.ComponentProps<'ul'>) {
       data-slot='sidebar-menu-sub'
       data-sidebar='menu-sub'
       className={cn(
-        'mx-3.5 flex min-w-0 translate-x-px flex-col gap-1 border-s border-sidebar-border px-2.5 py-0.5 group-data-[collapsible=icon]:hidden rtl:-translate-x-px',
+        'mx-2.5 flex min-w-0 translate-x-px flex-col gap-1 border-s border-sidebar-border px-2 py-0.5 group-data-[collapsible=icon]:hidden rtl:-translate-x-px',
         className,
       )}
       {...props}
@@ -636,7 +636,7 @@ function SidebarMenuSubButton({
       data-size={size}
       data-active={isActive}
       className={cn(
-        'flex h-8 min-w-0 -translate-x-px items-center gap-2 overflow-hidden rounded-xl px-3 text-sidebar-foreground ring-sidebar-ring outline-hidden group-data-[collapsible=icon]:hidden hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[size=md]:text-xs data-[size=sm]:text-[11px] font-medium rtl:translate-x-px data-active:bg-sidebar-accent data-active:text-sidebar-accent-foreground [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 [&>svg]:text-sidebar-accent-foreground',
+        'flex h-8 min-w-0 -translate-x-px items-center gap-2 rounded-xl px-2.5 text-sidebar-foreground ring-sidebar-ring outline-hidden group-data-[collapsible=icon]:hidden hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[size=md]:text-xs data-[size=sm]:text-[11px] font-medium rtl:translate-x-px data-active:bg-sidebar-accent data-active:text-sidebar-accent-foreground whitespace-nowrap [&>svg]:size-4 [&>svg]:shrink-0 [&>svg]:text-sidebar-accent-foreground',
         className,
       )}
       {...props}
