@@ -28,11 +28,14 @@ import { cn } from '@/shared/lib/utils'
 export function AppSidebar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname })
 
-  const isPathActive = (itemTo: string) => {
-    if (!itemTo) return false
+  const isPathActive = (itemTo: string, exact = false) => {
+    if (!itemTo || itemTo === '.') return false
     const cleanPath = (p: string) => p.replace(/\/$/, '')
     const target = cleanPath(itemTo)
     const current = cleanPath(pathname)
+    if (exact || target === '' || target === '/') {
+      return current === target
+    }
     return current === target || current.startsWith(target + '/')
   }
 
@@ -123,7 +126,13 @@ export function AppSidebar() {
                 const hasSubItems = 'items' in item && item.items?.length
 
                 const isActive = hasSubItems
-                  ? item.items?.some((subItem) => subItem.to && isPathActive(subItem.to))
+                  ? item.items?.some((subItem) => {
+                      const hasSubSubItems = 'items' in subItem && subItem.items?.length
+                      if (hasSubSubItems) {
+                        return isPathActive(subItem.to) || subItem.items?.some((ss) => isPathActive(ss.to))
+                      }
+                      return isPathActive(subItem.to)
+                    })
                   : isPathActive(item.to)
 
                 if (!hasSubItems) {
@@ -169,9 +178,9 @@ export function AppSidebar() {
                               return (
                                 <SidebarMenuSubItem key={subItem.to}>
                                   <SidebarMenuSubButton asChild isActive={isSubActive}>
-                                    <Link to={subItem.to}>
-                                      {subItem.icon && <subItem.icon size={16} stroke={1.75} />}
-                                      <span>{subItem.title()}</span>
+                                    <Link to={subItem.to} className='flex items-center gap-2 min-w-0 flex-1 overflow-hidden'>
+                                      <span className='size-1.5 shrink-0 rounded-full bg-current' />
+                                      <span className='truncate'>{subItem.title()}</span>
                                     </Link>
                                   </SidebarMenuSubButton>
                                 </SidebarMenuSubItem>
@@ -185,41 +194,35 @@ export function AppSidebar() {
                                 defaultOpen={isSubActive}
                                 className='group/sub-collapsible'
                               >
-                                <SidebarMenuSubItem className='flex flex-col items-start w-full relative h-auto'>
-                                  <div className='relative flex items-center w-full'>
-                                    <SidebarMenuSubButton asChild isActive={isSubActive} className='w-full pr-8'>
-                                      <Link to={subItem.to}>
-                                        <div className='flex items-center gap-2'>
-                                          <span className='size-1.5 rounded-full bg-current' />
-                                          <span>{subItem.title()}</span>
-                                        </div>
-                                      </Link>
+                                <SidebarMenuSubItem className='flex flex-col items-start w-full'>
+                                  <CollapsibleTrigger asChild>
+                                    <SidebarMenuSubButton
+                                      isActive={isSubActive}
+                                      className='w-full cursor-pointer justify-between pr-2 text-xs font-medium'
+                                    >
+                                      <div className='flex items-center gap-2 min-w-0 flex-1 overflow-hidden'>
+                                        <span className='size-1.5 shrink-0 rounded-full bg-current' />
+                                        <span className='truncate'>{subItem.title()}</span>
+                                      </div>
+                                      <IconChevronRight
+                                        size={14}
+                                        className='shrink-0 transition-transform duration-200 group-data-[state=open]/sub-collapsible:rotate-90 text-sidebar-foreground/70'
+                                      />
                                     </SidebarMenuSubButton>
-                                    <CollapsibleTrigger asChild>
-                                      <button
-                                        type='button'
-                                        className='absolute right-1 top-1/2 -translate-y-1/2 size-6 flex items-center justify-center rounded hover:bg-sidebar-accent text-sidebar-foreground/70 hover:text-sidebar-foreground transition-colors z-10'
-                                      >
-                                        <IconChevronRight
-                                          size={14}
-                                          className='transition-transform duration-200 group-data-[state=open]/sub-collapsible:rotate-90'
-                                        />
-                                      </button>
-                                    </CollapsibleTrigger>
-                                  </div>
+                                  </CollapsibleTrigger>
                                   <CollapsibleContent className='w-full'>
-                                    <div className='pl-4 mt-1 flex flex-col gap-1 border-l border-muted-foreground/20 ml-2'>
+                                    <div className='pl-3.5 my-1 flex flex-col gap-0.5 border-l border-sidebar-border ml-2.5'>
                                       {subItem.items?.map((subSubItem) => {
-                                        const isSubSubActive = isPathActive(subSubItem.to)
+                                        const isSubSubActive = isPathActive(subSubItem.to, true)
                                         return (
                                           <Link
                                             key={subSubItem.key}
                                             to={subSubItem.to}
                                             className={cn(
-                                              'text-xs py-1.5 px-2 rounded-md font-medium transition-colors',
+                                              'text-xs py-1.5 px-2.5 rounded-lg font-medium transition-colors truncate block',
                                               isSubSubActive
-                                                ? 'bg-primary/10 text-primary'
-                                                : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+                                                ? 'bg-primary/10 text-primary font-semibold'
+                                                : 'text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
                                             )}
                                           >
                                             {subSubItem.title()}
