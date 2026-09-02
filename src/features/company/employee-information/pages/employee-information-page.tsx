@@ -441,7 +441,7 @@ function RowActions({
       </DropdownMenuTrigger>
       <DropdownMenuContent align='end'>
         <DropdownMenuItem asChild>
-          <Link to='/company/employee/$id' params={{ id: employee.id }}>
+          <Link to='/company/employee-info/$employeeId' params={{ employeeId: employee.id }}>
             <IconEye />
             {m.employee_information_action_view()}
           </Link>

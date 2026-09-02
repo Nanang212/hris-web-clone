@@ -3,12 +3,15 @@ import type { Envelope } from '@/shared/types'
 import type {
   CreateEmployeeInformationData,
   CreateEmployeeInformationRequest,
+  EmployeeBankVerificationData,
   EmployeeCreationOptionsData,
   EmployeeInformationActionData,
+  EmployeeInformationDetailData,
   EmployeeInformationFilterParams,
   EmployeeInformationListData,
   EmployeeInformationOverviewData,
   ImportEmployeeInformationData,
+  UpdateEmployeeInformationRequest,
   UpdateEmployeeStatusPayload,
 } from '@/features/company/employee-information/types'
 
@@ -39,6 +42,52 @@ export async function createEmployeeInformation(request: CreateEmployeeInformati
   const res = await apiClient.post<Envelope<CreateEmployeeInformationData>>(
     '/api/v1/company/employee-information',
     body,
+  )
+  return res.data
+}
+
+/**
+ * Endpoint: `/api/v1/company/employee-information/{employeeId}`
+ * Method: `GET`
+ * Expected response: `{ "success": true, "code": "OK", "data": { "id": "employee-10024", "employeeNumber": "EMP-2023-00128", "fullName": "Rama Aditya", "email": "rama.aditya@jakarta-hq.com", "phoneNumber": "+62 812-3456-7890", "address": "Jakarta, Indonesia", "avatarUrl": null, "status": "Active", "positionName": "Product Designer", "departmentName": "Product Design", "divisionName": "Design Division", "branchName": "Jakarta HQ", "gradeName": "MC", "joinDate": "2023-03-12", "employmentType": "Permanent", "personalInformation": { "fullName": "Rama Aditya", "email": "rama.aditya@jakarta-hq.com", "phoneNumber": "+62 812-3456-7890", "birthDate": "1992-08-14", "gender": "Male", "maritalStatus": "Married", "nationality": "Indonesia", "address": "Jakarta Selatan 12730" }, "employmentInformation": { "employeeNumber": "EMP-2023-00128", "joinDate": "2023-03-12", "employmentType": "Permanent", "departmentId": "department-product", "departmentName": "Product Design", "divisionId": "division-design", "divisionName": "Design", "positionId": "position-product-designer", "positionName": "Product Designer", "gradeId": "grade-mc", "gradeName": "MC", "branchId": "branch-jakarta", "supervisorId": "employee-10034", "workLocation": "Jakarta Office", "supervisorName": "Dewi Kartika" }, "emergencyContact": { "name": "Budi Santoso", "relationship": "Father", "phoneNumber": "+62 813-1111-2222", "address": "Depok, Jawa Barat 16412" }, "financialAndCompliance": { "bankId": "bank-bca", "bankAccountHolder": "Rama Aditya", "bankName": "Bank Central Asia (BCA)", "bankAccountNumber": "123456789012", "bankBranch": "KCU Jakarta Selatan", "bankAccountType": "Savings", "currency": "IDR", "bankEffectiveDate": "2026-08-09", "payrollAccount": true, "bankVerification": { "status": "Verified", "verifiedAt": "2026-08-01", "payrollMappingActive": true }, "npwpNumber": "12.345.678.9-012.000", "npwpStatus": "Active", "npwpRegisteredName": "Rama Aditya", "taxCategory": "TK/0", "npwpEffectiveDate": "2023-03-12", "taxOffice": "KPP Pratama Jakarta", "npwpDocument": { "fileName": "NPWP_Rama_Aditya.pdf", "fileSize": 430080, "url": "/documents/npwp-rama.pdf" }, "bpjsHealthNumber": "0001234567890", "bpjsEmploymentNumber": "190001234567890" }, "medicalCheckup": { "status": "Fit", "dueDate": "2027-07-15", "lastCheckupDate": "2026-07-15", "provider": "Prodia Occupational Health", "examinationType": "AnnualMCU", "followUpRequired": false, "administrativeNote": "Fit for work.", "document": { "fileName": "MCU_Rama_2026.pdf", "fileSize": 524288, "url": "/documents/mcu-rama-2026.pdf" } }, "statusManagement": { "effectiveDate": "2026-08-09", "reason": "StatusCorrection", "lastWorkingDate": null, "notes": "Status corrected." }, "statusHistory": [{ "id": "history-1", "status": "Active", "employmentType": "Permanent", "effectiveDate": "2023-03-12", "reason": null }] }, "messages": [] }`
+ */
+export async function getEmployeeInformationDetail(employeeId: string) {
+  const res = await apiClient.get<Envelope<EmployeeInformationDetailData>>(
+    `/api/v1/company/employee-information/${employeeId}`,
+  )
+  return res.data
+}
+
+/**
+ * Endpoint: `/api/v1/company/employee-information/{employeeId}`
+ * Method: `PATCH`
+ * Request body: `multipart/form-data` with field `employee` containing the profile JSON; optional `profilePhoto`, `npwpDocument`, and `medicalCheckupDocument` file fields.
+ * Expected response: `{ "success": true, "code": "OK", "data": { "id": "employee-10024", "employeeNumber": "EMP-2023-00128", "fullName": "Rama Aditya", "email": "rama.aditya@jakarta-hq.com", "phoneNumber": "+62 812-3456-7890", "address": "Jakarta, Indonesia", "avatarUrl": "/uploads/employees/employee-10024.webp", "status": "Active", "positionName": "Product Designer", "departmentName": "Product Design", "divisionName": "Design Division", "branchName": "Jakarta HQ", "gradeName": "MC", "joinDate": "2023-03-12", "employmentType": "Permanent", "personalInformation": { "fullName": "Rama Aditya", "email": "rama.aditya@jakarta-hq.com", "phoneNumber": "+62 812-3456-7890", "birthDate": "1992-08-14", "gender": "Male", "maritalStatus": "Married", "nationality": "Indonesia", "address": "Jakarta Selatan 12730" }, "employmentInformation": { "employeeNumber": "EMP-2023-00128", "joinDate": "2023-03-12", "employmentType": "Permanent", "departmentId": "department-product", "departmentName": "Product Design", "divisionId": "division-design", "divisionName": "Design", "positionId": "position-product-designer", "positionName": "Product Designer", "gradeId": "grade-mc", "gradeName": "MC", "branchId": "branch-jakarta", "supervisorId": "employee-10034", "workLocation": "Jakarta Office", "supervisorName": "Dewi Kartika" }, "emergencyContact": { "name": "Budi Santoso", "relationship": "Father", "phoneNumber": "+62 813-1111-2222", "address": "Depok, Jawa Barat 16412" }, "financialAndCompliance": { "bankId": "bank-bca", "bankAccountHolder": "Rama Aditya", "bankName": "Bank Central Asia (BCA)", "bankAccountNumber": "123456789012", "npwpNumber": "12.345.678.9-012.000", "npwpStatus": "Active", "bpjsHealthNumber": "0001234567890", "bpjsEmploymentNumber": "190001234567890" }, "medicalCheckup": { "status": "Fit", "dueDate": "2027-07-15", "lastCheckupDate": "2026-07-15" } }, "messages": ["Employee profile updated successfully"] }`
+ */
+export async function updateEmployeeInformation(request: UpdateEmployeeInformationRequest) {
+  const body = new FormData()
+  body.append('employee', JSON.stringify(request.payload))
+  if (request.profilePhoto) body.append('profilePhoto', request.profilePhoto)
+  if (request.npwpDocument) body.append('npwpDocument', request.npwpDocument)
+  if (request.medicalCheckupDocument) {
+    body.append('medicalCheckupDocument', request.medicalCheckupDocument)
+  }
+
+  const res = await apiClient.patch<Envelope<EmployeeInformationDetailData>>(
+    `/api/v1/company/employee-information/${request.employeeId}`,
+    body,
+  )
+  return res.data
+}
+
+/**
+ * Endpoint: `/api/v1/company/employee-information/{employeeId}/bank-verification`
+ * Method: `POST`
+ * Expected response: `{ "success": true, "code": "ACCEPTED", "data": { "employeeId": "employee-10024", "status": "Pending", "requestedAt": "2026-09-02T10:30:00+07:00" }, "messages": ["Bank account verification requested"] }`
+ */
+export async function requestEmployeeBankVerification(employeeId: string) {
+  const res = await apiClient.post<Envelope<EmployeeBankVerificationData>>(
+    `/api/v1/company/employee-information/${employeeId}/bank-verification`,
   )
   return res.data
 }

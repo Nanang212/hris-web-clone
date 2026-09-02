@@ -7,13 +7,17 @@ import {
   exportEmployeeInformation,
   getEmployeeCreationOptions,
   getEmployeeInformation,
+  getEmployeeInformationDetail,
   getEmployeeInformationOverview,
   importEmployeeInformation,
+  requestEmployeeBankVerification,
+  updateEmployeeInformation,
   updateEmployeeInformationStatus,
 } from '@/features/company/employee-information/api'
 import type {
   CreateEmployeeInformationRequest,
   EmployeeInformationFilterParams,
+  UpdateEmployeeInformationRequest,
   UpdateEmployeeStatusPayload,
 } from '@/features/company/employee-information/types'
 
@@ -21,6 +25,8 @@ export const employeeInformationQueryKeys = {
   all: ['company', 'employee-information'] as const,
   overview: () => [...employeeInformationQueryKeys.all, 'overview'] as const,
   createOptions: () => [...employeeInformationQueryKeys.all, 'create-options'] as const,
+  detail: (employeeId: string) =>
+    [...employeeInformationQueryKeys.all, 'detail', employeeId] as const,
   list: (params?: EmployeeInformationFilterParams) =>
     [...employeeInformationQueryKeys.all, 'list', params] as const,
 }
@@ -59,6 +65,35 @@ export function useGetEmployeeInformationOverview() {
     queryKey: employeeInformationQueryKeys.overview(),
     queryFn: getEmployeeInformationOverview,
     select: (response) => response.data,
+  })
+}
+
+export function useGetEmployeeInformationDetail(employeeId: string) {
+  return useQuery({
+    queryKey: employeeInformationQueryKeys.detail(employeeId),
+    queryFn: () => getEmployeeInformationDetail(employeeId),
+    select: (response) => response.data,
+    enabled: Boolean(employeeId),
+  })
+}
+
+export function useUpdateEmployeeInformation() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (request: UpdateEmployeeInformationRequest) => updateEmployeeInformation(request),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: employeeInformationQueryKeys.all })
+    },
+  })
+}
+
+export function useRequestEmployeeBankVerification() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: requestEmployeeBankVerification,
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: employeeInformationQueryKeys.all })
+    },
   })
 }
 
