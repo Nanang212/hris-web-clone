@@ -68,15 +68,20 @@ export const mainMenu: Menu[] = [
     title: m.app_layout_nav_company,
     items: [
       {
-        key: 'employee-information',
-        title: m.app_layout_nav_employee_information,
-        to: '/company/employee-info',
-      },
-      {
         key: 'employment',
         title: m.app_layout_nav_employment,
         to: '/company/employee',
         items: [
+          {
+            key: 'employee-information',
+            title: m.app_layout_nav_employee_information,
+            to: '/company/employee-info',
+          },
+          {
+            key: 'employment-overview',
+            title: m.app_layout_nav_employment_overview,
+            to: '/company/employee',
+          },
           {
             key: 'employment-contract',
             title: m.app_layout_nav_employment_contract,
@@ -117,54 +122,59 @@ export const mainMenu: Menu[] = [
     ],
   },
   {
-    key: 'attendance',
-    to: '/attendance',
-    icon: IconCalendarCheck,
-    title: m.app_layout_nav_attendance,
+    key: 'time-management',
+    to: '.',
+    icon: IconClockHour4,
+    title: m.app_layout_nav_time_management,
     items: [
       {
-        key: 'attendance-overview',
+        key: 'attendance',
         to: '/attendance',
-        title: m.app_layout_nav_attendance_overview,
+        title: m.app_layout_nav_attendance,
+        items: [
+          {
+            key: 'attendance-overview',
+            to: '/attendance',
+            title: m.app_layout_nav_attendance_overview,
+          },
+          {
+            key: 'attendance-settings',
+            to: '/attendance/settings',
+            title: m.app_layout_nav_attendance_settings,
+          },
+          {
+            key: 'shift-management',
+            to: '/attendance/management/shifts',
+            title: m.app_layout_nav_shift_management,
+          },
+          {
+            key: 'working-calendar',
+            to: '/attendance/calendar',
+            title: m.app_layout_nav_working_calendar,
+          },
+          {
+            key: 'face-recognition',
+            to: '/attendance/face-recognition',
+            title: m.app_layout_nav_face_recognition,
+          },
+          {
+            key: 'gps-security',
+            to: '/attendance/gps-security',
+            title: m.app_layout_nav_gps_security,
+          },
+        ],
       },
       {
-        key: 'attendance-settings',
-        to: '/attendance/settings',
-        title: m.app_layout_nav_attendance_settings,
+        key: 'leave',
+        to: '/leave',
+        title: m.app_layout_nav_leave,
       },
       {
-        key: 'shift-management',
-        to: '/attendance/management/shifts',
-        title: m.app_layout_nav_shift_management,
-      },
-      {
-        key: 'working-calendar',
-        to: '/attendance/calendar',
-        title: m.app_layout_nav_working_calendar,
-      },
-      {
-        key: 'face-recognition',
-        to: '/attendance/face-recognition',
-        title: m.app_layout_nav_face_recognition,
-      },
-      {
-        key: 'gps-security',
-        to: '/attendance/gps-security',
-        title: m.app_layout_nav_gps_security,
+        key: 'overtime',
+        to: '/overtime',
+        title: m.app_layout_nav_overtime,
       },
     ],
-  },
-  {
-    key: 'leave',
-    to: '/leave',
-    icon: IconCalendarWeek,
-    title: m.app_layout_nav_leave,
-  },
-  {
-    key: 'overtime',
-    to: '/overtime',
-    icon: IconClockHour4,
-    title: m.app_layout_nav_overtime,
   },
   {
     key: 'payroll',
