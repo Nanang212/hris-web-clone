@@ -10,13 +10,14 @@ import {
   TableRow,
 } from '@/shared/components/ui/table'
 import { cn } from '@/shared/lib/utils'
-import { leaveRequests } from '@/features/leave/components/leave-data'
+import { useApprovalSyncStore } from '@/shared/lib/approval-sync-store'
 import { LeaveTabs } from '@/features/leave/components/leave-tabs'
 import { formatLeavePeriod, getLeaveTypeLabel } from '@/features/leave/components/leave-utils'
 import { m } from '@/i18n/paraglide/messages'
 
 export function LeaveApprovalPage() {
-  const pending = leaveRequests.filter((request) => request.status === 'pending')
+  const { leaves } = useApprovalSyncStore()
+  const pending = leaves.filter((request) => request.status === 'pending')
   const coverageLabel = {
     safe: m.leave_coverage_safe(),
     review: m.leave_coverage_review(),
@@ -71,51 +72,53 @@ export function LeaveApprovalPage() {
           <h3 className='font-semibold'>{m.leave_approval_queue_title()}</h3>
           <p className='mt-1 text-xs text-muted-foreground'>{m.leave_approval_queue_subtitle()}</p>
         </div>
-        <Table>
-          <TableHeader className='bg-muted/40'>
-            <TableRow>
-              <TableHead>{m.leave_table_employee()}</TableHead>
-              <TableHead>{m.leave_table_type()}</TableHead>
-              <TableHead>{m.leave_table_period()}</TableHead>
-              <TableHead>{m.leave_table_duration()}</TableHead>
-              <TableHead>{m.leave_approval_balance()}</TableHead>
-              <TableHead>{m.leave_approval_coverage()}</TableHead>
-              <TableHead>{m.leave_table_action()}</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {pending.map((request) => (
-              <TableRow key={request.id}>
-                <TableCell>{request.employee}</TableCell>
-                <TableCell>{getLeaveTypeLabel(request.leaveType)}</TableCell>
-                <TableCell>{formatLeavePeriod(request.startDate, request.endDate)}</TableCell>
-                <TableCell>{m.leave_days({ count: request.duration })}</TableCell>
-                <TableCell>12 → 9</TableCell>
-                <TableCell>
-                  <span
-                    className={cn(
-                      'rounded-full px-3 py-1 text-xs',
-                      request.coverage === 'safe' && 'bg-emerald-50 text-emerald-600',
-                      request.coverage === 'review' && 'bg-orange-50 text-orange-600',
-                      request.coverage === 'conflict' && 'bg-rose-50 text-rose-500',
-                    )}
-                  >
-                    {coverageLabel[request.coverage]}
-                  </span>
-                </TableCell>
-                <TableCell>
-                  <Link
-                    to='/leave/approval/$requestId'
-                    params={{ requestId: request.id }}
-                    className='text-xs font-medium text-primary hover:underline'
-                  >
-                    {m.leave_approval_review()}
-                  </Link>
-                </TableCell>
+        <div className='w-full overflow-x-auto pb-1'>
+          <Table className='min-w-[900px]'>
+            <TableHeader className='bg-muted/40'>
+              <TableRow>
+                <TableHead className='whitespace-nowrap'>{m.leave_table_employee()}</TableHead>
+                <TableHead className='whitespace-nowrap'>{m.leave_table_type()}</TableHead>
+                <TableHead className='whitespace-nowrap'>{m.leave_table_period()}</TableHead>
+                <TableHead className='whitespace-nowrap'>{m.leave_table_duration()}</TableHead>
+                <TableHead className='whitespace-nowrap'>{m.leave_approval_balance()}</TableHead>
+                <TableHead className='whitespace-nowrap'>{m.leave_approval_coverage()}</TableHead>
+                <TableHead className='whitespace-nowrap'>{m.leave_table_action()}</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {pending.map((request) => (
+                <TableRow key={request.id}>
+                  <TableCell className='whitespace-nowrap font-medium'>{request.employee}</TableCell>
+                  <TableCell className='whitespace-nowrap'>{getLeaveTypeLabel(request.leaveType)}</TableCell>
+                  <TableCell className='whitespace-nowrap'>{formatLeavePeriod(request.startDate, request.endDate)}</TableCell>
+                  <TableCell className='whitespace-nowrap'>{m.leave_days({ count: request.duration })}</TableCell>
+                  <TableCell className='whitespace-nowrap font-mono'>12 → 9</TableCell>
+                  <TableCell className='whitespace-nowrap'>
+                    <span
+                      className={cn(
+                        'inline-flex items-center justify-center whitespace-nowrap rounded-full px-3 py-1 text-xs font-semibold',
+                        request.coverage === 'safe' && 'bg-emerald-50 text-emerald-600',
+                        request.coverage === 'review' && 'bg-orange-50 text-orange-600',
+                        request.coverage === 'conflict' && 'bg-rose-50 text-rose-500',
+                      )}
+                    >
+                      {coverageLabel[request.coverage]}
+                    </span>
+                  </TableCell>
+                  <TableCell className='whitespace-nowrap'>
+                    <Link
+                      to='/leave/approval/$requestId'
+                      params={{ requestId: request.id }}
+                      className='text-xs font-medium text-primary hover:underline'
+                    >
+                      {m.leave_approval_review()}
+                    </Link>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       </section>
     </AppMain>
   )

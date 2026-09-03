@@ -26,5 +26,15 @@ export interface ApprovalRequest {
   days?: number
   reason?: string
   attachmentUrl?: string
+  // Business Trip specific
+  destination?: string
+  travelDates?: string
+  advanceMoney?: number
+  transportType?: string
+  // Claim specific
+  categoryLabel?: string
+  costCenter?: string
+  paymentMethod?: string
+  bankAccount?: string
   timeline: ApprovalTimelineStep[]
 }

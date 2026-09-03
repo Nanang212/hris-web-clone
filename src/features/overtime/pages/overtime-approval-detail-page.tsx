@@ -1,9 +1,11 @@
+import { useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 
 import { AppMain } from '@/shared/components/app-layout/app-main'
 import { Button } from '@/shared/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card'
 import { Textarea } from '@/shared/components/ui/textarea'
+import { ApprovalActionDialog } from '@/shared/components/approval/approval-action-dialog'
 import { snackbar } from '@/shared/lib/snackbar'
 import {
   OvertimeKeyValue,
@@ -14,10 +16,32 @@ import { m } from '@/i18n/paraglide/messages'
 
 export function OvertimeApprovalDetailPage() {
   const navigate = useNavigate()
-  const decide = (message: string) => {
-    snackbar.success(message)
+  const [note, setNote] = useState('')
+  const [confirmDialog, setConfirmDialog] = useState<{
+    open: boolean
+    action: 'approve' | 'reject'
+  }>({
+    open: false,
+    action: 'approve',
+  })
+
+  const handleOpenConfirm = (action: 'approve' | 'reject') => {
+    setConfirmDialog({
+      open: true,
+      action,
+    })
+  }
+
+  const handleExecuteAction = (actionNote: string) => {
+    const finalNote = actionNote || note
+    if (confirmDialog.action === 'approve') {
+      snackbar.success(m.overtime_approved_success())
+    } else {
+      snackbar.error(m.overtime_rejected_success())
+    }
     navigate({ to: '/overtime/approval' })
   }
+
   return (
     <AppMain
       title={m.overtime_approval_detail_title()}
@@ -70,22 +94,33 @@ export function OvertimeApprovalDetailPage() {
               <CardTitle>{m.overtime_decision()}</CardTitle>
             </CardHeader>
             <CardContent className='px-4'>
-              <Textarea placeholder={m.overtime_approval_note_placeholder()} />
+              <Textarea
+                placeholder={m.overtime_approval_note_placeholder()}
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+              />
             </CardContent>
           </Card>
-          <div className='grid grid-cols-3 gap-2'>
-            <Button variant='destructive' onClick={() => decide(m.overtime_rejected_success())}>
+          <div className='grid grid-cols-2 gap-2'>
+            <Button variant='destructive' onClick={() => handleOpenConfirm('reject')}>
               {m.overtime_reject()}
             </Button>
-            <Button variant='outline' onClick={() => decide(m.overtime_revision_success())}>
-              {m.overtime_revision()}
-            </Button>
-            <Button onClick={() => decide(m.overtime_approved_success())}>
+            <Button onClick={() => handleOpenConfirm('approve')}>
               {m.overtime_approve()}
             </Button>
           </div>
         </div>
       </div>
+
+      {/* Confirmation Dialog */}
+      <ApprovalActionDialog
+        open={confirmDialog.open}
+        onOpenChange={(open) => setConfirmDialog((prev) => ({ ...prev, open }))}
+        action={confirmDialog.action}
+        itemName='Lembur Project Deployment - Maya Putri'
+        itemDetail='3.0 jam · Rp 112.500'
+        onConfirm={handleExecuteAction}
+      />
     </AppMain>
   )
 }

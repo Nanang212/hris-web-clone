@@ -5,6 +5,7 @@ import {
   IconCircleCheck,
   IconClockHour4,
   IconLayoutDashboard,
+  IconPlaneTilt,
   IconReportAnalytics,
   IconReportMoney,
   IconSettings,
@@ -181,6 +182,24 @@ export const mainMenu: Menu[] = [
     to: '/payroll',
     icon: IconReportMoney,
     title: m.app_layout_nav_payroll,
+  },
+  {
+    key: 'travel-expense',
+    to: '.',
+    icon: IconPlaneTilt,
+    title: () => 'Travel & Expense',
+    items: [
+      {
+        key: 'claim',
+        title: () => 'Claim',
+        to: '/travel-expense/claim',
+      },
+      {
+        key: 'business-trip',
+        title: () => 'Business Trip',
+        to: '/travel-expense/business-trip',
+      },
+    ],
   },
   {
     key: 'performance',

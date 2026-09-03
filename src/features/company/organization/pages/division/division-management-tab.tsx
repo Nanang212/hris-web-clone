@@ -51,12 +51,15 @@ import {
   TableRow,
 } from '@/shared/components/ui/table'
 import { Textarea } from '@/shared/components/ui/textarea'
+import { TablePagination } from '@/shared/components/ui/table-pagination'
 import { snackbar } from '@/shared/lib/snackbar'
 
 export function DivisionManagementTab() {
   const [divisions, setDivisions] = useState<DivisionRecord[]>(MOCK_DIVISIONS)
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
+  const [currentPage, setCurrentPage] = useState(1)
+  const [pageSize, setPageSize] = useState(5)
 
   // Form Modal State
   const [formOpen, setFormOpen] = useState(false)
@@ -90,6 +93,11 @@ export function DivisionManagementTab() {
     const matchesStatus = statusFilter === 'all' || div.status === statusFilter
     return matchesSearch && matchesStatus
   })
+
+  const paginatedDivisions = filteredDivisions.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize,
+  )
 
   const handleOpenCreate = () => {
     setFormMode('create')
@@ -202,13 +210,22 @@ export function DivisionManagementTab() {
             <IconSearch size={14} className='absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground' />
             <Input
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => {
+                setSearchQuery(e.target.value)
+                setCurrentPage(1)
+              }}
               placeholder='Search division name or code...'
               className='h-9 pl-9 text-xs bg-background rounded-xl w-full'
             />
           </div>
 
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <Select
+            value={statusFilter}
+            onValueChange={(val) => {
+              setStatusFilter(val)
+              setCurrentPage(1)
+            }}
+          >
             <SelectTrigger className='h-9 w-full sm:w-32 text-xs bg-background rounded-xl'>
               <SelectValue placeholder='Status' />
             </SelectTrigger>
@@ -253,7 +270,7 @@ export function DivisionManagementTab() {
                 </TableCell>
               </TableRow>
             ) : (
-              filteredDivisions.map((div) => (
+              paginatedDivisions.map((div) => (
                 <TableRow key={div.id} className='hover:bg-muted/30 transition-colors'>
                   <TableCell className='text-xs font-mono font-bold text-primary'>
                     {div.code}
@@ -341,6 +358,17 @@ export function DivisionManagementTab() {
             )}
           </TableBody>
         </Table>
+
+        {/* Table Pagination */}
+        <TablePagination
+          itemLabel='divisi'
+          totalItems={filteredDivisions.length}
+          currentPage={currentPage}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+          onPageSizeChange={setPageSize}
+          pageSizeOptions={[5, 10, 20]}
+        />
       </div>
 
       {/* ── Add / Edit Division Modal ──────────────────────────────────────── */}

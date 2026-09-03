@@ -93,6 +93,8 @@ import { Route as appSettingsSecurityAuditTrailRouteImport } from './../../route
 import { Route as appSettingsSecurityDeviceRouteImport } from './../../routes/(app)/settings/security/device'
 import { Route as appSettingsSecurityPasswordRouteImport } from './../../routes/(app)/settings/security/password'
 import { Route as appSettingsSecuritySessionRouteImport } from './../../routes/(app)/settings/security/session'
+import { Route as appTravelExpenseBusinessTripIndexRouteImport } from './../../routes/(app)/travel-expense/business-trip/index'
+import { Route as appTravelExpenseClaimIndexRouteImport } from './../../routes/(app)/travel-expense/claim/index'
 import { Route as appAttendanceApprovalRequestIdRejectRouteImport } from './../../routes/(app)/attendance/approval/$requestId/reject'
 import { Route as appAttendanceManagementExceptionsExceptionIdRouteImport } from './../../routes/(app)/attendance/management/exceptions/$exceptionId'
 import { Route as appAttendanceManagementShiftsIndexRouteImport } from './../../routes/(app)/attendance/management/shifts/index'
@@ -590,6 +592,18 @@ const appSettingsSecuritySessionRoute =
     path: '/settings/security/session',
     getParentRoute: () => appRouteRoute,
   } as any)
+const appTravelExpenseBusinessTripIndexRoute =
+  appTravelExpenseBusinessTripIndexRouteImport.update({
+    id: '/travel-expense/business-trip/',
+    path: '/travel-expense/business-trip/',
+    getParentRoute: () => appRouteRoute,
+  } as any)
+const appTravelExpenseClaimIndexRoute =
+  appTravelExpenseClaimIndexRouteImport.update({
+    id: '/travel-expense/claim/',
+    path: '/travel-expense/claim/',
+    getParentRoute: () => appRouteRoute,
+  } as any)
 const appAttendanceApprovalRequestIdRejectRoute =
   appAttendanceApprovalRequestIdRejectRouteImport.update({
     id: '/reject',
@@ -819,6 +833,8 @@ export interface FileRoutesByFullPath {
   '/settings/notification/': typeof appSettingsNotificationIndexRoute
   '/settings/role-access/': typeof appSettingsRoleAccessIndexRoute
   '/settings/security/': typeof appSettingsSecurityIndexRoute
+  '/travel-expense/business-trip/': typeof appTravelExpenseBusinessTripIndexRoute
+  '/travel-expense/claim/': typeof appTravelExpenseClaimIndexRoute
   '/attendance/approval/$requestId/reject': typeof appAttendanceApprovalRequestIdRejectRoute
   '/attendance/management/exceptions/$exceptionId': typeof appAttendanceManagementExceptionsExceptionIdRoute
   '/attendance/management/shifts/assignments': typeof appAttendanceManagementShiftsAssignmentsRoute
@@ -928,6 +944,8 @@ export interface FileRoutesByTo {
   '/settings/notification': typeof appSettingsNotificationIndexRoute
   '/settings/role-access': typeof appSettingsRoleAccessIndexRoute
   '/settings/security': typeof appSettingsSecurityIndexRoute
+  '/travel-expense/business-trip': typeof appTravelExpenseBusinessTripIndexRoute
+  '/travel-expense/claim': typeof appTravelExpenseClaimIndexRoute
   '/attendance/approval/$requestId/reject': typeof appAttendanceApprovalRequestIdRejectRoute
   '/attendance/management/exceptions/$exceptionId': typeof appAttendanceManagementExceptionsExceptionIdRoute
   '/attendance/management/shifts/assignments': typeof appAttendanceManagementShiftsAssignmentsRoute
@@ -1039,6 +1057,8 @@ export interface FileRoutesById {
   '/(app)/settings/notification/': typeof appSettingsNotificationIndexRoute
   '/(app)/settings/role-access/': typeof appSettingsRoleAccessIndexRoute
   '/(app)/settings/security/': typeof appSettingsSecurityIndexRoute
+  '/(app)/travel-expense/business-trip/': typeof appTravelExpenseBusinessTripIndexRoute
+  '/(app)/travel-expense/claim/': typeof appTravelExpenseClaimIndexRoute
   '/(app)/attendance/approval/$requestId/reject': typeof appAttendanceApprovalRequestIdRejectRoute
   '/(app)/attendance/management/exceptions/$exceptionId': typeof appAttendanceManagementExceptionsExceptionIdRoute
   '/(app)/attendance/management/shifts/assignments': typeof appAttendanceManagementShiftsAssignmentsRoute
@@ -1150,6 +1170,8 @@ export interface FileRouteTypes {
     | '/settings/notification/'
     | '/settings/role-access/'
     | '/settings/security/'
+    | '/travel-expense/business-trip/'
+    | '/travel-expense/claim/'
     | '/attendance/approval/$requestId/reject'
     | '/attendance/management/exceptions/$exceptionId'
     | '/attendance/management/shifts/assignments'
@@ -1259,6 +1281,8 @@ export interface FileRouteTypes {
     | '/settings/notification'
     | '/settings/role-access'
     | '/settings/security'
+    | '/travel-expense/business-trip'
+    | '/travel-expense/claim'
     | '/attendance/approval/$requestId/reject'
     | '/attendance/management/exceptions/$exceptionId'
     | '/attendance/management/shifts/assignments'
@@ -1369,6 +1393,8 @@ export interface FileRouteTypes {
     | '/(app)/settings/notification/'
     | '/(app)/settings/role-access/'
     | '/(app)/settings/security/'
+    | '/(app)/travel-expense/business-trip/'
+    | '/(app)/travel-expense/claim/'
     | '/(app)/attendance/approval/$requestId/reject'
     | '/(app)/attendance/management/exceptions/$exceptionId'
     | '/(app)/attendance/management/shifts/assignments'
@@ -1993,6 +2019,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof appSettingsSecuritySessionRouteImport
       parentRoute: typeof appRouteRoute
     }
+    '/(app)/travel-expense/business-trip/': {
+      id: '/(app)/travel-expense/business-trip/'
+      path: '/travel-expense/business-trip'
+      fullPath: '/travel-expense/business-trip/'
+      preLoaderRoute: typeof appTravelExpenseBusinessTripIndexRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/travel-expense/claim/': {
+      id: '/(app)/travel-expense/claim/'
+      path: '/travel-expense/claim'
+      fullPath: '/travel-expense/claim/'
+      preLoaderRoute: typeof appTravelExpenseClaimIndexRouteImport
+      parentRoute: typeof appRouteRoute
+    }
     '/(app)/attendance/approval/$requestId/reject': {
       id: '/(app)/attendance/approval/$requestId/reject'
       path: '/reject'
@@ -2259,6 +2299,8 @@ interface appRouteRouteChildren {
   appSettingsNotificationIndexRoute: typeof appSettingsNotificationIndexRoute
   appSettingsRoleAccessIndexRoute: typeof appSettingsRoleAccessIndexRoute
   appSettingsSecurityIndexRoute: typeof appSettingsSecurityIndexRoute
+  appTravelExpenseBusinessTripIndexRoute: typeof appTravelExpenseBusinessTripIndexRoute
+  appTravelExpenseClaimIndexRoute: typeof appTravelExpenseClaimIndexRoute
   appAttendanceManagementExceptionsExceptionIdRoute: typeof appAttendanceManagementExceptionsExceptionIdRoute
   appAttendanceManagementShiftsAssignmentsRoute: typeof appAttendanceManagementShiftsAssignmentsRoute
   appAttendanceManagementShiftsSetupRoute: typeof appAttendanceManagementShiftsSetupRoute
@@ -2368,6 +2410,9 @@ const appRouteRouteChildren: appRouteRouteChildren = {
   appSettingsNotificationIndexRoute: appSettingsNotificationIndexRoute,
   appSettingsRoleAccessIndexRoute: appSettingsRoleAccessIndexRoute,
   appSettingsSecurityIndexRoute: appSettingsSecurityIndexRoute,
+  appTravelExpenseBusinessTripIndexRoute:
+    appTravelExpenseBusinessTripIndexRoute,
+  appTravelExpenseClaimIndexRoute: appTravelExpenseClaimIndexRoute,
   appAttendanceManagementExceptionsExceptionIdRoute:
     appAttendanceManagementExceptionsExceptionIdRoute,
   appAttendanceManagementShiftsAssignmentsRoute:

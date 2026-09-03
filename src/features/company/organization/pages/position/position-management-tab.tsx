@@ -50,6 +50,7 @@ import {
   TableRow,
 } from '@/shared/components/ui/table'
 import { Textarea } from '@/shared/components/ui/textarea'
+import { TablePagination } from '@/shared/components/ui/table-pagination'
 import { snackbar } from '@/shared/lib/snackbar'
 
 export function PositionManagementTab() {
@@ -58,6 +59,8 @@ export function PositionManagementTab() {
   const [deptFilter, setDeptFilter] = useState<string>('all')
   const [levelFilter, setLevelFilter] = useState<string>('all')
   const [statusFilter, setStatusFilter] = useState<string>('all')
+  const [currentPage, setCurrentPage] = useState(1)
+  const [pageSize, setPageSize] = useState(5)
 
   // Form Modal State
   const [formOpen, setFormOpen] = useState(false)
@@ -95,6 +98,11 @@ export function PositionManagementTab() {
     const matchesStatus = statusFilter === 'all' || pos.status === statusFilter
     return matchesSearch && matchesDept && matchesLevel && matchesStatus
   })
+
+  const paginatedPositions = filteredPositions.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize,
+  )
 
   const handleOpenCreate = () => {
     setFormMode('create')
@@ -212,13 +220,22 @@ export function PositionManagementTab() {
             <IconSearch size={14} className='absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground' />
             <Input
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => {
+                setSearchQuery(e.target.value)
+                setCurrentPage(1)
+              }}
               placeholder='Search position title or code...'
               className='h-9 pl-9 text-xs bg-background rounded-xl w-full'
             />
           </div>
 
-          <Select value={deptFilter} onValueChange={setDeptFilter}>
+          <Select
+            value={deptFilter}
+            onValueChange={(val) => {
+              setDeptFilter(val)
+              setCurrentPage(1)
+            }}
+          >
             <SelectTrigger className='h-9 w-full sm:w-40 text-xs bg-background rounded-xl'>
               <SelectValue placeholder='All Depts' />
             </SelectTrigger>
@@ -232,7 +249,13 @@ export function PositionManagementTab() {
             </SelectContent>
           </Select>
 
-          <Select value={levelFilter} onValueChange={setLevelFilter}>
+          <Select
+            value={levelFilter}
+            onValueChange={(val) => {
+              setLevelFilter(val)
+              setCurrentPage(1)
+            }}
+          >
             <SelectTrigger className='h-9 w-full sm:w-32 text-xs bg-background rounded-xl'>
               <SelectValue placeholder='Job Level' />
             </SelectTrigger>
@@ -245,7 +268,13 @@ export function PositionManagementTab() {
             </SelectContent>
           </Select>
 
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <Select
+            value={statusFilter}
+            onValueChange={(val) => {
+              setStatusFilter(val)
+              setCurrentPage(1)
+            }}
+          >
             <SelectTrigger className='h-9 w-full sm:w-28 text-xs bg-background rounded-xl'>
               <SelectValue placeholder='Status' />
             </SelectTrigger>
@@ -290,7 +319,7 @@ export function PositionManagementTab() {
                 </TableCell>
               </TableRow>
             ) : (
-              filteredPositions.map((pos) => {
+              paginatedPositions.map((pos) => {
                 const percent = Math.min(100, Math.round((pos.headcountCurrent / pos.headcountLimit) * 100))
                 return (
                   <TableRow key={pos.id} className='hover:bg-muted/30 transition-colors'>
@@ -365,24 +394,24 @@ export function PositionManagementTab() {
                     </TableCell>
                     <TableCell className='text-right'>
                       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
+                        <DropdownMenuTrigger asChild>
                           <button className='size-7 rounded-lg hover:bg-muted inline-flex items-center justify-center text-muted-foreground transition-colors'>
                             <IconDotsVertical size={14} />
                           </button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align='end' className='w-40 rounded-xl'>
-                        <DropdownMenuItem
-                          onClick={() => {
-                            setSelectedDetailPos(pos)
-                            setDetailOpen(true)
-                          }}
-                          className='text-xs'
-                        >
-                          <IconEye size={14} className='mr-2 text-primary' /> View Detail
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleOpenEdit(pos)} className='text-xs'>
-                          <IconEdit size={14} className='mr-2 text-muted-foreground' /> Edit Position
-                        </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => {
+                              setSelectedDetailPos(pos)
+                              setDetailOpen(true)
+                            }}
+                            className='text-xs'
+                          >
+                            <IconEye size={14} className='mr-2 text-primary' /> View Detail
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleOpenEdit(pos)} className='text-xs'>
+                            <IconEdit size={14} className='mr-2 text-muted-foreground' /> Edit Position
+                          </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={() => {
                               setPosToDelete(pos)
@@ -401,6 +430,17 @@ export function PositionManagementTab() {
             )}
           </TableBody>
         </Table>
+
+        {/* Table Pagination */}
+        <TablePagination
+          itemLabel='posisi jabatan'
+          totalItems={filteredPositions.length}
+          currentPage={currentPage}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+          onPageSizeChange={setPageSize}
+          pageSizeOptions={[5, 10, 20]}
+        />
       </div>
 
       {/* ── Add / Edit Position Modal ──────────────────────────────────────── */}
