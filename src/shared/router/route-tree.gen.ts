@@ -30,7 +30,6 @@ import { Route as appLeaveHistoryRouteImport } from './../../routes/(app)/leave/
 import { Route as appOvertimeIndexRouteImport } from './../../routes/(app)/overtime/index'
 import { Route as appOvertimeHistoryRouteImport } from './../../routes/(app)/overtime/history'
 import { Route as appPayrollIndexRouteImport } from './../../routes/(app)/payroll/index'
-import { Route as appPerformanceIndexRouteImport } from './../../routes/(app)/performance/index'
 import { Route as appReportIndexRouteImport } from './../../routes/(app)/report/index'
 import { Route as appdashboardDashboardCustomizeRouteImport } from './../../routes/(app)/(dashboard)/dashboard.customize'
 import { Route as appdashboardDashboardEmployeeRouteImport } from './../../routes/(app)/(dashboard)/dashboard.employee'
@@ -224,11 +223,6 @@ const appOvertimeHistoryRoute = appOvertimeHistoryRouteImport.update({
 const appPayrollIndexRoute = appPayrollIndexRouteImport.update({
   id: '/payroll/',
   path: '/payroll/',
-  getParentRoute: () => appRouteRoute,
-} as any)
-const appPerformanceIndexRoute = appPerformanceIndexRouteImport.update({
-  id: '/performance/',
-  path: '/performance/',
   getParentRoute: () => appRouteRoute,
 } as any)
 const appReportIndexRoute = appReportIndexRouteImport.update({
@@ -770,7 +764,6 @@ export interface FileRoutesByFullPath {
   '/leave/': typeof appLeaveIndexRoute
   '/overtime/': typeof appOvertimeIndexRoute
   '/payroll/': typeof appPayrollIndexRoute
-  '/performance/': typeof appPerformanceIndexRoute
   '/report/': typeof appReportIndexRoute
   '/dashboard/customize': typeof appdashboardDashboardCustomizeRoute
   '/dashboard/employee': typeof appdashboardDashboardEmployeeRoute
@@ -881,7 +874,6 @@ export interface FileRoutesByTo {
   '/leave': typeof appLeaveIndexRoute
   '/overtime': typeof appOvertimeIndexRoute
   '/payroll': typeof appPayrollIndexRoute
-  '/performance': typeof appPerformanceIndexRoute
   '/report': typeof appReportIndexRoute
   '/dashboard/customize': typeof appdashboardDashboardCustomizeRoute
   '/dashboard/employee': typeof appdashboardDashboardEmployeeRoute
@@ -994,7 +986,6 @@ export interface FileRoutesById {
   '/(app)/leave/': typeof appLeaveIndexRoute
   '/(app)/overtime/': typeof appOvertimeIndexRoute
   '/(app)/payroll/': typeof appPayrollIndexRoute
-  '/(app)/performance/': typeof appPerformanceIndexRoute
   '/(app)/report/': typeof appReportIndexRoute
   '/(app)/(dashboard)/dashboard/customize': typeof appdashboardDashboardCustomizeRoute
   '/(app)/(dashboard)/dashboard/employee': typeof appdashboardDashboardEmployeeRoute
@@ -1107,7 +1098,6 @@ export interface FileRouteTypes {
     | '/leave/'
     | '/overtime/'
     | '/payroll/'
-    | '/performance/'
     | '/report/'
     | '/dashboard/customize'
     | '/dashboard/employee'
@@ -1218,7 +1208,6 @@ export interface FileRouteTypes {
     | '/leave'
     | '/overtime'
     | '/payroll'
-    | '/performance'
     | '/report'
     | '/dashboard/customize'
     | '/dashboard/employee'
@@ -1330,7 +1319,6 @@ export interface FileRouteTypes {
     | '/(app)/leave/'
     | '/(app)/overtime/'
     | '/(app)/payroll/'
-    | '/(app)/performance/'
     | '/(app)/report/'
     | '/(app)/(dashboard)/dashboard/customize'
     | '/(app)/(dashboard)/dashboard/employee'
@@ -1576,13 +1564,6 @@ declare module '@tanstack/react-router' {
       path: '/payroll'
       fullPath: '/payroll/'
       preLoaderRoute: typeof appPayrollIndexRouteImport
-      parentRoute: typeof appRouteRoute
-    }
-    '/(app)/performance/': {
-      id: '/(app)/performance/'
-      path: '/performance'
-      fullPath: '/performance/'
-      preLoaderRoute: typeof appPerformanceIndexRouteImport
       parentRoute: typeof appRouteRoute
     }
     '/(app)/report/': {
@@ -2236,7 +2217,6 @@ interface appRouteRouteChildren {
   appLeaveIndexRoute: typeof appLeaveIndexRoute
   appOvertimeIndexRoute: typeof appOvertimeIndexRoute
   appPayrollIndexRoute: typeof appPayrollIndexRoute
-  appPerformanceIndexRoute: typeof appPerformanceIndexRoute
   appReportIndexRoute: typeof appReportIndexRoute
   appdashboardDashboardCustomizeRoute: typeof appdashboardDashboardCustomizeRoute
   appdashboardDashboardEmployeeRoute: typeof appdashboardDashboardEmployeeRoute
@@ -2343,7 +2323,6 @@ const appRouteRouteChildren: appRouteRouteChildren = {
   appLeaveIndexRoute: appLeaveIndexRoute,
   appOvertimeIndexRoute: appOvertimeIndexRoute,
   appPayrollIndexRoute: appPayrollIndexRoute,
-  appPerformanceIndexRoute: appPerformanceIndexRoute,
   appReportIndexRoute: appReportIndexRoute,
   appdashboardDashboardCustomizeRoute: appdashboardDashboardCustomizeRoute,
   appdashboardDashboardEmployeeRoute: appdashboardDashboardEmployeeRoute,

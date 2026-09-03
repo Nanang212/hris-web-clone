@@ -178,12 +178,6 @@ export const mainMenu: Menu[] = [
     ],
   },
   {
-    key: 'payroll',
-    to: '/payroll',
-    icon: IconReportMoney,
-    title: m.app_layout_nav_payroll,
-  },
-  {
     key: 'travel-expense',
     to: '.',
     icon: IconPlaneTilt,
@@ -202,10 +196,10 @@ export const mainMenu: Menu[] = [
     ],
   },
   {
-    key: 'performance',
-    to: '/performance',
-    icon: IconChecklist,
-    title: m.app_layout_nav_performance,
+    key: 'payroll',
+    to: '/payroll',
+    icon: IconReportMoney,
+    title: m.app_layout_nav_payroll,
   },
   {
     key: 'report',
