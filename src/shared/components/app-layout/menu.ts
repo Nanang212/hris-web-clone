@@ -220,11 +220,6 @@ export const mainMenu: Menu[] = [
     title: m.app_layout_nav_settings,
     items: [
       {
-        key: 'approval-workflow',
-        title: m.app_layout_nav_approval_workflow,
-        to: '/settings/approval-workflow',
-      },
-      {
         key: 'company',
         title: m.app_layout_nav_company,
         to: '/settings/company',
@@ -239,6 +234,11 @@ export const mainMenu: Menu[] = [
         key: 'master-data',
         title: m.app_layout_nav_master_data,
         to: '/settings/master-data',
+      },
+      {
+        key: 'approval-workflow',
+        title: m.app_layout_nav_approval_workflow,
+        to: '/settings/approval-workflow',
       },
       {
         key: 'notification',
