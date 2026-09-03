@@ -7,7 +7,9 @@ export type ApproverType = 'role' | 'user' | 'dynamic' | 'department_head' | 'di
 export type ModuleType =
   | 'leave'
   | 'overtime'
+  | 'claim'
   | 'reimbursement'
+  | 'business_trip'
   | 'loan'
   | 'resignation'
   | 'transfer'

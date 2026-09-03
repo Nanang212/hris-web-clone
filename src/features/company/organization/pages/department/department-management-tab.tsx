@@ -50,6 +50,7 @@ import {
   TableRow,
 } from '@/shared/components/ui/table'
 import { Textarea } from '@/shared/components/ui/textarea'
+import { TablePagination } from '@/shared/components/ui/table-pagination'
 import { snackbar } from '@/shared/lib/snackbar'
 
 export function DepartmentManagementTab() {
@@ -57,6 +58,8 @@ export function DepartmentManagementTab() {
   const [searchQuery, setSearchQuery] = useState('')
   const [divisionFilter, setDivisionFilter] = useState<string>('all')
   const [statusFilter, setStatusFilter] = useState<string>('all')
+  const [currentPage, setCurrentPage] = useState(1)
+  const [pageSize, setPageSize] = useState(5)
 
   // Form Modal State
   const [formOpen, setFormOpen] = useState(false)
@@ -92,6 +95,11 @@ export function DepartmentManagementTab() {
     const matchesStatus = statusFilter === 'all' || dept.status === statusFilter
     return matchesSearch && matchesDivision && matchesStatus
   })
+
+  const paginatedDepartments = filteredDepartments.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize,
+  )
 
   const handleOpenCreate = () => {
     setFormMode('create')
@@ -213,13 +221,22 @@ export function DepartmentManagementTab() {
             <IconSearch size={14} className='absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground' />
             <Input
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => {
+                setSearchQuery(e.target.value)
+                setCurrentPage(1)
+              }}
               placeholder='Search department name or code...'
               className='h-9 pl-9 text-xs bg-background rounded-xl w-full'
             />
           </div>
 
-          <Select value={divisionFilter} onValueChange={setDivisionFilter}>
+          <Select
+            value={divisionFilter}
+            onValueChange={(val) => {
+              setDivisionFilter(val)
+              setCurrentPage(1)
+            }}
+          >
             <SelectTrigger className='h-9 w-full sm:w-44 text-xs bg-background rounded-xl'>
               <SelectValue placeholder='All Divisions' />
             </SelectTrigger>
@@ -233,7 +250,13 @@ export function DepartmentManagementTab() {
             </SelectContent>
           </Select>
 
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <Select
+            value={statusFilter}
+            onValueChange={(val) => {
+              setStatusFilter(val)
+              setCurrentPage(1)
+            }}
+          >
             <SelectTrigger className='h-9 w-full sm:w-32 text-xs bg-background rounded-xl'>
               <SelectValue placeholder='Status' />
             </SelectTrigger>
@@ -278,7 +301,7 @@ export function DepartmentManagementTab() {
                 </TableCell>
               </TableRow>
             ) : (
-              filteredDepartments.map((dept) => (
+              paginatedDepartments.map((dept) => (
                 <TableRow key={dept.id} className='hover:bg-muted/30 transition-colors'>
                   <TableCell className='text-xs font-mono font-bold text-primary'>
                     {dept.code}
@@ -364,6 +387,17 @@ export function DepartmentManagementTab() {
             )}
           </TableBody>
         </Table>
+
+        {/* Table Pagination */}
+        <TablePagination
+          itemLabel='departemen'
+          totalItems={filteredDepartments.length}
+          currentPage={currentPage}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+          onPageSizeChange={setPageSize}
+          pageSizeOptions={[5, 10, 20]}
+        />
       </div>
 
       {/* ── Add / Edit Department Modal ────────────────────────────────────── */}

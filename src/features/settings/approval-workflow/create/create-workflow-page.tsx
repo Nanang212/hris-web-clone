@@ -20,7 +20,8 @@ import { cn } from '@/shared/lib/utils'
 const moduleOptions: { value: ModuleType; label: string; description: string }[] = [
   { value: 'leave', label: 'Cuti', description: 'Pengajuan cuti dan izin karyawan' },
   { value: 'overtime', label: 'Lembur', description: 'Pengajuan jam kerja tambahan' },
-  { value: 'reimbursement', label: 'Reimburse', description: 'Klaim penggantian biaya' },
+  { value: 'claim', label: 'Klaim Reimbursement', description: 'Klaim biaya operasional, medis, transport & makan' },
+  { value: 'business_trip', label: 'Perjalanan Dinas', description: 'Pengajuan dinas luar kota/negeri & uang muka' },
   { value: 'loan', label: 'Pinjaman', description: 'Pengajuan pinjaman karyawan' },
   { value: 'resignation', label: 'Pengunduran Diri', description: 'Proses resign karyawan' },
   { value: 'transfer', label: 'Transfer', description: 'Perpindahan unit / lokasi kerja' },
@@ -30,9 +31,13 @@ const moduleOptions: { value: ModuleType; label: string; description: string }[]
 const moduleColorMap: Record<string, string> = {
   leave: 'border-blue-400 bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300',
   overtime: 'border-amber-400 bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-300',
+  claim:
+    'border-emerald-400 bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-300',
   reimbursement:
     'border-emerald-400 bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-300',
-  loan: 'border-purple-400 bg-purple-50 text-purple-700 dark:bg-purple-900/20 dark:text-purple-300',
+  business_trip:
+    'border-purple-400 bg-purple-50 text-purple-700 dark:bg-purple-900/20 dark:text-purple-300',
+  loan: 'border-indigo-400 bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-300',
   resignation: 'border-red-400 bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-300',
   transfer: 'border-cyan-400 bg-cyan-50 text-cyan-700 dark:bg-cyan-900/20 dark:text-cyan-300',
   promotion:
