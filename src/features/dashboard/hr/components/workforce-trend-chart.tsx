@@ -1,73 +1,64 @@
+import { CartesianGrid, Line, LineChart, XAxis, YAxis } from 'recharts'
+
+import {
+  ChartContainer,
+  ChartLegend,
+  ChartLegendContent,
+  ChartTooltip,
+  ChartTooltipContent,
+  type ChartConfig,
+} from '@/shared/components/ui/chart'
+import { m } from '@/i18n/paraglide/messages'
+
+const chartData = [
+  { month: 'Jan', headcount: 138, attendance: 91 },
+  { month: 'Mar', headcount: 141, attendance: 92 },
+  { month: 'May', headcount: 145, attendance: 94 },
+  { month: 'Jul', headcount: 149, attendance: 95 },
+  { month: 'Sep', headcount: 153, attendance: 94 },
+  { month: 'Nov', headcount: 156, attendance: 96 },
+]
+
+const chartConfig = {
+  headcount: { label: 'Headcount', color: 'var(--chart-1)' },
+  attendance: { label: 'Attendance', color: 'var(--chart-2)' },
+} satisfies ChartConfig
+
 export function WorkforceTrendChart() {
-  // A simple CSS-based or SVG-based line chart placeholder
-  // that mimics the visual in the design without needing recharts.
   return (
-    <div className="flex flex-col rounded-2xl bg-card p-5 shadow-sm ring-1 ring-foreground/5">
-      <div className="mb-6 flex flex-col justify-between sm:flex-row sm:items-center">
-        <div>
-          <h3 className="text-sm font-semibold">Workforce & Attendance Trend</h3>
-          <p className="text-xs text-muted-foreground">
-            Headcount growth vs attendance rate · last 12 months
-          </p>
-        </div>
-        <div className="mt-3 flex items-center gap-4 sm:mt-0">
-          <div className="flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full bg-blue-500" />
-            <span className="text-xs font-medium text-muted-foreground">
-              Headcount
-            </span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full bg-emerald-500" />
-            <span className="text-xs font-medium text-muted-foreground">
-              Attendance
-            </span>
-          </div>
-        </div>
+    <div className='flex flex-col gap-4 rounded-2xl bg-card p-5 shadow-sm ring-1 ring-foreground/5'>
+      <div>
+        <h3 className='text-sm font-semibold'>{m.dashboard_workforce_attendance_trend()}</h3>
+        <p className='text-xs text-muted-foreground'>
+          {m.dashboard_workforce_attendance_trend_sub()}
+        </p>
       </div>
-
-      <div className="relative h-[220px] w-full">
-        {/* Y-axis grid lines */}
-        <div className="absolute inset-0 flex flex-col justify-between pt-4 pb-8">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="w-full border-t border-border/50" />
-          ))}
-        </div>
-
-        {/* X-axis labels */}
-        <div className="absolute bottom-0 left-0 right-0 flex justify-between px-4 text-[10px] font-medium text-muted-foreground">
-          <span>Jan</span>
-          <span>Mar</span>
-          <span>May</span>
-          <span>Jul</span>
-          <span>Sep</span>
-          <span>Nov</span>
-        </div>
-
-        {/* Chart Lines (SVG placeholder for visual representation) */}
-        <svg
-          viewBox="0 0 1000 200"
-          className="absolute inset-0 h-[200px] w-full overflow-visible"
-          preserveAspectRatio="none"
-        >
-          {/* Attendance Line (Green) */}
-          <path
-            d="M 0 150 Q 150 145 250 130 T 450 110 T 650 95 T 850 105 T 1000 85"
-            fill="none"
-            stroke="var(--color-emerald-500, #10b981)"
-            strokeWidth="3"
-            strokeLinecap="round"
+      <ChartContainer config={chartConfig} className='h-55 w-full'>
+        <LineChart accessibilityLayer data={chartData} margin={{ left: 0, right: 12 }}>
+          <CartesianGrid vertical={false} />
+          <XAxis dataKey='month' tickLine={false} axisLine={false} tickMargin={8} />
+          <YAxis yAxisId='headcount' hide domain={['dataMin - 5', 'dataMax + 5']} />
+          <YAxis yAxisId='attendance' hide orientation='right' domain={[85, 100]} />
+          <ChartTooltip content={<ChartTooltipContent />} />
+          <ChartLegend content={<ChartLegendContent />} />
+          <Line
+            yAxisId='headcount'
+            dataKey='headcount'
+            type='monotone'
+            stroke='var(--color-headcount)'
+            strokeWidth={2}
+            dot={false}
           />
-          {/* Headcount Line (Blue) */}
-          <path
-            d="M 0 160 Q 150 150 300 135 T 500 100 T 700 80 T 1000 60"
-            fill="none"
-            stroke="var(--color-blue-500, #3b82f6)"
-            strokeWidth="3"
-            strokeLinecap="round"
+          <Line
+            yAxisId='attendance'
+            dataKey='attendance'
+            type='monotone'
+            stroke='var(--color-attendance)'
+            strokeWidth={2}
+            dot={false}
           />
-        </svg>
-      </div>
+        </LineChart>
+      </ChartContainer>
     </div>
   )
 }

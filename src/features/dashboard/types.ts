@@ -123,3 +123,52 @@ export interface ManagerDashboardData {
   }[]
   healthInsight?: string
 }
+
+export type WidgetCategory = 'all' | 'people' | 'time' | 'payroll'
+
+export interface CatalogWidget {
+  id: string
+  abbr: string
+  abbrColor: string
+  name: () => string
+  desc: () => string
+  category: WidgetCategory[]
+  active: boolean
+}
+
+export interface CanvasWidget {
+  id: string
+  name: string
+  size: 'S' | 'M' | 'L'
+  dateRange: string
+  active: boolean
+  colSpan?: 1 | 2
+}
+
+export interface SelectedWidget {
+  id: string
+  name: string
+  previewLabel?: string
+  previewValue?: string
+  previewSub?: string
+  previewBadge?: string
+  previewBadgeColor?: string
+}
+
+export interface WidgetConfig {
+  widgetId: string
+  dateRange: string
+  visualization: string
+  size: 'S' | 'M' | 'L'
+  displayComparison: boolean
+}
+
+export interface WidgetConfigModalResult {
+  widgetId: string
+  dateRange: string
+  compareWith: string
+  visualization: string
+  refreshFrequency: string
+  size: 'S' | 'M' | 'L'
+  showComparison: boolean
+}

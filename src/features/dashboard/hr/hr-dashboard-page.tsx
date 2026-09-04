@@ -1,5 +1,9 @@
 import { IconAlertTriangle, IconCalendarCheck, IconUserCheck, IconUsers } from '@tabler/icons-react'
+import dayjs from 'dayjs'
 
+import { AppMain } from '@/shared/components/app-layout/app-main'
+import { SkeletonPattern } from '@/shared/components/skeleton-pattern'
+import { Button } from '@/shared/components/ui/button'
 import { StatCard } from '@/features/dashboard/components/stat-card'
 import { useGetHrDashboard } from '@/features/dashboard/hooks'
 import { AnnouncementBanner } from '@/features/dashboard/hr/components/announcement-banner'
@@ -11,11 +15,8 @@ import {
 import { AlertBanner, HrActionCenter } from '@/features/dashboard/hr/components/hr-action-center'
 import { WorkforceTrendChart } from '@/features/dashboard/hr/components/workforce-trend-chart'
 import { m } from '@/i18n/paraglide/messages'
-import { AppMain } from '@/shared/components/app-layout/app-main'
-import { SkeletonPattern } from '@/shared/components/skeleton-pattern'
-import { Button } from '@/shared/components/ui/button'
 
-export function DashboardPage() {
+export function HrDashboardPage() {
   const { data, isPending, error } = useGetHrDashboard()
 
   if (isPending || error || !data) {
@@ -45,15 +46,15 @@ export function DashboardPage() {
   return (
     <AppMain
       breadcrumbs={[
-        { to: '/', label: 'Dashboard' },
-        { to: '.', label: 'HR' },
+        { to: '/', label: m.app_layout_nav_dashboard() },
+        { to: '.', label: m.app_layout_nav_dashboard_hr() },
       ]}
       title={m.dashboard_hr_title()}
       subtitle={m.dashboard_hr_subtitle()}
       actions={
         <>
           <Button size='sm' variant='outline'>
-            16 May 2025
+            {dayjs().format('DD MMM YYYY')}
           </Button>
           <Button size='sm'>{m.dashboard_all_locations()}</Button>
           <Button size='sm'>{m.dashboard_customize()}</Button>
@@ -62,8 +63,9 @@ export function DashboardPage() {
     >
       {/* Alert Banner */}
       <AlertBanner
-        count={data.employmentAlerts}
-        message='Prioritize overdue approvals, expiring contracts, MCU due dates, and incomplete employee documents.'
+        title={m.dashboard_hr_actions_attention({ count: data.employmentAlerts })}
+        message={m.dashboard_hr_actions_attention_description()}
+        actionLabel={m.dashboard_open_action_center()}
       />
 
       {/* KPI Stats */}
@@ -74,7 +76,7 @@ export function DashboardPage() {
           subLabel='+5.2% vs last month'
           subLabelVariant='success'
           icon={IconUsers}
-          iconBg='bg-blue-100 dark:bg-blue-900/40'
+          iconVariant='default'
         />
         <StatCard
           label={m.dashboard_stat_present_today()}
@@ -82,7 +84,7 @@ export function DashboardPage() {
           subLabel={`${data.presentPercentage}% attendance`}
           subLabelVariant='success'
           icon={IconCalendarCheck}
-          iconBg='bg-emerald-100 dark:bg-emerald-900/40'
+          iconVariant='success'
         />
         <StatCard
           label={m.dashboard_stat_pending_approvals()}
@@ -90,7 +92,7 @@ export function DashboardPage() {
           subLabel={`${data.overdueApprovals} overdue`}
           subLabelVariant='warning'
           icon={IconUserCheck}
-          iconBg='bg-amber-100 dark:bg-amber-900/40'
+          iconVariant='warning'
         />
         <StatCard
           label={m.dashboard_stat_employment_alerts()}
@@ -98,7 +100,7 @@ export function DashboardPage() {
           subLabel='Contract · MCU · Docs'
           subLabelVariant='danger'
           icon={IconAlertTriangle}
-          iconBg='bg-red-100 dark:bg-red-900/40'
+          iconVariant='danger'
         />
       </div>
 

@@ -1,5 +1,9 @@
 import { IconArrowUpRight, IconTrendingDown, IconUsers, IconWallet } from '@tabler/icons-react'
+import dayjs from 'dayjs'
 
+import { AppMain } from '@/shared/components/app-layout/app-main'
+import { SkeletonPattern } from '@/shared/components/skeleton-pattern'
+import { Button } from '@/shared/components/ui/button'
 import { StatCard } from '@/features/dashboard/components/stat-card'
 import { ExecutiveAttention } from '@/features/dashboard/executive/components/executive-attention'
 import {
@@ -10,9 +14,6 @@ import {
 } from '@/features/dashboard/executive/components/executive-charts-cards'
 import { useGetExecutiveDashboard } from '@/features/dashboard/hooks'
 import { m } from '@/i18n/paraglide/messages'
-import { AppMain } from '@/shared/components/app-layout/app-main'
-import { SkeletonPattern } from '@/shared/components/skeleton-pattern'
-import { Button } from '@/shared/components/ui/button'
 
 export function ExecutiveDashboardPage() {
   const { data, isPending, error } = useGetExecutiveDashboard()
@@ -44,15 +45,15 @@ export function ExecutiveDashboardPage() {
   return (
     <AppMain
       breadcrumbs={[
-        { to: '/', label: 'Dashboard' },
-        { to: '.', label: 'Executive' },
+        { to: '/', label: m.app_layout_nav_dashboard() },
+        { to: '.', label: m.app_layout_nav_dashboard_executive() },
       ]}
       title={m.dashboard_executive_title()}
       subtitle={m.dashboard_executive_subtitle()}
       actions={
         <>
           <Button size='sm' variant='outline'>
-            16 May 2025
+            {dayjs().format('DD MMM YYYY')}
           </Button>
           <Button size='sm'>{m.dashboard_all_companies()}</Button>
           <Button size='sm'>{m.dashboard_customize()}</Button>
@@ -61,7 +62,7 @@ export function ExecutiveDashboardPage() {
     >
       {/* Status Banner */}
       <div className='flex items-center gap-3 rounded-2xl bg-emerald-600 px-5 py-3.5 text-white shadow-sm'>
-        <div className='flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/20'>
+        <div className='flex size-9 shrink-0 items-center justify-center rounded-xl bg-white/20'>
           <IconArrowUpRight size={18} stroke={2} />
         </div>
         <div className='flex-1'>
@@ -72,12 +73,9 @@ export function ExecutiveDashboardPage() {
             percentage points.
           </p>
         </div>
-        <button
-          type='button'
-          className='shrink-0 rounded-lg bg-white/20 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-white/30'
-        >
+        <Button type='button' variant='secondary' size='xs' className='shrink-0'>
           {m.dashboard_view_executive_report()}
-        </button>
+        </Button>
       </div>
 
       {/* KPI Stats */}
@@ -88,7 +86,7 @@ export function ExecutiveDashboardPage() {
           subLabel={`+${data.headcountGrowth}% YTD`}
           subLabelVariant='success'
           icon={IconUsers}
-          iconBg='bg-blue-100 dark:bg-blue-900/40'
+          iconVariant='default'
         />
         <StatCard
           label={m.dashboard_stat_attendance_rate()}
@@ -96,7 +94,7 @@ export function ExecutiveDashboardPage() {
           subLabel={`+${data.attendanceRateChange} pts vs last month`}
           subLabelVariant='success'
           icon={IconArrowUpRight}
-          iconBg='bg-emerald-100 dark:bg-emerald-900/40'
+          iconVariant='success'
         />
         <StatCard
           label={m.dashboard_stat_payroll_cost()}
@@ -104,7 +102,7 @@ export function ExecutiveDashboardPage() {
           subLabel={`+${data.payrollCostChange}% vs budget`}
           subLabelVariant='warning'
           icon={IconWallet}
-          iconBg='bg-amber-100 dark:bg-amber-900/40'
+          iconVariant='warning'
         />
         <StatCard
           label={m.dashboard_stat_turnover()}
@@ -112,7 +110,7 @@ export function ExecutiveDashboardPage() {
           subLabel={`${data.turnoverChange} pts vs last quarter`}
           subLabelVariant={data.turnoverChange < 0 ? 'success' : 'danger'}
           icon={IconTrendingDown}
-          iconBg='bg-purple-100 dark:bg-purple-900/40'
+          iconVariant='default'
         />
       </div>
 
@@ -133,20 +131,17 @@ export function ExecutiveDashboardPage() {
       {data.highlight && (
         <div className='flex items-center justify-between rounded-2xl bg-card px-5 py-4 shadow-sm ring-1 ring-foreground/5'>
           <div className='flex items-center gap-3'>
-            <div className='flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300'>
+            <div className='flex size-9 shrink-0 items-center justify-center rounded-xl bg-muted text-muted-foreground'>
               <span className='text-xs font-bold'>INS</span>
             </div>
             <div>
-              <span className='text-sm font-semibold'>Executive highlight</span>
+              <span className='text-sm font-semibold'>{m.dashboard_executive_highlight()}</span>
               <p className='text-xs text-muted-foreground'>{data.highlight}</p>
             </div>
           </div>
-          <button
-            type='button'
-            className='shrink-0 rounded-lg border border-border px-3 py-1.5 text-xs font-medium transition-colors hover:bg-muted'
-          >
-            Open analytics
-          </button>
+          <Button type='button' variant='outline' size='xs'>
+            {m.dashboard_open_analytics()}
+          </Button>
         </div>
       )}
     </AppMain>

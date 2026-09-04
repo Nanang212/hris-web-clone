@@ -2,19 +2,8 @@
 import { IconCheck, IconPlus, IconSearch, IconX } from '@tabler/icons-react'
 import { useState } from 'react'
 
+import type { CatalogWidget, WidgetCategory } from '@/features/dashboard/types'
 import { m } from '@/i18n/paraglide/messages'
-
-export type WidgetCategory = 'all' | 'people' | 'time' | 'payroll'
-
-export interface CatalogWidget {
-  id: string
-  abbr: string
-  abbrColor: string
-  name: () => string
-  desc: () => string
-  category: WidgetCategory[]
-  active: boolean
-}
 
 interface WidgetCatalogProps {
   widgets: CatalogWidget[]
@@ -58,9 +47,7 @@ function AddWidgetModal({ onClose, onConfirm }: AddWidgetModalProps) {
   const [errors, setErrors] = useState<Record<string, string>>({})
 
   const toggleCategory = (cat: WidgetCategory) => {
-    setCategories((prev) =>
-      prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat],
-    )
+    setCategories((prev) => (prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat]))
   }
 
   const validate = () => {
@@ -141,13 +128,11 @@ function AddWidgetModal({ onClose, onConfirm }: AddWidgetModalProps) {
                 setErrors((prev) => ({ ...prev, name: '' }))
               }}
               placeholder={m.dashboard_widget_field_name_placeholder()}
-              className={`w-full rounded-lg border px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 ${
+              className={`w-full rounded-lg border px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/40 focus:outline-none ${
                 errors.name ? 'border-destructive' : 'border-border'
               } bg-background`}
             />
-            {errors.name && (
-              <p className='text-xs text-destructive'>{errors.name}</p>
-            )}
+            {errors.name && <p className='text-xs text-destructive'>{errors.name}</p>}
           </div>
 
           {/* Abbr + Color row */}
@@ -168,13 +153,11 @@ function AddWidgetModal({ onClose, onConfirm }: AddWidgetModalProps) {
                   setErrors((prev) => ({ ...prev, abbr: '' }))
                 }}
                 placeholder={m.dashboard_widget_field_abbr_placeholder()}
-                className={`w-full rounded-lg border px-3 py-2 text-sm font-mono uppercase text-foreground placeholder:normal-case placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 ${
+                className={`w-full rounded-lg border px-3 py-2 font-mono text-sm text-foreground uppercase placeholder:text-muted-foreground placeholder:normal-case focus:ring-2 focus:ring-primary/40 focus:outline-none ${
                   errors.abbr ? 'border-destructive' : 'border-border'
                 } bg-background`}
               />
-              {errors.abbr && (
-                <p className='text-xs text-destructive'>{errors.abbr}</p>
-              )}
+              {errors.abbr && <p className='text-xs text-destructive'>{errors.abbr}</p>}
             </div>
 
             {/* Badge preview */}
@@ -226,13 +209,11 @@ function AddWidgetModal({ onClose, onConfirm }: AddWidgetModalProps) {
                 setErrors((prev) => ({ ...prev, desc: '' }))
               }}
               placeholder={m.dashboard_widget_field_desc_placeholder()}
-              className={`w-full rounded-lg border px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 ${
+              className={`w-full rounded-lg border px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/40 focus:outline-none ${
                 errors.desc ? 'border-destructive' : 'border-border'
               } bg-background`}
             />
-            {errors.desc && (
-              <p className='text-xs text-destructive'>{errors.desc}</p>
-            )}
+            {errors.desc && <p className='text-xs text-destructive'>{errors.desc}</p>}
           </div>
 
           {/* Categories */}
@@ -261,9 +242,7 @@ function AddWidgetModal({ onClose, onConfirm }: AddWidgetModalProps) {
                 </button>
               ))}
             </div>
-            {errors.categories && (
-              <p className='text-xs text-destructive'>{errors.categories}</p>
-            )}
+            {errors.categories && <p className='text-xs text-destructive'>{errors.categories}</p>}
           </div>
 
           {/* Actions */}
@@ -311,9 +290,7 @@ export function WidgetCatalog({ widgets, onToggle, onAdd }: WidgetCatalogProps) 
       <div className='flex h-full flex-col gap-4'>
         {/* Header */}
         <div>
-          <p className='text-base font-semibold text-foreground'>
-            {m.dashboard_widget_catalog()}
-          </p>
+          <p className='text-base font-semibold text-foreground'>{m.dashboard_widget_catalog()}</p>
           <p className='text-xs text-muted-foreground'>{m.dashboard_widget_catalog_sub()}</p>
         </div>
 
@@ -321,7 +298,7 @@ export function WidgetCatalog({ widgets, onToggle, onAdd }: WidgetCatalogProps) 
         <div className='relative'>
           <IconSearch
             size={14}
-            className='absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground'
+            className='absolute top-1/2 left-3 -translate-y-1/2 text-muted-foreground'
           />
           <input
             id='widget-catalog-search'
@@ -329,12 +306,12 @@ export function WidgetCatalog({ widgets, onToggle, onAdd }: WidgetCatalogProps) 
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={m.dashboard_widget_search()}
-            className='w-full rounded-lg border border-border bg-background py-2 pl-8 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40'
+            className='w-full rounded-lg border border-border bg-background py-2 pr-3 pl-8 text-sm text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/40 focus:outline-none'
           />
         </div>
 
         {/* Category tabs — scroll horizontally when labels are long */}
-        <div className='flex gap-1.5 overflow-x-auto pb-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden'>
+        <div className='flex [scrollbar-width:none] gap-1.5 overflow-x-auto pb-0.5 [&::-webkit-scrollbar]:hidden'>
           {CATEGORIES.map((cat) => (
             <button
               key={cat.key}
@@ -407,12 +384,7 @@ export function WidgetCatalog({ widgets, onToggle, onAdd }: WidgetCatalogProps) 
       </div>
 
       {/* Add Widget Modal */}
-      {showAddModal && (
-        <AddWidgetModal
-          onClose={() => setShowAddModal(false)}
-          onConfirm={onAdd}
-        />
-      )}
+      {showAddModal && <AddWidgetModal onClose={() => setShowAddModal(false)} onConfirm={onAdd} />}
     </>
   )
 }
