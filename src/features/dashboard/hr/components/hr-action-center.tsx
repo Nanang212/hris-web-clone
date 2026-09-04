@@ -1,6 +1,12 @@
 import { IconAlertCircle, IconArrowRight } from '@tabler/icons-react'
 
-import { Alert, AlertDescription, AlertTitle } from '@/shared/components/ui/alert'
+import {
+  Alert,
+  AlertAction,
+  AlertDescription,
+  AlertIcon,
+  AlertTitle,
+} from '@/shared/components/ui/alert'
 import { Badge } from '@/shared/components/ui/badge'
 import { Button } from '@/shared/components/ui/button'
 import { m } from '@/i18n/paraglide/messages'
@@ -90,15 +96,19 @@ interface AlertBannerProps {
 
 export function AlertBanner({ title, message, actionLabel }: Readonly<AlertBannerProps>) {
   return (
-    <Alert className='flex items-center gap-3'>
-      <IconAlertCircle />
+    <Alert variant='warning'>
+      <AlertIcon>
+        <IconAlertCircle />
+      </AlertIcon>
       <div className='min-w-0 flex-1'>
         <AlertTitle>{title}</AlertTitle>
         <AlertDescription>{message}</AlertDescription>
       </div>
-      <Button type='button' variant='outline' size='xs' className='shrink-0'>
-        {actionLabel}
-      </Button>
+      <AlertAction>
+        <Button type='button' variant='outline' size='xs'>
+          {actionLabel}
+        </Button>
+      </AlertAction>
     </Alert>
   )
 }

@@ -3,6 +3,13 @@ import dayjs from 'dayjs'
 
 import { AppMain } from '@/shared/components/app-layout/app-main'
 import { SkeletonPattern } from '@/shared/components/skeleton-pattern'
+import {
+  Alert,
+  AlertAction,
+  AlertDescription,
+  AlertIcon,
+  AlertTitle,
+} from '@/shared/components/ui/alert'
 import { Button } from '@/shared/components/ui/button'
 import { StatCard } from '@/features/dashboard/components/stat-card'
 import { AttendanceDonutChart } from '@/features/dashboard/employee/components/attendance-donut-chart'
@@ -121,20 +128,20 @@ export function EmployeeDashboardPage() {
 
       {/* Company Announcement */}
       {data.announcement && (
-        <div className='flex items-center justify-between rounded-2xl bg-card px-5 py-4 shadow-sm ring-1 ring-foreground/5'>
-          <div className='flex items-center gap-3'>
-            <div className='flex size-9 shrink-0 items-center justify-center rounded-xl bg-muted text-muted-foreground'>
-              <span className='text-xs font-bold'>{data.announcement.tag}</span>
-            </div>
-            <div>
-              <span className='text-sm font-semibold'>{data.announcement.title}</span>
-              <p className='text-xs text-muted-foreground'>{data.announcement.summary}</p>
-            </div>
+        <Alert variant='info'>
+          <AlertIcon>
+            <span className='text-xs font-bold'>{data.announcement.tag}</span>
+          </AlertIcon>
+          <div className='min-w-0 flex-1'>
+            <AlertTitle>{data.announcement.title}</AlertTitle>
+            <AlertDescription>{data.announcement.summary}</AlertDescription>
           </div>
-          <Button type='button' variant='outline' size='xs'>
-            {data.announcement.readTime}
-          </Button>
-        </div>
+          <AlertAction>
+            <Button type='button' variant='outline' size='xs'>
+              {data.announcement.readTime}
+            </Button>
+          </AlertAction>
+        </Alert>
       )}
     </AppMain>
   )

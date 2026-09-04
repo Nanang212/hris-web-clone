@@ -3,6 +3,13 @@ import dayjs from 'dayjs'
 
 import { AppMain } from '@/shared/components/app-layout/app-main'
 import { SkeletonPattern } from '@/shared/components/skeleton-pattern'
+import {
+  Alert,
+  AlertAction,
+  AlertDescription,
+  AlertIcon,
+  AlertTitle,
+} from '@/shared/components/ui/alert'
 import { Button } from '@/shared/components/ui/button'
 import { StatCard } from '@/features/dashboard/components/stat-card'
 import { ExecutiveAttention } from '@/features/dashboard/executive/components/executive-attention'
@@ -61,22 +68,25 @@ export function ExecutiveDashboardPage() {
       }
     >
       {/* Status Banner */}
-      <div className='flex items-center gap-3 rounded-2xl bg-emerald-600 px-5 py-3.5 text-white shadow-sm'>
-        <div className='flex size-9 shrink-0 items-center justify-center rounded-xl bg-white/20'>
+      <Alert variant='success'>
+        <AlertIcon>
           <IconArrowUpRight size={18} stroke={2} />
+        </AlertIcon>
+        <div className='min-w-0 flex-1'>
+          <AlertTitle>{m.dashboard_workforce_stable()}</AlertTitle>
+          <AlertDescription>
+            {m.dashboard_workforce_stable_description({
+              growth: data.headcountGrowth,
+              turnover: Math.abs(data.turnoverChange),
+            })}
+          </AlertDescription>
         </div>
-        <div className='flex-1'>
-          <p className='text-sm font-semibold'>{m.dashboard_workforce_stable()}</p>
-          <p className='text-xs text-emerald-100'>
-            Headcount is up {data.headcountGrowth}% year-to-date while turnover is down{' '}
-            {Math.abs(data.turnoverChange)}
-            percentage points.
-          </p>
-        </div>
-        <Button type='button' variant='secondary' size='xs' className='shrink-0'>
-          {m.dashboard_view_executive_report()}
-        </Button>
-      </div>
+        <AlertAction>
+          <Button type='button' variant='outline' size='xs'>
+            {m.dashboard_view_executive_report()}
+          </Button>
+        </AlertAction>
+      </Alert>
 
       {/* KPI Stats */}
       <div className='grid grid-cols-2 gap-4 lg:grid-cols-4'>
@@ -129,20 +139,20 @@ export function ExecutiveDashboardPage() {
 
       {/* Executive Highlight */}
       {data.highlight && (
-        <div className='flex items-center justify-between rounded-2xl bg-card px-5 py-4 shadow-sm ring-1 ring-foreground/5'>
-          <div className='flex items-center gap-3'>
-            <div className='flex size-9 shrink-0 items-center justify-center rounded-xl bg-muted text-muted-foreground'>
-              <span className='text-xs font-bold'>INS</span>
-            </div>
-            <div>
-              <span className='text-sm font-semibold'>{m.dashboard_executive_highlight()}</span>
-              <p className='text-xs text-muted-foreground'>{data.highlight}</p>
-            </div>
+        <Alert variant='info'>
+          <AlertIcon>
+            <span className='text-xs font-bold'>INS</span>
+          </AlertIcon>
+          <div className='min-w-0 flex-1'>
+            <AlertTitle>{m.dashboard_executive_highlight()}</AlertTitle>
+            <AlertDescription>{data.highlight}</AlertDescription>
           </div>
-          <Button type='button' variant='outline' size='xs'>
-            {m.dashboard_open_analytics()}
-          </Button>
-        </div>
+          <AlertAction>
+            <Button type='button' variant='outline' size='xs'>
+              {m.dashboard_open_analytics()}
+            </Button>
+          </AlertAction>
+        </Alert>
       )}
     </AppMain>
   )

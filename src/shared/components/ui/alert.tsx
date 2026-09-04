@@ -4,11 +4,16 @@ import * as React from 'react'
 import { cn } from '@/shared/lib/utils'
 
 const alertVariants = cva(
-  "group/alert relative grid w-full gap-0.5 rounded-2xl border px-4 py-3 text-start text-sm has-data-[slot=alert-action]:relative has-data-[slot=alert-action]:pe-18 has-[>svg]:grid-cols-[auto_1fr] has-[>svg]:gap-x-2.5 *:[svg]:row-span-2 *:[svg]:translate-y-0.5 *:[svg]:text-current *:[svg:not([class*='size-'])]:size-4",
+  'group/alert flex w-full items-center gap-3 rounded-2xl bg-card px-5 py-4 text-start text-sm text-card-foreground shadow-sm ring-1 ring-foreground/5 dark:ring-foreground/10',
   {
     variants: {
       variant: {
         default: 'bg-card text-card-foreground',
+        info: 'bg-card text-card-foreground [&_[data-slot=alert-icon]]:bg-blue-500/10 [&_[data-slot=alert-icon]]:text-blue-700 dark:[&_[data-slot=alert-icon]]:text-blue-300',
+        success:
+          'bg-card text-card-foreground [&_[data-slot=alert-icon]]:bg-emerald-500/10 [&_[data-slot=alert-icon]]:text-emerald-700 dark:[&_[data-slot=alert-icon]]:text-emerald-300',
+        warning:
+          'bg-card text-card-foreground [&_[data-slot=alert-icon]]:bg-amber-500/10 [&_[data-slot=alert-icon]]:text-amber-700 dark:[&_[data-slot=alert-icon]]:text-amber-300',
         destructive:
           'bg-card text-destructive *:data-[slot=alert-description]:text-destructive/90 *:[svg]:text-current',
       },
@@ -39,7 +44,7 @@ function AlertTitle({ className, ...props }: React.ComponentProps<'div'>) {
     <div
       data-slot='alert-title'
       className={cn(
-        'font-medium group-has-[>svg]/alert:col-start-2 [&_a]:underline [&_a]:underline-offset-3 [&_a]:hover:text-foreground',
+        'font-semibold [&_a]:underline [&_a]:underline-offset-3 [&_a]:hover:text-foreground',
         className,
       )}
       {...props}
@@ -52,7 +57,7 @@ function AlertDescription({ className, ...props }: React.ComponentProps<'div'>) 
     <div
       data-slot='alert-description'
       className={cn(
-        'text-sm text-balance text-muted-foreground md:text-pretty [&_a]:underline [&_a]:underline-offset-3 [&_a]:hover:text-foreground [&_p:not(:last-child)]:mb-4',
+        'text-xs text-balance text-muted-foreground md:text-pretty [&_a]:underline [&_a]:underline-offset-3 [&_a]:hover:text-foreground [&_p:not(:last-child)]:mb-4',
         className,
       )}
       {...props}
@@ -61,9 +66,20 @@ function AlertDescription({ className, ...props }: React.ComponentProps<'div'>) 
 }
 
 function AlertAction({ className, ...props }: React.ComponentProps<'div'>) {
+  return <div data-slot='alert-action' className={cn('ms-auto shrink-0', className)} {...props} />
+}
+
+function AlertIcon({ className, ...props }: React.ComponentProps<'div'>) {
   return (
-    <div data-slot='alert-action' className={cn('absolute end-3 top-2.5', className)} {...props} />
+    <div
+      data-slot='alert-icon'
+      className={cn(
+        'flex size-9 shrink-0 items-center justify-center rounded-xl bg-muted text-muted-foreground [&_svg]:size-4.5',
+        className,
+      )}
+      {...props}
+    />
   )
 }
 
-export { Alert, AlertTitle, AlertDescription, AlertAction }
+export { Alert, AlertTitle, AlertDescription, AlertAction, AlertIcon }

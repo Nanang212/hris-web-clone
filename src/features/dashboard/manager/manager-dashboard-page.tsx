@@ -8,6 +8,13 @@ import dayjs from 'dayjs'
 
 import { AppMain } from '@/shared/components/app-layout/app-main'
 import { SkeletonPattern } from '@/shared/components/skeleton-pattern'
+import {
+  Alert,
+  AlertAction,
+  AlertDescription,
+  AlertIcon,
+  AlertTitle,
+} from '@/shared/components/ui/alert'
 import { Button } from '@/shared/components/ui/button'
 import { StatCard } from '@/features/dashboard/components/stat-card'
 import { useGetManagerDashboard } from '@/features/dashboard/hooks'
@@ -127,20 +134,20 @@ export function ManagerDashboardPage() {
 
       {/* Team Health Insight */}
       {data.healthInsight && (
-        <div className='flex items-center justify-between rounded-2xl bg-card px-5 py-4 shadow-sm ring-1 ring-foreground/5'>
-          <div className='flex items-center gap-3'>
-            <div className='flex size-9 shrink-0 items-center justify-center rounded-xl bg-muted text-muted-foreground'>
-              <span className='text-xs font-bold'>TIP</span>
-            </div>
-            <div>
-              <span className='text-sm font-semibold'>{m.dashboard_team_health_insight()}</span>
-              <p className='text-xs text-muted-foreground'>{data.healthInsight}</p>
-            </div>
+        <Alert variant='success'>
+          <AlertIcon>
+            <span className='text-xs font-bold'>TIP</span>
+          </AlertIcon>
+          <div className='min-w-0 flex-1'>
+            <AlertTitle>{m.dashboard_team_health_insight()}</AlertTitle>
+            <AlertDescription>{data.healthInsight}</AlertDescription>
           </div>
-          <Button type='button' variant='outline' size='xs'>
-            {m.dashboard_view_team_report()}
-          </Button>
-        </div>
+          <AlertAction>
+            <Button type='button' variant='outline' size='xs'>
+              {m.dashboard_view_team_report()}
+            </Button>
+          </AlertAction>
+        </Alert>
       )}
     </AppMain>
   )
