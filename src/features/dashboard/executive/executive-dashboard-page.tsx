@@ -68,7 +68,7 @@ export function ExecutiveDashboardPage() {
       }
     >
       {/* Status Banner */}
-      <Alert variant='success'>
+      <Alert variant='emerald-overlay'>
         <AlertIcon>
           <IconArrowUpRight size={18} stroke={2} />
         </AlertIcon>
@@ -139,7 +139,7 @@ export function ExecutiveDashboardPage() {
 
       {/* Executive Highlight */}
       {data.highlight && (
-        <Alert variant='info'>
+        <Alert variant='violet-overlay'>
           <AlertIcon>
             <span className='text-xs font-bold'>INS</span>
           </AlertIcon>

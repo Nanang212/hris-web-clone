@@ -17,7 +17,7 @@ interface CheckInBannerProps {
 
 export function CheckInBanner({ checkInTime, workEndTime }: Readonly<CheckInBannerProps>) {
   return (
-    <Alert variant='info'>
+    <Alert variant='blue-overlay'>
       <AlertIcon>
         <IconCalendarCheck size={18} stroke={2} />
       </AlertIcon>

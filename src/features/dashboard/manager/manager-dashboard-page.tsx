@@ -134,7 +134,7 @@ export function ManagerDashboardPage() {
 
       {/* Team Health Insight */}
       {data.healthInsight && (
-        <Alert variant='success'>
+        <Alert variant='green-overlay'>
           <AlertIcon>
             <span className='text-xs font-bold'>TIP</span>
           </AlertIcon>

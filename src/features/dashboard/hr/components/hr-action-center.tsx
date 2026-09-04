@@ -96,7 +96,7 @@ interface AlertBannerProps {
 
 export function AlertBanner({ title, message, actionLabel }: Readonly<AlertBannerProps>) {
   return (
-    <Alert variant='warning'>
+    <Alert variant='amber-overlay'>
       <AlertIcon>
         <IconAlertCircle />
       </AlertIcon>

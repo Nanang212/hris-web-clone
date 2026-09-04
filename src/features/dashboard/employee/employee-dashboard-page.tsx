@@ -128,7 +128,7 @@ export function EmployeeDashboardPage() {
 
       {/* Company Announcement */}
       {data.announcement && (
-        <Alert variant='info'>
+        <Alert variant='indigo-overlay'>
           <AlertIcon>
             <span className='text-xs font-bold'>{data.announcement.tag}</span>
           </AlertIcon>

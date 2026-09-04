@@ -20,7 +20,7 @@ export function AnnouncementBanner() {
   ]
 
   return (
-    <Alert variant='info'>
+    <Alert variant='sky-overlay'>
       <AlertIcon>
         <IconSpeakerphone />
       </AlertIcon>
