@@ -1,7 +1,4 @@
 import {
-  IconCalendarCheck,
-  IconCalendarWeek,
-  IconChecklist,
   IconCircleCheck,
   IconClockHour4,
   IconLayoutDashboard,
@@ -10,7 +7,6 @@ import {
   IconReportMoney,
   IconSettings,
   IconUserCircle,
-  IconUsers,
   type IconProps,
 } from '@tabler/icons-react'
 import type { LinkProps } from '@tanstack/react-router'
@@ -228,7 +224,6 @@ export const mainMenu: Menu[] = [
         key: 'role-access',
         title: m.app_layout_nav_role_access,
         to: '/settings/role-access',
-        icon: IconUsers,
       },
       {
         key: 'master-data',
