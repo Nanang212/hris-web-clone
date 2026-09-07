@@ -1,6 +1,6 @@
-// src/features/payroll/pages/configuration/bpjs-tk-config-view.tsx — Screen 4: BPJS Ketenagakerjaan Config
-import { useState } from 'react'
-import { initialBpjsTkConfig, formatIDR } from '../../data/mock-payroll-data'
+import { useEffect, useState } from 'react'
+import { formatIDR } from '../../data/mock-payroll-data'
+import { usePayrollBpjsStore } from '../../store/payroll-bpjs-store'
 import type { BpjsTkConfig } from '../../types'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
@@ -15,11 +15,17 @@ import {
 import { snackbar } from '@/shared/lib/snackbar'
 
 export function BpjsTkConfigView() {
-  const [config, setConfig] = useState<BpjsTkConfig>(initialBpjsTkConfig)
+  const { bpjsTkConfig, setBpjsTkConfig } = usePayrollBpjsStore()
+  const [config, setConfig] = useState<BpjsTkConfig>(bpjsTkConfig)
+
+  useEffect(() => {
+    setConfig(bpjsTkConfig)
+  }, [bpjsTkConfig])
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault()
-    snackbar.success('BPJS Ketenagakerjaan configuration saved!')
+    setBpjsTkConfig(config)
+    snackbar.success('BPJS Ketenagakerjaan configuration saved and synchronized with Employee BPJS!')
   }
 
   return (

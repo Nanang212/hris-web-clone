@@ -1,17 +1,23 @@
-// src/features/payroll/pages/configuration/bpjs-kes-config-view.tsx — Screen 5: BPJS Kesehatan Config
-import { useState } from 'react'
-import { initialBpjsKesConfig, formatIDR } from '../../data/mock-payroll-data'
+import { useEffect, useState } from 'react'
+import { formatIDR } from '../../data/mock-payroll-data'
+import { usePayrollBpjsStore } from '../../store/payroll-bpjs-store'
 import type { BpjsKesConfig } from '../../types'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { snackbar } from '@/shared/lib/snackbar'
 
 export function BpjsKesConfigView() {
-  const [config, setConfig] = useState<BpjsKesConfig>(initialBpjsKesConfig)
+  const { bpjsKesConfig, setBpjsKesConfig } = usePayrollBpjsStore()
+  const [config, setConfig] = useState<BpjsKesConfig>(bpjsKesConfig)
+
+  useEffect(() => {
+    setConfig(bpjsKesConfig)
+  }, [bpjsKesConfig])
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault()
-    snackbar.success('BPJS Kesehatan configuration saved successfully!')
+    setBpjsKesConfig(config)
+    snackbar.success('BPJS Kesehatan configuration saved and synchronized with Employee BPJS!')
   }
 
   return (

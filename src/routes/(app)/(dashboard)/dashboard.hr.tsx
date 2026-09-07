@@ -4,7 +4,7 @@ import {
   DashboardError,
   DashboardLoading,
 } from '@/features/dashboard/components/dashboard-feedback'
-import { DashboardPage } from '@/features/dashboard/hr/hr-dashboard-page'
+import { HrDashboardPage } from '@/features/dashboard/hr/hr-dashboard-page'
 
 export const Route = createFileRoute('/(app)/(dashboard)/dashboard/hr')({
   pendingComponent: DashboardLoading,
@@ -13,5 +13,5 @@ export const Route = createFileRoute('/(app)/(dashboard)/dashboard/hr')({
 })
 
 function RouteComponent() {
-  return <DashboardPage />
+  return <HrDashboardPage />
 }

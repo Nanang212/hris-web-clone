@@ -2,7 +2,6 @@ import { IconArrowRight } from '@tabler/icons-react'
 
 import { cn } from '@/shared/lib/utils'
 
-
 const variantStyles = {
   info: {
     dot: 'bg-blue-500',
@@ -63,54 +62,48 @@ export function ExecutiveAttention({ items: propItems }: { items?: AttentionItem
   ]
 
   const items = propItems
-    ? propItems.map(item => ({
+    ? propItems.map((item) => ({
         id: item.id,
         label: item.label,
         subLabel: item.subLabel,
         count: item.count,
-        variant: (item.variant === 'info' || item.variant === 'warning' || item.variant === 'danger' || item.variant === 'success') ? item.variant : 'info'
+        variant:
+          item.variant === 'info' ||
+          item.variant === 'warning' ||
+          item.variant === 'danger' ||
+          item.variant === 'success'
+            ? item.variant
+            : 'info',
       }))
     : defaultItems
 
   return (
-    <div className="flex flex-col gap-4 rounded-2xl bg-card p-5 shadow-sm ring-1 ring-foreground/5">
-      <div className="flex items-center justify-between">
+    <div className='flex flex-col gap-4 rounded-2xl bg-card p-5 shadow-sm ring-1 ring-foreground/5'>
+      <div className='flex items-center justify-between'>
         <div>
-          <h3 className="text-sm font-semibold">Executive Attention</h3>
-          <p className="text-xs text-muted-foreground">
-            Workforce risks requiring visibility
-          </p>
+          <h3 className='text-sm font-semibold'>Executive Attention</h3>
+          <p className='text-xs text-muted-foreground'>Workforce risks requiring visibility</p>
         </div>
         <button
-          type="button"
-          className="flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+          type='button'
+          className='flex items-center gap-1 text-xs font-medium text-primary hover:underline'
         >
           View all
           <IconArrowRight size={12} />
         </button>
       </div>
 
-      <div className="flex flex-col divide-y divide-border/50">
+      <div className='flex flex-col divide-y divide-border/50'>
         {items.map((item) => {
           const styles = variantStyles[item.variant] || variantStyles.info
           return (
-            <div
-              key={item.id}
-              className="flex items-center gap-3 py-3 first:pt-0 last:pb-0"
-            >
-              <span
-                className={cn('h-2 w-2 flex-shrink-0 rounded-full', styles.dot)}
-              />
-              <div className="flex-1">
-                <p className="text-sm font-medium">{item.label}</p>
-                <p className="text-xs text-muted-foreground">{item.subLabel}</p>
+            <div key={item.id} className='flex items-center gap-3 py-3 first:pt-0 last:pb-0'>
+              <span className={cn('h-2 w-2 flex-shrink-0 rounded-full', styles.dot)} />
+              <div className='flex-1'>
+                <p className='text-sm font-medium'>{item.label}</p>
+                <p className='text-xs text-muted-foreground'>{item.subLabel}</p>
               </div>
-              <span
-                className={cn(
-                  'rounded-full px-2.5 py-0.5 text-xs font-bold',
-                  styles.badge
-                )}
-              >
+              <span className={cn('rounded-full px-2.5 py-0.5 text-xs font-bold', styles.badge)}>
                 {item.count}
               </span>
             </div>

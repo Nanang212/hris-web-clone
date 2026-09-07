@@ -1,277 +1,257 @@
-import {
-  IconCheck,
-  IconEye,
-  IconEyeOff,
-  IconInfoCircle,
-  IconShieldCheck,
-  IconX,
-} from '@tabler/icons-react'
-import { useMemo, useState } from 'react'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { IconEye, IconEyeOff, IconInfoCircle } from '@tabler/icons-react'
+import { Link } from '@tanstack/react-router'
+import { REGEXP_ONLY_DIGITS } from 'input-otp'
+import { useState } from 'react'
+import { Controller, useForm } from 'react-hook-form'
+import { z } from 'zod'
 
-import { BackgroundDecor, BrandMark } from '@/features/auth/components/background'
-import { m } from '@/i18n/paraglide/messages'
+import { Alert, AlertDescription, AlertIcon } from '@/shared/components/ui/alert'
 import { Button } from '@/shared/components/ui/button'
-import { Field, FieldGroup, FieldLabel } from '@/shared/components/ui/field'
+import { Field, FieldError, FieldGroup, FieldLabel } from '@/shared/components/ui/field'
 import { Input } from '@/shared/components/ui/input'
-import { cn } from '@/shared/lib/utils'
+import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/shared/components/ui/input-otp'
+import { Spinner } from '@/shared/components/ui/spinner'
+import { useSchema } from '@/shared/lib/schema'
+import { snackbar } from '@/shared/lib/snackbar'
+import { AuthLayout } from '@/features/auth/components/auth-layout'
+import { useRequestPasswordReset, useResetPassword } from '@/features/auth/hooks'
+import { m } from '@/i18n/paraglide/messages'
 
-export type ResetPasswordPageProps = React.ComponentProps<'div'> & {
-  /** Previous password, only used to check the "different from previous" rule. */
-  previousPassword?: string
-  onSubmit?: (password: string) => void
-}
+const OTP_LENGTH = 6
 
-type Requirement = {
-  key: string
-  label: string
-  met: boolean
-}
-
-const STRENGTH_LABELS = [
-  { min: 0, label: () => m.auth_reset_strength_very_weak(), tone: 'bg-destructive' },
-  { min: 1, label: () => m.auth_reset_strength_weak(), tone: 'bg-destructive' },
-  { min: 2, label: () => m.auth_reset_strength_fair(), tone: 'bg-amber-500' },
-  { min: 3, label: () => m.auth_reset_strength_good(), tone: 'bg-amber-500' },
-  { min: 4, label: () => m.auth_reset_strength_strong(), tone: 'bg-emerald-500' },
-] as const
-
-function InfoBox({
-  tone,
-  icon,
-  title,
-  description,
-}: Readonly<{
-  tone: 'info' | 'muted'
-  icon: React.ReactNode
-  title: string
-  description: string
-}>) {
+function RequestResetForm({ onSent }: Readonly<{ onSent: (email: string) => void }>) {
+  const { mutate, isPending } = useRequestPasswordReset()
+  const schema = useSchema(() => ({ email: z.email({ message: m.auth_signin_email_invalid() }) }))
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<z.infer<typeof schema>>({
+    resolver: zodResolver(schema),
+    defaultValues: { email: '' },
+  })
   return (
-    <div
-      className={cn(
-        'flex items-start gap-2 rounded-lg p-3',
-        tone === 'info' && 'bg-primary/5',
-        tone === 'muted' && 'bg-muted/60',
+    <form
+      noValidate
+      onSubmit={handleSubmit((values) =>
+        mutate(values, {
+          onSuccess: () => {
+            snackbar.success(m.auth_reset_otp_sent())
+            onSent(values.email)
+          },
+          onError: (error) => snackbar.exception(error),
+        }),
       )}
     >
-      <span className='mt-0.5 shrink-0 text-primary'>{icon}</span>
-      <div className='space-y-0.5'>
-        <p className='text-xs font-semibold'>{title}</p>
-        <p className='text-[0.7rem] text-muted-foreground'>{description}</p>
-      </div>
-    </div>
-  )
-}
-
-function PasswordInput({
-  id,
-  value,
-  onChange,
-  placeholder,
-}: Readonly<{
-  id: string
-  value: string
-  onChange: (value: string) => void
-  placeholder: string
-}>) {
-  const [visible, setVisible] = useState(false)
-
-  return (
-    <div className='relative'>
-      <Input
-        id={id}
-        type={visible ? 'text' : 'password'}
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        placeholder={placeholder}
-        className='pr-9'
-        required
-      />
-      <button
-        type='button'
-        onClick={() => setVisible((prev) => !prev)}
-        className='absolute top-1/2 right-3 -translate-y-1/2 text-muted-foreground hover:text-foreground'
-        aria-label={
-          visible ? m.auth_reset_password_hide_label() : m.auth_reset_password_show_label()
-        }
-      >
-        {visible ? <IconEyeOff size={16} /> : <IconEye size={16} />}
-      </button>
-    </div>
-  )
-}
-
-function StrengthMeter({ score }: Readonly<{ score: number }>) {
-  const strength = [...STRENGTH_LABELS].reverse().find((s) => score >= s.min)!
-
-  return (
-    <div className='space-y-1.5'>
-      <div className='flex gap-1.5'>
-        {Array.from({ length: 4 }).map((_, index) => (
-          <div
-            key={index}
-            className={cn('h-1.5 flex-1 rounded-full bg-muted', index < score && strength.tone)}
+      <FieldGroup>
+        <Field data-invalid={!!errors.email}>
+          <FieldLabel htmlFor='reset-email'>{m.auth_signin_identifier_field_label()}</FieldLabel>
+          <Input
+            id='reset-email'
+            type='email'
+            autoComplete='email'
+            aria-invalid={!!errors.email}
+            disabled={isPending}
+            {...register('email')}
           />
-        ))}
-      </div>
-      <p
-        className={cn(
-          'text-xs font-medium',
-          score === 0 && 'text-muted-foreground',
-          score > 0 && score < 3 && 'text-amber-600 dark:text-amber-400',
-          score >= 3 && 'text-emerald-600 dark:text-emerald-400',
-        )}
-      >
-        {strength.label()}
-      </p>
-    </div>
+          <FieldError errors={[errors.email]} />
+        </Field>
+        <Button type='submit' disabled={isPending}>
+          {isPending && <Spinner data-icon='inline-start' />}
+          {m.auth_reset_send_otp()}
+        </Button>
+      </FieldGroup>
+    </form>
   )
 }
 
-function RequirementChecklist({ requirements }: Readonly<{ requirements: Requirement[] }>) {
-  return (
-    <div className='space-y-2 rounded-lg bg-muted/60 p-3'>
-      {requirements.map((requirement) => (
-        <div key={requirement.key} className='flex items-center gap-2'>
-          {requirement.met ? (
-            <IconCheck size={14} className='shrink-0 text-emerald-600 dark:text-emerald-400' />
-          ) : (
-            <IconX size={14} className='shrink-0 text-muted-foreground' />
-          )}
-          <span
-            className={cn(
-              'text-xs',
-              requirement.met ? 'text-emerald-700 dark:text-emerald-400' : 'text-muted-foreground',
-            )}
-          >
-            {requirement.label}
-          </span>
-        </div>
-      ))}
-    </div>
-  )
-}
+function ResetPasswordForm({
+  email,
+  onChangeEmail,
+}: Readonly<{ email: string; onChangeEmail: () => void }>) {
+  const [showPassword, setShowPassword] = useState(false)
+  const reset = useResetPassword()
+  const resend = useRequestPasswordReset()
+  const schema = useSchema(() => ({
+    otp: z.string().regex(/^\d{6}$/, m.auth_reset_otp_invalid()),
+    password: z.string().min(1, m.auth_signin_password_required()),
+    confirmPassword: z.string().min(1, m.auth_signin_password_required()),
+  })).refine((values) => values.password === values.confirmPassword, {
+    path: ['confirmPassword'],
+    message: m.auth_reset_password_mismatch(),
+  })
+  const {
+    register,
+    handleSubmit,
+    resetField,
+    control,
+    formState: { errors },
+  } = useForm<z.infer<typeof schema>>({
+    resolver: zodResolver(schema),
+    defaultValues: { otp: '', password: '', confirmPassword: '' },
+  })
+  const isPending = reset.isPending || resend.isPending
 
-export function ResetPage({
-  className,
-  previousPassword,
-  onSubmit,
-  ...props
-}: ResetPasswordPageProps) {
-  const [newPassword, setNewPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-
-  const requirements = useMemo<Requirement[]>(
-    () => [
-      {
-        key: 'length',
-        label: m.auth_reset_requirement_length(),
-        met: newPassword.length >= 8,
-      },
-      {
-        key: 'case',
-        label: m.auth_reset_requirement_case(),
-        met: /[a-z]/.test(newPassword) && /[A-Z]/.test(newPassword),
-      },
-      {
-        key: 'number',
-        label: m.auth_reset_requirement_number(),
-        met: /\d/.test(newPassword),
-      },
-      {
-        key: 'symbol',
-        label: m.auth_reset_requirement_symbol(),
-        met: /[^A-Za-z0-9]/.test(newPassword),
-      },
-      {
-        key: 'different',
-        label: m.auth_reset_requirement_different(),
-        met:
-          newPassword.length > 0 &&
-          (previousPassword === undefined || newPassword !== previousPassword),
-      },
-    ],
-    [newPassword, previousPassword],
-  )
-
-  const score = requirements.filter((r) => r.met).length
-  const passwordsMatch = confirmPassword.length > 0 && confirmPassword === newPassword
-  const canSubmit = requirements.every((r) => r.met) && passwordsMatch
-
-  function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
-    event.preventDefault()
-    if (!canSubmit) return
-    onSubmit?.(newPassword)
+  if (reset.isSuccess) {
+    return (
+      <Alert>
+        <AlertDescription>
+          {reset.data.data.shouldActivate
+            ? m.auth_reset_activation_required()
+            : m.auth_reset_success()}
+        </AlertDescription>
+      </Alert>
+    )
   }
 
   return (
-    <div
-      className={cn(
-        'relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-muted/30 p-6',
-        className,
-      )}
-      {...props}
-    >
-      <BackgroundDecor />
-
-      <div className='w-full max-w-lg space-y-6 rounded-2xl border bg-background p-8 shadow-sm'>
-        <BrandMark />
-
-        <div className='space-y-1.5 text-center'>
-          <h1 className='text-2xl font-bold tracking-tight'>{m.auth_reset_title()}</h1>
-          <p className='text-sm text-muted-foreground'>{m.auth_reset_subtitle()}</p>
-        </div>
-
-        <InfoBox
-          tone='info'
-          icon={<IconInfoCircle size={16} />}
-          title={m.auth_reset_requirement_notice_title()}
-          description={m.auth_reset_requirement_notice_desc()}
-        />
-
-        <form className='space-y-5' onSubmit={handleSubmit}>
-          <FieldGroup>
-            <Field>
-              <FieldLabel htmlFor='new-password'>{m.auth_reset_new_password_label()}</FieldLabel>
-              <PasswordInput
-                id='new-password'
-                value={newPassword}
-                onChange={setNewPassword}
-                placeholder={m.auth_reset_new_password_placeholder()}
-              />
-              {newPassword.length > 0 && <StrengthMeter score={score} />}
-            </Field>
-
-            <Field>
-              <FieldLabel htmlFor='confirm-password'>
-                {m.auth_reset_confirm_password_label()}
-              </FieldLabel>
-              <PasswordInput
-                id='confirm-password'
-                value={confirmPassword}
-                onChange={setConfirmPassword}
-                placeholder={m.auth_reset_confirm_password_placeholder()}
-              />
-              {confirmPassword.length > 0 && !passwordsMatch && (
-                <p className='text-xs text-destructive'>{m.auth_reset_password_mismatch()}</p>
+    <div className='flex flex-col gap-5'>
+      <Alert variant='info' className='shadow-none'>
+        <AlertIcon>
+          <IconInfoCircle />
+        </AlertIcon>
+        <AlertDescription className='flex min-w-0 flex-col items-start gap-2'>
+          <div className='wrap-break-word'>{m.auth_reset_otp_destination({ email })}</div>
+          <Button
+            type='button'
+            variant='link'
+            size='xs'
+            className='h-auto p-0'
+            disabled={isPending}
+            onClick={onChangeEmail}
+          >
+            {m.auth_reset_change_email()}
+          </Button>
+        </AlertDescription>
+      </Alert>
+      <form
+        noValidate
+        onSubmit={handleSubmit((values) =>
+          reset.mutate(
+            { email, ...values },
+            {
+              onSuccess: () => snackbar.success(m.auth_reset_success()),
+              onError: (error) => snackbar.exception(error),
+            },
+          ),
+        )}
+      >
+        <FieldGroup>
+          <Field data-invalid={!!errors.otp}>
+            <div className='flex flex-wrap items-center justify-between gap-2'>
+              <FieldLabel htmlFor='reset-otp'>{m.auth_reset_otp_label()}</FieldLabel>
+              <Button
+                type='button'
+                variant='link'
+                size='xs'
+                className='h-auto shrink-0 p-0'
+                disabled={isPending}
+                onClick={() =>
+                  resend.mutate(
+                    { email },
+                    {
+                      onSuccess: () => {
+                        resetField('otp')
+                        snackbar.success(m.auth_reset_otp_sent())
+                      },
+                      onError: (error) => snackbar.exception(error),
+                    },
+                  )
+                }
+              >
+                {resend.isPending && <Spinner data-icon='inline-start' />}
+                {m.auth_reset_resend_otp()}
+              </Button>
+            </div>
+            <Controller
+              name='otp'
+              control={control}
+              render={({ field }) => (
+                <InputOTP
+                  {...field}
+                  id='reset-otp'
+                  containerClassName='w-full min-w-0'
+                  maxLength={OTP_LENGTH}
+                  pattern={REGEXP_ONLY_DIGITS}
+                  autoComplete='one-time-code'
+                  aria-invalid={!!errors.otp}
+                  aria-describedby={errors.otp ? 'reset-otp-error' : undefined}
+                  disabled={isPending}
+                >
+                  <InputOTPGroup className='w-full'>
+                    {Array.from({ length: OTP_LENGTH }, (_, index) => (
+                      <InputOTPSlot
+                        key={index}
+                        index={index}
+                        className='min-w-0 flex-1'
+                        aria-invalid={!!errors.otp}
+                      />
+                    ))}
+                  </InputOTPGroup>
+                </InputOTP>
               )}
+            />
+            <FieldError id='reset-otp-error' errors={[errors.otp]} />
+          </Field>
+          {(['password', 'confirmPassword'] as const).map((name) => (
+            <Field key={name} data-invalid={!!errors[name]}>
+              <FieldLabel htmlFor={name}>
+                {name === 'password'
+                  ? m.auth_reset_new_password_label()
+                  : m.auth_reset_confirm_password_label()}
+              </FieldLabel>
+              <div className='relative'>
+                <Input
+                  id={name}
+                  type={showPassword ? 'text' : 'password'}
+                  autoComplete='new-password'
+                  className='pr-10'
+                  aria-invalid={!!errors[name]}
+                  disabled={isPending}
+                  {...register(name)}
+                />
+                <button
+                  type='button'
+                  className='absolute top-1/2 right-3 -translate-y-1/2 text-muted-foreground'
+                  onClick={() => setShowPassword((value) => !value)}
+                  aria-label={
+                    showPassword
+                      ? m.auth_reset_password_hide_label()
+                      : m.auth_reset_password_show_label()
+                  }
+                >
+                  {showPassword ? <IconEyeOff size={16} /> : <IconEye size={16} />}
+                </button>
+              </div>
+              <FieldError errors={[errors[name]]} />
             </Field>
-
-            <RequirementChecklist requirements={requirements} />
-
-            <Button type='submit' className='w-full' disabled={!canSubmit}>
-              {m.auth_reset_submit_button()}
-            </Button>
-          </FieldGroup>
-        </form>
-
-        <InfoBox
-          tone='muted'
-          icon={<IconShieldCheck size={16} />}
-          title={m.auth_reset_secure_notice_title()}
-          description={m.auth_reset_secure_notice_desc()}
-        />
-      </div>
+          ))}
+          <Button type='submit' disabled={isPending}>
+            {reset.isPending && <Spinner data-icon='inline-start' />}
+            {m.auth_reset_submit_button()}
+          </Button>
+        </FieldGroup>
+      </form>
     </div>
+  )
+}
+
+export function ResetPage() {
+  const [email, setEmail] = useState<string>()
+  return (
+    <AuthLayout
+      title={email ? m.auth_reset_title() : m.auth_reset_request_title()}
+      subtitle={email ? m.auth_reset_subtitle() : m.auth_reset_request_subtitle()}
+    >
+      {email ? (
+        <ResetPasswordForm email={email} onChangeEmail={() => setEmail(undefined)} />
+      ) : (
+        <RequestResetForm onSent={setEmail} />
+      )}
+      <Button asChild variant='outline'>
+        <Link to='/signin'>{m.auth_back_to_signin()}</Link>
+      </Button>
+    </AuthLayout>
   )
 }

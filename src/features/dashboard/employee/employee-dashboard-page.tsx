@@ -1,5 +1,16 @@
 import { IconAlertCircle, IconCalendarWeek, IconCash, IconCircleCheck } from '@tabler/icons-react'
+import dayjs from 'dayjs'
 
+import { AppMain } from '@/shared/components/app-layout/app-main'
+import { SkeletonPattern } from '@/shared/components/skeleton-pattern'
+import {
+  Alert,
+  AlertAction,
+  AlertDescription,
+  AlertIcon,
+  AlertTitle,
+} from '@/shared/components/ui/alert'
+import { Button } from '@/shared/components/ui/button'
 import { StatCard } from '@/features/dashboard/components/stat-card'
 import { AttendanceDonutChart } from '@/features/dashboard/employee/components/attendance-donut-chart'
 import { CheckInBanner } from '@/features/dashboard/employee/components/checkin-banner'
@@ -11,9 +22,6 @@ import {
 import { MyRequestCenter } from '@/features/dashboard/employee/components/my-request-center'
 import { useGetEmployeeDashboard } from '@/features/dashboard/hooks'
 import { m } from '@/i18n/paraglide/messages'
-import { AppMain } from '@/shared/components/app-layout/app-main'
-import { SkeletonPattern } from '@/shared/components/skeleton-pattern'
-import { Button } from '@/shared/components/ui/button'
 
 export function EmployeeDashboardPage() {
   const { data, isPending, error } = useGetEmployeeDashboard()
@@ -45,15 +53,15 @@ export function EmployeeDashboardPage() {
   return (
     <AppMain
       breadcrumbs={[
-        { to: '/', label: 'Dashboard' },
-        { to: '.', label: 'Employee' },
+        { to: '/', label: m.app_layout_nav_dashboard() },
+        { to: '.', label: m.app_layout_nav_dashboard_employee() },
       ]}
       title={m.dashboard_employee_title()}
       subtitle={m.dashboard_employee_subtitle()}
       actions={
         <>
           <Button size='sm' variant='outline'>
-            16 May 2025
+            {dayjs().format('DD MMM YYYY')}
           </Button>
           <Button size='sm'>{m.dashboard_my_profile()}</Button>
           <Button size='sm'>{m.dashboard_customize()}</Button>
@@ -71,7 +79,7 @@ export function EmployeeDashboardPage() {
           subLabel={`Check-in ${data.checkInTime}`}
           subLabelVariant='success'
           icon={IconCircleCheck}
-          iconBg='bg-emerald-100 dark:bg-emerald-900/40'
+          iconVariant='success'
         />
         <StatCard
           label={m.dashboard_stat_leave_balance()}
@@ -79,7 +87,7 @@ export function EmployeeDashboardPage() {
           subLabel='Annual leave'
           subLabelVariant='default'
           icon={IconCalendarWeek}
-          iconBg='bg-blue-100 dark:bg-blue-900/40'
+          iconVariant='default'
         />
         <StatCard
           label={m.dashboard_stat_next_payroll()}
@@ -87,7 +95,7 @@ export function EmployeeDashboardPage() {
           subLabel='Payslip after processing'
           subLabelVariant='default'
           icon={IconCash}
-          iconBg='bg-purple-100 dark:bg-purple-900/40'
+          iconVariant='default'
         />
         <StatCard
           label={m.dashboard_stat_pending_requests()}
@@ -95,7 +103,7 @@ export function EmployeeDashboardPage() {
           subLabel='Leave · Claim'
           subLabelVariant='warning'
           icon={IconAlertCircle}
-          iconBg='bg-amber-100 dark:bg-amber-900/40'
+          iconVariant='warning'
         />
       </div>
 
@@ -120,23 +128,20 @@ export function EmployeeDashboardPage() {
 
       {/* Company Announcement */}
       {data.announcement && (
-        <div className='flex items-center justify-between rounded-2xl bg-card px-5 py-4 shadow-sm ring-1 ring-foreground/5'>
-          <div className='flex items-center gap-3'>
-            <div className='flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300'>
-              <span className='text-xs font-bold'>{data.announcement.tag}</span>
-            </div>
-            <div>
-              <span className='text-sm font-semibold'>{data.announcement.title}</span>
-              <p className='text-xs text-muted-foreground'>{data.announcement.summary}</p>
-            </div>
+        <Alert variant='indigo-overlay'>
+          <AlertIcon>
+            <span className='text-xs font-bold'>{data.announcement.tag}</span>
+          </AlertIcon>
+          <div className='min-w-0 flex-1'>
+            <AlertTitle>{data.announcement.title}</AlertTitle>
+            <AlertDescription>{data.announcement.summary}</AlertDescription>
           </div>
-          <button
-            type='button'
-            className='shrink-0 rounded-lg border border-border px-3 py-1.5 text-xs font-medium transition-colors hover:bg-muted'
-          >
-            {data.announcement.readTime}
-          </button>
-        </div>
+          <AlertAction>
+            <Button type='button' variant='outline' size='xs'>
+              {data.announcement.readTime}
+            </Button>
+          </AlertAction>
+        </Alert>
       )}
     </AppMain>
   )

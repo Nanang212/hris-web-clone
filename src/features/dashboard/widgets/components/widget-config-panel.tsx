@@ -2,30 +2,13 @@
 
 import { useState } from 'react'
 
+import type { SelectedWidget, WidgetConfig } from '@/features/dashboard/types'
 import { m } from '@/i18n/paraglide/messages'
-
-export interface SelectedWidget {
-  id: string
-  name: string
-  previewLabel?: string
-  previewValue?: string
-  previewSub?: string
-  previewBadge?: string
-  previewBadgeColor?: string
-}
 
 interface WidgetConfigPanelProps {
   selected: SelectedWidget | null
   onRemove: () => void
   onApply: (config: WidgetConfig) => void
-}
-
-export interface WidgetConfig {
-  widgetId: string
-  dateRange: string
-  visualization: string
-  size: 'S' | 'M' | 'L'
-  displayComparison: boolean
 }
 
 const DATE_RANGE_OPTIONS = ['This month', 'Last month', 'Last 3 months', 'This year']
@@ -43,12 +26,8 @@ export function WidgetConfigPanel({ selected, onRemove, onApply }: WidgetConfigP
         <div className='flex h-12 w-12 items-center justify-center rounded-full bg-muted'>
           <span className='text-2xl'>🧩</span>
         </div>
-        <p className='text-sm font-medium text-foreground'>
-          {m.dashboard_widget_selected()}
-        </p>
-        <p className='text-xs text-muted-foreground'>
-          {m.dashboard_widget_canvas_sub()}
-        </p>
+        <p className='text-sm font-medium text-foreground'>{m.dashboard_widget_selected()}</p>
+        <p className='text-xs text-muted-foreground'>{m.dashboard_widget_canvas_sub()}</p>
       </div>
     )
   }
@@ -57,9 +36,7 @@ export function WidgetConfigPanel({ selected, onRemove, onApply }: WidgetConfigP
     <div className='flex h-full flex-col gap-5'>
       {/* Header */}
       <div>
-        <p className='text-base font-semibold text-foreground'>
-          {m.dashboard_widget_selected()}
-        </p>
+        <p className='text-base font-semibold text-foreground'>{m.dashboard_widget_selected()}</p>
         <p className='text-sm font-medium text-primary'>{selected.name}</p>
       </div>
 
@@ -92,7 +69,7 @@ export function WidgetConfigPanel({ selected, onRemove, onApply }: WidgetConfigP
           id='widget-date-range'
           value={dateRange}
           onChange={(e) => setDateRange(e.target.value)}
-          className='w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40'
+          className='w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:ring-2 focus:ring-primary/40 focus:outline-none'
         >
           {DATE_RANGE_OPTIONS.map((o) => (
             <option key={o} value={o}>
@@ -104,17 +81,14 @@ export function WidgetConfigPanel({ selected, onRemove, onApply }: WidgetConfigP
 
       {/* Visualization */}
       <div className='flex flex-col gap-1.5'>
-        <label
-          htmlFor='widget-visualization'
-          className='text-xs font-medium text-muted-foreground'
-        >
+        <label htmlFor='widget-visualization' className='text-xs font-medium text-muted-foreground'>
           {m.dashboard_widget_visualization()}
         </label>
         <select
           id='widget-visualization'
           value={visualization}
           onChange={(e) => setVisualization(e.target.value)}
-          className='w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40'
+          className='w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:ring-2 focus:ring-primary/40 focus:outline-none'
         >
           {VISUALIZATION_OPTIONS.map((o) => (
             <option key={o} value={o}>
@@ -126,9 +100,7 @@ export function WidgetConfigPanel({ selected, onRemove, onApply }: WidgetConfigP
 
       {/* Size */}
       <div className='flex flex-col gap-1.5'>
-        <p className='text-xs font-medium text-muted-foreground'>
-          {m.dashboard_widget_size()}
-        </p>
+        <p className='text-xs font-medium text-muted-foreground'>{m.dashboard_widget_size()}</p>
         <div className='grid grid-cols-3 gap-2'>
           {(['S', 'M', 'L'] as const).map((s) => (
             <button
@@ -159,7 +131,7 @@ export function WidgetConfigPanel({ selected, onRemove, onApply }: WidgetConfigP
           role='switch'
           aria-checked={displayComparison}
           onClick={() => setDisplayComparison((v) => !v)}
-          className={`inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus:outline-none focus:ring-2 focus:ring-primary/40 ${
+          className={`inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus:ring-2 focus:ring-primary/40 focus:outline-none ${
             displayComparison ? 'bg-primary' : 'bg-input'
           }`}
         >

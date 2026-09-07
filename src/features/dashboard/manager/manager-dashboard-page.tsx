@@ -4,7 +4,18 @@ import {
   IconClipboardCheck,
   IconUsers,
 } from '@tabler/icons-react'
+import dayjs from 'dayjs'
 
+import { AppMain } from '@/shared/components/app-layout/app-main'
+import { SkeletonPattern } from '@/shared/components/skeleton-pattern'
+import {
+  Alert,
+  AlertAction,
+  AlertDescription,
+  AlertIcon,
+  AlertTitle,
+} from '@/shared/components/ui/alert'
+import { Button } from '@/shared/components/ui/button'
 import { StatCard } from '@/features/dashboard/components/stat-card'
 import { useGetManagerDashboard } from '@/features/dashboard/hooks'
 import { AlertBanner } from '@/features/dashboard/hr/components/hr-action-center'
@@ -16,9 +27,6 @@ import {
 } from '@/features/dashboard/manager/components/manager-team-cards'
 import { TeamAttendanceChart } from '@/features/dashboard/manager/components/team-attendance-chart'
 import { m } from '@/i18n/paraglide/messages'
-import { AppMain } from '@/shared/components/app-layout/app-main'
-import { SkeletonPattern } from '@/shared/components/skeleton-pattern'
-import { Button } from '@/shared/components/ui/button'
 
 export function ManagerDashboardPage() {
   const { data, isPending, error } = useGetManagerDashboard()
@@ -50,15 +58,15 @@ export function ManagerDashboardPage() {
   return (
     <AppMain
       breadcrumbs={[
-        { to: '/', label: 'Dashboard' },
-        { to: '.', label: 'Manager' },
+        { to: '/', label: m.app_layout_nav_dashboard() },
+        { to: '.', label: m.app_layout_nav_dashboard_manager() },
       ]}
       title={m.dashboard_manager_title()}
       subtitle={m.dashboard_manager_subtitle()}
       actions={
         <>
           <Button size='sm' variant='outline'>
-            16 May 2025
+            {dayjs().format('DD MMM YYYY')}
           </Button>
           <Button size='sm'>{m.dashboard_my_team()}</Button>
           <Button size='sm'>{m.dashboard_customize()}</Button>
@@ -67,8 +75,12 @@ export function ManagerDashboardPage() {
     >
       {/* Alert Banner */}
       <AlertBanner
-        count={data.pendingApprovals}
-        message={`${data.pendingApprovals} leave requests, ${data.overdueApprovals} overdue items waiting for your review.`}
+        title={m.dashboard_team_actions_attention({ count: data.pendingApprovals })}
+        message={m.dashboard_team_actions_attention_description({
+          pending: data.pendingApprovals,
+          overdue: data.overdueApprovals,
+        })}
+        actionLabel={m.dashboard_review_actions()}
       />
 
       {/* KPI Stats */}
@@ -79,7 +91,7 @@ export function ManagerDashboardPage() {
           subLabel={`${data.activeMembers} active · ${data.probationMembers} probation`}
           subLabelVariant='default'
           icon={IconUsers}
-          iconBg='bg-blue-100 dark:bg-blue-900/40'
+          iconVariant='default'
         />
         <StatCard
           label={m.dashboard_stat_team_attendance()}
@@ -87,7 +99,7 @@ export function ManagerDashboardPage() {
           subLabel='Today'
           subLabelVariant='success'
           icon={IconClipboardCheck}
-          iconBg='bg-emerald-100 dark:bg-emerald-900/40'
+          iconVariant='success'
         />
         <StatCard
           label={m.dashboard_stat_pending_approvals()}
@@ -95,7 +107,7 @@ export function ManagerDashboardPage() {
           subLabel={`${data.overdueApprovals} overdue`}
           subLabelVariant='danger'
           icon={IconAlertTriangle}
-          iconBg='bg-amber-100 dark:bg-amber-900/40'
+          iconVariant='warning'
         />
         <StatCard
           label={m.dashboard_stat_on_leave_today()}
@@ -103,7 +115,7 @@ export function ManagerDashboardPage() {
           subLabel={`${data.leavePlanned} planned · ${data.leaveSick} sick`}
           subLabelVariant='default'
           icon={IconCalendarOff}
-          iconBg='bg-purple-100 dark:bg-purple-900/40'
+          iconVariant='default'
         />
       </div>
 
@@ -122,23 +134,20 @@ export function ManagerDashboardPage() {
 
       {/* Team Health Insight */}
       {data.healthInsight && (
-        <div className='flex items-center justify-between rounded-2xl bg-card px-5 py-4 shadow-sm ring-1 ring-foreground/5'>
-          <div className='flex items-center gap-3'>
-            <div className='flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300'>
-              <span className='text-xs font-bold'>TIP</span>
-            </div>
-            <div>
-              <span className='text-sm font-semibold'>Team health insight</span>
-              <p className='text-xs text-muted-foreground'>{data.healthInsight}</p>
-            </div>
+        <Alert variant='green-overlay'>
+          <AlertIcon>
+            <span className='text-xs font-bold'>TIP</span>
+          </AlertIcon>
+          <div className='min-w-0 flex-1'>
+            <AlertTitle>{m.dashboard_team_health_insight()}</AlertTitle>
+            <AlertDescription>{data.healthInsight}</AlertDescription>
           </div>
-          <button
-            type='button'
-            className='shrink-0 rounded-lg border border-border px-3 py-1.5 text-xs font-medium transition-colors hover:bg-muted'
-          >
-            View team report
-          </button>
-        </div>
+          <AlertAction>
+            <Button type='button' variant='outline' size='xs'>
+              {m.dashboard_view_team_report()}
+            </Button>
+          </AlertAction>
+        </Alert>
       )}
     </AppMain>
   )

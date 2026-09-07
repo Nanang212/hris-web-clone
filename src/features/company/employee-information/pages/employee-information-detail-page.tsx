@@ -5,7 +5,6 @@ import {
   IconDots,
   IconDownload,
   IconFileText,
-  IconHeartbeat,
   IconId,
   IconInfoCircle,
   IconMail,
@@ -41,6 +40,8 @@ import {
 import { Spinner } from '@/shared/components/ui/spinner'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs'
 import { snackbar } from '@/shared/lib/snackbar'
+import { EmployeeBpjsTab } from '@/features/company/employee-information/components/employee-bpjs-tab'
+import { EmployeeMcuTab } from '@/features/company/employee-information/components/employee-mcu-tab'
 import { EmployeeInformationEditSheet } from '@/features/company/employee-information/components/employee-information-edit-sheet'
 import {
   useDownloadEmployeeProfile,
@@ -372,6 +373,9 @@ export function EmployeeInformationDetailPage({
           <TabsTrigger value='bank'>{m.employee_information_detail_tab_bank()}</TabsTrigger>
           <TabsTrigger value='npwp'>{m.employee_information_detail_tab_npwp()}</TabsTrigger>
           <TabsTrigger value='mcu'>{m.employee_information_detail_tab_mcu()}</TabsTrigger>
+          <TabsTrigger value='bpjs'>
+            {m.employee_information_detail_tab_bpjs ? m.employee_information_detail_tab_bpjs() : 'BPJS'}
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value='personal'>
@@ -779,58 +783,22 @@ export function EmployeeInformationDetailPage({
         </TabsContent>
 
         <TabsContent value='mcu'>
-          <div className='grid min-w-0 gap-4 xl:grid-cols-2'>
-            <DetailCard
-              title={m.employee_information_detail_mcu_title()}
-              description={m.employee_information_detail_mcu_description()}
-              icon={IconHeartbeat}
-            >
-              <DetailRow
-                label={m.employee_information_detail_field_last_checkup()}
-                value={formatDate(medical.lastCheckupDate)}
-              />
-              <DetailRow
-                label={m.employee_information_detail_field_mcu_provider()}
-                value={medical.provider}
-              />
-              <DetailRow
-                label={m.employee_information_detail_field_examination_type()}
-                value={medical.examinationType}
-              />
-              <DetailRow
-                label={m.employee_information_detail_field_status()}
-                value={medical.status}
-              />
-              <DetailRow
-                label={m.employee_information_detail_field_next_checkup()}
-                value={formatDate(medical.dueDate)}
-              />
-              <DetailRow
-                label={m.employee_information_detail_field_follow_up()}
-                value={
-                  medical.followUpRequired == null
-                    ? null
-                    : medical.followUpRequired
-                      ? m.employee_information_detail_yes()
-                      : m.employee_information_detail_no()
-                }
-              />
-              <DetailRow
-                label={m.employee_information_detail_field_administrative_note()}
-                value={medical.administrativeNote}
-              />
-            </DetailCard>
-            <div className='flex min-w-0 flex-col gap-4'>
-              <DocumentCard
-                title={m.employee_information_detail_mcu_document_title()}
-                document={medical.document}
-              />
-              <InformationNotice
-                title={m.employee_information_detail_mcu_reminder_title()}
-                description={m.employee_information_detail_mcu_reminder_description()}
-              />
-            </div>
-          </div>
+          <EmployeeMcuTab
+            employeeId={employee.id}
+            employeeName={employee.fullName}
+            employeeNumber={employee.employeeNumber}
+            positionName={employee.positionName}
+            branchName={employee.branchName}
+            avatarUrl={employee.avatarUrl}
+          />
+        </TabsContent>
+
+        <TabsContent value='bpjs'>
+          <EmployeeBpjsTab
+            employeeId={employee.id}
+            defaultHealthNumber={financial.bpjsHealthNumber}
+            defaultEmploymentNumber={financial.bpjsEmploymentNumber}
+          />
         </TabsContent>
       </Tabs>
       <EmployeeInformationEditSheet

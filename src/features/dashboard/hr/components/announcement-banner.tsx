@@ -1,5 +1,15 @@
 import { IconSpeakerphone } from '@tabler/icons-react'
 
+import {
+  Alert,
+  AlertAction,
+  AlertDescription,
+  AlertIcon,
+  AlertTitle,
+} from '@/shared/components/ui/alert'
+import { Button } from '@/shared/components/ui/button'
+import { m } from '@/i18n/paraglide/messages'
+
 export function AnnouncementBanner() {
   const announcements = [
     {
@@ -10,26 +20,23 @@ export function AnnouncementBanner() {
   ]
 
   return (
-    <div className='flex items-center justify-between rounded-2xl bg-card px-5 py-4 shadow-sm ring-1 ring-foreground/5'>
-      <div className='flex items-center gap-3'>
-        <div className='flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300'>
-          <IconSpeakerphone size={18} stroke={1.75} />
-        </div>
-        <div>
-          {announcements.map((a) => (
-            <div key={a.id}>
-              <span className='text-sm font-semibold'>{a.title}</span>
-              <span className='ml-2 text-xs text-muted-foreground'>{a.subtitle}</span>
-            </div>
-          ))}
-        </div>
+    <Alert variant='sky-overlay'>
+      <AlertIcon>
+        <IconSpeakerphone />
+      </AlertIcon>
+      <div className='min-w-0 flex-1'>
+        {announcements.map((announcement) => (
+          <div key={announcement.id}>
+            <AlertTitle>{announcement.title}</AlertTitle>
+            <AlertDescription>{announcement.subtitle}</AlertDescription>
+          </div>
+        ))}
       </div>
-      <button
-        type='button'
-        className='rounded-lg border border-border px-3 py-1.5 text-xs font-medium transition-colors hover:bg-muted'
-      >
-        View announcements
-      </button>
-    </div>
+      <AlertAction>
+        <Button type='button' variant='outline' size='xs'>
+          {m.dashboard_view_announcements()}
+        </Button>
+      </AlertAction>
+    </Alert>
   )
 }
