@@ -30,6 +30,7 @@ import { Route as appLeaveHistoryRouteImport } from './../../routes/(app)/leave/
 import { Route as appOvertimeIndexRouteImport } from './../../routes/(app)/overtime/index'
 import { Route as appOvertimeHistoryRouteImport } from './../../routes/(app)/overtime/history'
 import { Route as appPayrollIndexRouteImport } from './../../routes/(app)/payroll/index'
+import { Route as appPayrollConfigurationRouteImport } from './../../routes/(app)/payroll/configuration'
 import { Route as appReportIndexRouteImport } from './../../routes/(app)/report/index'
 import { Route as appdashboardDashboardCustomizeRouteImport } from './../../routes/(app)/(dashboard)/dashboard.customize'
 import { Route as appdashboardDashboardEmployeeRouteImport } from './../../routes/(app)/(dashboard)/dashboard.employee'
@@ -223,6 +224,11 @@ const appOvertimeHistoryRoute = appOvertimeHistoryRouteImport.update({
 const appPayrollIndexRoute = appPayrollIndexRouteImport.update({
   id: '/payroll/',
   path: '/payroll/',
+  getParentRoute: () => appRouteRoute,
+} as any)
+const appPayrollConfigurationRoute = appPayrollConfigurationRouteImport.update({
+  id: '/payroll/configuration',
+  path: '/payroll/configuration',
   getParentRoute: () => appRouteRoute,
 } as any)
 const appReportIndexRoute = appReportIndexRouteImport.update({
@@ -758,6 +764,7 @@ export interface FileRoutesByFullPath {
   '/leave/balance': typeof appLeaveBalanceRoute
   '/leave/history': typeof appLeaveHistoryRoute
   '/overtime/history': typeof appOvertimeHistoryRoute
+  '/payroll/configuration': typeof appPayrollConfigurationRoute
   '/': typeof appdashboardIndexRoute
   '/approval/': typeof appApprovalIndexRoute
   '/attendance/': typeof appAttendanceIndexRoute
@@ -868,6 +875,7 @@ export interface FileRoutesByTo {
   '/leave/balance': typeof appLeaveBalanceRoute
   '/leave/history': typeof appLeaveHistoryRoute
   '/overtime/history': typeof appOvertimeHistoryRoute
+  '/payroll/configuration': typeof appPayrollConfigurationRoute
   '/': typeof appdashboardIndexRoute
   '/approval': typeof appApprovalIndexRoute
   '/attendance': typeof appAttendanceIndexRoute
@@ -980,6 +988,7 @@ export interface FileRoutesById {
   '/(app)/leave/balance': typeof appLeaveBalanceRoute
   '/(app)/leave/history': typeof appLeaveHistoryRoute
   '/(app)/overtime/history': typeof appOvertimeHistoryRoute
+  '/(app)/payroll/configuration': typeof appPayrollConfigurationRoute
   '/(app)/(dashboard)/': typeof appdashboardIndexRoute
   '/(app)/approval/': typeof appApprovalIndexRoute
   '/(app)/attendance/': typeof appAttendanceIndexRoute
@@ -1092,6 +1101,7 @@ export interface FileRouteTypes {
     | '/leave/balance'
     | '/leave/history'
     | '/overtime/history'
+    | '/payroll/configuration'
     | '/'
     | '/approval/'
     | '/attendance/'
@@ -1202,6 +1212,7 @@ export interface FileRouteTypes {
     | '/leave/balance'
     | '/leave/history'
     | '/overtime/history'
+    | '/payroll/configuration'
     | '/'
     | '/approval'
     | '/attendance'
@@ -1313,6 +1324,7 @@ export interface FileRouteTypes {
     | '/(app)/leave/balance'
     | '/(app)/leave/history'
     | '/(app)/overtime/history'
+    | '/(app)/payroll/configuration'
     | '/(app)/(dashboard)/'
     | '/(app)/approval/'
     | '/(app)/attendance/'
@@ -1564,6 +1576,13 @@ declare module '@tanstack/react-router' {
       path: '/payroll'
       fullPath: '/payroll/'
       preLoaderRoute: typeof appPayrollIndexRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/payroll/configuration': {
+      id: '/(app)/payroll/configuration'
+      path: '/payroll/configuration'
+      fullPath: '/payroll/configuration'
+      preLoaderRoute: typeof appPayrollConfigurationRouteImport
       parentRoute: typeof appRouteRoute
     }
     '/(app)/report/': {
@@ -2211,6 +2230,7 @@ interface appRouteRouteChildren {
   appLeaveBalanceRoute: typeof appLeaveBalanceRoute
   appLeaveHistoryRoute: typeof appLeaveHistoryRoute
   appOvertimeHistoryRoute: typeof appOvertimeHistoryRoute
+  appPayrollConfigurationRoute: typeof appPayrollConfigurationRoute
   appdashboardIndexRoute: typeof appdashboardIndexRoute
   appApprovalIndexRoute: typeof appApprovalIndexRoute
   appAttendanceIndexRoute: typeof appAttendanceIndexRoute
@@ -2317,6 +2337,7 @@ const appRouteRouteChildren: appRouteRouteChildren = {
   appLeaveBalanceRoute: appLeaveBalanceRoute,
   appLeaveHistoryRoute: appLeaveHistoryRoute,
   appOvertimeHistoryRoute: appOvertimeHistoryRoute,
+  appPayrollConfigurationRoute: appPayrollConfigurationRoute,
   appdashboardIndexRoute: appdashboardIndexRoute,
   appApprovalIndexRoute: appApprovalIndexRoute,
   appAttendanceIndexRoute: appAttendanceIndexRoute,

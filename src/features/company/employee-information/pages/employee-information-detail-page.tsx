@@ -41,6 +41,7 @@ import {
 import { Spinner } from '@/shared/components/ui/spinner'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs'
 import { snackbar } from '@/shared/lib/snackbar'
+import { EmployeeBpjsTab } from '@/features/company/employee-information/components/employee-bpjs-tab'
 import { EmployeeInformationEditSheet } from '@/features/company/employee-information/components/employee-information-edit-sheet'
 import {
   useDownloadEmployeeProfile,
@@ -372,6 +373,9 @@ export function EmployeeInformationDetailPage({
           <TabsTrigger value='bank'>{m.employee_information_detail_tab_bank()}</TabsTrigger>
           <TabsTrigger value='npwp'>{m.employee_information_detail_tab_npwp()}</TabsTrigger>
           <TabsTrigger value='mcu'>{m.employee_information_detail_tab_mcu()}</TabsTrigger>
+          <TabsTrigger value='bpjs'>
+            {m.employee_information_detail_tab_bpjs ? m.employee_information_detail_tab_bpjs() : 'BPJS'}
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value='personal'>
@@ -831,6 +835,14 @@ export function EmployeeInformationDetailPage({
               />
             </div>
           </div>
+        </TabsContent>
+
+        <TabsContent value='bpjs'>
+          <EmployeeBpjsTab
+            employeeId={employee.id}
+            defaultHealthNumber={financial.bpjsHealthNumber}
+            defaultEmploymentNumber={financial.bpjsEmploymentNumber}
+          />
         </TabsContent>
       </Tabs>
       <EmployeeInformationEditSheet

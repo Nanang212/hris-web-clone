@@ -1,4 +1,3 @@
-// src/features/payroll/pages/configuration/payroll-config-tab.tsx — Parent tab for Payroll Configurations
 import { useState } from 'react'
 import { BpjsKesConfigView } from './bpjs-kes-config-view'
 import { BpjsTkConfigView } from './bpjs-tk-config-view'
@@ -9,8 +8,12 @@ import { ThrConfigView } from './thr-config-view'
 import type { ConfigSubTab } from '../../types'
 import { Button } from '@/shared/components/ui/button'
 
-export function PayrollConfigTab() {
-  const [activeSubTab, setActiveSubTab] = useState<ConfigSubTab>('general')
+interface PayrollConfigTabProps {
+  initialSubTab?: ConfigSubTab
+}
+
+export function PayrollConfigTab({ initialSubTab = 'general' }: PayrollConfigTabProps) {
+  const [activeSubTab, setActiveSubTab] = useState<ConfigSubTab>(initialSubTab)
 
   const subTabs: { id: ConfigSubTab; label: string }[] = [
     { id: 'general', label: 'General / Cycle' },

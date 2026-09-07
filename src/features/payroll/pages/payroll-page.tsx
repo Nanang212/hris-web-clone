@@ -17,13 +17,21 @@ import { CreatePayrollWizard } from './process/create-payroll-wizard'
 import { PayrollProcessDetail } from './process/payroll-process-detail'
 import { PayrollProcessTab } from './process/payroll-process-tab'
 import { initialPayrollRuns } from '../data/mock-payroll-data'
-import type { PayrollTab, PayrollRun } from '../types'
+import type { PayrollTab, PayrollRun, ConfigSubTab } from '../types'
 import { useAppLayoutStore } from '@/shared/components/app-layout/app-layout-store'
 import { AppMain } from '@/shared/components/app-layout/app-main'
 import { Button } from '@/shared/components/ui/button'
 
-export function PayrollPage() {
-  const [activeTab, setActiveTab] = useState<PayrollTab>('overview')
+interface PayrollPageProps {
+  initialTab?: PayrollTab
+  initialSubTab?: ConfigSubTab
+}
+
+export function PayrollPage({
+  initialTab = 'overview',
+  initialSubTab = 'general',
+}: PayrollPageProps) {
+  const [activeTab, setActiveTab] = useState<PayrollTab>(initialTab)
   const [runs, setRuns] = useState<PayrollRun[]>(initialPayrollRuns)
 
   // Process sub-views: 'list' | 'create_wizard' | 'detail'
@@ -33,6 +41,7 @@ export function PayrollPage() {
   // Back button portal
   const setHasBackButton = useAppLayoutStore((state) => state.setHasBackButton)
   const backBtnNode = useAppLayoutStore((state) => state.backBtnNode)
+
 
   useEffect(() => {
     if (processView !== 'list') {
@@ -132,7 +141,9 @@ export function PayrollPage() {
         />
       )}
 
-      {activeTab === 'configuration' && <PayrollConfigTab />}
+      {activeTab === 'configuration' && (
+        <PayrollConfigTab key={initialSubTab} initialSubTab={initialSubTab} />
+      )}
 
       {activeTab === 'process' && (
         <>
