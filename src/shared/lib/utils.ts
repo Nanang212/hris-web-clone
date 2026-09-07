@@ -35,6 +35,7 @@ export function setCookie(
   document.cookie = `${name}=${encodeURIComponent(value)}${expiresStr}; path=${path}; SameSite=Lax`
 }
 
-export function removeCookie(name: string, _options?: { path?: string }) {
-  document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'
+export function removeCookie(name: string, options?: { path?: string }) {
+  const path = options?.path ?? '/'
+  document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=${path};`
 }
