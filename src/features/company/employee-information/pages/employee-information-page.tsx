@@ -308,25 +308,25 @@ function DepartmentDistribution({
   )
 }
 
-function QuickActions({ onImport, onExport }: { onImport: () => void; onExport: () => void }) {
+function QuickActions() {
   const actions = [
     {
       label: m.employee_information_quick_add(),
       description: m.employee_information_quick_add_description(),
       icon: IconPlus,
-      action: 'add',
+      to: '/company/employee-info/new',
     },
     {
-      label: m.employee_information_quick_import(),
-      description: m.employee_information_quick_import_description(),
+      label: 'Bulk Import',
+      description: 'Upload multiple employee records',
       icon: IconFileUpload,
-      action: 'import',
+      to: '/company/employee-info/import',
     },
     {
       label: m.employee_information_quick_report(),
       description: m.employee_information_quick_report_description(),
       icon: IconFileAnalytics,
-      action: 'export',
+      to: '/company/employee-info/export',
     },
   ] as const
   return (
@@ -335,9 +335,14 @@ function QuickActions({ onImport, onExport }: { onImport: () => void; onExport: 
         <CardTitle>{m.employee_information_quick_title()}</CardTitle>
       </CardHeader>
       <CardContent className='space-y-1'>
-        {actions.map(({ label, description, icon: Icon, action }) => {
-          const content = (
-            <>
+        {actions.map(({ label, description, icon: Icon, to }) => (
+          <Button
+            key={to}
+            variant='ghost'
+            className='h-auto w-full justify-start px-2 py-2'
+            asChild
+          >
+            <Link to={to}>
               <span className='flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary'>
                 <Icon className='size-4' />
               </span>
@@ -348,30 +353,9 @@ function QuickActions({ onImport, onExport }: { onImport: () => void; onExport: 
                 </span>
               </span>
               <IconArrowRight className='size-4 text-muted-foreground' />
-            </>
-          )
-          if (action === 'add')
-            return (
-              <Button
-                key={action}
-                variant='ghost'
-                className='h-auto w-full justify-start px-2 py-2'
-                asChild
-              >
-                <Link to='/company/employee-info/new'>{content}</Link>
-              </Button>
-            )
-          return (
-            <Button
-              key={action}
-              variant='ghost'
-              className='h-auto w-full justify-start px-2 py-2'
-              onClick={action === 'import' ? onImport : onExport}
-            >
-              {content}
-            </Button>
-          )
-        })}
+            </Link>
+          </Button>
+        ))}
       </CardContent>
     </Card>
   )
@@ -775,18 +759,17 @@ export function EmployeeInformationPage() {
       subtitle={m.employee_information_subtitle()}
       actions={
         <div className='flex flex-wrap justify-end gap-2'>
-          <Button variant='outline' size='sm' onClick={() => setImportOpen(true)}>
-            <IconFileUpload data-icon='inline-start' />
-            {m.employee_information_import()}
+          <Button variant='outline' size='sm' asChild>
+            <Link to='/company/employee-info/import'>
+              <IconFileUpload data-icon='inline-start' />
+              {m.employee_information_import()}
+            </Link>
           </Button>
-          <Button
-            variant='outline'
-            size='sm'
-            onClick={handleExport}
-            disabled={exportMutation.isPending}
-          >
-            {exportMutation.isPending ? <Spinner /> : <IconDownload data-icon='inline-start' />}
-            {m.employee_information_export()}
+          <Button variant='outline' size='sm' asChild>
+            <Link to='/company/employee-info/export'>
+              <IconDownload data-icon='inline-start' />
+              {m.employee_information_export()}
+            </Link>
           </Button>
           <Button size='sm' asChild>
             <Link to='/company/employee-info/new'>
@@ -1043,7 +1026,7 @@ export function EmployeeInformationPage() {
               data={overview.departmentDistribution}
               total={overview.stats.totalEmployees}
             />
-            <QuickActions onImport={() => setImportOpen(true)} onExport={handleExport} />
+            <QuickActions />
             <Card size='sm'>
               <CardHeader>
                 <div className='flex size-9 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600'>
