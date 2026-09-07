@@ -1,9 +1,11 @@
 // widget-config-modal.tsx
 import { IconX } from '@tabler/icons-react'
 import { useState } from 'react'
+import { Bar, BarChart, Line, LineChart, Pie, PieChart } from 'recharts'
 
+import { ChartContainer, type ChartConfig } from '@/shared/components/ui/chart'
+import type { CanvasWidget, WidgetConfigModalResult } from '@/features/dashboard/types'
 import { m } from '@/i18n/paraglide/messages'
-import type { CanvasWidget } from './widget-canvas'
 
 // ─── Mock preview data per widget ────────────────────────────────────────────
 
@@ -67,97 +69,44 @@ function getPreview(widget: CanvasWidget): PreviewData {
 // ─── Dynamic mini visualizer ───────────────────────────────────────────────
 
 function MiniVisualizer({ type, bars }: { type: string; bars: number[] }) {
+  const data = bars.map((value, index) => ({ index, value }))
+  const config = { value: { color: 'var(--chart-1)' } } satisfies ChartConfig
+
   if (type === 'Bar + trend') {
-    const max = Math.max(...bars)
     return (
-      <div className='flex h-16 items-end gap-1'>
-        {bars.map((v, i) => (
-          <div
-            key={i}
-            className='flex-1 rounded-t-sm bg-primary/80 transition-all duration-300'
-            style={{ height: `${(v / max) * 100}%` }}
-          />
-        ))}
-      </div>
+      <ChartContainer config={config} className='h-16 w-28'>
+        <BarChart accessibilityLayer data={data}>
+          <Bar dataKey='value' fill='var(--color-value)' radius={2} />
+        </BarChart>
+      </ChartContainer>
     )
   }
 
   if (type === 'Line chart') {
-    const max = Math.max(...bars)
-    const width = 112
-    const height = 64
-    const padding = 6
-    const points = bars
-      .map((v, i) => {
-        const x = padding + (i * (width - padding * 2)) / (bars.length - 1)
-        const y = height - padding - (v / max) * (height - padding * 2)
-        return `${x},${y}`
-      })
-      .join(' ')
-
-    const areaPoints = `${padding},${height} ${points} ${width - padding},${height}`
-
     return (
-      <svg className='h-16 w-28 overflow-visible' viewBox={`0 0 ${width} ${height}`}>
-        <polygon points={areaPoints} className='fill-primary/10' />
-        <polyline
-          points={points}
-          fill='none'
-          stroke='currentColor'
-          strokeWidth='2'
-          className='text-primary'
-        />
-        {bars.map((v, i) => {
-          const x = padding + (i * (width - padding * 2)) / (bars.length - 1)
-          const y = height - padding - (v / max) * (height - padding * 2)
-          return (
-            <circle
-              key={i}
-              cx={x}
-              cy={y}
-              r='2.5'
-              className='fill-background stroke-primary stroke-[1.5px]'
-            />
-          )
-        })}
-      </svg>
+      <ChartContainer config={config} className='h-16 w-28'>
+        <LineChart accessibilityLayer data={data}>
+          <Line dataKey='value' type='monotone' stroke='var(--color-value)' strokeWidth={2} />
+        </LineChart>
+      </ChartContainer>
     )
   }
 
   if (type === 'Donut') {
+    const donutConfig = {
+      primary: { color: 'var(--chart-1)' },
+      secondary: { color: 'var(--chart-2)' },
+    } satisfies ChartConfig
+    const donutData = [
+      { name: 'primary', value: 70, fill: 'var(--color-primary)' },
+      { name: 'secondary', value: 30, fill: 'var(--color-secondary)' },
+    ]
     return (
-      <div className='flex h-16 w-28 items-center justify-center'>
-        <svg className='h-14 w-14 -rotate-90' viewBox='0 0 36 36'>
-          <circle
-            cx='18'
-            cy='18'
-            r='15.915'
-            fill='none'
-            className='stroke-muted'
-            strokeWidth='3.5'
-          />
-          <circle
-            cx='18'
-            cy='18'
-            r='15.915'
-            fill='none'
-            className='stroke-primary'
-            strokeWidth='3.5'
-            strokeDasharray='70 30'
-            strokeDashoffset='0'
-          />
-          <circle
-            cx='18'
-            cy='18'
-            r='15.915'
-            fill='none'
-            className='stroke-violet-400 dark:stroke-violet-700'
-            strokeWidth='3.5'
-            strokeDasharray='20 80'
-            strokeDashoffset='-70'
-          />
-        </svg>
-      </div>
+      <ChartContainer config={donutConfig} className='h-16 w-28'>
+        <PieChart accessibilityLayer>
+          <Pie data={donutData} dataKey='value' nameKey='name' innerRadius={18} outerRadius={28} />
+        </PieChart>
+      </ChartContainer>
     )
   }
 
@@ -171,7 +120,7 @@ function MiniVisualizer({ type, bars }: { type: string; bars: number[] }) {
         </div>
         <div className='flex flex-col gap-1'>
           {[1, 2, 3].map((i) => (
-            <div key={i} className='flex gap-1 items-center'>
+            <div key={i} className='flex items-center gap-1'>
               <div className='h-1 w-6 rounded bg-muted/60' />
               <div className='h-1 w-4 rounded bg-muted/60' />
               <div className='ml-auto h-1 w-3 rounded bg-primary/40' />
@@ -192,23 +141,19 @@ function MiniVisualizer({ type, bars }: { type: string; bars: number[] }) {
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-export interface WidgetConfigModalResult {
-  widgetId: string
-  dateRange: string
-  compareWith: string
-  visualization: string
-  refreshFrequency: string
-  size: 'S' | 'M' | 'L'
-  showComparison: boolean
-}
-
 interface WidgetConfigModalProps {
   widget: CanvasWidget
   onClose: () => void
   onSave: (result: WidgetConfigModalResult) => void
 }
 
-const DATE_RANGE_OPTIONS = ['This month', 'Last month', 'Last 3 months', 'Last 6 months', 'This year']
+const DATE_RANGE_OPTIONS = [
+  'This month',
+  'Last month',
+  'Last 3 months',
+  'Last 6 months',
+  'This year',
+]
 const COMPARE_OPTIONS = ['Previous month', 'Same month last year', 'None']
 const VIZ_OPTIONS = ['Bar + trend', 'Line chart', 'Donut', 'Table', 'Number only']
 const REFRESH_OPTIONS = ['5 minutes', '15 minutes', '30 minutes', '1 hour', 'Manual']
@@ -232,7 +177,15 @@ export function WidgetConfigModal({ widget, onClose, onSave }: WidgetConfigModal
   const preview = getPreview(widget)
 
   const handleSave = () => {
-    onSave({ widgetId: widget.id, dateRange, compareWith, visualization, refreshFrequency, size, showComparison })
+    onSave({
+      widgetId: widget.id,
+      dateRange,
+      compareWith,
+      visualization,
+      refreshFrequency,
+      size,
+      showComparison,
+    })
     onClose()
   }
 
@@ -267,7 +220,6 @@ export function WidgetConfigModal({ widget, onClose, onSave }: WidgetConfigModal
 
         {/* ── Scrollable body ── */}
         <div className='flex flex-col gap-5 overflow-y-auto p-6'>
-
           {/* Live preview card */}
           <div className='rounded-xl border border-border bg-muted/30 p-4'>
             <p className='mb-2 text-xs font-medium text-muted-foreground'>
@@ -297,9 +249,11 @@ export function WidgetConfigModal({ widget, onClose, onSave }: WidgetConfigModal
                 id='cfg-date-range'
                 value={dateRange}
                 onChange={(e) => setDateRange(e.target.value)}
-                className='w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40'
+                className='w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:ring-2 focus:ring-primary/40 focus:outline-none'
               >
-                {DATE_RANGE_OPTIONS.map((o) => <option key={o}>{o}</option>)}
+                {DATE_RANGE_OPTIONS.map((o) => (
+                  <option key={o}>{o}</option>
+                ))}
               </select>
             </div>
             <div className='flex flex-col gap-1.5'>
@@ -310,9 +264,11 @@ export function WidgetConfigModal({ widget, onClose, onSave }: WidgetConfigModal
                 id='cfg-compare'
                 value={compareWith}
                 onChange={(e) => setCompareWith(e.target.value)}
-                className='w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40'
+                className='w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:ring-2 focus:ring-primary/40 focus:outline-none'
               >
-                {COMPARE_OPTIONS.map((o) => <option key={o}>{o}</option>)}
+                {COMPARE_OPTIONS.map((o) => (
+                  <option key={o}>{o}</option>
+                ))}
               </select>
             </div>
           </div>
@@ -327,9 +283,11 @@ export function WidgetConfigModal({ widget, onClose, onSave }: WidgetConfigModal
                 id='cfg-viz'
                 value={visualization}
                 onChange={(e) => setVisualization(e.target.value)}
-                className='w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40'
+                className='w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:ring-2 focus:ring-primary/40 focus:outline-none'
               >
-                {VIZ_OPTIONS.map((o) => <option key={o}>{o}</option>)}
+                {VIZ_OPTIONS.map((o) => (
+                  <option key={o}>{o}</option>
+                ))}
               </select>
             </div>
             <div className='flex flex-col gap-1.5'>
@@ -340,9 +298,11 @@ export function WidgetConfigModal({ widget, onClose, onSave }: WidgetConfigModal
                 id='cfg-refresh'
                 value={refreshFrequency}
                 onChange={(e) => setRefreshFrequency(e.target.value)}
-                className='w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40'
+                className='w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:ring-2 focus:ring-primary/40 focus:outline-none'
               >
-                {REFRESH_OPTIONS.map((o) => <option key={o}>{o}</option>)}
+                {REFRESH_OPTIONS.map((o) => (
+                  <option key={o}>{o}</option>
+                ))}
               </select>
             </div>
           </div>
@@ -385,7 +345,7 @@ export function WidgetConfigModal({ widget, onClose, onSave }: WidgetConfigModal
               role='switch'
               aria-checked={showComparison}
               onClick={() => setShowComparison((v) => !v)}
-              className={`ml-4 inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus:outline-none focus:ring-2 focus:ring-primary/40 ${
+              className={`ml-4 inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus:ring-2 focus:ring-primary/40 focus:outline-none ${
                 showComparison ? 'bg-primary' : 'bg-input'
               }`}
             >

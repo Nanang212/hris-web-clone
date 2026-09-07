@@ -1,66 +1,63 @@
+import { CartesianGrid, Line, LineChart, XAxis, YAxis } from 'recharts'
+
+import {
+  ChartContainer,
+  ChartLegend,
+  ChartLegendContent,
+  ChartTooltip,
+  ChartTooltipContent,
+  type ChartConfig,
+} from '@/shared/components/ui/chart'
+import { m } from '@/i18n/paraglide/messages'
+
+const chartData = [
+  { week: 'W1', presentRate: 88, exceptions: 2 },
+  { week: 'W3', presentRate: 90, exceptions: 4 },
+  { week: 'W5', presentRate: 91, exceptions: 2 },
+  { week: 'W7', presentRate: 93, exceptions: 5 },
+  { week: 'W9', presentRate: 94, exceptions: 3 },
+  { week: 'W11', presentRate: 96, exceptions: 1 },
+]
+
+const chartConfig = {
+  presentRate: { label: 'Present rate', color: 'var(--chart-1)' },
+  exceptions: { label: 'Exceptions', color: 'var(--chart-3)' },
+} satisfies ChartConfig
+
 export function TeamAttendanceChart() {
   return (
-    <div className="flex flex-col rounded-2xl bg-card p-5 shadow-sm ring-1 ring-foreground/5">
-      <div className="mb-6 flex flex-col justify-between sm:flex-row sm:items-center">
-        <div>
-          <h3 className="text-sm font-semibold">
-            Team Attendance & Availability
-          </h3>
-          <p className="text-xs text-muted-foreground">
-            Present rate and attendance exceptions · last 12 weeks
-          </p>
-        </div>
-        <div className="mt-3 flex items-center gap-4 sm:mt-0">
-          <div className="flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full bg-blue-500" />
-            <span className="text-xs font-medium text-muted-foreground">
-              Present rate
-            </span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full bg-amber-500" />
-            <span className="text-xs font-medium text-muted-foreground">
-              Exceptions
-            </span>
-          </div>
-        </div>
+    <div className='flex flex-col gap-4 rounded-2xl bg-card p-5 shadow-sm ring-1 ring-foreground/5'>
+      <div>
+        <h3 className='text-sm font-semibold'>{m.dashboard_team_attendance_availability()}</h3>
+        <p className='text-xs text-muted-foreground'>
+          {m.dashboard_team_attendance_availability_sub()}
+        </p>
       </div>
-
-      <div className="relative h-[200px] w-full">
-        {/* Grid lines */}
-        <div className="absolute inset-0 flex flex-col justify-between pt-4 pb-8">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="w-full border-t border-border/50" />
-          ))}
-        </div>
-
-        {/* X-axis labels */}
-        <div className="absolute bottom-0 left-0 right-0 flex justify-between px-4 text-[10px] font-medium text-muted-foreground">
-          {['W1', 'W3', 'W5', 'W7', 'W9', 'W11'].map((w) => (
-            <span key={w}>{w}</span>
-          ))}
-        </div>
-
-        {/* SVG chart */}
-        <svg
-          viewBox="0 0 1000 200"
-          className="absolute inset-0 h-[195px] w-full overflow-visible"
-          preserveAspectRatio="none"
-        >
-          {/* Present rate line (blue, rising) */}
-          <path
-            d="M 0 160 Q 100 155 200 140 T 400 120 T 600 90 T 800 75 T 1000 55"
-            fill="none"
-            stroke="#3b82f6"
-            strokeWidth="3"
-            strokeLinecap="round"
+      <ChartContainer config={chartConfig} className='h-50 w-full'>
+        <LineChart accessibilityLayer data={chartData} margin={{ left: 0, right: 12 }}>
+          <CartesianGrid vertical={false} />
+          <XAxis dataKey='week' tickLine={false} axisLine={false} tickMargin={8} />
+          <YAxis yAxisId='rate' hide domain={[80, 100]} />
+          <YAxis yAxisId='exceptions' hide orientation='right' domain={[0, 6]} />
+          <ChartTooltip content={<ChartTooltipContent />} />
+          <ChartLegend content={<ChartLegendContent />} />
+          <Line
+            yAxisId='rate'
+            dataKey='presentRate'
+            type='monotone'
+            stroke='var(--color-presentRate)'
+            strokeWidth={2}
+            dot={false}
           />
-          {/* Exceptions dots (amber) */}
-          <circle cx="270" cy="140" r="6" fill="#f59e0b" />
-          <circle cx="560" cy="105" r="6" fill="#f59e0b" />
-          <circle cx="820" cy="80" r="6" fill="#f59e0b" />
-        </svg>
-      </div>
+          <Line
+            yAxisId='exceptions'
+            dataKey='exceptions'
+            type='monotone'
+            stroke='var(--color-exceptions)'
+            strokeWidth={2}
+          />
+        </LineChart>
+      </ChartContainer>
     </div>
   )
 }

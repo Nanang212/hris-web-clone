@@ -133,10 +133,10 @@ export function TestWorkflowPage({ workflowId }: TestWorkflowPageProps) {
                   ))}
                 </select>
               </div>
-              {(form.requestType === 'leave' || form.requestType === 'overtime') && (
+              {(form.requestType === 'leave' || form.requestType === 'overtime' || form.requestType === 'business_trip') && (
                 <div>
                   <label className='mb-1.5 block text-xs font-medium'>
-                    Jumlah Hari / Jam
+                    {form.requestType === 'overtime' ? 'Jumlah Jam' : 'Jumlah Hari'}
                   </label>
                   <input
                     type='number'
@@ -149,9 +149,11 @@ export function TestWorkflowPage({ workflowId }: TestWorkflowPageProps) {
                   />
                 </div>
               )}
-              {(form.requestType === 'reimbursement' || form.requestType === 'loan') && (
+              {(form.requestType === 'claim' || form.requestType === 'reimbursement' || form.requestType === 'business_trip' || form.requestType === 'loan') && (
                 <div>
-                  <label className='mb-1.5 block text-xs font-medium'>Jumlah (Rp)</label>
+                  <label className='mb-1.5 block text-xs font-medium'>
+                    {form.requestType === 'business_trip' ? 'Estimasi Biaya / Uang Muka (Rp)' : 'Jumlah Klaim (Rp)'}
+                  </label>
                   <input
                     type='number'
                     value={form.requestAmount}

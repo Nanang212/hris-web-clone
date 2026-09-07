@@ -201,7 +201,7 @@ export function AppMain({
   return (
     <main
       className={cn(
-        'flex min-h-[calc(100vh-64px)] w-full flex-col gap-6 border border-border bg-background p-4',
+        'flex min-h-[calc(100vh-64px)] w-full max-w-full min-w-0 flex-col gap-6 border border-border bg-background p-4 overflow-x-hidden',
         open && 'rounded-s-3xl transition-all duration-300',
         className,
       )}

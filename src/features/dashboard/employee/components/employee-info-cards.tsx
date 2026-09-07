@@ -18,8 +18,7 @@ export function MyDocuments({ items: propItems }: { items?: CardItem[] }) {
       label: 'Required documents',
       value: '6 / 6',
       valueColor: 'text-emerald-600 dark:text-emerald-400',
-      color:
-        'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300',
+      color: 'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300',
     },
     {
       id: 'mcu',
@@ -35,23 +34,20 @@ export function MyDocuments({ items: propItems }: { items?: CardItem[] }) {
       label: 'NPWP status',
       value: 'Active',
       valueColor: 'text-emerald-600 dark:text-emerald-400',
-      color:
-        'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300',
+      color: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300',
     },
   ]
 
   const docs = propItems || defaultDocs
 
   return (
-    <div className="flex flex-col gap-4 rounded-2xl bg-card p-5 shadow-sm ring-1 ring-foreground/5">
+    <div className='flex flex-col gap-4 rounded-2xl bg-card p-5 shadow-sm ring-1 ring-foreground/5'>
       <div>
-        <h3 className="text-sm font-semibold">My Documents</h3>
-        <p className="text-xs text-muted-foreground">
-          Employee document status
-        </p>
+        <h3 className='text-sm font-semibold'>My Documents</h3>
+        <p className='text-xs text-muted-foreground'>Employee document status</p>
       </div>
 
-      <div className="flex flex-col gap-4">
+      <div className='flex flex-col gap-4'>
         {docs.map((doc) => {
           let codeVal = doc.code
           if (!codeVal) {
@@ -62,33 +58,38 @@ export function MyDocuments({ items: propItems }: { items?: CardItem[] }) {
           }
           let bgCol = doc.color
           if (!bgCol) {
-            if (doc.id === 'doc-1') bgCol = 'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300'
-            else if (doc.id === 'doc-2') bgCol = 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300'
+            if (doc.id === 'doc-1')
+              bgCol = 'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300'
+            else if (doc.id === 'doc-2')
+              bgCol = 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300'
             else bgCol = 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300'
           }
           return (
-            <div key={doc.id} className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
+            <div key={doc.id} className='flex items-center justify-between'>
+              <div className='flex items-center gap-3'>
                 <span
                   className={cn(
                     'flex h-8 w-8 items-center justify-center rounded-lg text-xs font-bold',
-                    bgCol
+                    bgCol,
                   )}
                 >
                   {codeVal}
                 </span>
-                <span className="text-sm font-medium">{doc.label}</span>
+                <span className='text-sm font-medium'>{doc.label}</span>
               </div>
-              <span className={cn('text-sm font-semibold', doc.valueColor || doc.statusColor || 'text-foreground')}>
+              <span
+                className={cn(
+                  'text-sm font-semibold',
+                  doc.valueColor || doc.statusColor || 'text-foreground',
+                )}
+              >
                 {doc.value}
               </span>
             </div>
           )
         })}
       </div>
-      <p className="text-xs text-muted-foreground">
-        No documents expiring soon
-      </p>
+      <p className='text-xs text-muted-foreground'>No documents expiring soon</p>
     </div>
   )
 }
@@ -109,8 +110,7 @@ export function PayrollTax({ items: propItems }: { items?: CardItem[] }) {
       label: 'THR status',
       value: 'Paid',
       valueColor: 'text-emerald-600 dark:text-emerald-400',
-      color:
-        'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300',
+      color: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300',
     },
     {
       id: 'tax',
@@ -118,21 +118,20 @@ export function PayrollTax({ items: propItems }: { items?: CardItem[] }) {
       label: 'Tax document',
       value: '1721-A1',
       valueColor: 'text-foreground',
-      color:
-        'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300',
+      color: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300',
     },
   ]
 
   const items = propItems || defaultItems
 
   return (
-    <div className="flex flex-col gap-4 rounded-2xl bg-card p-5 shadow-sm ring-1 ring-foreground/5">
+    <div className='flex flex-col gap-4 rounded-2xl bg-card p-5 shadow-sm ring-1 ring-foreground/5'>
       <div>
-        <h3 className="text-sm font-semibold">Payroll & Tax</h3>
-        <p className="text-xs text-muted-foreground">Latest available data</p>
+        <h3 className='text-sm font-semibold'>Payroll & Tax</h3>
+        <p className='text-xs text-muted-foreground'>Latest available data</p>
       </div>
 
-      <div className="flex flex-col gap-4">
+      <div className='flex flex-col gap-4'>
         {items.map((item) => {
           let codeVal = item.code
           if (!codeVal) {
@@ -143,33 +142,38 @@ export function PayrollTax({ items: propItems }: { items?: CardItem[] }) {
           }
           let bgCol = item.color
           if (!bgCol) {
-            if (item.id === 'pay-1') bgCol = 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300'
-            else if (item.id === 'pay-2') bgCol = 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300'
+            if (item.id === 'pay-1')
+              bgCol = 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300'
+            else if (item.id === 'pay-2')
+              bgCol = 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300'
             else bgCol = 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300'
           }
           return (
-            <div key={item.id} className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
+            <div key={item.id} className='flex items-center justify-between'>
+              <div className='flex items-center gap-3'>
                 <span
                   className={cn(
                     'flex h-8 w-8 items-center justify-center rounded-lg text-xs font-bold',
-                    bgCol
+                    bgCol,
                   )}
                 >
                   {codeVal}
                 </span>
-                <span className="text-sm font-medium">{item.label}</span>
+                <span className='text-sm font-medium'>{item.label}</span>
               </div>
-              <span className={cn('text-sm font-semibold', item.valueColor || item.statusColor || 'text-foreground')}>
+              <span
+                className={cn(
+                  'text-sm font-semibold',
+                  item.valueColor || item.statusColor || 'text-foreground',
+                )}
+              >
                 {item.value}
               </span>
             </div>
           )
         })}
       </div>
-      <p className="text-xs text-muted-foreground">
-        Salary data visible only to you
-      </p>
+      <p className='text-xs text-muted-foreground'>Salary data visible only to you</p>
     </div>
   )
 }
@@ -190,8 +194,7 @@ export function UpcomingEvents({ items: propItems }: { items?: CardItem[] }) {
       label: 'Town Hall',
       value: '15 May',
       valueColor: 'text-amber-600 dark:text-amber-400',
-      color:
-        'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300',
+      color: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300',
     },
     {
       id: 'bd',
@@ -199,23 +202,20 @@ export function UpcomingEvents({ items: propItems }: { items?: CardItem[] }) {
       label: 'Birthday reminder',
       value: '17 May',
       valueColor: 'text-purple-600 dark:text-purple-400',
-      color:
-        'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300',
+      color: 'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300',
     },
   ]
 
   const events = propItems || defaultEvents
 
   return (
-    <div className="flex flex-col gap-4 rounded-2xl bg-card p-5 shadow-sm ring-1 ring-foreground/5">
+    <div className='flex flex-col gap-4 rounded-2xl bg-card p-5 shadow-sm ring-1 ring-foreground/5'>
       <div>
-        <h3 className="text-sm font-semibold">Upcoming</h3>
-        <p className="text-xs text-muted-foreground">
-          My schedule & people events
-        </p>
+        <h3 className='text-sm font-semibold'>Upcoming</h3>
+        <p className='text-xs text-muted-foreground'>My schedule & people events</p>
       </div>
 
-      <div className="flex flex-col gap-4">
+      <div className='flex flex-col gap-4'>
         {events.map((ev) => {
           let codeVal = ev.code
           if (!codeVal) {
@@ -226,31 +226,38 @@ export function UpcomingEvents({ items: propItems }: { items?: CardItem[] }) {
           }
           let bgCol = ev.color
           if (!bgCol) {
-            if (ev.id === 'ue-1' || ev.id === 'cal') bgCol = 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300'
-            else if (ev.id === 'ue-2' || ev.id === 'ann') bgCol = 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300'
+            if (ev.id === 'ue-1' || ev.id === 'cal')
+              bgCol = 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300'
+            else if (ev.id === 'ue-2' || ev.id === 'ann')
+              bgCol = 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300'
             else bgCol = 'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300'
           }
           return (
-            <div key={ev.id} className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
+            <div key={ev.id} className='flex items-center justify-between'>
+              <div className='flex items-center gap-3'>
                 <span
                   className={cn(
                     'flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold',
-                    bgCol
+                    bgCol,
                   )}
                 >
                   {codeVal}
                 </span>
-                <span className="text-sm font-medium">{ev.label}</span>
+                <span className='text-sm font-medium'>{ev.label}</span>
               </div>
-              <span className={cn('text-sm font-semibold', ev.valueColor || ev.statusColor || 'text-foreground')}>
+              <span
+                className={cn(
+                  'text-sm font-semibold',
+                  ev.valueColor || ev.statusColor || 'text-foreground',
+                )}
+              >
                 {ev.value}
               </span>
             </div>
           )
         })}
       </div>
-      <p className="text-xs text-muted-foreground">Open people calendar</p>
+      <p className='text-xs text-muted-foreground'>Open people calendar</p>
     </div>
   )
 }

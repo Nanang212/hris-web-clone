@@ -31,7 +31,6 @@ import { Route as appOvertimeIndexRouteImport } from './../../routes/(app)/overt
 import { Route as appOvertimeHistoryRouteImport } from './../../routes/(app)/overtime/history'
 import { Route as appPayrollIndexRouteImport } from './../../routes/(app)/payroll/index'
 import { Route as appPayrollConfigurationRouteImport } from './../../routes/(app)/payroll/configuration'
-import { Route as appPerformanceIndexRouteImport } from './../../routes/(app)/performance/index'
 import { Route as appReportIndexRouteImport } from './../../routes/(app)/report/index'
 import { Route as appdashboardDashboardCustomizeRouteImport } from './../../routes/(app)/(dashboard)/dashboard.customize'
 import { Route as appdashboardDashboardEmployeeRouteImport } from './../../routes/(app)/(dashboard)/dashboard.employee'
@@ -94,6 +93,8 @@ import { Route as appSettingsSecurityAuditTrailRouteImport } from './../../route
 import { Route as appSettingsSecurityDeviceRouteImport } from './../../routes/(app)/settings/security/device'
 import { Route as appSettingsSecurityPasswordRouteImport } from './../../routes/(app)/settings/security/password'
 import { Route as appSettingsSecuritySessionRouteImport } from './../../routes/(app)/settings/security/session'
+import { Route as appTravelExpenseBusinessTripIndexRouteImport } from './../../routes/(app)/travel-expense/business-trip/index'
+import { Route as appTravelExpenseClaimIndexRouteImport } from './../../routes/(app)/travel-expense/claim/index'
 import { Route as appAttendanceApprovalRequestIdRejectRouteImport } from './../../routes/(app)/attendance/approval/$requestId/reject'
 import { Route as appAttendanceManagementExceptionsExceptionIdRouteImport } from './../../routes/(app)/attendance/management/exceptions/$exceptionId'
 import { Route as appAttendanceManagementShiftsIndexRouteImport } from './../../routes/(app)/attendance/management/shifts/index'
@@ -228,11 +229,6 @@ const appPayrollIndexRoute = appPayrollIndexRouteImport.update({
 const appPayrollConfigurationRoute = appPayrollConfigurationRouteImport.update({
   id: '/payroll/configuration',
   path: '/payroll/configuration',
-  getParentRoute: () => appRouteRoute,
-} as any)
-const appPerformanceIndexRoute = appPerformanceIndexRouteImport.update({
-  id: '/performance/',
-  path: '/performance/',
   getParentRoute: () => appRouteRoute,
 } as any)
 const appReportIndexRoute = appReportIndexRouteImport.update({
@@ -596,6 +592,18 @@ const appSettingsSecuritySessionRoute =
     path: '/settings/security/session',
     getParentRoute: () => appRouteRoute,
   } as any)
+const appTravelExpenseBusinessTripIndexRoute =
+  appTravelExpenseBusinessTripIndexRouteImport.update({
+    id: '/travel-expense/business-trip/',
+    path: '/travel-expense/business-trip/',
+    getParentRoute: () => appRouteRoute,
+  } as any)
+const appTravelExpenseClaimIndexRoute =
+  appTravelExpenseClaimIndexRouteImport.update({
+    id: '/travel-expense/claim/',
+    path: '/travel-expense/claim/',
+    getParentRoute: () => appRouteRoute,
+  } as any)
 const appAttendanceApprovalRequestIdRejectRoute =
   appAttendanceApprovalRequestIdRejectRouteImport.update({
     id: '/reject',
@@ -763,7 +771,6 @@ export interface FileRoutesByFullPath {
   '/leave/': typeof appLeaveIndexRoute
   '/overtime/': typeof appOvertimeIndexRoute
   '/payroll/': typeof appPayrollIndexRoute
-  '/performance/': typeof appPerformanceIndexRoute
   '/report/': typeof appReportIndexRoute
   '/dashboard/customize': typeof appdashboardDashboardCustomizeRoute
   '/dashboard/employee': typeof appdashboardDashboardEmployeeRoute
@@ -826,6 +833,8 @@ export interface FileRoutesByFullPath {
   '/settings/notification/': typeof appSettingsNotificationIndexRoute
   '/settings/role-access/': typeof appSettingsRoleAccessIndexRoute
   '/settings/security/': typeof appSettingsSecurityIndexRoute
+  '/travel-expense/business-trip/': typeof appTravelExpenseBusinessTripIndexRoute
+  '/travel-expense/claim/': typeof appTravelExpenseClaimIndexRoute
   '/attendance/approval/$requestId/reject': typeof appAttendanceApprovalRequestIdRejectRoute
   '/attendance/management/exceptions/$exceptionId': typeof appAttendanceManagementExceptionsExceptionIdRoute
   '/attendance/management/shifts/assignments': typeof appAttendanceManagementShiftsAssignmentsRoute
@@ -873,7 +882,6 @@ export interface FileRoutesByTo {
   '/leave': typeof appLeaveIndexRoute
   '/overtime': typeof appOvertimeIndexRoute
   '/payroll': typeof appPayrollIndexRoute
-  '/performance': typeof appPerformanceIndexRoute
   '/report': typeof appReportIndexRoute
   '/dashboard/customize': typeof appdashboardDashboardCustomizeRoute
   '/dashboard/employee': typeof appdashboardDashboardEmployeeRoute
@@ -936,6 +944,8 @@ export interface FileRoutesByTo {
   '/settings/notification': typeof appSettingsNotificationIndexRoute
   '/settings/role-access': typeof appSettingsRoleAccessIndexRoute
   '/settings/security': typeof appSettingsSecurityIndexRoute
+  '/travel-expense/business-trip': typeof appTravelExpenseBusinessTripIndexRoute
+  '/travel-expense/claim': typeof appTravelExpenseClaimIndexRoute
   '/attendance/approval/$requestId/reject': typeof appAttendanceApprovalRequestIdRejectRoute
   '/attendance/management/exceptions/$exceptionId': typeof appAttendanceManagementExceptionsExceptionIdRoute
   '/attendance/management/shifts/assignments': typeof appAttendanceManagementShiftsAssignmentsRoute
@@ -985,7 +995,6 @@ export interface FileRoutesById {
   '/(app)/leave/': typeof appLeaveIndexRoute
   '/(app)/overtime/': typeof appOvertimeIndexRoute
   '/(app)/payroll/': typeof appPayrollIndexRoute
-  '/(app)/performance/': typeof appPerformanceIndexRoute
   '/(app)/report/': typeof appReportIndexRoute
   '/(app)/(dashboard)/dashboard/customize': typeof appdashboardDashboardCustomizeRoute
   '/(app)/(dashboard)/dashboard/employee': typeof appdashboardDashboardEmployeeRoute
@@ -1048,6 +1057,8 @@ export interface FileRoutesById {
   '/(app)/settings/notification/': typeof appSettingsNotificationIndexRoute
   '/(app)/settings/role-access/': typeof appSettingsRoleAccessIndexRoute
   '/(app)/settings/security/': typeof appSettingsSecurityIndexRoute
+  '/(app)/travel-expense/business-trip/': typeof appTravelExpenseBusinessTripIndexRoute
+  '/(app)/travel-expense/claim/': typeof appTravelExpenseClaimIndexRoute
   '/(app)/attendance/approval/$requestId/reject': typeof appAttendanceApprovalRequestIdRejectRoute
   '/(app)/attendance/management/exceptions/$exceptionId': typeof appAttendanceManagementExceptionsExceptionIdRoute
   '/(app)/attendance/management/shifts/assignments': typeof appAttendanceManagementShiftsAssignmentsRoute
@@ -1097,7 +1108,6 @@ export interface FileRouteTypes {
     | '/leave/'
     | '/overtime/'
     | '/payroll/'
-    | '/performance/'
     | '/report/'
     | '/dashboard/customize'
     | '/dashboard/employee'
@@ -1160,6 +1170,8 @@ export interface FileRouteTypes {
     | '/settings/notification/'
     | '/settings/role-access/'
     | '/settings/security/'
+    | '/travel-expense/business-trip/'
+    | '/travel-expense/claim/'
     | '/attendance/approval/$requestId/reject'
     | '/attendance/management/exceptions/$exceptionId'
     | '/attendance/management/shifts/assignments'
@@ -1207,7 +1219,6 @@ export interface FileRouteTypes {
     | '/leave'
     | '/overtime'
     | '/payroll'
-    | '/performance'
     | '/report'
     | '/dashboard/customize'
     | '/dashboard/employee'
@@ -1270,6 +1281,8 @@ export interface FileRouteTypes {
     | '/settings/notification'
     | '/settings/role-access'
     | '/settings/security'
+    | '/travel-expense/business-trip'
+    | '/travel-expense/claim'
     | '/attendance/approval/$requestId/reject'
     | '/attendance/management/exceptions/$exceptionId'
     | '/attendance/management/shifts/assignments'
@@ -1318,7 +1331,6 @@ export interface FileRouteTypes {
     | '/(app)/leave/'
     | '/(app)/overtime/'
     | '/(app)/payroll/'
-    | '/(app)/performance/'
     | '/(app)/report/'
     | '/(app)/(dashboard)/dashboard/customize'
     | '/(app)/(dashboard)/dashboard/employee'
@@ -1381,6 +1393,8 @@ export interface FileRouteTypes {
     | '/(app)/settings/notification/'
     | '/(app)/settings/role-access/'
     | '/(app)/settings/security/'
+    | '/(app)/travel-expense/business-trip/'
+    | '/(app)/travel-expense/claim/'
     | '/(app)/attendance/approval/$requestId/reject'
     | '/(app)/attendance/management/exceptions/$exceptionId'
     | '/(app)/attendance/management/shifts/assignments'
@@ -1569,13 +1583,6 @@ declare module '@tanstack/react-router' {
       path: '/payroll/configuration'
       fullPath: '/payroll/configuration'
       preLoaderRoute: typeof appPayrollConfigurationRouteImport
-      parentRoute: typeof appRouteRoute
-    }
-    '/(app)/performance/': {
-      id: '/(app)/performance/'
-      path: '/performance'
-      fullPath: '/performance/'
-      preLoaderRoute: typeof appPerformanceIndexRouteImport
       parentRoute: typeof appRouteRoute
     }
     '/(app)/report/': {
@@ -2012,6 +2019,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof appSettingsSecuritySessionRouteImport
       parentRoute: typeof appRouteRoute
     }
+    '/(app)/travel-expense/business-trip/': {
+      id: '/(app)/travel-expense/business-trip/'
+      path: '/travel-expense/business-trip'
+      fullPath: '/travel-expense/business-trip/'
+      preLoaderRoute: typeof appTravelExpenseBusinessTripIndexRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/travel-expense/claim/': {
+      id: '/(app)/travel-expense/claim/'
+      path: '/travel-expense/claim'
+      fullPath: '/travel-expense/claim/'
+      preLoaderRoute: typeof appTravelExpenseClaimIndexRouteImport
+      parentRoute: typeof appRouteRoute
+    }
     '/(app)/attendance/approval/$requestId/reject': {
       id: '/(app)/attendance/approval/$requestId/reject'
       path: '/reject'
@@ -2216,7 +2237,6 @@ interface appRouteRouteChildren {
   appLeaveIndexRoute: typeof appLeaveIndexRoute
   appOvertimeIndexRoute: typeof appOvertimeIndexRoute
   appPayrollIndexRoute: typeof appPayrollIndexRoute
-  appPerformanceIndexRoute: typeof appPerformanceIndexRoute
   appReportIndexRoute: typeof appReportIndexRoute
   appdashboardDashboardCustomizeRoute: typeof appdashboardDashboardCustomizeRoute
   appdashboardDashboardEmployeeRoute: typeof appdashboardDashboardEmployeeRoute
@@ -2279,6 +2299,8 @@ interface appRouteRouteChildren {
   appSettingsNotificationIndexRoute: typeof appSettingsNotificationIndexRoute
   appSettingsRoleAccessIndexRoute: typeof appSettingsRoleAccessIndexRoute
   appSettingsSecurityIndexRoute: typeof appSettingsSecurityIndexRoute
+  appTravelExpenseBusinessTripIndexRoute: typeof appTravelExpenseBusinessTripIndexRoute
+  appTravelExpenseClaimIndexRoute: typeof appTravelExpenseClaimIndexRoute
   appAttendanceManagementExceptionsExceptionIdRoute: typeof appAttendanceManagementExceptionsExceptionIdRoute
   appAttendanceManagementShiftsAssignmentsRoute: typeof appAttendanceManagementShiftsAssignmentsRoute
   appAttendanceManagementShiftsSetupRoute: typeof appAttendanceManagementShiftsSetupRoute
@@ -2322,7 +2344,6 @@ const appRouteRouteChildren: appRouteRouteChildren = {
   appLeaveIndexRoute: appLeaveIndexRoute,
   appOvertimeIndexRoute: appOvertimeIndexRoute,
   appPayrollIndexRoute: appPayrollIndexRoute,
-  appPerformanceIndexRoute: appPerformanceIndexRoute,
   appReportIndexRoute: appReportIndexRoute,
   appdashboardDashboardCustomizeRoute: appdashboardDashboardCustomizeRoute,
   appdashboardDashboardEmployeeRoute: appdashboardDashboardEmployeeRoute,
@@ -2389,6 +2410,9 @@ const appRouteRouteChildren: appRouteRouteChildren = {
   appSettingsNotificationIndexRoute: appSettingsNotificationIndexRoute,
   appSettingsRoleAccessIndexRoute: appSettingsRoleAccessIndexRoute,
   appSettingsSecurityIndexRoute: appSettingsSecurityIndexRoute,
+  appTravelExpenseBusinessTripIndexRoute:
+    appTravelExpenseBusinessTripIndexRoute,
+  appTravelExpenseClaimIndexRoute: appTravelExpenseClaimIndexRoute,
   appAttendanceManagementExceptionsExceptionIdRoute:
     appAttendanceManagementExceptionsExceptionIdRoute,
   appAttendanceManagementShiftsAssignmentsRoute:

@@ -1,4 +1,4 @@
-export interface Envelope<T> {
+export interface Envelope<T = undefined> {
   success: boolean
   code: string
   data: T

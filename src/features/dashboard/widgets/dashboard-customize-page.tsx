@@ -1,17 +1,20 @@
 import { useState } from 'react'
 
-import { m } from '@/i18n/paraglide/messages'
 import { AppMain } from '@/shared/components/app-layout/app-main'
 import { Button } from '@/shared/components/ui/button'
+import type {
+  CanvasWidget,
+  CatalogWidget,
+  SelectedWidget,
+  WidgetConfig,
+  WidgetConfigModalResult,
+} from '@/features/dashboard/types'
+import { m } from '@/i18n/paraglide/messages'
 
-import { WidgetCanvas, type CanvasWidget } from './components/widget-canvas'
-import { WidgetCatalog, type CatalogWidget } from './components/widget-catalog'
-import { WidgetConfigModal, type WidgetConfigModalResult } from './components/widget-config-modal'
-import {
-  WidgetConfigPanel,
-  type SelectedWidget,
-  type WidgetConfig,
-} from './components/widget-config-panel'
+import { WidgetCanvas } from './components/widget-canvas'
+import { WidgetCatalog } from './components/widget-catalog'
+import { WidgetConfigModal } from './components/widget-config-modal'
+import { WidgetConfigPanel } from './components/widget-config-panel'
 
 // ─── Initial catalog data ────────────────────────────────────────────────────
 

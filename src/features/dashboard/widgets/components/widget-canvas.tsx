@@ -2,16 +2,8 @@
 import { IconDots, IconGripVertical } from '@tabler/icons-react'
 import { useRef } from 'react'
 
+import type { CanvasWidget } from '@/features/dashboard/types'
 import { m } from '@/i18n/paraglide/messages'
-
-export interface CanvasWidget {
-  id: string
-  name: string
-  size: 'S' | 'M' | 'L'
-  dateRange: string
-  active: boolean
-  colSpan?: 1 | 2
-}
 
 interface WidgetCanvasProps {
   widgets: CanvasWidget[]
@@ -55,9 +47,7 @@ export function WidgetCanvas({
       {/* Header */}
       <div className='flex items-start justify-between gap-4'>
         <div>
-          <p className='text-base font-semibold text-foreground'>
-            {m.dashboard_widget_canvas()}
-          </p>
+          <p className='text-base font-semibold text-foreground'>{m.dashboard_widget_canvas()}</p>
           <p className='text-xs text-muted-foreground'>{m.dashboard_widget_canvas_sub()}</p>
         </div>
         <button

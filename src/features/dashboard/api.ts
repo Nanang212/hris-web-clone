@@ -1,11 +1,11 @@
+import { apiClient } from '@/shared/lib/axios'
+import type { Envelope } from '@/shared/types'
 import type {
   EmployeeDashboardData,
   ExecutiveDashboardData,
   HRDashboardData,
   ManagerDashboardData,
 } from '@/features/dashboard/types'
-import { apiClient } from '@/shared/lib/axios'
-import type { Envelope } from '@/shared/types'
 
 export const getEmployeeDashboardData = async () => {
   const res = await apiClient.get<Envelope<EmployeeDashboardData>>('/api/v1/dashboard/employee')

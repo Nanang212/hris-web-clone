@@ -6,20 +6,47 @@ import { AppMain } from '@/shared/components/app-layout/app-main'
 import { Button } from '@/shared/components/ui/button'
 import { Field, FieldLabel } from '@/shared/components/ui/field'
 import { Textarea } from '@/shared/components/ui/textarea'
+import { ApprovalActionDialog } from '@/shared/components/approval/approval-action-dialog'
 import { snackbar } from '@/shared/lib/snackbar'
-import { leaveRequests } from '@/features/leave/components/leave-data'
+import { useApprovalSyncStore } from '@/shared/lib/approval-sync-store'
 import { LeaveTabs } from '@/features/leave/components/leave-tabs'
 import { getLeaveTypeLabel } from '@/features/leave/components/leave-utils'
 import { m } from '@/i18n/paraglide/messages'
+import { cn } from '@/shared/lib/utils'
 
 export function LeaveApprovalDetailPage({ requestId }: Readonly<{ requestId: string }>) {
   const navigate = useNavigate()
   const [note, setNote] = useState('')
-  const request = leaveRequests.find((item) => item.id === requestId) ?? leaveRequests[0]
-  const complete = (message: string) => {
-    snackbar.success(message)
+  const [confirmDialog, setConfirmDialog] = useState<{
+    open: boolean
+    action: 'approve' | 'reject'
+  }>({
+    open: false,
+    action: 'approve',
+  })
+
+  const { leaves, approve: syncApprove, reject: syncReject } = useApprovalSyncStore()
+  const request = leaves.find((item) => item.id === requestId) ?? leaves[0]
+
+  const handleOpenConfirm = (action: 'approve' | 'reject') => {
+    setConfirmDialog({
+      open: true,
+      action,
+    })
+  }
+
+  const handleExecuteAction = (actionNote: string) => {
+    const finalNote = actionNote || note
+    if (confirmDialog.action === 'approve') {
+      syncApprove(request.id, finalNote || 'Disetujui dari menu Leave Approval.')
+      snackbar.success(m.leave_approval_toast_success())
+    } else {
+      syncReject(request.id, finalNote || 'Ditolak dari menu Leave Approval.')
+      snackbar.error('Pengajuan cuti ditolak.')
+    }
     navigate({ to: '/leave/approval' })
   }
+
   return (
     <AppMain
       title={m.leave_approval_detail_title()}
@@ -35,15 +62,24 @@ export function LeaveApprovalDetailPage({ requestId }: Readonly<{ requestId: str
               <h3 className='mt-1 text-xl font-bold'>{request.employee}</h3>
               <p className='text-xs text-muted-foreground'>{request.employeeRole}</p>
             </div>
-            <span className='rounded-full bg-orange-50 px-5 py-1.5 text-xs text-orange-600'>
-              {m.leave_status_pending()}
+            <span
+              className={cn(
+                'rounded-full px-5 py-1.5 text-xs font-semibold uppercase',
+                request.status === 'approved'
+                  ? 'bg-emerald-50 text-emerald-600'
+                  : request.status === 'rejected'
+                    ? 'bg-rose-50 text-rose-600'
+                    : 'bg-orange-50 text-orange-600',
+              )}
+            >
+              {request.status}
             </span>
           </div>
           <dl className='mt-7 grid gap-5 text-sm sm:grid-cols-[180px_1fr]'>
             <dt className='text-muted-foreground'>{m.leave_table_type()}</dt>
             <dd className='font-medium'>{getLeaveTypeLabel(request.leaveType)}</dd>
             <dt className='text-muted-foreground'>{m.leave_table_period()}</dt>
-            <dd className='font-medium'>07–09 Aug 2026</dd>
+            <dd className='font-medium'>{request.startDate} s.d {request.endDate}</dd>
             <dt className='text-muted-foreground'>{m.leave_table_duration()}</dt>
             <dd className='font-medium'>{m.leave_days({ count: request.duration })}</dd>
             <dt className='text-muted-foreground'>{m.leave_create_reason_label()}</dt>
@@ -64,13 +100,11 @@ export function LeaveApprovalDetailPage({ requestId }: Readonly<{ requestId: str
             />
           </Field>
           <div className='mt-4 flex justify-end gap-4'>
-            <Button variant='destructive' asChild>
-              <Link to='/leave/approval'>
-                <IconX />
-                {m.leave_reject()}
-              </Link>
+            <Button variant='destructive' onClick={() => handleOpenConfirm('reject')}>
+              <IconX />
+              {m.leave_reject()}
             </Button>
-            <Button onClick={() => complete(m.leave_approval_toast_success())}>
+            <Button onClick={() => handleOpenConfirm('approve')}>
               <IconCircleCheck />
               {m.leave_approve_request()}
             </Button>
@@ -96,6 +130,16 @@ export function LeaveApprovalDetailPage({ requestId }: Readonly<{ requestId: str
           </div>
         </aside>
       </div>
+
+      {/* Confirmation Dialog */}
+      <ApprovalActionDialog
+        open={confirmDialog.open}
+        onOpenChange={(open) => setConfirmDialog((prev) => ({ ...prev, open }))}
+        action={confirmDialog.action}
+        itemName={`Cuti ${getLeaveTypeLabel(request.leaveType)} - ${request.employee}`}
+        itemDetail={`${request.startDate} s.d ${request.endDate} (${request.duration} hari)`}
+        onConfirm={handleExecuteAction}
+      />
     </AppMain>
   )
 }

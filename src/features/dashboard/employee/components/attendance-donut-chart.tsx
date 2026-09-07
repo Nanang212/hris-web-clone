@@ -1,3 +1,21 @@
+import { Label, Pie, PieChart } from 'recharts'
+
+import { Badge } from '@/shared/components/ui/badge'
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/shared/components/ui/card'
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  type ChartConfig,
+} from '@/shared/components/ui/chart'
+import { m } from '@/i18n/paraglide/messages'
 
 interface AttendanceDonutChartProps {
   presentDays: number
@@ -7,13 +25,6 @@ interface AttendanceDonutChartProps {
   attendanceRate: number
 }
 
-const COLORS = {
-  present: '#10b981', // emerald-500
-  leave: '#f59e0b',   // amber-500
-  late: '#ef4444',    // red-500
-  wfh: '#3b82f6',     // blue-500
-}
-
 export function AttendanceDonutChart({
   presentDays,
   leaveDays,
@@ -21,116 +32,125 @@ export function AttendanceDonutChart({
   wfhDays,
   attendanceRate,
 }: Readonly<AttendanceDonutChartProps>) {
-  // Calculate percentages for each slice
-  const total = presentDays + leaveDays + lateDays + wfhDays
-  const segments = [
-    { key: 'present', value: presentDays, color: COLORS.present },
-    { key: 'leave', value: leaveDays, color: COLORS.leave },
-    { key: 'late', value: lateDays, color: COLORS.late },
-    { key: 'wfh', value: wfhDays, color: COLORS.wfh },
+  const totalDays = presentDays + leaveDays + lateDays + wfhDays
+  const chartConfig = {
+    present: { label: m.dashboard_attendance_present(), color: 'var(--chart-1)' },
+    leave: { label: m.dashboard_attendance_leave(), color: 'var(--chart-2)' },
+    late: { label: m.dashboard_attendance_late(), color: 'var(--chart-3)' },
+    wfh: { label: m.dashboard_attendance_wfh(), color: 'var(--chart-4)' },
+  } satisfies ChartConfig
+  const chartData = [
+    { status: 'present', days: presentDays, fill: 'var(--color-present)' },
+    { status: 'leave', days: leaveDays, fill: 'var(--color-leave)' },
+    { status: 'late', days: lateDays, fill: 'var(--color-late)' },
+    { status: 'wfh', days: wfhDays, fill: 'var(--color-wfh)' },
   ]
 
-  // SVG donut chart
-  const size = 160
-  const strokeWidth = 16
-  const radius = (size - strokeWidth) / 2
-  const circumference = 2 * Math.PI * radius
-
-  let accumulated = 0
-  const slices = segments.map((seg) => {
-    const pct = total > 0 ? seg.value / total : 0
-    const dashArray = `${pct * circumference} ${circumference}`
-    const rotation = accumulated * 360 - 90
-    accumulated += pct
-    return { ...seg, dashArray, rotation }
-  })
-
   return (
-    <div className="flex flex-col gap-4 rounded-2xl bg-card p-5 shadow-sm ring-1 ring-foreground/5">
-      <div>
-        <h3 className="text-sm font-semibold">My Attendance</h3>
-        <p className="text-xs text-muted-foreground">
-          Attendance composition · May 2025
-        </p>
-      </div>
-
-      <div className="flex flex-col gap-6 sm:flex-row sm:items-center">
-        {/* Donut */}
-        <div className="relative flex flex-shrink-0 items-center justify-center self-center">
-          <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-            {/* Background circle */}
-            <circle
-              cx={size / 2}
-              cy={size / 2}
-              r={radius}
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={strokeWidth}
-              className="text-muted/30"
-            />
-            {slices.map((slice) => (
-              <circle
-                key={slice.key}
-                cx={size / 2}
-                cy={size / 2}
-                r={radius}
-                fill="none"
-                stroke={slice.color}
-                strokeWidth={strokeWidth}
-                strokeDasharray={slice.dashArray}
-                strokeLinecap="round"
-                transform={`rotate(${slice.rotation} ${size / 2} ${size / 2})`}
+    <Card>
+      <CardHeader>
+        <CardTitle>{m.dashboard_my_attendance()}</CardTitle>
+        <CardDescription>{m.dashboard_my_attendance_sub()}</CardDescription>
+        <CardAction>
+          <Badge variant={attendanceRate >= 95 ? 'green' : attendanceRate >= 85 ? 'amber' : 'red'}>
+            {m.dashboard_attendance_rate_value({ rate: attendanceRate })}
+          </Badge>
+        </CardAction>
+      </CardHeader>
+      <CardContent>
+        <div className='grid items-center gap-6 md:grid-cols-[minmax(220px,0.85fr)_minmax(240px,1.15fr)]'>
+          <ChartContainer config={chartConfig} className='mx-auto h-56 w-full max-w-72'>
+            <PieChart accessibilityLayer>
+              <ChartTooltip
+                content={
+                  <ChartTooltipContent
+                    nameKey='status'
+                    formatter={(value, name) => (
+                      <div className='flex min-w-32 items-center justify-between gap-4'>
+                        <span className='text-muted-foreground'>{chartConfig[name]?.label}</span>
+                        <span className='font-mono font-medium tabular-nums'>
+                          {m.dashboard_attendance_days({ count: Number(value) })}
+                        </span>
+                      </div>
+                    )}
+                  />
+                }
               />
-            ))}
-          </svg>
-          <div className="absolute flex flex-col items-center">
-            <span className="text-2xl font-bold">{presentDays}</span>
-            <span className="text-[10px] text-muted-foreground">
-              present days
-            </span>
+              <Pie
+                data={chartData}
+                dataKey='days'
+                nameKey='status'
+                innerRadius={62}
+                outerRadius={88}
+                paddingAngle={2}
+                strokeWidth={3}
+              >
+                <Label
+                  content={({ viewBox }) => {
+                    if (!viewBox || !('cx' in viewBox) || !('cy' in viewBox)) return null
+
+                    return (
+                      <text
+                        x={viewBox.cx}
+                        y={viewBox.cy}
+                        textAnchor='middle'
+                        dominantBaseline='middle'
+                      >
+                        <tspan
+                          x={viewBox.cx}
+                          y={viewBox.cy}
+                          className='fill-foreground text-3xl font-bold'
+                        >
+                          {attendanceRate}%
+                        </tspan>
+                        <tspan
+                          x={viewBox.cx}
+                          y={(viewBox.cy ?? 0) + 22}
+                          className='fill-muted-foreground text-[10px]'
+                        >
+                          {m.dashboard_attendance_rate()}
+                        </tspan>
+                      </text>
+                    )
+                  }}
+                />
+              </Pie>
+            </PieChart>
+          </ChartContainer>
+
+          <div className='grid grid-cols-2 gap-3'>
+            {chartData.map((item) => {
+              const percentage = totalDays > 0 ? Math.round((item.days / totalDays) * 100) : 0
+
+              return (
+                <div key={item.status} className='flex flex-col gap-2 rounded-xl bg-muted/50 p-3'>
+                  <div className='flex items-center gap-2'>
+                    <span
+                      className='size-2.5 shrink-0 rounded-full'
+                      style={{ backgroundColor: item.fill }}
+                    />
+                    <span className='truncate text-xs font-medium text-muted-foreground'>
+                      {chartConfig[item.status].label}
+                    </span>
+                  </div>
+                  <div className='flex items-end justify-between gap-2'>
+                    <span className='text-xl font-semibold tabular-nums'>{item.days}</span>
+                    <span className='text-xs text-muted-foreground'>{percentage}%</span>
+                  </div>
+                </div>
+              )
+            })}
+            <div className='col-span-2 flex items-center justify-between border-t pt-3'>
+              <span className='text-xs text-muted-foreground'>
+                {m.dashboard_attendance_total_recorded()}
+              </span>
+              <span className='text-sm font-semibold tabular-nums'>
+                {m.dashboard_attendance_days({ count: totalDays })}
+              </span>
+            </div>
           </div>
         </div>
-
-        {/* Legend */}
-        <div className="flex flex-1 flex-col gap-2">
-          <LegendItem color={COLORS.present} label="Present" value={`${presentDays} days`} />
-          <LegendItem color={COLORS.leave} label="Leave" value={`${leaveDays} days`} />
-          <LegendItem color={COLORS.late} label="Late" value={`${lateDays} day`} />
-          <LegendItem color={COLORS.wfh} label="WFH" value={`${wfhDays} days`} />
-        </div>
-
-        {/* Rate */}
-        <div className="flex flex-col items-center gap-1 self-center">
-          <p className="text-xs font-medium text-muted-foreground">
-            Attendance rate
-          </p>
-          <p className="text-3xl font-bold tracking-tight">{attendanceRate}%</p>
-          <p className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
-            On-time performance remains healthy
-          </p>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function LegendItem({
-  color,
-  label,
-  value,
-}: {
-  color: string
-  label: string
-  value: string
-}) {
-  return (
-    <div className="flex items-center gap-2">
-      <span
-        className="h-2.5 w-2.5 flex-shrink-0 rounded-full"
-        style={{ backgroundColor: color }}
-      />
-      <span className="flex-1 text-xs font-medium text-foreground">{label}</span>
-      <span className="text-xs text-muted-foreground">{value}</span>
-    </div>
+      </CardContent>
+    </Card>
   )
 }

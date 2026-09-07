@@ -12,28 +12,24 @@ import { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import * as z from 'zod'
 
-import { BackgroundDecor, BrandMark } from '@/features/auth/components/background'
-import { useSignIn } from '@/features/auth/hooks'
-import { m } from '@/i18n/paraglide/messages'
+import { Alert, AlertDescription, AlertTitle } from '@/shared/components/ui/alert'
 import { Button } from '@/shared/components/ui/button'
 import { Checkbox } from '@/shared/components/ui/checkbox'
 import { Field, FieldError, FieldGroup, FieldLabel } from '@/shared/components/ui/field'
 import { Input } from '@/shared/components/ui/input'
 import { useSchema } from '@/shared/lib/schema'
 import { snackbar } from '@/shared/lib/snackbar'
-import { cn } from '@/shared/lib/utils'
-
-export type SignInPageProps = React.ComponentProps<'div'>
+import { AuthLayout } from '@/features/auth/components/auth-layout'
+import { useSignIn } from '@/features/auth/hooks'
+import { m } from '@/i18n/paraglide/messages'
 
 function SecureAccessNotice() {
   return (
-    <div className='flex items-start gap-2 rounded-lg bg-muted/60 p-3'>
-      <IconShieldCheck size={16} className='mt-0.5 shrink-0 text-primary' />
-      <div className='space-y-0.5'>
-        <p className='text-xs font-semibold'>{m.auth_signin_secure_notice_title()}</p>
-        <p className='text-[0.7rem] text-muted-foreground'>{m.auth_signin_secure_notice_desc()}</p>
-      </div>
-    </div>
+    <Alert>
+      <IconShieldCheck />
+      <AlertTitle>{m.auth_signin_secure_notice_title()}</AlertTitle>
+      <AlertDescription>{m.auth_signin_secure_notice_desc()}</AlertDescription>
+    </Alert>
   )
 }
 
@@ -66,7 +62,7 @@ function SignInForm() {
     signIn(values, {
       onSuccess: () => {
         snackbar.success(m.auth_signin_toast_success())
-        navigate({ to: '/' })
+        navigate({ to: '/', replace: true })
       },
       onError: (error) => {
         snackbar.exception(error)
@@ -75,15 +71,8 @@ function SignInForm() {
   }
 
   return (
-    <div className='w-full max-w-lg space-y-6 rounded-2xl border bg-background p-8 shadow-sm'>
-      <BrandMark />
-
-      <div className='space-y-1.5'>
-        <h1 className='text-2xl font-bold tracking-tight'>{m.auth_signin_welcome_title()}</h1>
-        <p className='text-sm text-muted-foreground'>{m.auth_signin_welcome_subtitle()}</p>
-      </div>
-
-      <form className='space-y-5' onSubmit={handleSubmit(handleSignIn)} noValidate>
+    <AuthLayout title={m.auth_signin_welcome_title()} subtitle={m.auth_signin_welcome_subtitle()}>
+      <form className='flex flex-col gap-5' onSubmit={handleSubmit(handleSignIn)} noValidate>
         <FieldGroup>
           <Field data-invalid={!!errors.email}>
             <FieldLabel htmlFor='identifier'>{m.auth_signin_identifier_field_label()}</FieldLabel>
@@ -94,6 +83,8 @@ function SignInForm() {
               />
               <Input
                 id='identifier'
+                type='email'
+                autoComplete='email'
                 placeholder={m.auth_signin_identifier_field_placeholder()}
                 className='pl-9'
                 aria-invalid={!!errors.email}
@@ -112,6 +103,7 @@ function SignInForm() {
               />
               <Input
                 id='password'
+                autoComplete='current-password'
                 type={showPassword ? 'text' : 'password'}
                 placeholder={m.auth_signin_password_field_placeholder()}
                 className='pr-9 pl-9'
@@ -154,34 +146,23 @@ function SignInForm() {
                 {m.auth_signin_remember_me_label()}
               </FieldLabel>
             </div>
-            <Link to='.' className='text-sm text-primary underline-offset-4 hover:underline'>
+            <Link to='/reset' className='text-sm text-primary underline-offset-4 hover:underline'>
               {m.auth_signin_forgot_password_link()}
             </Link>
           </div>
 
           <Button type='submit' className='w-full' disabled={isPending}>
-            {isPending && <IconLoader2 className='animate-spin' />}
+            {isPending && <IconLoader2 data-icon='inline-start' className='animate-spin' />}
             {m.auth_signin_submit_button()}
           </Button>
         </FieldGroup>
       </form>
 
       <SecureAccessNotice />
-    </div>
+    </AuthLayout>
   )
 }
 
-export function SignInPage({ className, ...props }: SignInPageProps) {
-  return (
-    <div
-      className={cn(
-        'relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-muted/30 p-6',
-        className,
-      )}
-      {...props}
-    >
-      <BackgroundDecor />
-      <SignInForm />
-    </div>
-  )
+export function SignInPage() {
+  return <SignInForm />
 }

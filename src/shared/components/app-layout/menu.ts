@@ -1,15 +1,12 @@
 import {
-  IconCalendarCheck,
-  IconCalendarWeek,
-  IconChecklist,
   IconCircleCheck,
   IconClockHour4,
   IconLayoutDashboard,
+  IconPlaneTilt,
   IconReportAnalytics,
   IconReportMoney,
   IconSettings,
   IconUserCircle,
-  IconUsers,
   type IconProps,
 } from '@tabler/icons-react'
 import type { LinkProps } from '@tanstack/react-router'
@@ -177,16 +174,28 @@ export const mainMenu: Menu[] = [
     ],
   },
   {
+    key: 'travel-expense',
+    to: '.',
+    icon: IconPlaneTilt,
+    title: () => 'Travel & Expense',
+    items: [
+      {
+        key: 'claim',
+        title: () => 'Claim',
+        to: '/travel-expense/claim',
+      },
+      {
+        key: 'business-trip',
+        title: () => 'Business Trip',
+        to: '/travel-expense/business-trip',
+      },
+    ],
+  },
+  {
     key: 'payroll',
     to: '/payroll',
     icon: IconReportMoney,
     title: m.app_layout_nav_payroll,
-  },
-  {
-    key: 'performance',
-    to: '/performance',
-    icon: IconChecklist,
-    title: m.app_layout_nav_performance,
   },
   {
     key: 'report',
@@ -207,11 +216,6 @@ export const mainMenu: Menu[] = [
     title: m.app_layout_nav_settings,
     items: [
       {
-        key: 'approval-workflow',
-        title: m.app_layout_nav_approval_workflow,
-        to: '/settings/approval-workflow',
-      },
-      {
         key: 'company',
         title: m.app_layout_nav_company,
         to: '/settings/company',
@@ -220,12 +224,16 @@ export const mainMenu: Menu[] = [
         key: 'role-access',
         title: m.app_layout_nav_role_access,
         to: '/settings/role-access',
-        icon: IconUsers,
       },
       {
         key: 'master-data',
         title: m.app_layout_nav_master_data,
         to: '/settings/master-data',
+      },
+      {
+        key: 'approval-workflow',
+        title: m.app_layout_nav_approval_workflow,
+        to: '/settings/approval-workflow',
       },
       {
         key: 'notification',
