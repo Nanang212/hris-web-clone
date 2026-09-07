@@ -116,6 +116,11 @@ export const mainMenu: Menu[] = [
         title: m.app_layout_nav_document,
         to: '/company/document',
       },
+      {
+        key: 'mcu-management',
+        title: () => 'MCU Management',
+        to: '/company/mcu/',
+      },
     ],
   },
   {

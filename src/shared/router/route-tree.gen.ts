@@ -53,6 +53,7 @@ import { Route as appCompanyEmployeeIndexRouteImport } from './../../routes/(app
 import { Route as appCompanyEmployeeIdRouteImport } from './../../routes/(app)/company/employee/$id'
 import { Route as appCompanyEmployeeNewRouteImport } from './../../routes/(app)/company/employee/new'
 import { Route as appCompanyEmployeeUpdateRouteImport } from './../../routes/(app)/company/employee/update'
+import { Route as appCompanyMcuIndexRouteImport } from './../../routes/(app)/company/mcu/index'
 import { Route as appCompanyOrganizationIndexRouteImport } from './../../routes/(app)/company/organization/index'
 import { Route as appCompanyOrganizationIdRouteImport } from './../../routes/(app)/company/organization/$id'
 import { Route as appCompanyOrganizationNewRouteImport } from './../../routes/(app)/company/organization/new'
@@ -357,6 +358,11 @@ const appCompanyEmployeeUpdateRoute =
     path: '/company/employee/update',
     getParentRoute: () => appRouteRoute,
   } as any)
+const appCompanyMcuIndexRoute = appCompanyMcuIndexRouteImport.update({
+  id: '/company/mcu/',
+  path: '/company/mcu/',
+  getParentRoute: () => appRouteRoute,
+} as any)
 const appCompanyOrganizationIndexRoute =
   appCompanyOrganizationIndexRouteImport.update({
     id: '/company/organization/',
@@ -822,6 +828,7 @@ export interface FileRoutesByFullPath {
   '/attendance/requests/': typeof appAttendanceRequestsIndexRoute
   '/company/document/': typeof appCompanyDocumentIndexRoute
   '/company/employee/': typeof appCompanyEmployeeIndexRoute
+  '/company/mcu/': typeof appCompanyMcuIndexRoute
   '/company/organization/': typeof appCompanyOrganizationIndexRoute
   '/leave/approval/': typeof appLeaveApprovalIndexRoute
   '/leave/requests/': typeof appLeaveRequestsIndexRoute
@@ -933,6 +940,7 @@ export interface FileRoutesByTo {
   '/attendance/requests': typeof appAttendanceRequestsIndexRoute
   '/company/document': typeof appCompanyDocumentIndexRoute
   '/company/employee': typeof appCompanyEmployeeIndexRoute
+  '/company/mcu': typeof appCompanyMcuIndexRoute
   '/company/organization': typeof appCompanyOrganizationIndexRoute
   '/leave/approval': typeof appLeaveApprovalIndexRoute
   '/leave/requests': typeof appLeaveRequestsIndexRoute
@@ -1046,6 +1054,7 @@ export interface FileRoutesById {
   '/(app)/attendance/requests/': typeof appAttendanceRequestsIndexRoute
   '/(app)/company/document/': typeof appCompanyDocumentIndexRoute
   '/(app)/company/employee/': typeof appCompanyEmployeeIndexRoute
+  '/(app)/company/mcu/': typeof appCompanyMcuIndexRoute
   '/(app)/company/organization/': typeof appCompanyOrganizationIndexRoute
   '/(app)/leave/approval/': typeof appLeaveApprovalIndexRoute
   '/(app)/leave/requests/': typeof appLeaveRequestsIndexRoute
@@ -1159,6 +1168,7 @@ export interface FileRouteTypes {
     | '/attendance/requests/'
     | '/company/document/'
     | '/company/employee/'
+    | '/company/mcu/'
     | '/company/organization/'
     | '/leave/approval/'
     | '/leave/requests/'
@@ -1270,6 +1280,7 @@ export interface FileRouteTypes {
     | '/attendance/requests'
     | '/company/document'
     | '/company/employee'
+    | '/company/mcu'
     | '/company/organization'
     | '/leave/approval'
     | '/leave/requests'
@@ -1382,6 +1393,7 @@ export interface FileRouteTypes {
     | '/(app)/attendance/requests/'
     | '/(app)/company/document/'
     | '/(app)/company/employee/'
+    | '/(app)/company/mcu/'
     | '/(app)/company/organization/'
     | '/(app)/leave/approval/'
     | '/(app)/leave/requests/'
@@ -1737,6 +1749,13 @@ declare module '@tanstack/react-router' {
       path: '/company/employee/update'
       fullPath: '/company/employee/update'
       preLoaderRoute: typeof appCompanyEmployeeUpdateRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/company/mcu/': {
+      id: '/(app)/company/mcu/'
+      path: '/company/mcu'
+      fullPath: '/company/mcu/'
+      preLoaderRoute: typeof appCompanyMcuIndexRouteImport
       parentRoute: typeof appRouteRoute
     }
     '/(app)/company/organization/': {
@@ -2288,6 +2307,7 @@ interface appRouteRouteChildren {
   appAttendanceRequestsIndexRoute: typeof appAttendanceRequestsIndexRoute
   appCompanyDocumentIndexRoute: typeof appCompanyDocumentIndexRoute
   appCompanyEmployeeIndexRoute: typeof appCompanyEmployeeIndexRoute
+  appCompanyMcuIndexRoute: typeof appCompanyMcuIndexRoute
   appCompanyOrganizationIndexRoute: typeof appCompanyOrganizationIndexRoute
   appLeaveApprovalIndexRoute: typeof appLeaveApprovalIndexRoute
   appLeaveRequestsIndexRoute: typeof appLeaveRequestsIndexRoute
@@ -2399,6 +2419,7 @@ const appRouteRouteChildren: appRouteRouteChildren = {
   appAttendanceRequestsIndexRoute: appAttendanceRequestsIndexRoute,
   appCompanyDocumentIndexRoute: appCompanyDocumentIndexRoute,
   appCompanyEmployeeIndexRoute: appCompanyEmployeeIndexRoute,
+  appCompanyMcuIndexRoute: appCompanyMcuIndexRoute,
   appCompanyOrganizationIndexRoute: appCompanyOrganizationIndexRoute,
   appLeaveApprovalIndexRoute: appLeaveApprovalIndexRoute,
   appLeaveRequestsIndexRoute: appLeaveRequestsIndexRoute,
