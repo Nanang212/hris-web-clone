@@ -25,11 +25,24 @@ src/features/<feature-name>/
 
 - Simple feature (like `auth`): `pages/signin-page.tsx`, `pages/signout-page.tsx`, etc.
 - Feature with sub-areas (like `dashboard`): one subfolder per sub-area (`employee/`, `hr/`, `manager/`, `executive/`), each with its own `<area>-dashboard-page.tsx` and local `components/`, while `api.ts`, `hooks.ts`, `types.ts` stay flat at the feature root and cover all sub-areas.
+- Route-level entry points under `pages/` must use the `-page.tsx` suffix. Components that render one tab's content inside a `Tabs` UI may use the `-tab.tsx` suffix even when they live under `pages/`.
 - File names: **kebab-case**, always. `employee-dashboard-page.tsx`, `checkin-banner.tsx`, `dashboard-feedback.tsx`.
 - Component export names: **PascalCase**, matching the file's purpose, e.g. `export function EmployeeDashboardPage()`, `export function SignInPage()`.
 - One page component per file. Small private sub-components used only within that page can live in the same file (see `SecureAccessNotice` inside `signin-page.tsx`), but anything reused across pages goes in `components/`.
 
-## 1.1 Shared component first
+## 1.1 Sub-feature layout patterns
+
+Features with sub-areas must choose one of these patterns based on backend resource boundaries:
+
+- **Shared root**: keep `api.ts`, `hooks.ts`, and `types.ts` flat at the feature root when the sub-areas primarily read the same or closely related endpoints with different filters, scopes, or presentation. Example: `dashboard`, where employee/HR/manager/executive dashboards are role-specific views over dashboard data.
+- **Independent sub-modules**: give each sub-area its own `api.ts`, `hooks.ts`, and `types.ts` when each sub-area maps to distinct backend resources/endpoints. Examples: `company/employee-information`, `company/organization`, and `settings/*` modules such as `role-access` and `security`.
+
+Audit notes:
+
+- `approval` and `report` currently keep files flat at the feature root while also using mock/local data. Revisit their layout when the backend resource boundaries are finalized.
+- `leave` currently has static/local data in `components/leave-data.ts`; when wired to the backend it should use the shared-root pattern because leave types, entitlement policies, requests, and balances are one feature domain.
+
+## 1.2 Shared component first
 
 Before building any feature UI, inspect `src/shared/components/` and reuse an existing component whenever it covers the need. Do not recreate a shared primitive or its behavior inside a feature page. This is the project-specific instance of shadcn's general principle: **use existing components before writing custom markup** — see Part B, §B.2.
 
