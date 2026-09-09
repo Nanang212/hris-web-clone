@@ -61,30 +61,30 @@ export const dashboardMenu: Menu[] = [
 
 export const mainMenu: Menu[] = [
   {
-    key: 'organization',
-    to: '/organization',
+    key: 'company',
+    to: '/company',
     icon: IconBuildingCommunity,
-    title: m.app_layout_nav_organization,
+    title: m.app_layout_nav_company,
     items: [
       {
-        key: 'organization-unit-structure',
-        title: m.app_layout_nav_organization_unit_structure,
-        to: '/organization/unit',
+        key: 'company-organization',
+        title: m.app_layout_nav_company_organization,
+        to: '/company/organization',
       },
       {
-        key: 'organization-position',
-        title: m.app_layout_nav_organization_position,
-        to: '/organization/position',
+        key: 'company-position',
+        title: m.app_layout_nav_company_position,
+        to: '/company/position',
       },
       {
-        key: 'organization-client',
-        title: m.app_layout_nav_organization_client,
-        to: '/organization/client',
+        key: 'company-client',
+        title: m.app_layout_nav_company_client,
+        to: '/company/client',
       },
       {
-        key: 'organization-project',
-        title: m.app_layout_nav_organization_project,
-        to: '/organization/project',
+        key: 'company-project',
+        title: m.app_layout_nav_company_project,
+        to: '/company/project',
       },
     ],
   },
@@ -95,15 +95,15 @@ export const mainMenu: Menu[] = [
     title: m.app_layout_nav_employment,
     items: [
       {
+        key: 'employee-profile',
+        title: m.app_layout_nav_employee_information,
+        to: '/employment/employee-profile',
+      },
+      {
         key: 'employment-overview',
         title: m.app_layout_nav_employment_overview,
         to: '/employment',
         exact: true,
-      },
-      {
-        key: 'employee-profile',
-        title: m.app_layout_nav_employee_information,
-        to: '/employment/employee-profile',
       },
       {
         key: 'employment-contract',
