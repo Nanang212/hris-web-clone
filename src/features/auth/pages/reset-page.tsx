@@ -3,7 +3,7 @@ import { IconEye, IconEyeOff, IconInfoCircle } from '@tabler/icons-react'
 import { Link } from '@tanstack/react-router'
 import { REGEXP_ONLY_DIGITS } from 'input-otp'
 import { useState } from 'react'
-import { Controller, useForm } from 'react-hook-form'
+import { Controller, useForm, useWatch } from 'react-hook-form'
 import { z } from 'zod'
 
 import { Alert, AlertDescription, AlertIcon } from '@/shared/components/ui/alert'
@@ -19,6 +19,47 @@ import { useRequestPasswordReset, useResetPassword } from '@/features/auth/hooks
 import { m } from '@/i18n/paraglide/messages'
 
 const OTP_LENGTH = 6
+
+function PasswordStrength({ password }: Readonly<{ password: string }>) {
+  if (!password) return null
+
+  const score = [
+    password.length >= 8,
+    /[a-z]/.test(password),
+    /[A-Z]/.test(password),
+    /\d/.test(password),
+    /[^A-Za-z0-9]/.test(password),
+  ].filter(Boolean).length
+  const level = score <= 1 ? 'weak' : score === 2 ? 'fair' : score === 3 ? 'good' : 'strong'
+  const levelLabel = {
+    weak: m.auth_reset_password_strength_weak(),
+    fair: m.auth_reset_password_strength_fair(),
+    good: m.auth_reset_password_strength_good(),
+    strong: m.auth_reset_password_strength_strong(),
+  }[level]
+  const segmentClass = {
+    weak: 'bg-red-500',
+    fair: 'bg-amber-500',
+    good: 'bg-blue-500',
+    strong: 'bg-emerald-500',
+  }[level]
+
+  return (
+    <div className='flex flex-col gap-2' aria-live='polite'>
+      <div className='flex items-center gap-1.5' aria-label={levelLabel}>
+        {Array.from({ length: 4 }, (_, index) => (
+          <div
+            key={index}
+            className={`h-1.5 flex-1 rounded-full ${index < Math.ceil((score / 5) * 4) ? segmentClass : 'bg-muted'}`}
+          />
+        ))}
+      </div>
+      <p className='text-xs text-muted-foreground'>
+        {m.auth_reset_password_strength_label({ strength: levelLabel })}
+      </p>
+    </div>
+  )
+}
 
 function RequestResetForm({ onSent }: Readonly<{ onSent: (email: string) => void }>) {
   const { mutate, isPending } = useRequestPasswordReset()
@@ -92,6 +133,7 @@ function ResetPasswordForm({
     defaultValues: { otp: '', password: '', confirmPassword: '' },
   })
   const isPending = reset.isPending || resend.isPending
+  const password = useWatch({ control, name: 'password' })
 
   if (reset.isSuccess) {
     return (
@@ -224,6 +266,7 @@ function ResetPasswordForm({
                   {showPassword ? <IconEyeOff size={16} /> : <IconEye size={16} />}
                 </button>
               </div>
+              {name === 'password' && <PasswordStrength password={password} />}
               <FieldError errors={[errors[name]]} />
             </Field>
           ))}

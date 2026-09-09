@@ -6,5 +6,5 @@ export const Route = createFileRoute('/(app)/company/organization/$id')({
 
 function RouteComponent() {
   const { id } = Route.useParams()
-  return <div>Hello "/(app)/company/employee/{id}"!</div>
+  return <div>Hello "/(app)/company/organization/{id}"!</div>
 }

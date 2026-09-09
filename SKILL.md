@@ -17,19 +17,32 @@ This skill also covers shadcn/ui usage (Part B) since every feature page is buil
 src/features/<feature-name>/
   api.ts                  # all HTTP calls for the feature
   hooks.ts                # all React Query hooks for the feature
-  types.ts                # all TS types/interfaces for the feature
+  types.ts                # optional: shared domain/UI types used outside api.ts
   components/             # feature-local presentational components
   pages/                  # page-level components (or *-page.tsx at feature root for simple features)
     <feature>-page.tsx
 ```
 
 - Simple feature (like `auth`): `pages/signin-page.tsx`, `pages/signout-page.tsx`, etc.
-- Feature with sub-areas (like `dashboard`): one subfolder per sub-area (`employee/`, `hr/`, `manager/`, `executive/`), each with its own `<area>-dashboard-page.tsx` and local `components/`, while `api.ts`, `hooks.ts`, `types.ts` stay flat at the feature root and cover all sub-areas.
+- Feature with sub-areas (like `dashboard`): one subfolder per sub-area (`employee/`, `hr/`, `manager/`, `executive/`), each with its own `<area>-dashboard-page.tsx` and local `components/`, while `api.ts` and `hooks.ts` stay flat at the feature root and cover all sub-areas. Add `types.ts` only when shared domain/UI types are reused outside `api.ts`.
+- Route-level entry points under `pages/` must use the `-page.tsx` suffix. Components that render one tab's content inside a `Tabs` UI may use the `-tab.tsx` suffix even when they live under `pages/`.
 - File names: **kebab-case**, always. `employee-dashboard-page.tsx`, `checkin-banner.tsx`, `dashboard-feedback.tsx`.
 - Component export names: **PascalCase**, matching the file's purpose, e.g. `export function EmployeeDashboardPage()`, `export function SignInPage()`.
 - One page component per file. Small private sub-components used only within that page can live in the same file (see `SecureAccessNotice` inside `signin-page.tsx`), but anything reused across pages goes in `components/`.
 
-## 1.1 Shared component first
+## 1.1 Sub-feature layout patterns
+
+Features with sub-areas must choose one of these patterns based on backend resource boundaries:
+
+- **Shared root**: keep `api.ts` and `hooks.ts` flat at the feature root when the sub-areas primarily read the same or closely related endpoints with different filters, scopes, or presentation. Add a flat `types.ts` only for shared domain/UI types. Example: `dashboard`, where employee/HR/manager/executive dashboards are role-specific views over dashboard data.
+- **Independent sub-modules**: give each sub-area its own `api.ts` and `hooks.ts` when each sub-area maps to distinct backend resources/endpoints. Add `types.ts` only when types are reused by pages/components outside `api.ts`. Examples: `company/employee-information`, `company/organization`, and `settings/*` modules such as `role-access` and `security`.
+
+Audit notes:
+
+- `approval` and `report` currently keep files flat at the feature root while also using mock/local data. Revisit their layout when the backend resource boundaries are finalized.
+- `leave` currently has static/local data in `components/leave-data.ts`; when wired to the backend it should use the shared-root pattern because leave types, entitlement policies, requests, and balances are one feature domain.
+
+## 1.2 Shared component first
 
 Before building any feature UI, inspect `src/shared/components/` and reuse an existing component whenever it covers the need. Do not recreate a shared primitive or its behavior inside a feature page. This is the project-specific instance of shadcn's general principle: **use existing components before writing custom markup** — see Part B, §B.2.
 
@@ -40,38 +53,41 @@ Before building any feature UI, inspect `src/shared/components/` and reuse an ex
 - Never copy shared component markup, variants, accessibility behavior, or styling into a feature just to make a small visual variation. Pass `className` or supported props to the shared component instead.
 - If the component you need doesn't exist yet under `src/shared/components/ui/`, don't hand-roll it — follow the shadcn CLI workflow in Part B, §B.5 to search and add it first.
 
-## 2. `types.ts`
+## 2. Types and interfaces
 
-- Plain `export interface Name { ... }` — no `type` aliases for object shapes, no default export.
+- Keep endpoint-specific request/response interfaces close to the endpoint in `api.ts`. This is the default for generated API files and modules like `src/features/organization/unit/api.ts`.
+- Create `types.ts` only for shared domain/UI types that are consumed by pages, components, hooks, or multiple API files. Do not create a `types.ts` file just to move endpoint-only API shapes out of `api.ts`.
+- Plain `export interface Name { ... }` for object shapes — no `type` aliases for object shapes, no default export.
 - Field names: **camelCase** (the axios layer auto-converts `snake_case` <-> `camelCase`, see §5 — never hand-write snake_case fields).
 - Interface names: **PascalCase**, singular for a single entity (`Auth`, `SignIn`, `RoleFilterParams`), and `<Feature><Purpose>Data` for page/dashboard payload shapes (`EmployeeDashboardData`, `HRDashboardData`).
-- Group request/response shapes together: request payload interfaces (`SignIn`, `SignUp`, `CreateRolePayload`, `UpdateRolePayload`) separate from response/data interfaces (`Auth`, `Role`).
+- Group request/response shapes near their endpoint: request/input interfaces (`SignIn`, `SignUp`, `CreateRoleInput`, `UpdateRoleInput`) separate from response/output interfaces (`Auth`, `Role`, `CreateRoleOutput`).
 - Reuse shared generics from `@/shared/types` — `Envelope<T>` wraps every API response, `PaginatedData<T>` wraps list endpoints with cursor pagination. Don't redefine these per feature.
 
 ```ts
-// types.ts
+// api.ts
 export interface SignIn {
-  email: string;
-  password: string;
-  rememberMe?: boolean;
+  email: string
+  password: string
+  rememberMe?: boolean
 }
 
 export interface Auth {
-  accessToken: string;
-  refreshToken: string;
+  accessToken: string
+  refreshToken: string
   user: {
-    id: string;
-    email: string;
-    name: string;
-    roles: string[];
-    createdAt: string;
-    updatedAt: string;
-  };
+    id: string
+    email: string
+    name: string
+    roles: string[]
+    createdAt: string
+    updatedAt: string
+  }
 }
 ```
 
 ## 3. `api.ts`
 
+- Define endpoint-specific input/output interfaces in `api.ts`, directly above or near the endpoint function. Export them when `hooks.ts` or page code needs them.
 - One `async` arrow function or `function` per endpoint, named as a verb phrase: `signIn`, `signOut`, `getEmployeeDashboardData`, `getRoleById`, `createRole`, `updateRole`, `deleteRole`.
 - Always call through `apiClient` from `@/shared/lib/axios` — never raw `axios` or `fetch`.
 - Always type the response with `Envelope<T>` from `@/shared/types`.
@@ -79,14 +95,22 @@ export interface Auth {
 
 ```ts
 // api.ts
-import type { Auth, SignIn } from "@/features/auth/types";
-import { apiClient } from "@/shared/lib/axios";
-import type { Envelope } from "@/shared/types";
+import { apiClient } from '@/shared/lib/axios'
+import type { Envelope } from '@/shared/types'
 
-export const signIn = async (req: SignIn) => {
-  const res = await apiClient.post<Envelope<Auth>>("/api/v1/auth/signin", req);
-  return res.data;
-};
+export interface SignInInput {
+  email: string
+  password: string
+}
+
+export interface SignInOutput {
+  accessToken: string
+}
+
+export const signIn = async (input: SignInInput) => {
+  const res = await apiClient.post<Envelope<SignInOutput>>('/api/v1/auth/signin', input)
+  return res.data
+}
 ```
 
 - API paths are absolute and versioned: `'/api/v1/<resource>'`.
@@ -98,31 +122,32 @@ export const signIn = async (req: SignIn) => {
   - Queries: `useGet<Thing>` for a single/page-scoped fetch (`useGetEmployeeDashboard`).
   - Mutations: `use<Verb><Thing>` (`useSignIn`, `useSignOut`, `useCreateRole`, `useUpdateRole`, `useDeleteRole`).
 - Query hooks: use `select` to unwrap the envelope so page components consume plain data, not `{ data, success, code, messages }`.
+- When a hook needs payload/response types, import those exported interfaces from the same module's `api.ts` unless they are shared domain/UI types from `types.ts`.
 
 ```ts
 export const userRoleQueryKeys = {
-  all: ["user-roles"] as const,
-  stats: () => [...userRoleQueryKeys.all, "stats"] as const,
-  list: (params?: RoleFilterParams) =>
-    [...userRoleQueryKeys.all, "list", params] as const,
-  detail: (id: string) => [...userRoleQueryKeys.all, "detail", id] as const,
-};
+  all: ['user-roles'] as const,
+  stats: () => [...userRoleQueryKeys.all, 'stats'] as const,
+  list: (params?: GetRolesInput) => [...userRoleQueryKeys.all, 'list', params] as const,
+  detail: (id: string) => [...userRoleQueryKeys.all, 'detail', id] as const,
+}
 
-export function useGetRoles(params?: RoleFilterParams) {
+export function useGetRoles(params?: GetRolesInput) {
   return useQuery({
     queryKey: userRoleQueryKeys.list(params),
     queryFn: () => getRoles(params),
-  });
+    select: (res) => res.data,
+  })
 }
 
 export function useCreateRole() {
-  const queryClient = useQueryClient();
+  const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (payload: CreateRolePayload) => createRole(payload),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: userRoleQueryKeys.all });
+      queryClient.invalidateQueries({ queryKey: userRoleQueryKeys.all })
     },
-  });
+  })
 }
 ```
 
@@ -131,7 +156,7 @@ export function useCreateRole() {
 
 ## 5. Data conventions that api.ts/hooks.ts rely on
 
-- `@/shared/lib/axios` (`apiClient`) auto-converts request bodies/params **camelCase → snake_case** on the way out and response bodies **snake_case → camelCase** on the way in. Always write and consume **camelCase** in `types.ts`, `api.ts`, and components — never snake_case.
+- `@/shared/lib/axios` (`apiClient`) auto-converts request bodies/params **camelCase → snake_case** on the way out and response bodies **snake_case → camelCase** on the way in. Always write and consume **camelCase** in `api.ts`, optional `types.ts`, and components — never snake_case.
 - `@/shared/types.ts` exports `Envelope<T>` (`{ success, code, data, messages }`) and `PaginatedData<T>` (`{ items, hasNext, nextCursor }`). Every endpoint response is typed as `Envelope<SomeType>` or `Envelope<PaginatedData<SomeType>>`.
 - On 401 with `code: 'TOKEN_EXPIRED'`, `apiClient` auto-refreshes the token and retries once; feature code never handles token refresh manually.
 - `isAxiosError<Envelope<unknown>>(err)` from `@/shared/lib/axios` is the standard way to narrow a caught error to the envelope shape (used in `AppMain`'s error rendering and in `snackbar.exception`).
@@ -142,31 +167,31 @@ Every route-level page component **must** render its content inside `<AppMain>` 
 
 ```tsx
 // pages/<feature>-page.tsx
-import { useGetEmployeeDashboard } from "@/features/dashboard/hooks";
-import { m } from "@/i18n/paraglide/messages";
-import { AppMain } from "@/shared/components/app-layout/app-main";
+import { AppMain } from '@/shared/components/app-layout/app-main'
+import { useGetEmployeeDashboard } from '@/features/dashboard/hooks'
+import { m } from '@/i18n/paraglide/messages'
 
 export function EmployeeDashboardPage() {
-  const { data, isPending, error } = useGetEmployeeDashboard();
+  const { data, isPending, error } = useGetEmployeeDashboard()
 
   // Guard clause: let AppMain render the loading/error/empty state
   if (isPending || error || !data) {
-    return <AppMain pending={isPending} error={error} notFound={!data} />;
+    return <AppMain pending={isPending} error={error} notFound={!data} />
   }
 
   return (
     <AppMain
       breadcrumbs={[
-        { to: "/", label: "Dashboard" },
-        { to: ".", label: "Employee" },
+        { to: '/', label: 'Dashboard' },
+        { to: '.', label: 'Employee' },
       ]}
       title={m.dashboard_employee_title()}
       subtitle={m.dashboard_employee_subtitle()}
-      actions={<Button size="sm">{m.dashboard_customize()}</Button>}
+      actions={<Button size='sm'>{m.dashboard_customize()}</Button>}
     >
       {/* page content */}
     </AppMain>
-  );
+  )
 }
 ```
 
@@ -179,33 +204,34 @@ Rules for this pattern:
 - For mutation-driven pages (forms, sign-in, create/update), call `.mutate()` in a submit handler and do navigation + toast in the `onSuccess`/`onError` callbacks:
 
 ```tsx
-const { mutate: signIn, isPending } = useSignIn();
+const { mutate: signIn, isPending } = useSignIn()
 
 const handleSignIn = (values: FormValues) => {
   signIn(values, {
     onSuccess: () => {
-      snackbar.success(m.auth_signin_toast_success());
-      navigate({ to: "/" });
+      snackbar.success(m.auth_signin_toast_success())
+      navigate({ to: '/' })
     },
     onError: (error) => {
-      snackbar.exception(error);
+      snackbar.exception(error)
     },
-  });
-};
+  })
+}
 ```
 
 - Wire the page into routing with a matching file under `src/routes/`, e.g. `src/routes/(app)/(dashboard)/dashboard.employee.tsx`:
 
 ```tsx
-import { createFileRoute } from "@tanstack/react-router";
-import { EmployeeDashboardPage } from "@/features/dashboard/employee/employee-dashboard-page";
+import { createFileRoute } from '@tanstack/react-router'
 
-export const Route = createFileRoute("/(app)/(dashboard)/dashboard/employee")({
+import { EmployeeDashboardPage } from '@/features/dashboard/employee/employee-dashboard-page'
+
+export const Route = createFileRoute('/(app)/(dashboard)/dashboard/employee')({
   component: RouteComponent,
-});
+})
 
 function RouteComponent() {
-  return <EmployeeDashboardPage />;
+  return <EmployeeDashboardPage />
 }
 ```
 
@@ -213,7 +239,7 @@ function RouteComponent() {
 
 - Import order (enforced by `@ianvs/prettier-plugin-sort-imports`): external packages → blank line → `@/features/...` → `@/i18n/...` → `@/shared/...` (alphabetical within each group).
 - No semicolons, single quotes, 2-space indent (match existing files exactly — run `prettier --write` if unsure).
-- Use `type` keyword for type-only imports: `import type { Auth, SignIn } from '@/features/auth/types'`.
+- Use `type` keyword for type-only imports: `import type { GetUnitsInput } from '@/features/organization/unit/api'` or, for reusable domain/UI types, `import type { OrgNode } from '@/features/organization/unit/types'`.
 - Variables/functions: camelCase. Components/types/interfaces: PascalCase. Constants that are truly global/static may be SCREAMING_SNAKE_CASE (rare in features).
 
 ## 7.1 Dates and times
@@ -238,7 +264,7 @@ function RouteComponent() {
 const formSchema = useSchema(() => ({
   email: z.email({ message: m.auth_signin_email_invalid() }),
   password: z.string().min(1, { message: m.auth_signin_password_required() }),
-}));
+}))
 ```
 
 ## 9. Toasts & errors
@@ -249,9 +275,9 @@ const formSchema = useSchema(() => ({
 
 ## 10. Checklist for a new feature module
 
-1. `types.ts` — request payload interfaces + response data interfaces, camelCase fields, reuse `Envelope<T>`/`PaginatedData<T>`.
-2. `api.ts` — one function per endpoint via `apiClient`, typed `Envelope<T>` responses, returns `res.data`.
-3. `hooks.ts` — one `useQuery`/`useMutation` per endpoint; query key factory if the feature has list/detail/stats; `select` to unwrap envelope on queries; `invalidateQueries` on mutation `onSuccess`.
+1. `api.ts` — one function per endpoint via `apiClient`; endpoint-specific input/output interfaces live here; typed `Envelope<T>` responses; returns `res.data`.
+2. `hooks.ts` — one `useQuery`/`useMutation` per endpoint; query key factory if the feature has list/detail/stats; import endpoint payload types from `api.ts`; `select` to unwrap envelope on queries; `invalidateQueries` on mutation `onSuccess`.
+3. `types.ts` — optional; add only for shared domain/UI interfaces used outside `api.ts`, with camelCase fields and no endpoint-only request/response clutter.
 4. `en.json` + `id.json` — add every new message key in both files.
 5. `pages/<feature>-page.tsx` — fetch via hook, render inside `<AppMain>` with `title`/`subtitle`/`breadcrumbs`/`actions`, guard `pending`/`error`/`notFound` before the full render.
 6. `src/routes/...` — a `createFileRoute` file that renders the page component.
@@ -322,7 +348,10 @@ Rules:
 <Field data-invalid={!!errors.email}>
   <FieldLabel htmlFor='email'>{m.auth_signin_email_field_label()}</FieldLabel>
   <div className='relative'>
-    <IconMail size={16} className='pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-muted-foreground' />
+    <IconMail
+      size={16}
+      className='pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-muted-foreground'
+    />
     <Input
       id='email'
       placeholder={m.auth_signin_email_field_placeholder()}
@@ -344,11 +373,7 @@ For components that do not expose a native ref (e.g. `Checkbox`, custom selects,
   name='rememberMe'
   control={control}
   render={({ field }) => (
-    <Checkbox
-      id='remember-me'
-      checked={field.value}
-      onCheckedChange={field.onChange}
-    />
+    <Checkbox id='remember-me' checked={field.value} onCheckedChange={field.onChange} />
   )}
 />
 ```

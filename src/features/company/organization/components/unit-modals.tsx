@@ -2,15 +2,11 @@
 import {
   IconAlertTriangle,
   IconBuilding,
-  IconCheck,
-  IconFolderPlus,
   IconHierarchy,
-  IconInfoCircle,
   IconTrash,
-  IconX,
 } from '@tabler/icons-react'
-import { useState, useEffect } from 'react'
-import type { OrgNode, OrgLevel, OrgStatus, AddEditUnitPayload, MoveUnitPayload } from '../types'
+import { useEffect, useState } from 'react'
+
 import { Button } from '@/shared/components/ui/button'
 import {
   Dialog,
@@ -29,6 +25,8 @@ import {
   SelectValue,
 } from '@/shared/components/ui/select'
 import { Textarea } from '@/shared/components/ui/textarea'
+
+import type { AddEditUnitPayload, MoveUnitPayload, OrgLevel, OrgNode, OrgStatus } from '../types'
 
 // ─── 1. Add / Edit Unit Modal ────────────────────────────────────────────────
 interface AddEditUnitModalProps {
@@ -112,9 +110,9 @@ export function AddEditUnitModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='sm:max-w-[560px] p-0 overflow-hidden rounded-2xl'>
+      <DialogContent className='overflow-hidden rounded-2xl p-0 sm:max-w-[560px]'>
         <form onSubmit={handleSubmit}>
-          <DialogHeader className='p-6 pb-4 border-b border-border/80 bg-muted/20'>
+          <DialogHeader className='border-b border-border/80 bg-muted/20 p-6 pb-4'>
             <div className='flex items-center gap-2.5'>
               <div className='flex size-9 items-center justify-center rounded-xl bg-primary/10 text-primary'>
                 <IconBuilding size={20} />
@@ -123,7 +121,7 @@ export function AddEditUnitModal({
                 <DialogTitle className='text-sm font-bold text-foreground'>
                   {mode === 'add' ? 'Add Organization Unit' : 'Edit Organization Unit'}
                 </DialogTitle>
-                <DialogDescription className='text-xs text-muted-foreground mt-0.5'>
+                <DialogDescription className='mt-0.5 text-xs text-muted-foreground'>
                   {mode === 'add'
                     ? 'Buat unit organisasi baru dalam struktur hierarki perusahaan'
                     : `Perbarui informasi data untuk ${initialNode?.name || 'unit'}`}
@@ -132,9 +130,9 @@ export function AddEditUnitModal({
             </div>
           </DialogHeader>
 
-          <div className='p-6 space-y-4 max-h-[70vh] overflow-y-auto'>
+          <div className='max-h-[70vh] space-y-4 overflow-y-auto p-6'>
             {/* Level & Parent Selection */}
-            <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
+            <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
               <div className='space-y-1.5'>
                 <label className='text-xs font-semibold text-foreground'>Unit Level *</label>
                 <Select
@@ -142,7 +140,7 @@ export function AddEditUnitModal({
                   onValueChange={(val: OrgLevel) => setLevel(val)}
                   disabled={mode === 'edit' && initialNode?.level === 'company'}
                 >
-                  <SelectTrigger className='h-9.5 text-xs bg-background rounded-xl'>
+                  <SelectTrigger className='h-9.5 rounded-xl bg-background text-xs'>
                     <SelectValue placeholder='Pilih Tingkat Unit' />
                   </SelectTrigger>
                   <SelectContent>
@@ -156,7 +154,7 @@ export function AddEditUnitModal({
               <div className='space-y-1.5'>
                 <label className='text-xs font-semibold text-foreground'>Parent Unit *</label>
                 <Select value={parentId} onValueChange={setParentId}>
-                  <SelectTrigger className='h-9.5 text-xs bg-background rounded-xl'>
+                  <SelectTrigger className='h-9.5 rounded-xl bg-background text-xs'>
                     <SelectValue placeholder='Pilih Unit Induk' />
                   </SelectTrigger>
                   <SelectContent>
@@ -164,7 +162,7 @@ export function AddEditUnitModal({
                       .filter((n) => n.id !== initialNode?.id)
                       .map((node) => (
                         <SelectItem key={node.id} value={node.id}>
-                          <span className='capitalize font-medium'>[{node.level}]</span> {node.name}
+                          <span className='font-medium capitalize'>[{node.level}]</span> {node.name}
                         </SelectItem>
                       ))}
                   </SelectContent>
@@ -173,14 +171,14 @@ export function AddEditUnitModal({
             </div>
 
             {/* Code and Name */}
-            <div className='grid grid-cols-1 sm:grid-cols-3 gap-4'>
+            <div className='grid grid-cols-1 gap-4 sm:grid-cols-3'>
               <div className='space-y-1.5 sm:col-span-1'>
                 <label className='text-xs font-semibold text-foreground'>Unit Code *</label>
                 <Input
                   value={code}
                   onChange={(e) => setCode(e.target.value.toUpperCase())}
                   placeholder='e.g. DEP-SE'
-                  className='h-9.5 text-xs bg-background rounded-xl uppercase font-mono'
+                  className='h-9.5 rounded-xl bg-background font-mono text-xs uppercase'
                   required
                 />
               </div>
@@ -191,21 +189,23 @@ export function AddEditUnitModal({
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder='e.g. Software Engineering'
-                  className='h-9.5 text-xs bg-background rounded-xl font-medium'
+                  className='h-9.5 rounded-xl bg-background text-xs font-medium'
                   required
                 />
               </div>
             </div>
 
             {/* Leader / Head of Unit */}
-            <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
+            <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
               <div className='space-y-1.5'>
-                <label className='text-xs font-semibold text-foreground'>Head of Unit (Leader)</label>
+                <label className='text-xs font-semibold text-foreground'>
+                  Head of Unit (Leader)
+                </label>
                 <Input
                   value={headName}
                   onChange={(e) => setHeadName(e.target.value)}
                   placeholder='e.g. Rizky Pratama, S.Kom.'
-                  className='h-9.5 text-xs bg-background rounded-xl'
+                  className='h-9.5 rounded-xl bg-background text-xs'
                 />
               </div>
 
@@ -215,27 +215,27 @@ export function AddEditUnitModal({
                   value={headTitle}
                   onChange={(e) => setHeadTitle(e.target.value)}
                   placeholder='e.g. Head of Software Engineering'
-                  className='h-9.5 text-xs bg-background rounded-xl'
+                  className='h-9.5 rounded-xl bg-background text-xs'
                 />
               </div>
             </div>
 
             {/* Cost Center & Status */}
-            <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
+            <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
               <div className='space-y-1.5'>
                 <label className='text-xs font-semibold text-foreground'>Cost Center Code</label>
                 <Input
                   value={costCenter}
                   onChange={(e) => setCostCenter(e.target.value)}
                   placeholder='e.g. CC-TECH-101'
-                  className='h-9.5 text-xs bg-background rounded-xl font-mono'
+                  className='h-9.5 rounded-xl bg-background font-mono text-xs'
                 />
               </div>
 
               <div className='space-y-1.5'>
                 <label className='text-xs font-semibold text-foreground'>Status *</label>
                 <Select value={status} onValueChange={(val: OrgStatus) => setStatus(val)}>
-                  <SelectTrigger className='h-9.5 text-xs bg-background rounded-xl'>
+                  <SelectTrigger className='h-9.5 rounded-xl bg-background text-xs'>
                     <SelectValue placeholder='Status' />
                   </SelectTrigger>
                   <SelectContent>
@@ -249,26 +249,28 @@ export function AddEditUnitModal({
 
             {/* Description */}
             <div className='space-y-1.5'>
-              <label className='text-xs font-semibold text-foreground'>Description & Responsibilities</label>
+              <label className='text-xs font-semibold text-foreground'>
+                Description & Responsibilities
+              </label>
               <Textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder='Tuliskan ringkasan tugas dan fungsi unit organisasi ini...'
-                className='text-xs bg-background rounded-xl min-h-[80px]'
+                className='min-h-[80px] rounded-xl bg-background text-xs'
               />
             </div>
           </div>
 
-          <DialogFooter className='p-6 pt-3 border-t border-border/70 bg-muted/10 gap-2 sm:gap-0'>
+          <DialogFooter className='gap-2 border-t border-border/70 bg-muted/10 p-6 pt-3 sm:gap-0'>
             <Button
               type='button'
               variant='outline'
               onClick={() => onOpenChange(false)}
-              className='h-9 text-xs font-semibold rounded-xl'
+              className='h-9 rounded-xl text-xs font-semibold'
             >
               Cancel
             </Button>
-            <Button type='submit' className='h-9 text-xs font-semibold rounded-xl shadow-xs px-5'>
+            <Button type='submit' className='h-9 rounded-xl px-5 text-xs font-semibold shadow-xs'>
               {mode === 'add' ? 'Create Unit' : 'Save Changes'}
             </Button>
           </DialogFooter>
@@ -320,9 +322,9 @@ export function MoveUnitModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='sm:max-w-[500px] p-0 overflow-hidden rounded-2xl'>
+      <DialogContent className='overflow-hidden rounded-2xl p-0 sm:max-w-[500px]'>
         <form onSubmit={handleMove}>
-          <DialogHeader className='p-6 pb-4 border-b border-border/80 bg-muted/20'>
+          <DialogHeader className='border-b border-border/80 bg-muted/20 p-6 pb-4'>
             <div className='flex items-center gap-2.5'>
               <div className='flex size-9 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600'>
                 <IconHierarchy size={20} />
@@ -331,24 +333,26 @@ export function MoveUnitModal({
                 <DialogTitle className='text-sm font-bold text-foreground'>
                   Move Organization Unit
                 </DialogTitle>
-                <DialogDescription className='text-xs text-muted-foreground mt-0.5'>
+                <DialogDescription className='mt-0.5 text-xs text-muted-foreground'>
                   Pindahkan posisi hierarki unit dalam struktur organisasi
                 </DialogDescription>
               </div>
             </div>
           </DialogHeader>
 
-          <div className='p-6 space-y-4'>
+          <div className='space-y-4 p-6'>
             {/* Target Unit Info */}
-            <div className='p-3.5 rounded-xl border border-border/70 bg-card flex items-center justify-between'>
+            <div className='flex items-center justify-between rounded-xl border border-border/70 bg-card p-3.5'>
               <div>
-                <span className='text-[10px] uppercase font-bold text-muted-foreground tracking-wider'>
+                <span className='text-[10px] font-bold tracking-wider text-muted-foreground uppercase'>
                   Unit yang dipindahkan
                 </span>
-                <h5 className='text-xs font-bold text-foreground mt-0.5'>{node?.name}</h5>
-                <p className='text-[11px] text-muted-foreground font-mono mt-0.5'>Code: {node?.code}</p>
+                <h5 className='mt-0.5 text-xs font-bold text-foreground'>{node?.name}</h5>
+                <p className='mt-0.5 font-mono text-[11px] text-muted-foreground'>
+                  Code: {node?.code}
+                </p>
               </div>
-              <span className='px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase bg-primary/10 text-primary'>
+              <span className='rounded-lg bg-primary/10 px-2.5 py-1 text-[10px] font-bold text-primary uppercase'>
                 {node?.level}
               </span>
             </div>
@@ -360,20 +364,23 @@ export function MoveUnitModal({
                 <Input
                   value={node?.parentName || 'Root Company'}
                   disabled
-                  className='h-9 text-xs bg-muted/40 rounded-xl font-medium'
+                  className='h-9 rounded-xl bg-muted/40 text-xs font-medium'
                 />
               </div>
 
               <div className='space-y-1.5'>
-                <label className='text-xs font-semibold text-foreground'>Select New Parent Unit *</label>
+                <label className='text-xs font-semibold text-foreground'>
+                  Select New Parent Unit *
+                </label>
                 <Select value={newParentId} onValueChange={setNewParentId} required>
-                  <SelectTrigger className='h-9.5 text-xs bg-background rounded-xl'>
+                  <SelectTrigger className='h-9.5 rounded-xl bg-background text-xs'>
                     <SelectValue placeholder='Pilih Unit Induk Baru' />
                   </SelectTrigger>
                   <SelectContent>
                     {validTargets.map((target) => (
                       <SelectItem key={target.id} value={target.id}>
-                        <span className='capitalize font-medium'>[{target.level}]</span> {target.name}
+                        <span className='font-medium capitalize'>[{target.level}]</span>{' '}
+                        {target.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -381,41 +388,45 @@ export function MoveUnitModal({
               </div>
 
               <div className='space-y-1.5'>
-                <label className='text-xs font-semibold text-foreground'>Reason / Notes for Restructuring</label>
+                <label className='text-xs font-semibold text-foreground'>
+                  Reason / Notes for Restructuring
+                </label>
                 <Textarea
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
                   placeholder='Alasan pemindahan struktur organisasi...'
-                  className='text-xs bg-background rounded-xl min-h-[60px]'
+                  className='min-h-[60px] rounded-xl bg-background text-xs'
                 />
               </div>
             </div>
 
             {/* Warning Alert Banner */}
-            <div className='p-3.5 rounded-xl border border-amber-200 bg-amber-50/70 dark:border-amber-900/40 dark:bg-amber-950/20 text-xs text-amber-900 dark:text-amber-300 flex items-start gap-2.5'>
-              <IconAlertTriangle className='size-5 text-amber-600 shrink-0 mt-0.5' />
+            <div className='flex items-start gap-2.5 rounded-xl border border-amber-200 bg-amber-50/70 p-3.5 text-xs text-amber-900 dark:border-amber-900/40 dark:bg-amber-950/20 dark:text-amber-300'>
+              <IconAlertTriangle className='mt-0.5 size-5 shrink-0 text-amber-600' />
               <div className='space-y-1'>
                 <p className='font-bold'>Pemberitahuan Restrukturisasi Hierarki</p>
-                <p className='text-[11px] opacity-90 leading-relaxed'>
-                  Memindahkan unit ini akan otomatis memperbarui rantai pelaporan (reporting line), hak akses jabatan, serta seluruh sub-unit ({node?.totalSubUnits || 0} sub-unit) di bawahnya.
+                <p className='text-[11px] leading-relaxed opacity-90'>
+                  Memindahkan unit ini akan otomatis memperbarui rantai pelaporan (reporting line),
+                  hak akses jabatan, serta seluruh sub-unit ({node?.totalSubUnits || 0} sub-unit) di
+                  bawahnya.
                 </p>
               </div>
             </div>
           </div>
 
-          <DialogFooter className='p-6 pt-3 border-t border-border/70 bg-muted/10 gap-2 sm:gap-0'>
+          <DialogFooter className='gap-2 border-t border-border/70 bg-muted/10 p-6 pt-3 sm:gap-0'>
             <Button
               type='button'
               variant='outline'
               onClick={() => onOpenChange(false)}
-              className='h-9 text-xs font-semibold rounded-xl'
+              className='h-9 rounded-xl text-xs font-semibold'
             >
               Cancel
             </Button>
             <Button
               type='submit'
               disabled={!newParentId}
-              className='h-9 text-xs font-semibold rounded-xl shadow-xs px-5 bg-amber-600 hover:bg-amber-700 text-white'
+              className='h-9 rounded-xl bg-amber-600 px-5 text-xs font-semibold text-white shadow-xs hover:bg-amber-700'
             >
               Confirm Move
             </Button>
@@ -442,19 +453,20 @@ export function DeleteUnitDialog({
 }: DeleteUnitDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='sm:max-w-[440px] rounded-2xl p-6'>
+      <DialogContent className='rounded-2xl p-6 sm:max-w-[440px]'>
         <div className='flex items-start gap-3.5'>
-          <div className='flex size-10 items-center justify-center rounded-xl bg-destructive/10 text-destructive shrink-0'>
+          <div className='flex size-10 shrink-0 items-center justify-center rounded-xl bg-destructive/10 text-destructive'>
             <IconTrash size={22} />
           </div>
           <div className='space-y-1.5'>
             <DialogTitle className='text-sm font-bold text-foreground'>
               Delete Organization Unit
             </DialogTitle>
-            <DialogDescription className='text-xs text-muted-foreground leading-relaxed'>
-              Apakah Anda yakin ingin menghapus unit <strong className='text-foreground'>{node?.name}</strong>?
+            <DialogDescription className='text-xs leading-relaxed text-muted-foreground'>
+              Apakah Anda yakin ingin menghapus unit{' '}
+              <strong className='text-foreground'>{node?.name}</strong>?
               {node && node.totalEmployees > 0 && (
-                <span className='block text-destructive font-medium mt-1'>
+                <span className='mt-1 block font-medium text-destructive'>
                   Unit ini saat ini memiliki {node.totalEmployees} karyawan aktif.
                 </span>
               )}
@@ -462,12 +474,12 @@ export function DeleteUnitDialog({
           </div>
         </div>
 
-        <DialogFooter className='pt-4 border-t border-border/70 mt-2 gap-2 sm:gap-0'>
+        <DialogFooter className='mt-2 gap-2 border-t border-border/70 pt-4 sm:gap-0'>
           <Button
             type='button'
             variant='outline'
             onClick={() => onOpenChange(false)}
-            className='h-9 text-xs font-semibold rounded-xl'
+            className='h-9 rounded-xl text-xs font-semibold'
           >
             Cancel
           </Button>
@@ -478,7 +490,7 @@ export function DeleteUnitDialog({
               if (node) onConfirmDelete(node.id)
               onOpenChange(false)
             }}
-            className='h-9 text-xs font-semibold rounded-xl shadow-xs'
+            className='h-9 rounded-xl text-xs font-semibold shadow-xs'
           >
             Delete Unit
           </Button>

@@ -1,16 +1,15 @@
 // src/features/company/organization/components/unit-detail-modals.tsx
 import {
-  IconBuilding,
   IconBriefcase,
+  IconBuilding,
+  IconEdit,
   IconHierarchy,
   IconMail,
-  IconUsers,
-  IconEdit,
   IconSearch,
+  IconUsers,
 } from '@tabler/icons-react'
-import { useState, useMemo } from 'react'
-import { getDummyMembersForUnit } from '../data/mock-org-data'
-import type { DivisionRecord, DepartmentRecord, PositionRecord } from '../types'
+import { useMemo, useState } from 'react'
+
 import { Badge } from '@/shared/components/ui/badge'
 import { Button } from '@/shared/components/ui/button'
 import {
@@ -22,6 +21,9 @@ import {
   DialogTitle,
 } from '@/shared/components/ui/dialog'
 import { Progress } from '@/shared/components/ui/progress'
+
+import { getDummyMembersForUnit } from '../data/mock-org-data'
+import type { DepartmentRecord, DivisionRecord, PositionRecord } from '../types'
 
 // ─── 1. Division Detail Modal ────────────────────────────────────────────────
 interface DivisionDetailModalProps {
@@ -66,8 +68,8 @@ export function DivisionDetailModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='sm:max-w-[580px] p-0 overflow-hidden rounded-2xl'>
-        <DialogHeader className='p-6 pb-4 border-b border-border/80 bg-muted/20'>
+      <DialogContent className='overflow-hidden rounded-2xl p-0 sm:max-w-[580px]'>
+        <DialogHeader className='border-b border-border/80 bg-muted/20 p-6 pb-4'>
           <div className='flex items-center justify-between'>
             <div className='flex items-center gap-3'>
               <div className='flex size-10 items-center justify-center rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400'>
@@ -82,14 +84,14 @@ export function DivisionDetailModal({
                     variant='outline'
                     className={`text-[10px] font-bold ${
                       division.status === 'active'
-                        ? 'border-emerald-500/30 text-emerald-600 bg-emerald-50/50 dark:bg-emerald-950/20'
+                        ? 'border-emerald-500/30 bg-emerald-50/50 text-emerald-600 dark:bg-emerald-950/20'
                         : 'border-muted-foreground text-muted-foreground'
                     }`}
                   >
                     {division.status}
                   </Badge>
                 </div>
-                <DialogDescription className='text-xs font-mono text-muted-foreground mt-0.5'>
+                <DialogDescription className='mt-0.5 font-mono text-xs text-muted-foreground'>
                   {division.code} • Division Unit
                 </DialogDescription>
               </div>
@@ -97,25 +99,25 @@ export function DivisionDetailModal({
           </div>
         </DialogHeader>
 
-        <div className='p-6 space-y-5 max-h-[72vh] overflow-y-auto'>
+        <div className='max-h-[72vh] space-y-5 overflow-y-auto p-6'>
           {/* Quick Metrics */}
-          <div className='grid grid-cols-2 sm:grid-cols-3 gap-3'>
-            <div className='p-3 rounded-xl border border-border/80 bg-card'>
+          <div className='grid grid-cols-2 gap-3 sm:grid-cols-3'>
+            <div className='rounded-xl border border-border/80 bg-card p-3'>
               <p className='text-[10px] font-semibold text-muted-foreground'>Cost Center</p>
-              <p className='text-xs font-bold font-mono text-foreground mt-0.5'>
+              <p className='mt-0.5 font-mono text-xs font-bold text-foreground'>
                 {division.costCenter || '-'}
               </p>
             </div>
-            <div className='p-3 rounded-xl border border-border/80 bg-card'>
+            <div className='rounded-xl border border-border/80 bg-card p-3'>
               <p className='text-[10px] font-semibold text-muted-foreground'>Total Departments</p>
-              <p className='text-xs font-bold text-foreground mt-0.5 flex items-center gap-1.5'>
+              <p className='mt-0.5 flex items-center gap-1.5 text-xs font-bold text-foreground'>
                 <IconHierarchy size={14} className='text-emerald-600' />
                 {division.totalDepartments} Depts
               </p>
             </div>
-            <div className='p-3 rounded-xl border border-border/80 bg-card col-span-2 sm:col-span-1'>
+            <div className='col-span-2 rounded-xl border border-border/80 bg-card p-3 sm:col-span-1'>
               <p className='text-[10px] font-semibold text-muted-foreground'>Total Headcount</p>
-              <p className='text-xs font-bold text-foreground mt-0.5 flex items-center gap-1.5'>
+              <p className='mt-0.5 flex items-center gap-1.5 text-xs font-bold text-foreground'>
                 <IconUsers size={14} className='text-blue-600' />
                 {division.totalEmployees} Staff
               </p>
@@ -124,31 +126,31 @@ export function DivisionDetailModal({
 
           {/* Division Head Leader Card */}
           <div className='space-y-1.5'>
-            <h5 className='text-xs font-bold text-foreground uppercase tracking-wider'>
+            <h5 className='text-xs font-bold tracking-wider text-foreground uppercase'>
               Head of Division
             </h5>
             {division.headOfDivision ? (
-              <div className='p-4 rounded-xl border border-border/80 bg-card flex items-center gap-3.5'>
+              <div className='flex items-center gap-3.5 rounded-xl border border-border/80 bg-card p-4'>
                 {division.headOfDivision.avatar ? (
                   <img
                     src={division.headOfDivision.avatar}
                     alt={division.headOfDivision.name}
-                    className='size-11 rounded-xl object-cover border border-border shrink-0'
+                    className='size-11 shrink-0 rounded-xl border border-border object-cover'
                   />
                 ) : (
-                  <div className='size-11 rounded-xl bg-blue-500/10 text-blue-600 flex items-center justify-center font-bold text-sm shrink-0'>
+                  <div className='flex size-11 shrink-0 items-center justify-center rounded-xl bg-blue-500/10 text-sm font-bold text-blue-600'>
                     {division.headOfDivision.name.charAt(0)}
                   </div>
                 )}
                 <div className='min-w-0 flex-1'>
-                  <p className='text-xs font-bold text-foreground truncate'>
+                  <p className='truncate text-xs font-bold text-foreground'>
                     {division.headOfDivision.name}
                   </p>
-                  <p className='text-[11px] text-muted-foreground mt-0.5 truncate'>
+                  <p className='mt-0.5 truncate text-[11px] text-muted-foreground'>
                     {division.headOfDivision.title}
                   </p>
                   {division.headOfDivision.email && (
-                    <p className='text-[10px] text-primary flex items-center gap-1 mt-1 truncate'>
+                    <p className='mt-1 flex items-center gap-1 truncate text-[10px] text-primary'>
                       <IconMail size={12} className='shrink-0' />
                       {division.headOfDivision.email}
                     </p>
@@ -156,7 +158,7 @@ export function DivisionDetailModal({
                 </div>
               </div>
             ) : (
-              <div className='p-4 rounded-xl border border-dashed text-xs text-muted-foreground italic text-center'>
+              <div className='rounded-xl border border-dashed p-4 text-center text-xs text-muted-foreground italic'>
                 Belum ada kepala divisi yang ditugaskan
               </div>
             )}
@@ -164,78 +166,87 @@ export function DivisionDetailModal({
 
           {/* Description */}
           <div className='space-y-1.5'>
-            <h5 className='text-xs font-bold text-foreground uppercase tracking-wider'>
+            <h5 className='text-xs font-bold tracking-wider text-foreground uppercase'>
               Description & Responsibilities
             </h5>
-            <div className='p-3.5 rounded-xl border border-border/80 bg-muted/20 text-xs text-foreground leading-relaxed'>
+            <div className='rounded-xl border border-border/80 bg-muted/20 p-3.5 text-xs leading-relaxed text-foreground'>
               {division.description || 'Tidak ada deskripsi spesifik untuk divisi ini.'}
             </div>
           </div>
 
           {/* Assigned Key Personnel (Matching division.totalEmployees) */}
-          <div className='space-y-2 pt-2 border-t border-border/80'>
+          <div className='space-y-2 border-t border-border/80 pt-2'>
             <div className='flex items-center justify-between text-xs'>
-              <h5 className='font-bold text-foreground uppercase tracking-wider flex items-center gap-1.5'>
+              <h5 className='flex items-center gap-1.5 font-bold tracking-wider text-foreground uppercase'>
                 <IconUsers size={14} className='text-primary' />
                 Daftar Karyawan Divisi ({members.length})
               </h5>
-              <span className='text-[10px] text-muted-foreground font-semibold'>Division Level</span>
+              <span className='text-[10px] font-semibold text-muted-foreground'>
+                Division Level
+              </span>
             </div>
 
             {members.length > 4 && (
               <div className='relative'>
-                <IconSearch size={13} className='absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground' />
+                <IconSearch
+                  size={13}
+                  className='absolute top-1/2 left-2.5 -translate-y-1/2 text-muted-foreground'
+                />
                 <input
                   type='text'
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder={`Cari dari ${members.length} karyawan...`}
-                  className='w-full h-8 pl-8 pr-2.5 text-xs rounded-xl border border-border/80 bg-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary'
+                  className='h-8 w-full rounded-xl border border-border/80 bg-background pr-2.5 pl-8 text-xs placeholder:text-muted-foreground focus:ring-1 focus:ring-primary focus:outline-none'
                 />
               </div>
             )}
 
-            <div className='space-y-2 max-h-52 overflow-y-auto pr-1'>
+            <div className='max-h-52 space-y-2 overflow-y-auto pr-1'>
               {filteredMembers.length === 0 ? (
-                <div className='p-3 text-center text-xs text-muted-foreground italic rounded-xl border border-dashed'>
-                  {search ? 'Tidak ada karyawan yang cocok dengan pencarian.' : 'Belum ada personil yang terdaftar di divisi ini.'}
+                <div className='rounded-xl border border-dashed p-3 text-center text-xs text-muted-foreground italic'>
+                  {search
+                    ? 'Tidak ada karyawan yang cocok dengan pencarian.'
+                    : 'Belum ada personil yang terdaftar di divisi ini.'}
                 </div>
               ) : (
                 filteredMembers.map((member) => (
                   <div
                     key={member.id}
-                    className='p-2.5 rounded-xl border border-border/70 bg-card hover:bg-muted/30 transition-colors flex items-center justify-between gap-3 text-xs'
+                    className='flex items-center justify-between gap-3 rounded-xl border border-border/70 bg-card p-2.5 text-xs transition-colors hover:bg-muted/30'
                   >
-                    <div className='flex items-center gap-2.5 min-w-0'>
+                    <div className='flex min-w-0 items-center gap-2.5'>
                       {member.avatar ? (
                         <img
                           src={member.avatar}
                           alt={member.name}
-                          className='size-8 rounded-lg object-cover border border-border shrink-0'
+                          className='size-8 shrink-0 rounded-lg border border-border object-cover'
                         />
                       ) : (
-                        <div className='size-8 rounded-lg bg-blue-500/10 text-blue-600 font-bold flex items-center justify-center text-xs shrink-0'>
+                        <div className='flex size-8 shrink-0 items-center justify-center rounded-lg bg-blue-500/10 text-xs font-bold text-blue-600'>
                           {member.name.slice(0, 2).toUpperCase()}
                         </div>
                       )}
                       <div className='min-w-0'>
                         <div className='flex items-center gap-1.5'>
-                          <p className='font-bold text-foreground truncate text-[12px]'>{member.name}</p>
-                          <span className='text-[9px] font-mono px-1 py-0.2 rounded bg-muted text-muted-foreground shrink-0'>
+                          <p className='truncate text-[12px] font-bold text-foreground'>
+                            {member.name}
+                          </p>
+                          <span className='py-0.2 shrink-0 rounded bg-muted px-1 font-mono text-[9px] text-muted-foreground'>
                             {member.nik}
                           </span>
                         </div>
-                        <p className='text-[11px] text-muted-foreground truncate'>{member.title}</p>
+                        <p className='truncate text-[11px] text-muted-foreground'>{member.title}</p>
                       </div>
                     </div>
                     <Badge
                       variant='outline'
-                      className={`text-[9px] font-semibold shrink-0 px-1.5 py-0 ${
+                      className={`shrink-0 px-1.5 py-0 text-[9px] font-semibold ${
                         member.status === 'active'
-                          ? 'border-emerald-500/30 text-emerald-600 bg-emerald-50/50 dark:bg-emerald-950/20'
+                          ? 'border-emerald-500/30 bg-emerald-50/50 text-emerald-600 dark:bg-emerald-950/20'
                           : member.status === 'probation'
-                          ? 'border-amber-500/30 text-amber-600 bg-amber-50/50'
-                          : 'border-blue-500/30 text-blue-600 bg-blue-50/50'
+                            ? 'border-amber-500/30 bg-amber-50/50 text-amber-600'
+                            : 'border-blue-500/30 bg-blue-50/50 text-blue-600'
                       }`}
                     >
                       {member.status}
@@ -247,13 +258,13 @@ export function DivisionDetailModal({
           </div>
         </div>
 
-        <DialogFooter className='p-4 px-6 border-t border-border/80 bg-muted/10 flex items-center justify-end gap-2'>
+        <DialogFooter className='flex items-center justify-end gap-2 border-t border-border/80 bg-muted/10 p-4 px-6'>
           <Button
             type='button'
             variant='outline'
             size='sm'
             onClick={() => onOpenChange(false)}
-            className='rounded-xl h-9 text-xs'
+            className='h-9 rounded-xl text-xs'
           >
             Close
           </Button>
@@ -265,7 +276,7 @@ export function DivisionDetailModal({
                 onOpenChange(false)
                 onEdit(division)
               }}
-              className='rounded-xl h-9 text-xs font-bold gap-1.5'
+              className='h-9 gap-1.5 rounded-xl text-xs font-bold'
             >
               <IconEdit size={14} />
               Edit Division
@@ -320,8 +331,8 @@ export function DepartmentDetailModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='sm:max-w-[580px] p-0 overflow-hidden rounded-2xl'>
-        <DialogHeader className='p-6 pb-4 border-b border-border/80 bg-muted/20'>
+      <DialogContent className='overflow-hidden rounded-2xl p-0 sm:max-w-[580px]'>
+        <DialogHeader className='border-b border-border/80 bg-muted/20 p-6 pb-4'>
           <div className='flex items-center justify-between'>
             <div className='flex items-center gap-3'>
               <div className='flex size-10 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'>
@@ -336,14 +347,14 @@ export function DepartmentDetailModal({
                     variant='outline'
                     className={`text-[10px] font-bold ${
                       department.status === 'active'
-                        ? 'border-emerald-500/30 text-emerald-600 bg-emerald-50/50 dark:bg-emerald-950/20'
+                        ? 'border-emerald-500/30 bg-emerald-50/50 text-emerald-600 dark:bg-emerald-950/20'
                         : 'border-muted-foreground text-muted-foreground'
                     }`}
                   >
                     {department.status}
                   </Badge>
                 </div>
-                <DialogDescription className='text-xs font-mono text-muted-foreground mt-0.5'>
+                <DialogDescription className='mt-0.5 font-mono text-xs text-muted-foreground'>
                   {department.code} • under {department.divisionName}
                 </DialogDescription>
               </div>
@@ -351,25 +362,25 @@ export function DepartmentDetailModal({
           </div>
         </DialogHeader>
 
-        <div className='p-6 space-y-5 max-h-[72vh] overflow-y-auto'>
+        <div className='max-h-[72vh] space-y-5 overflow-y-auto p-6'>
           {/* Quick Metrics */}
-          <div className='grid grid-cols-2 sm:grid-cols-3 gap-3'>
-            <div className='p-3 rounded-xl border border-border/80 bg-card'>
+          <div className='grid grid-cols-2 gap-3 sm:grid-cols-3'>
+            <div className='rounded-xl border border-border/80 bg-card p-3'>
               <p className='text-[10px] font-semibold text-muted-foreground'>Parent Division</p>
-              <p className='text-xs font-bold text-foreground mt-0.5 truncate'>
+              <p className='mt-0.5 truncate text-xs font-bold text-foreground'>
                 {department.divisionName}
               </p>
             </div>
-            <div className='p-3 rounded-xl border border-border/80 bg-card'>
+            <div className='rounded-xl border border-border/80 bg-card p-3'>
               <p className='text-[10px] font-semibold text-muted-foreground'>Total Positions</p>
-              <p className='text-xs font-bold text-foreground mt-0.5 flex items-center gap-1.5'>
+              <p className='mt-0.5 flex items-center gap-1.5 text-xs font-bold text-foreground'>
                 <IconBriefcase size={14} className='text-purple-600' />
                 {department.totalPositions} Positions
               </p>
             </div>
-            <div className='p-3 rounded-xl border border-border/80 bg-card col-span-2 sm:col-span-1'>
+            <div className='col-span-2 rounded-xl border border-border/80 bg-card p-3 sm:col-span-1'>
               <p className='text-[10px] font-semibold text-muted-foreground'>Total Headcount</p>
-              <p className='text-xs font-bold text-foreground mt-0.5 flex items-center gap-1.5'>
+              <p className='mt-0.5 flex items-center gap-1.5 text-xs font-bold text-foreground'>
                 <IconUsers size={14} className='text-emerald-600' />
                 {department.totalEmployees} Staff
               </p>
@@ -378,31 +389,31 @@ export function DepartmentDetailModal({
 
           {/* Department Head Leader Card */}
           <div className='space-y-1.5'>
-            <h5 className='text-xs font-bold text-foreground uppercase tracking-wider'>
+            <h5 className='text-xs font-bold tracking-wider text-foreground uppercase'>
               Head of Department
             </h5>
             {department.headOfDepartment ? (
-              <div className='p-4 rounded-xl border border-border/80 bg-card flex items-center gap-3.5'>
+              <div className='flex items-center gap-3.5 rounded-xl border border-border/80 bg-card p-4'>
                 {department.headOfDepartment.avatar ? (
                   <img
                     src={department.headOfDepartment.avatar}
                     alt={department.headOfDepartment.name}
-                    className='size-11 rounded-xl object-cover border border-border shrink-0'
+                    className='size-11 shrink-0 rounded-xl border border-border object-cover'
                   />
                 ) : (
-                  <div className='size-11 rounded-xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center font-bold text-sm shrink-0'>
+                  <div className='flex size-11 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-sm font-bold text-emerald-600'>
                     {department.headOfDepartment.name.charAt(0)}
                   </div>
                 )}
                 <div className='min-w-0 flex-1'>
-                  <p className='text-xs font-bold text-foreground truncate'>
+                  <p className='truncate text-xs font-bold text-foreground'>
                     {department.headOfDepartment.name}
                   </p>
-                  <p className='text-[11px] text-muted-foreground mt-0.5 truncate'>
+                  <p className='mt-0.5 truncate text-[11px] text-muted-foreground'>
                     {department.headOfDepartment.title}
                   </p>
                   {department.headOfDepartment.email && (
-                    <p className='text-[10px] text-primary flex items-center gap-1 mt-1 truncate'>
+                    <p className='mt-1 flex items-center gap-1 truncate text-[10px] text-primary'>
                       <IconMail size={12} className='shrink-0' />
                       {department.headOfDepartment.email}
                     </p>
@@ -410,7 +421,7 @@ export function DepartmentDetailModal({
                 </div>
               </div>
             ) : (
-              <div className='p-4 rounded-xl border border-dashed text-xs text-muted-foreground italic text-center'>
+              <div className='rounded-xl border border-dashed p-4 text-center text-xs text-muted-foreground italic'>
                 Belum ada kepala departemen yang ditugaskan
               </div>
             )}
@@ -418,78 +429,87 @@ export function DepartmentDetailModal({
 
           {/* Description */}
           <div className='space-y-1.5'>
-            <h5 className='text-xs font-bold text-foreground uppercase tracking-wider'>
+            <h5 className='text-xs font-bold tracking-wider text-foreground uppercase'>
               Description & Objectives
             </h5>
-            <div className='p-3.5 rounded-xl border border-border/80 bg-muted/20 text-xs text-foreground leading-relaxed'>
+            <div className='rounded-xl border border-border/80 bg-muted/20 p-3.5 text-xs leading-relaxed text-foreground'>
               {department.description || 'Tidak ada deskripsi khusus untuk departemen ini.'}
             </div>
           </div>
 
           {/* Assigned Department Staff (Matching department.totalEmployees) */}
-          <div className='space-y-2 pt-2 border-t border-border/80'>
+          <div className='space-y-2 border-t border-border/80 pt-2'>
             <div className='flex items-center justify-between text-xs'>
-              <h5 className='font-bold text-foreground uppercase tracking-wider flex items-center gap-1.5'>
+              <h5 className='flex items-center gap-1.5 font-bold tracking-wider text-foreground uppercase'>
                 <IconUsers size={14} className='text-primary' />
                 Daftar Personil Departemen ({members.length})
               </h5>
-              <span className='text-[10px] text-muted-foreground font-semibold'>Department Level</span>
+              <span className='text-[10px] font-semibold text-muted-foreground'>
+                Department Level
+              </span>
             </div>
 
             {members.length > 4 && (
               <div className='relative'>
-                <IconSearch size={13} className='absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground' />
+                <IconSearch
+                  size={13}
+                  className='absolute top-1/2 left-2.5 -translate-y-1/2 text-muted-foreground'
+                />
                 <input
                   type='text'
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder={`Cari dari ${members.length} karyawan...`}
-                  className='w-full h-8 pl-8 pr-2.5 text-xs rounded-xl border border-border/80 bg-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary'
+                  className='h-8 w-full rounded-xl border border-border/80 bg-background pr-2.5 pl-8 text-xs placeholder:text-muted-foreground focus:ring-1 focus:ring-primary focus:outline-none'
                 />
               </div>
             )}
 
-            <div className='space-y-2 max-h-52 overflow-y-auto pr-1'>
+            <div className='max-h-52 space-y-2 overflow-y-auto pr-1'>
               {filteredMembers.length === 0 ? (
-                <div className='p-3 text-center text-xs text-muted-foreground italic rounded-xl border border-dashed'>
-                  {search ? 'Tidak ada karyawan yang cocok dengan pencarian.' : 'Belum ada personil yang terdaftar di departemen ini.'}
+                <div className='rounded-xl border border-dashed p-3 text-center text-xs text-muted-foreground italic'>
+                  {search
+                    ? 'Tidak ada karyawan yang cocok dengan pencarian.'
+                    : 'Belum ada personil yang terdaftar di departemen ini.'}
                 </div>
               ) : (
                 filteredMembers.map((member) => (
                   <div
                     key={member.id}
-                    className='p-2.5 rounded-xl border border-border/70 bg-card hover:bg-muted/30 transition-colors flex items-center justify-between gap-3 text-xs'
+                    className='flex items-center justify-between gap-3 rounded-xl border border-border/70 bg-card p-2.5 text-xs transition-colors hover:bg-muted/30'
                   >
-                    <div className='flex items-center gap-2.5 min-w-0'>
+                    <div className='flex min-w-0 items-center gap-2.5'>
                       {member.avatar ? (
                         <img
                           src={member.avatar}
                           alt={member.name}
-                          className='size-8 rounded-lg object-cover border border-border shrink-0'
+                          className='size-8 shrink-0 rounded-lg border border-border object-cover'
                         />
                       ) : (
-                        <div className='size-8 rounded-lg bg-emerald-500/10 text-emerald-600 font-bold flex items-center justify-center text-xs shrink-0'>
+                        <div className='flex size-8 shrink-0 items-center justify-center rounded-lg bg-emerald-500/10 text-xs font-bold text-emerald-600'>
                           {member.name.slice(0, 2).toUpperCase()}
                         </div>
                       )}
                       <div className='min-w-0'>
                         <div className='flex items-center gap-1.5'>
-                          <p className='font-bold text-foreground truncate text-[12px]'>{member.name}</p>
-                          <span className='text-[9px] font-mono px-1 py-0.2 rounded bg-muted text-muted-foreground shrink-0'>
+                          <p className='truncate text-[12px] font-bold text-foreground'>
+                            {member.name}
+                          </p>
+                          <span className='py-0.2 shrink-0 rounded bg-muted px-1 font-mono text-[9px] text-muted-foreground'>
                             {member.nik}
                           </span>
                         </div>
-                        <p className='text-[11px] text-muted-foreground truncate'>{member.title}</p>
+                        <p className='truncate text-[11px] text-muted-foreground'>{member.title}</p>
                       </div>
                     </div>
                     <Badge
                       variant='outline'
-                      className={`text-[9px] font-semibold shrink-0 px-1.5 py-0 ${
+                      className={`shrink-0 px-1.5 py-0 text-[9px] font-semibold ${
                         member.status === 'active'
-                          ? 'border-emerald-500/30 text-emerald-600 bg-emerald-50/50 dark:bg-emerald-950/20'
+                          ? 'border-emerald-500/30 bg-emerald-50/50 text-emerald-600 dark:bg-emerald-950/20'
                           : member.status === 'probation'
-                          ? 'border-amber-500/30 text-amber-600 bg-amber-50/50'
-                          : 'border-blue-500/30 text-blue-600 bg-blue-50/50'
+                            ? 'border-amber-500/30 bg-amber-50/50 text-amber-600'
+                            : 'border-blue-500/30 bg-blue-50/50 text-blue-600'
                       }`}
                     >
                       {member.status}
@@ -501,13 +521,13 @@ export function DepartmentDetailModal({
           </div>
         </div>
 
-        <DialogFooter className='p-4 px-6 border-t border-border/80 bg-muted/10 flex items-center justify-end gap-2'>
+        <DialogFooter className='flex items-center justify-end gap-2 border-t border-border/80 bg-muted/10 p-4 px-6'>
           <Button
             type='button'
             variant='outline'
             size='sm'
             onClick={() => onOpenChange(false)}
-            className='rounded-xl h-9 text-xs'
+            className='h-9 rounded-xl text-xs'
           >
             Close
           </Button>
@@ -519,7 +539,7 @@ export function DepartmentDetailModal({
                 onOpenChange(false)
                 onEdit(department)
               }}
-              className='rounded-xl h-9 text-xs font-bold gap-1.5'
+              className='h-9 gap-1.5 rounded-xl text-xs font-bold'
             >
               <IconEdit size={14} />
               Edit Department
@@ -579,8 +599,8 @@ export function PositionDetailModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='sm:max-w-[580px] p-0 overflow-hidden rounded-2xl'>
-        <DialogHeader className='p-6 pb-4 border-b border-border/80 bg-muted/20'>
+      <DialogContent className='overflow-hidden rounded-2xl p-0 sm:max-w-[580px]'>
+        <DialogHeader className='border-b border-border/80 bg-muted/20 p-6 pb-4'>
           <div className='flex items-center justify-between'>
             <div className='flex items-center gap-3'>
               <div className='flex size-10 items-center justify-center rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400'>
@@ -595,14 +615,14 @@ export function PositionDetailModal({
                     variant='outline'
                     className={`text-[10px] font-bold ${
                       position.status === 'active'
-                        ? 'border-emerald-500/30 text-emerald-600 bg-emerald-50/50 dark:bg-emerald-950/20'
+                        ? 'border-emerald-500/30 bg-emerald-50/50 text-emerald-600 dark:bg-emerald-950/20'
                         : 'border-muted-foreground text-muted-foreground'
                     }`}
                   >
                     {position.status}
                   </Badge>
                 </div>
-                <DialogDescription className='text-xs font-mono text-muted-foreground mt-0.5'>
+                <DialogDescription className='mt-0.5 font-mono text-xs text-muted-foreground'>
                   {position.code} • {position.jobLevel} ({position.jobGrade})
                 </DialogDescription>
               </div>
@@ -610,34 +630,34 @@ export function PositionDetailModal({
           </div>
         </DialogHeader>
 
-        <div className='p-6 space-y-5 max-h-[72vh] overflow-y-auto'>
+        <div className='max-h-[72vh] space-y-5 overflow-y-auto p-6'>
           {/* Quick Metrics */}
-          <div className='grid grid-cols-2 sm:grid-cols-3 gap-3'>
-            <div className='p-3 rounded-xl border border-border/80 bg-card'>
+          <div className='grid grid-cols-2 gap-3 sm:grid-cols-3'>
+            <div className='rounded-xl border border-border/80 bg-card p-3'>
               <p className='text-[10px] font-semibold text-muted-foreground'>Department</p>
-              <p className='text-xs font-bold text-foreground mt-0.5 truncate'>
+              <p className='mt-0.5 truncate text-xs font-bold text-foreground'>
                 {position.departmentName}
               </p>
               <p className='text-[10px] text-muted-foreground'>{position.divisionName}</p>
             </div>
-            <div className='p-3 rounded-xl border border-border/80 bg-card'>
+            <div className='rounded-xl border border-border/80 bg-card p-3'>
               <p className='text-[10px] font-semibold text-muted-foreground'>Job Grade & Level</p>
-              <p className='text-xs font-bold text-foreground mt-0.5'>
+              <p className='mt-0.5 text-xs font-bold text-foreground'>
                 {position.jobLevel} - {position.jobGrade}
               </p>
             </div>
-            <div className='p-3 rounded-xl border border-border/80 bg-card col-span-2 sm:col-span-1'>
+            <div className='col-span-2 rounded-xl border border-border/80 bg-card p-3 sm:col-span-1'>
               <p className='text-[10px] font-semibold text-muted-foreground'>Direct Superior</p>
-              <p className='text-xs font-bold text-foreground mt-0.5 truncate'>
+              <p className='mt-0.5 truncate text-xs font-bold text-foreground'>
                 {position.reportsToPositionTitle || 'Direct Management'}
               </p>
             </div>
           </div>
 
           {/* Headcount Capacity Bar */}
-          <div className='p-4 rounded-xl border border-border/80 bg-card space-y-2.5'>
+          <div className='space-y-2.5 rounded-xl border border-border/80 bg-card p-4'>
             <div className='flex items-center justify-between text-xs'>
-              <span className='font-bold text-foreground flex items-center gap-1.5'>
+              <span className='flex items-center gap-1.5 font-bold text-foreground'>
                 <IconUsers size={15} className='text-primary' />
                 Headcount Quota Capacity
               </span>
@@ -646,9 +666,15 @@ export function PositionDetailModal({
               </span>
             </div>
             <Progress value={percent} className='h-2 rounded-full' />
-            <div className='flex items-center justify-between text-[11px] text-muted-foreground pt-0.5'>
+            <div className='flex items-center justify-between pt-0.5 text-[11px] text-muted-foreground'>
               <span>Kapasitas Terisi: {position.headcountCurrent} Karyawan</span>
-              <span className={position.headcountLimit - position.headcountCurrent > 0 ? 'text-emerald-600 font-semibold' : 'text-muted-foreground'}>
+              <span
+                className={
+                  position.headcountLimit - position.headcountCurrent > 0
+                    ? 'font-semibold text-emerald-600'
+                    : 'text-muted-foreground'
+                }
+              >
                 {position.headcountLimit - position.headcountCurrent > 0
                   ? `${position.headcountLimit - position.headcountCurrent} Slot Lowongan Terbuka`
                   : 'Kapasitas Penuh (0 Slot Terbuka)'}
@@ -658,70 +684,79 @@ export function PositionDetailModal({
 
           {/* Description */}
           <div className='space-y-1.5'>
-            <h5 className='text-xs font-bold text-foreground uppercase tracking-wider'>
+            <h5 className='text-xs font-bold tracking-wider text-foreground uppercase'>
               Position Description & Tasks
             </h5>
-            <div className='p-3.5 rounded-xl border border-border/80 bg-muted/20 text-xs text-foreground leading-relaxed'>
+            <div className='rounded-xl border border-border/80 bg-muted/20 p-3.5 text-xs leading-relaxed text-foreground'>
               {position.description || 'Tidak ada uraian tugas posisi yang didefinisikan.'}
             </div>
           </div>
 
           {/* Assigned Position Holders (Matching position.headcountCurrent) */}
-          <div className='space-y-2 pt-2 border-t border-border/80'>
+          <div className='space-y-2 border-t border-border/80 pt-2'>
             <div className='flex items-center justify-between text-xs'>
-              <h5 className='font-bold text-foreground uppercase tracking-wider flex items-center gap-1.5'>
+              <h5 className='flex items-center gap-1.5 font-bold tracking-wider text-foreground uppercase'>
                 <IconUsers size={14} className='text-primary' />
                 Daftar Pemegang Jabatan Aktif ({members.length})
               </h5>
-              <span className='text-[10px] text-muted-foreground font-semibold'>Position Assigned</span>
+              <span className='text-[10px] font-semibold text-muted-foreground'>
+                Position Assigned
+              </span>
             </div>
 
             {members.length > 4 && (
               <div className='relative'>
-                <IconSearch size={13} className='absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground' />
+                <IconSearch
+                  size={13}
+                  className='absolute top-1/2 left-2.5 -translate-y-1/2 text-muted-foreground'
+                />
                 <input
                   type='text'
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder={`Cari dari ${members.length} karyawan...`}
-                  className='w-full h-8 pl-8 pr-2.5 text-xs rounded-xl border border-border/80 bg-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary'
+                  className='h-8 w-full rounded-xl border border-border/80 bg-background pr-2.5 pl-8 text-xs placeholder:text-muted-foreground focus:ring-1 focus:ring-primary focus:outline-none'
                 />
               </div>
             )}
 
-            <div className='space-y-2 max-h-52 overflow-y-auto pr-1'>
+            <div className='max-h-52 space-y-2 overflow-y-auto pr-1'>
               {filteredMembers.length === 0 ? (
-                <div className='p-3 text-center text-xs text-muted-foreground italic rounded-xl border border-dashed'>
-                  {search ? 'Tidak ada karyawan yang cocok dengan pencarian.' : 'Belum ada karyawan aktif yang ditugaskan di posisi ini.'}
+                <div className='rounded-xl border border-dashed p-3 text-center text-xs text-muted-foreground italic'>
+                  {search
+                    ? 'Tidak ada karyawan yang cocok dengan pencarian.'
+                    : 'Belum ada karyawan aktif yang ditugaskan di posisi ini.'}
                 </div>
               ) : (
                 filteredMembers.map((member) => (
                   <div
                     key={member.id}
-                    className='p-2.5 rounded-xl border border-border/70 bg-card hover:bg-muted/30 transition-colors flex items-center justify-between gap-3 text-xs'
+                    className='flex items-center justify-between gap-3 rounded-xl border border-border/70 bg-card p-2.5 text-xs transition-colors hover:bg-muted/30'
                   >
-                    <div className='flex items-center gap-2.5 min-w-0'>
+                    <div className='flex min-w-0 items-center gap-2.5'>
                       {member.avatar ? (
                         <img
                           src={member.avatar}
                           alt={member.name}
-                          className='size-8 rounded-lg object-cover border border-border shrink-0'
+                          className='size-8 shrink-0 rounded-lg border border-border object-cover'
                         />
                       ) : (
-                        <div className='size-8 rounded-lg bg-purple-500/10 text-purple-600 font-bold flex items-center justify-center text-xs shrink-0'>
+                        <div className='flex size-8 shrink-0 items-center justify-center rounded-lg bg-purple-500/10 text-xs font-bold text-purple-600'>
                           {member.name.slice(0, 2).toUpperCase()}
                         </div>
                       )}
                       <div className='min-w-0'>
                         <div className='flex items-center gap-1.5'>
-                          <p className='font-bold text-foreground truncate text-[12px]'>{member.name}</p>
-                          <span className='text-[9px] font-mono px-1 py-0.2 rounded bg-muted text-muted-foreground shrink-0'>
+                          <p className='truncate text-[12px] font-bold text-foreground'>
+                            {member.name}
+                          </p>
+                          <span className='py-0.2 shrink-0 rounded bg-muted px-1 font-mono text-[9px] text-muted-foreground'>
                             {member.nik}
                           </span>
                         </div>
-                        <p className='text-[11px] text-muted-foreground truncate'>{member.title}</p>
+                        <p className='truncate text-[11px] text-muted-foreground'>{member.title}</p>
                         {member.email && (
-                          <p className='text-[10px] text-primary/90 flex items-center gap-1 truncate'>
+                          <p className='flex items-center gap-1 truncate text-[10px] text-primary/90'>
                             <IconMail size={10} className='shrink-0' />
                             {member.email}
                           </p>
@@ -730,12 +765,12 @@ export function PositionDetailModal({
                     </div>
                     <Badge
                       variant='outline'
-                      className={`text-[9px] font-semibold shrink-0 px-1.5 py-0 ${
+                      className={`shrink-0 px-1.5 py-0 text-[9px] font-semibold ${
                         member.status === 'active'
-                          ? 'border-emerald-500/30 text-emerald-600 bg-emerald-50/50 dark:bg-emerald-950/20'
+                          ? 'border-emerald-500/30 bg-emerald-50/50 text-emerald-600 dark:bg-emerald-950/20'
                           : member.status === 'probation'
-                          ? 'border-amber-500/30 text-amber-600 bg-amber-50/50'
-                          : 'border-blue-500/30 text-blue-600 bg-blue-50/50'
+                            ? 'border-amber-500/30 bg-amber-50/50 text-amber-600'
+                            : 'border-blue-500/30 bg-blue-50/50 text-blue-600'
                       }`}
                     >
                       {member.status}
@@ -747,13 +782,13 @@ export function PositionDetailModal({
           </div>
         </div>
 
-        <DialogFooter className='p-4 px-6 border-t border-border/80 bg-muted/10 flex items-center justify-end gap-2'>
+        <DialogFooter className='flex items-center justify-end gap-2 border-t border-border/80 bg-muted/10 p-4 px-6'>
           <Button
             type='button'
             variant='outline'
             size='sm'
             onClick={() => onOpenChange(false)}
-            className='rounded-xl h-9 text-xs'
+            className='h-9 rounded-xl text-xs'
           >
             Close
           </Button>
@@ -765,7 +800,7 @@ export function PositionDetailModal({
                 onOpenChange(false)
                 onEdit(position)
               }}
-              className='rounded-xl h-9 text-xs font-bold gap-1.5'
+              className='h-9 gap-1.5 rounded-xl text-xs font-bold'
             >
               <IconEdit size={14} />
               Edit Position

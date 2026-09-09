@@ -1,11 +1,11 @@
 // src/features/company/organization/data/mock-org-data.ts
 import type {
-  OrgNode,
-  OrgMember,
-  DivisionRecord,
   DepartmentRecord,
-  PositionRecord,
+  DivisionRecord,
+  OrgMember,
+  OrgNode,
   OrgOverviewStats,
+  PositionRecord,
 } from '../types'
 
 export const INITIAL_ORG_TREE: OrgNode = {
@@ -24,7 +24,8 @@ export const INITIAL_ORG_TREE: OrgNode = {
   totalEmployees: 128,
   totalSubUnits: 4,
   status: 'active',
-  description: 'Holding company and principal headquarters governing all business divisions and operational branches.',
+  description:
+    'Holding company and principal headquarters governing all business divisions and operational branches.',
   children: [
     {
       id: 'div-tech',
@@ -43,7 +44,8 @@ export const INITIAL_ORG_TREE: OrgNode = {
       totalEmployees: 42,
       totalSubUnits: 3,
       status: 'active',
-      description: 'Oversees software development, cloud infrastructure architecture, digital product innovation, and IT operations.',
+      description:
+        'Oversees software development, cloud infrastructure architecture, digital product innovation, and IT operations.',
       children: [
         {
           id: 'dept-se',
@@ -62,7 +64,8 @@ export const INITIAL_ORG_TREE: OrgNode = {
           totalEmployees: 22,
           totalSubUnits: 3,
           status: 'active',
-          description: 'Responsible for core HRIS web platform, mobile applications, APIs, and microservices ecosystem.',
+          description:
+            'Responsible for core HRIS web platform, mobile applications, APIs, and microservices ecosystem.',
           children: [
             {
               id: 'pos-lead-fe',
@@ -81,7 +84,8 @@ export const INITIAL_ORG_TREE: OrgNode = {
               totalEmployees: 4,
               totalSubUnits: 0,
               status: 'active',
-              description: 'Technical leadership for React, TypeScript, design system, and UI performance.',
+              description:
+                'Technical leadership for React, TypeScript, design system, and UI performance.',
             },
             {
               id: 'pos-sr-be',
@@ -100,7 +104,8 @@ export const INITIAL_ORG_TREE: OrgNode = {
               totalEmployees: 8,
               totalSubUnits: 0,
               status: 'active',
-              description: 'High-throughput microservices, database optimizations, and payroll calculation engines.',
+              description:
+                'High-throughput microservices, database optimizations, and payroll calculation engines.',
             },
             {
               id: 'pos-qa-lead',
@@ -119,7 +124,8 @@ export const INITIAL_ORG_TREE: OrgNode = {
               totalEmployees: 10,
               totalSubUnits: 0,
               status: 'active',
-              description: 'End-to-end automated testing pipelines, performance benchmarking, and regression suites.',
+              description:
+                'End-to-end automated testing pipelines, performance benchmarking, and regression suites.',
             },
           ],
         },
@@ -140,7 +146,8 @@ export const INITIAL_ORG_TREE: OrgNode = {
           totalEmployees: 10,
           totalSubUnits: 2,
           status: 'active',
-          description: 'Kubernetes orchestration, multi-region high availability, CI/CD automation, and SOC2 compliance.',
+          description:
+            'Kubernetes orchestration, multi-region high availability, CI/CD automation, and SOC2 compliance.',
           children: [
             {
               id: 'pos-cloud-arch',
@@ -159,7 +166,8 @@ export const INITIAL_ORG_TREE: OrgNode = {
               totalEmployees: 4,
               totalSubUnits: 0,
               status: 'active',
-              description: 'Multi-cloud architecture, disaster recovery, and infrastructure as code (Terraform).',
+              description:
+                'Multi-cloud architecture, disaster recovery, and infrastructure as code (Terraform).',
             },
             {
               id: 'pos-devops-sre',
@@ -178,7 +186,8 @@ export const INITIAL_ORG_TREE: OrgNode = {
               totalEmployees: 6,
               totalSubUnits: 0,
               status: 'active',
-              description: 'Continuous integration, Prometheus/Grafana monitoring, and infrastructure security.',
+              description:
+                'Continuous integration, Prometheus/Grafana monitoring, and infrastructure security.',
             },
           ],
         },
@@ -199,7 +208,8 @@ export const INITIAL_ORG_TREE: OrgNode = {
           totalEmployees: 10,
           totalSubUnits: 2,
           status: 'active',
-          description: 'Product roadmap discovery, user experience research, design system tokens, and usability testing.',
+          description:
+            'Product roadmap discovery, user experience research, design system tokens, and usability testing.',
           children: [
             {
               id: 'pos-sr-pm',
@@ -218,7 +228,8 @@ export const INITIAL_ORG_TREE: OrgNode = {
               totalEmployees: 4,
               totalSubUnits: 0,
               status: 'active',
-              description: 'Product owner for Core Payroll and Attendance automated tracking modules.',
+              description:
+                'Product owner for Core Payroll and Attendance automated tracking modules.',
             },
             {
               id: 'pos-ux-lead',
@@ -237,7 +248,8 @@ export const INITIAL_ORG_TREE: OrgNode = {
               totalEmployees: 6,
               totalSubUnits: 0,
               status: 'active',
-              description: 'Design thinking, high-fidelity prototypes, user research, and accessibility standards.',
+              description:
+                'Design thinking, high-fidelity prototypes, user research, and accessibility standards.',
             },
           ],
         },
@@ -260,7 +272,8 @@ export const INITIAL_ORG_TREE: OrgNode = {
       totalEmployees: 28,
       totalSubUnits: 2,
       status: 'active',
-      description: 'End-to-end human capital management, employee experience, talent acquisition, labor compliance, and workplace facilities.',
+      description:
+        'End-to-end human capital management, employee experience, talent acquisition, labor compliance, and workplace facilities.',
       children: [
         {
           id: 'dept-po',
@@ -279,7 +292,8 @@ export const INITIAL_ORG_TREE: OrgNode = {
           totalEmployees: 12,
           totalSubUnits: 2,
           status: 'active',
-          description: 'Payroll disbursement, BPJS administration, compensation & benefits, and attendance compliance.',
+          description:
+            'Payroll disbursement, BPJS administration, compensation & benefits, and attendance compliance.',
           children: [
             {
               id: 'pos-payroll-mgr',
@@ -298,7 +312,8 @@ export const INITIAL_ORG_TREE: OrgNode = {
               totalEmployees: 4,
               totalSubUnits: 0,
               status: 'active',
-              description: 'Lead monthly payroll calculation batch, tax compliance (PPh 21 TER), and executive reporting.',
+              description:
+                'Lead monthly payroll calculation batch, tax compliance (PPh 21 TER), and executive reporting.',
             },
             {
               id: 'pos-er-specialist',
@@ -317,7 +332,8 @@ export const INITIAL_ORG_TREE: OrgNode = {
               totalEmployees: 8,
               totalSubUnits: 0,
               status: 'active',
-              description: 'Managing employee engagement, BPJS health & employment claims, and labor regulations.',
+              description:
+                'Managing employee engagement, BPJS health & employment claims, and labor regulations.',
             },
           ],
         },
@@ -338,7 +354,8 @@ export const INITIAL_ORG_TREE: OrgNode = {
           totalEmployees: 16,
           totalSubUnits: 2,
           status: 'active',
-          description: 'Global recruiting, campus partnerships, hiring pipelines, and onboarding journey.',
+          description:
+            'Global recruiting, campus partnerships, hiring pipelines, and onboarding journey.',
           children: [
             {
               id: 'pos-lead-recruiter',
@@ -376,7 +393,8 @@ export const INITIAL_ORG_TREE: OrgNode = {
               totalEmployees: 8,
               totalSubUnits: 0,
               status: 'active',
-              description: 'Promoting corporate culture, campus relations, and LinkedIn talent branding.',
+              description:
+                'Promoting corporate culture, campus relations, and LinkedIn talent branding.',
             },
           ],
         },
@@ -399,7 +417,8 @@ export const INITIAL_ORG_TREE: OrgNode = {
       totalEmployees: 30,
       totalSubUnits: 2,
       status: 'active',
-      description: 'Corporate accounting, financial planning & analysis (FP&A), tax compliance, and treasury capital management.',
+      description:
+        'Corporate accounting, financial planning & analysis (FP&A), tax compliance, and treasury capital management.',
       children: [
         {
           id: 'dept-acc',
@@ -418,7 +437,8 @@ export const INITIAL_ORG_TREE: OrgNode = {
           totalEmployees: 16,
           totalSubUnits: 2,
           status: 'active',
-          description: 'General ledger, monthly audit, statutory financial statements, and PPh/PPN tax filing.',
+          description:
+            'General ledger, monthly audit, statutory financial statements, and PPh/PPN tax filing.',
           children: [
             {
               id: 'pos-sr-tax',
@@ -437,7 +457,8 @@ export const INITIAL_ORG_TREE: OrgNode = {
               totalEmployees: 6,
               totalSubUnits: 0,
               status: 'active',
-              description: 'Corporate tax compliance, transfer pricing documentation, and tax audit assistance.',
+              description:
+                'Corporate tax compliance, transfer pricing documentation, and tax audit assistance.',
             },
             {
               id: 'pos-gl-accountant',
@@ -456,7 +477,8 @@ export const INITIAL_ORG_TREE: OrgNode = {
               totalEmployees: 10,
               totalSubUnits: 0,
               status: 'active',
-              description: 'Financial closing, balance sheet reconciliation, and monthly asset amortizations.',
+              description:
+                'Financial closing, balance sheet reconciliation, and monthly asset amortizations.',
             },
           ],
         },
@@ -477,7 +499,8 @@ export const INITIAL_ORG_TREE: OrgNode = {
           totalEmployees: 14,
           totalSubUnits: 2,
           status: 'active',
-          description: 'Cash flow management, corporate banking relations, batch disbursement, and account receivables.',
+          description:
+            'Cash flow management, corporate banking relations, batch disbursement, and account receivables.',
           children: [
             {
               id: 'pos-disburse-lead',
@@ -496,7 +519,8 @@ export const INITIAL_ORG_TREE: OrgNode = {
               totalEmployees: 6,
               totalSubUnits: 0,
               status: 'active',
-              description: 'Executing corporate bank batch transfers (BCA, Mandiri) for vendor and payroll payouts.',
+              description:
+                'Executing corporate bank batch transfers (BCA, Mandiri) for vendor and payroll payouts.',
             },
             {
               id: 'pos-cashflow-analyst',
@@ -515,7 +539,8 @@ export const INITIAL_ORG_TREE: OrgNode = {
               totalEmployees: 8,
               totalSubUnits: 0,
               status: 'active',
-              description: 'Invoicing corporate clients, reconciling payment gateways, and managing AR collections.',
+              description:
+                'Invoicing corporate clients, reconciling payment gateways, and managing AR collections.',
             },
           ],
         },
@@ -538,7 +563,8 @@ export const INITIAL_ORG_TREE: OrgNode = {
       totalEmployees: 28,
       totalSubUnits: 2,
       status: 'active',
-      description: 'Revenue generation, enterprise B2B sales pipelines, brand marketing, client retention, and partnerships.',
+      description:
+        'Revenue generation, enterprise B2B sales pipelines, brand marketing, client retention, and partnerships.',
       children: [
         {
           id: 'dept-bd',
@@ -557,7 +583,8 @@ export const INITIAL_ORG_TREE: OrgNode = {
           totalEmployees: 14,
           totalSubUnits: 2,
           status: 'active',
-          description: 'Acquiring tier-1 corporate clients, key account management, and consultative software solutions.',
+          description:
+            'Acquiring tier-1 corporate clients, key account management, and consultative software solutions.',
           children: [
             {
               id: 'pos-sr-ae',
@@ -576,7 +603,8 @@ export const INITIAL_ORG_TREE: OrgNode = {
               totalEmployees: 8,
               totalSubUnits: 0,
               status: 'active',
-              description: 'Direct sales of enterprise HRIS software licenses and tailored enterprise packages.',
+              description:
+                'Direct sales of enterprise HRIS software licenses and tailored enterprise packages.',
             },
             {
               id: 'pos-partnership-mgr',
@@ -595,7 +623,8 @@ export const INITIAL_ORG_TREE: OrgNode = {
               totalEmployees: 6,
               totalSubUnits: 0,
               status: 'active',
-              description: 'Forging strategic alliances with fintechs, banks, and human capital associations.',
+              description:
+                'Forging strategic alliances with fintechs, banks, and human capital associations.',
             },
           ],
         },
@@ -616,7 +645,8 @@ export const INITIAL_ORG_TREE: OrgNode = {
           totalEmployees: 14,
           totalSubUnits: 2,
           status: 'active',
-          description: 'Optimizing acquisition funnels, SEO, paid performance media, and lead conversions.',
+          description:
+            'Optimizing acquisition funnels, SEO, paid performance media, and lead conversions.',
           children: [
             {
               id: 'pos-growth-lead',
@@ -654,7 +684,8 @@ export const INITIAL_ORG_TREE: OrgNode = {
               totalEmployees: 6,
               totalSubUnits: 0,
               status: 'active',
-              description: 'Creating organic thought leadership content, webinar events, and brand campaigns.',
+              description:
+                'Creating organic thought leadership content, webinar events, and brand campaigns.',
             },
           ],
         },
@@ -678,7 +709,8 @@ export const MOCK_DIVISIONS: DivisionRecord[] = [
     totalDepartments: 3,
     totalEmployees: 42,
     status: 'active',
-    description: 'Divisi pengembang teknologi sistem informasi, infrastruktur cloud, dan keamanan data.',
+    description:
+      'Divisi pengembang teknologi sistem informasi, infrastruktur cloud, dan keamanan data.',
     createdAt: '2023-01-15',
   },
   {
@@ -695,7 +727,8 @@ export const MOCK_DIVISIONS: DivisionRecord[] = [
     totalDepartments: 2,
     totalEmployees: 28,
     status: 'active',
-    description: 'Divisi pengelolaan sumber daya manusia, budaya kerja, payroll, dan administrasi umum.',
+    description:
+      'Divisi pengelolaan sumber daya manusia, budaya kerja, payroll, dan administrasi umum.',
     createdAt: '2023-01-15',
   },
   {
@@ -712,7 +745,8 @@ export const MOCK_DIVISIONS: DivisionRecord[] = [
     totalDepartments: 2,
     totalEmployees: 30,
     status: 'active',
-    description: 'Divisi pengelolaan keuangan, perbendaharaan kas, perpajakan, dan pelaporan akuntansi.',
+    description:
+      'Divisi pengelolaan keuangan, perbendaharaan kas, perpajakan, dan pelaporan akuntansi.',
     createdAt: '2023-01-15',
   },
   {
@@ -729,7 +763,8 @@ export const MOCK_DIVISIONS: DivisionRecord[] = [
     totalDepartments: 2,
     totalEmployees: 28,
     status: 'active',
-    description: 'Divisi komersial, kemitraan strategis, ekspansi pasar korporat, dan pemasaran merek.',
+    description:
+      'Divisi komersial, kemitraan strategis, ekspansi pasar korporat, dan pemasaran merek.',
     createdAt: '2023-02-01',
   },
 ]
@@ -770,7 +805,8 @@ export const MOCK_DEPARTMENTS: DepartmentRecord[] = [
     totalPositions: 2,
     totalEmployees: 10,
     status: 'active',
-    description: 'Departemen server cloud, pipeline deployment otomatis, dan uptime monitoring 99.9%.',
+    description:
+      'Departemen server cloud, pipeline deployment otomatis, dan uptime monitoring 99.9%.',
     createdAt: '2023-01-20',
   },
   {
@@ -865,7 +901,8 @@ export const MOCK_DEPARTMENTS: DepartmentRecord[] = [
     totalPositions: 2,
     totalEmployees: 14,
     status: 'active',
-    description: 'Departemen kas korporat, relasi perbankan, penagihan invoice, dan pencairan dana.',
+    description:
+      'Departemen kas korporat, relasi perbankan, penagihan invoice, dan pencairan dana.',
     createdAt: '2023-03-01',
   },
   {
@@ -923,7 +960,8 @@ export const MOCK_POSITIONS: PositionRecord[] = [
     reportsToPositionId: 'pos-head-se',
     reportsToPositionTitle: 'Head of Software Engineering',
     status: 'active',
-    description: 'Bertanggung jawab atas arsitektur frontend web, performa aplikasi, dan code standard.',
+    description:
+      'Bertanggung jawab atas arsitektur frontend web, performa aplikasi, dan code standard.',
     createdAt: '2023-01-25',
   },
   {
@@ -974,7 +1012,8 @@ export const MOCK_POSITIONS: PositionRecord[] = [
     reportsToPositionId: 'pos-head-ops',
     reportsToPositionTitle: 'Head of Cloud Infrastructure & SRE',
     status: 'active',
-    description: 'Merancang arsitektur multi-cloud, redundansi data, dan infrastruktur zero-downtime.',
+    description:
+      'Merancang arsitektur multi-cloud, redundansi data, dan infrastruktur zero-downtime.',
     createdAt: '2023-02-01',
   },
   {
@@ -991,7 +1030,8 @@ export const MOCK_POSITIONS: PositionRecord[] = [
     reportsToPositionId: 'pos-cloud-arch',
     reportsToPositionTitle: 'Principal Cloud Architect',
     status: 'active',
-    description: 'Mengelola automasi deployment Kubernetes, pipeline CI/CD, dan pemantauan sistem 24/7.',
+    description:
+      'Mengelola automasi deployment Kubernetes, pipeline CI/CD, dan pemantauan sistem 24/7.',
     createdAt: '2023-02-05',
   },
   {
@@ -1008,7 +1048,8 @@ export const MOCK_POSITIONS: PositionRecord[] = [
     reportsToPositionId: 'pos-head-prd',
     reportsToPositionTitle: 'Head of Product & Design',
     status: 'active',
-    description: 'Menyusun roadmap modul payroll otomatis, integrasi perbankan, dan formulasi PPh 21 TER.',
+    description:
+      'Menyusun roadmap modul payroll otomatis, integrasi perbankan, dan formulasi PPh 21 TER.',
     createdAt: '2023-02-15',
   },
   {
@@ -1025,7 +1066,8 @@ export const MOCK_POSITIONS: PositionRecord[] = [
     reportsToPositionId: 'pos-head-prd',
     reportsToPositionTitle: 'Head of Product & Design',
     status: 'active',
-    description: 'Mengarahkan riset kepuasan pengguna dan merancang design system komponen aplikasi web/mobile.',
+    description:
+      'Mengarahkan riset kepuasan pengguna dan merancang design system komponen aplikasi web/mobile.',
     createdAt: '2023-02-20',
   },
   {
@@ -1042,7 +1084,8 @@ export const MOCK_POSITIONS: PositionRecord[] = [
     reportsToPositionId: 'pos-head-po',
     reportsToPositionTitle: 'Head of People Operations',
     status: 'active',
-    description: 'Memvalidasi perhitungan slip gaji karyawan, laporan pajak, dan rekonsiliasi transfer bank.',
+    description:
+      'Memvalidasi perhitungan slip gaji karyawan, laporan pajak, dan rekonsiliasi transfer bank.',
     createdAt: '2023-03-01',
   },
   {
@@ -1059,7 +1102,8 @@ export const MOCK_POSITIONS: PositionRecord[] = [
     reportsToPositionId: 'pos-payroll-mgr',
     reportsToPositionTitle: 'Compensation & Payroll Manager',
     status: 'active',
-    description: 'Mengelola program kesehatan, asuransi, klaim BPJS Ketenagakerjaan, dan konseling karyawan.',
+    description:
+      'Mengelola program kesehatan, asuransi, klaim BPJS Ketenagakerjaan, dan konseling karyawan.',
     createdAt: '2023-03-01',
   },
   {
@@ -1093,7 +1137,8 @@ export const MOCK_POSITIONS: PositionRecord[] = [
     reportsToPositionId: 'pos-lead-recruiter',
     reportsToPositionTitle: 'Lead Technical Recruiter',
     status: 'active',
-    description: 'Menyelenggarakan campus hiring, job fair, dan kampanye budaya kerja di media sosial.',
+    description:
+      'Menyelenggarakan campus hiring, job fair, dan kampanye budaya kerja di media sosial.',
     createdAt: '2023-03-05',
   },
   {
@@ -1110,7 +1155,8 @@ export const MOCK_POSITIONS: PositionRecord[] = [
     reportsToPositionId: 'pos-head-acc',
     reportsToPositionTitle: 'Head of Accounting & Tax',
     status: 'active',
-    description: 'Menangani kepatuhan pajak korporat, bukti potong 1721-A1, dan pelaporan SPT tahunan.',
+    description:
+      'Menangani kepatuhan pajak korporat, bukti potong 1721-A1, dan pelaporan SPT tahunan.',
     createdAt: '2023-03-10',
   },
   {
@@ -1127,7 +1173,8 @@ export const MOCK_POSITIONS: PositionRecord[] = [
     reportsToPositionId: 'pos-head-acc',
     reportsToPositionTitle: 'Head of Accounting & Tax',
     status: 'active',
-    description: 'Rekonsiliasi transaksi jurnal umum, audit berkala, dan penyusunan laporan laba rugi.',
+    description:
+      'Rekonsiliasi transaksi jurnal umum, audit berkala, dan penyusunan laporan laba rugi.',
     createdAt: '2023-03-10',
   },
   {
@@ -1144,7 +1191,8 @@ export const MOCK_POSITIONS: PositionRecord[] = [
     reportsToPositionId: 'pos-head-trs',
     reportsToPositionTitle: 'Head of Treasury & Billing',
     status: 'active',
-    description: 'Melakukan upload batch file payroll ke portal perbankan BCA KlikBisnis & Mandiri MCM.',
+    description:
+      'Melakukan upload batch file payroll ke portal perbankan BCA KlikBisnis & Mandiri MCM.',
     createdAt: '2023-03-10',
   },
   {
@@ -1195,7 +1243,8 @@ export const MOCK_POSITIONS: PositionRecord[] = [
     reportsToPositionId: 'pos-head-bd',
     reportsToPositionTitle: 'VP of Enterprise Sales',
     status: 'active',
-    description: 'Membangun ekosistem integrasi dengan mitra perbankan dan konsultan manajemen SDM.',
+    description:
+      'Membangun ekosistem integrasi dengan mitra perbankan dan konsultan manajemen SDM.',
     createdAt: '2023-03-20',
   },
   {
@@ -1212,7 +1261,8 @@ export const MOCK_POSITIONS: PositionRecord[] = [
     reportsToPositionId: 'pos-head-mkt',
     reportsToPositionTitle: 'Head of Digital Marketing',
     status: 'active',
-    description: 'Mengoptimalkan performa iklan berbayar, analisis funnel leads, dan event marketing.',
+    description:
+      'Mengoptimalkan performa iklan berbayar, analisis funnel leads, dan event marketing.',
     createdAt: '2023-03-20',
   },
   {
@@ -1229,7 +1279,8 @@ export const MOCK_POSITIONS: PositionRecord[] = [
     reportsToPositionId: 'pos-growth-lead',
     reportsToPositionTitle: 'Growth Marketing Lead',
     status: 'active',
-    description: 'Membuat konten edukasi HR, materi webinar, dan studi kasus implementasi software HRIS.',
+    description:
+      'Membuat konten edukasi HR, materi webinar, dan studi kasus implementasi software HRIS.',
     createdAt: '2023-03-22',
   },
 ]
@@ -1247,21 +1298,129 @@ export const MOCK_ORG_STATS: OrgOverviewStats = {
 
 // ─── Realistic Names Dataset for Indonesia ───────────────────────────────────
 const FIRST_NAMES = [
-  'Budi', 'Rizky', 'Denny', 'Bayu', 'Sinta', 'Kevin', 'Maya', 'Gilang', 'Bagus', 'Fajar',
-  'Alif', 'Jessica', 'Aditya', 'Clarissa', 'Ronald', 'Sarah', 'Amanda', 'Bagas', 'Dian', 'Riko',
-  'Nadia', 'Ratna', 'Rio', 'Tiara', 'Hendra', 'Cindy', 'Donny', 'Robert', 'Vania', 'Farhan',
-  'Putri', 'Dimas', 'Eric', 'Sandy', 'Felicia', 'Bella', 'Yoga', 'Clara', 'Wahyu', 'Faisal',
-  'Anindita', 'Eko', 'Intan', 'Gita', 'Zulham', 'Taufik', 'Rangga', 'Dewi', 'Prasetya', 'Lestari',
-  'Ahmad', 'Nurul', 'Agus', 'Wulan', 'Danang', 'Indra', 'Satria', 'Tri', 'Gunawan', 'Luki',
-  'Hadi', 'Saputra', 'Novita', 'Mega', 'Sari', 'Arif', 'Bambang', 'Teguh', 'Surya', 'Ilham'
+  'Budi',
+  'Rizky',
+  'Denny',
+  'Bayu',
+  'Sinta',
+  'Kevin',
+  'Maya',
+  'Gilang',
+  'Bagus',
+  'Fajar',
+  'Alif',
+  'Jessica',
+  'Aditya',
+  'Clarissa',
+  'Ronald',
+  'Sarah',
+  'Amanda',
+  'Bagas',
+  'Dian',
+  'Riko',
+  'Nadia',
+  'Ratna',
+  'Rio',
+  'Tiara',
+  'Hendra',
+  'Cindy',
+  'Donny',
+  'Robert',
+  'Vania',
+  'Farhan',
+  'Putri',
+  'Dimas',
+  'Eric',
+  'Sandy',
+  'Felicia',
+  'Bella',
+  'Yoga',
+  'Clara',
+  'Wahyu',
+  'Faisal',
+  'Anindita',
+  'Eko',
+  'Intan',
+  'Gita',
+  'Zulham',
+  'Taufik',
+  'Rangga',
+  'Dewi',
+  'Prasetya',
+  'Lestari',
+  'Ahmad',
+  'Nurul',
+  'Agus',
+  'Wulan',
+  'Danang',
+  'Indra',
+  'Satria',
+  'Tri',
+  'Gunawan',
+  'Luki',
+  'Hadi',
+  'Saputra',
+  'Novita',
+  'Mega',
+  'Sari',
+  'Arif',
+  'Bambang',
+  'Teguh',
+  'Surya',
+  'Ilham',
 ]
 
 const LAST_NAMES = [
-  'Wicaksono', 'Pratama', 'Adrian', 'Saputra', 'Permata', 'Sanjaya', 'Anggraini', 'Maulana', 'Ramadhan', 'Nugraha',
-  'Firmansyah', 'Olivia', 'Wardhana', 'Aurelia', 'Melati', 'Putri', 'Puspitasari', 'Prasetya', 'Farhana', 'Dewi',
-  'Haryanto', 'Anjani', 'Setiawan', 'Claudia', 'Sinaga', 'Natasha', 'Cahyani', 'Leonardo', 'Gunawan', 'Kurniawan',
-  'Angelica', 'Safitri', 'Wijaya', 'Akbar', 'Kusuma', 'Santoso', 'Utami', 'Wibowo', 'Siregar', 'Subekti',
-  'Hidayat', 'Kusumo', 'Suryanto', 'Rahardjo', 'Hartono', 'Purnomo', 'Yulistio', 'Hermawan', 'Mulyadi', 'Darmawan'
+  'Wicaksono',
+  'Pratama',
+  'Adrian',
+  'Saputra',
+  'Permata',
+  'Sanjaya',
+  'Anggraini',
+  'Maulana',
+  'Ramadhan',
+  'Nugraha',
+  'Firmansyah',
+  'Olivia',
+  'Wardhana',
+  'Aurelia',
+  'Melati',
+  'Putri',
+  'Puspitasari',
+  'Prasetya',
+  'Farhana',
+  'Dewi',
+  'Haryanto',
+  'Anjani',
+  'Setiawan',
+  'Claudia',
+  'Sinaga',
+  'Natasha',
+  'Cahyani',
+  'Leonardo',
+  'Gunawan',
+  'Kurniawan',
+  'Angelica',
+  'Safitri',
+  'Wijaya',
+  'Akbar',
+  'Kusuma',
+  'Santoso',
+  'Utami',
+  'Wibowo',
+  'Siregar',
+  'Subekti',
+  'Hidayat',
+  'Kusumo',
+  'Suryanto',
+  'Rahardjo',
+  'Hartono',
+  'Purnomo',
+  'Yulistio',
+  'Hermawan',
+  'Mulyadi',
+  'Darmawan',
 ]
 
 const TITLES_BY_LEVEL: Record<string, string[]> = {
@@ -1304,7 +1463,13 @@ export function getDummyMembersForUnit(
   unitName: string,
   level: string,
   targetCount: number,
-  headOfUnit?: { id?: string; name?: string; title?: string; email?: string; avatar?: string } | null,
+  headOfUnit?: {
+    id?: string
+    name?: string
+    title?: string
+    email?: string
+    avatar?: string
+  } | null,
 ): OrgMember[] {
   const count = Math.max(1, targetCount || 4)
   const list: OrgMember[] = []
@@ -1317,8 +1482,7 @@ export function getDummyMembersForUnit(
       nik: `EMP-${unitCode.replace(/[^A-Z0-9]/g, '')}-001`,
       title: headOfUnit.title || `Head of ${unitName}`,
       email:
-        headOfUnit.email ||
-        `${headOfUnit.name.toLowerCase().replace(/[^a-z]/g, '')}@company.com`,
+        headOfUnit.email || `${headOfUnit.name.toLowerCase().replace(/[^a-z]/g, '')}@company.com`,
       avatar: headOfUnit.avatar,
       status: 'active',
       joinDate: '15 Jan 2021',
