@@ -1,4 +1,5 @@
 import {
+  IconBuildingCommunity,
   IconCircleCheck,
   IconClockHour4,
   IconLayoutDashboard,
@@ -6,7 +7,7 @@ import {
   IconReportAnalytics,
   IconReportMoney,
   IconSettings,
-  IconUserCircle,
+  IconUsers,
   type IconProps,
 } from '@tabler/icons-react'
 import type { LinkProps } from '@tanstack/react-router'
@@ -18,6 +19,7 @@ type Menu = {
   to: NonNullable<LinkProps['to']>
   icon?: React.ForwardRefExoticComponent<IconProps & React.RefAttributes<SVGSVGElement>>
   title: () => string
+  exact?: boolean
   items?: Menu[]
 }
 
@@ -60,69 +62,99 @@ export const dashboardMenu: Menu[] = [
 export const mainMenu: Menu[] = [
   {
     key: 'company',
-    to: '.',
-    icon: IconUserCircle,
+    to: '/company',
+    icon: IconBuildingCommunity,
     title: m.app_layout_nav_company,
     items: [
       {
-        key: 'employment',
-        title: m.app_layout_nav_employment,
-        to: '/company/employee',
+        key: 'company-organization',
+        title: m.app_layout_nav_company_organization,
+        to: '/company/organization',
+      },
+      {
+        key: 'company-position',
+        title: m.app_layout_nav_company_position,
+        to: '/company/position',
+      },
+      {
+        key: 'company-client',
+        title: m.app_layout_nav_company_client,
+        to: '/company/client',
+      },
+      {
+        key: 'company-project',
+        title: m.app_layout_nav_company_project,
+        to: '/company/project',
+      },
+    ],
+  },
+  {
+    key: 'employment',
+    to: '/employment',
+    icon: IconUsers,
+    title: m.app_layout_nav_employment,
+    items: [
+      {
+        key: 'employee-profile',
+        title: m.app_layout_nav_employee_information,
+        to: '/employment/employee-profile',
+      },
+      {
+        key: 'employment-overview',
+        title: m.app_layout_nav_employment_overview,
+        to: '/employment',
+        exact: true,
+      },
+      {
+        key: 'employment-contract',
+        title: m.app_layout_nav_employment_contract,
+        to: '/employment/contract',
+      },
+      {
+        key: 'employment-movement',
+        title: m.app_layout_nav_employment_movement,
+        to: '/employment/rotation',
         items: [
           {
-            key: 'employee-information',
-            title: m.app_layout_nav_employee_information,
-            to: '/company/employee-info',
+            key: 'employment-rotation',
+            title: m.app_layout_nav_employment_rotation,
+            to: '/employment/rotation',
           },
           {
-            key: 'employment-overview',
-            title: m.app_layout_nav_employment_overview,
-            to: '/company/employee',
-          },
-          {
-            key: 'employment-contract',
-            title: m.app_layout_nav_employment_contract,
-            to: '/company/employee/contract',
-          },
-          {
-            key: 'employment-mutation',
-            title: m.app_layout_nav_employment_mutation,
-            to: '/company/employee/mutation',
+            key: 'employment-demotion',
+            title: m.app_layout_nav_employment_demotion,
+            to: '/employment/demotion',
           },
           {
             key: 'employment-promotion',
             title: m.app_layout_nav_employment_promotion,
-            to: '/company/employee/promotion',
-          },
-          {
-            key: 'employment-resignation',
-            title: m.app_layout_nav_employment_resignation,
-            to: '/company/employee/resignation',
-          },
-          {
-            key: 'employment-history',
-            title: m.app_layout_nav_employment_history,
-            to: '/company/employee/history',
+            to: '/employment/promotion',
           },
         ],
       },
       {
-        key: 'organization',
-        title: m.app_layout_nav_organization,
-        to: '/company/organization',
+        key: 'employment-resignation',
+        title: m.app_layout_nav_employment_resignation,
+        to: '/employment/resignation',
       },
       {
-        key: 'document',
+        key: 'employment-history',
+        title: m.app_layout_nav_employment_history,
+        to: '/employment/history',
+      },
+      {
+        key: 'employment-document',
         title: m.app_layout_nav_document,
-        to: '/company/document',
+        to: '/employment/document',
       },
       {
-        key: 'mcu-management',
+        key: 'employment-mcu',
         title: () => 'MCU Management',
-        to: '/company/mcu/',
+        to: '/employment/mcu',
       },
     ],
   },
+
   {
     key: 'time-management',
     to: '.',

@@ -1,0 +1,40 @@
+import type { Client } from '../types'
+
+export const dummyClients: Client[] = [
+  {
+    id: 'client-nusantara-retail',
+    code: 'CL-001',
+    name: 'Nusantara Retail Group',
+    address: 'Jl. Jenderal Sudirman Kav. 52-53, Jakarta Selatan',
+    contactPersonName: 'Rina Prameswari',
+    contactPersonEmail: 'rina.prameswari@nusaretail.co.id',
+    contactPersonPhone: '+62 812-2200-1001',
+    isActive: true,
+    createdAt: '2026-01-12T09:00:00+07:00',
+    updatedAt: '2026-08-19T15:20:00+07:00',
+  },
+  {
+    id: 'client-samudra-logistics',
+    code: 'CL-002',
+    name: 'Samudra Logistics',
+    address: 'Kawasan Industri MM2100, Cikarang Barat, Bekasi',
+    contactPersonName: 'Bima Santoso',
+    contactPersonEmail: 'bima.santoso@samudralogistics.id',
+    contactPersonPhone: '+62 811-8800-2424',
+    isActive: true,
+    createdAt: '2026-02-04T10:30:00+07:00',
+    updatedAt: '2026-07-11T11:45:00+07:00',
+  },
+  {
+    id: 'client-artha-finance',
+    code: 'CL-003',
+    name: 'Artha Finance',
+    address: 'Jl. Asia Afrika No. 8, Bandung',
+    contactPersonName: 'Dewi Kartika',
+    contactPersonEmail: 'dewi.kartika@arthafinance.co.id',
+    contactPersonPhone: '+62 813-7711-0099',
+    isActive: false,
+    createdAt: '2026-03-15T08:15:00+07:00',
+    updatedAt: '2026-06-02T14:10:00+07:00',
+  },
+]
