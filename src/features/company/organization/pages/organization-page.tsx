@@ -65,6 +65,10 @@ export function OrganizationPage({ tab = 'structure' }: Readonly<OrganizationPag
     <AppMain
       title={m.organization_unit_structure_title()}
       subtitle={m.organization_unit_structure_subtitle()}
+      breadcrumbs={[
+        { to: '/', label: m.app_layout_nav_company() },
+        { to: '.', label: m.app_layout_nav_company_organization() },
+      ]}
       className='w-full max-w-full min-w-0 gap-6'
     >
       <Tabs value={tab} className='w-full max-w-full min-w-0 gap-6'>

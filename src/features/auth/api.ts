@@ -23,7 +23,7 @@ export interface SignInOutput {
 
 export const signIn = async (input: SignInInput): Promise<Envelope<SignInOutput>> => {
   const { email, password, rememberMe } = input
-  const out = await apiClient.post<Envelope<SignInOutput>>('/v1/auth/signin', {
+  const out = await apiClient.post<Envelope<SignInOutput>>('/api/v1/auth/signin', {
     email,
     password,
     rememberMe,
@@ -44,7 +44,7 @@ export interface SignOutInput {
 
 export const signOut = async (input: SignOutInput): Promise<Envelope<Record<string, string>>> => {
   const { refreshToken } = input
-  const out = await apiClient.post<Envelope<Record<string, string>>>('/v1/auth/signout', {
+  const out = await apiClient.post<Envelope<Record<string, string>>>('/api/v1/auth/signout', {
     refreshToken,
   })
   return out.data
@@ -67,7 +67,9 @@ export interface VerifyUserOutput {
 
 export const verifyEmail = async (input: VerifyUserInput): Promise<Envelope<VerifyUserOutput>> => {
   const { token } = input
-  const out = await apiClient.post<Envelope<VerifyUserOutput>>('/v1/auth/verify-email', { token })
+  const out = await apiClient.post<Envelope<VerifyUserOutput>>('/api/v1/auth/verify-email', {
+    token,
+  })
   return out.data
 }
 
@@ -94,7 +96,7 @@ export const resetPassword = async (
   input: ResetPasswordInput,
 ): Promise<Envelope<ResetPasswordOutput>> => {
   const { confirmPassword, email, otp, password } = input
-  const out = await apiClient.post<Envelope<ResetPasswordOutput>>('/v1/auth/reset-password', {
+  const out = await apiClient.post<Envelope<ResetPasswordOutput>>('/api/v1/auth/reset-password', {
     email,
     password,
     otp,
@@ -122,7 +124,7 @@ export const requestPasswordReset = async (
   input: ForgotPasswordInput,
 ): Promise<Envelope<ForgotPasswordOutput>> => {
   const { email } = input
-  const out = await apiClient.post<Envelope<ForgotPasswordOutput>>('/v1/auth/forgot-password', {
+  const out = await apiClient.post<Envelope<ForgotPasswordOutput>>('/api/v1/auth/forgot-password', {
     email,
   })
   return out.data
@@ -148,6 +150,8 @@ export interface RefreshOutput {
 
 export const refreshTokens = async (input: RefreshInput): Promise<Envelope<RefreshOutput>> => {
   const { refreshToken } = input
-  const out = await apiClient.post<Envelope<RefreshOutput>>('/v1/auth/refresh', { refreshToken })
+  const out = await apiClient.post<Envelope<RefreshOutput>>('/api/v1/auth/refresh', {
+    refreshToken,
+  })
   return out.data
 }
