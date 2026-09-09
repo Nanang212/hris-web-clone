@@ -1,11 +1,10 @@
-// src/features/company/organization/pages/position/position-management-tab.tsx
+// src/features/company/organization/components/position/position-management-tab.tsx
 import {
   IconBriefcase,
   IconCheck,
   IconDotsVertical,
   IconEdit,
   IconEye,
-  IconHierarchy,
   IconPlus,
   IconSearch,
   IconTrash,
@@ -51,7 +50,7 @@ import { TablePagination } from '@/shared/components/ui/table-pagination'
 import { Textarea } from '@/shared/components/ui/textarea'
 import { snackbar } from '@/shared/lib/snackbar'
 
-import { PositionDetailModal } from '../../components/unit-detail-modals'
+import { PositionDetailModal } from '../unit-detail-modals'
 import { MOCK_DEPARTMENTS, MOCK_POSITIONS } from '../../data/mock-org-data'
 import type { OrgStatus, PositionRecord } from '../../types'
 

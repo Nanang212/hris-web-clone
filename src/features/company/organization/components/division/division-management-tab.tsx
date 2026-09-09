@@ -1,17 +1,14 @@
-// src/features/company/organization/pages/division/division-management-tab.tsx
+// src/features/company/organization/components/division/division-management-tab.tsx
 import {
-  IconAlertCircle,
   IconBuilding,
   IconBuildingSkyscraper,
   IconCheck,
   IconDotsVertical,
   IconEdit,
   IconEye,
-  IconHierarchy,
   IconPlus,
   IconSearch,
   IconTrash,
-  IconUser,
   IconUsers,
 } from '@tabler/icons-react'
 import { useState } from 'react'
@@ -52,9 +49,9 @@ import { TablePagination } from '@/shared/components/ui/table-pagination'
 import { Textarea } from '@/shared/components/ui/textarea'
 import { snackbar } from '@/shared/lib/snackbar'
 
-import { DivisionDetailModal } from '../../components/unit-detail-modals'
+import { DivisionDetailModal } from '../unit-detail-modals'
 import { MOCK_DIVISIONS } from '../../data/mock-org-data'
-import type { DivisionFormPayload, DivisionRecord, OrgStatus } from '../../types'
+import type { DivisionRecord, OrgStatus } from '../../types'
 
 export function DivisionManagementTab() {
   const [divisions, setDivisions] = useState<DivisionRecord[]>(MOCK_DIVISIONS)

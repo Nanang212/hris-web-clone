@@ -9,14 +9,8 @@ import {
 } from '@/shared/components/ui/empty'
 import { m } from '@/i18n/paraglide/messages'
 
-import { UnitPageShell } from '../components/unit-page-shell'
-
-interface UnitSectionPageProps {
-  standalone?: boolean
-}
-
-export function UnitSectionPage({ standalone = false }: UnitSectionPageProps) {
-  const content = (
+export function SectionManagementTab() {
+  return (
     <Empty>
       <EmptyHeader>
         <EmptyMedia variant='icon'>
@@ -27,10 +21,4 @@ export function UnitSectionPage({ standalone = false }: UnitSectionPageProps) {
       </EmptyHeader>
     </Empty>
   )
-
-  if (standalone) {
-    return content
-  }
-
-  return <UnitPageShell activeTab='section'>{content}</UnitPageShell>
 }

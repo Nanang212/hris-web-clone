@@ -1,7 +1,6 @@
-// src/features/company/organization/pages/department/department-management-tab.tsx
+// src/features/company/organization/components/department/department-management-tab.tsx
 import {
   IconAlertTriangle,
-  IconBuilding,
   IconCheck,
   IconDotsVertical,
   IconEdit,
@@ -10,7 +9,6 @@ import {
   IconPlus,
   IconSearch,
   IconTrash,
-  IconUser,
   IconUsers,
 } from '@tabler/icons-react'
 import { useState } from 'react'
@@ -51,7 +49,7 @@ import { TablePagination } from '@/shared/components/ui/table-pagination'
 import { Textarea } from '@/shared/components/ui/textarea'
 import { snackbar } from '@/shared/lib/snackbar'
 
-import { DepartmentDetailModal } from '../../components/unit-detail-modals'
+import { DepartmentDetailModal } from '../unit-detail-modals'
 import { MOCK_DEPARTMENTS, MOCK_DIVISIONS } from '../../data/mock-org-data'
 import type { DepartmentRecord, OrgStatus } from '../../types'
 

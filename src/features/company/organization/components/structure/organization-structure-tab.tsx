@@ -1,24 +1,20 @@
-// src/features/company/organization/pages/structure/company-structure-tab.tsx
+// src/features/company/organization/components/structure/organization-structure-tab.tsx
 import {
   IconArrowsMove,
   IconBriefcase,
   IconBuilding,
   IconBuildingSkyscraper,
-  IconCheck,
   IconChevronDown,
   IconChevronRight,
   IconDotsVertical,
   IconEdit,
-  IconFolderPlus,
   IconHierarchy,
   IconMail,
-  IconMinus,
   IconPlus,
   IconSearch,
   IconTrash,
   IconUser,
   IconUsers,
-  IconX,
 } from '@tabler/icons-react'
 import { useEffect, useMemo, useState } from 'react'
 
@@ -41,7 +37,7 @@ import {
 } from '@/shared/components/ui/select'
 import { snackbar } from '@/shared/lib/snackbar'
 
-import { AddEditUnitModal, DeleteUnitDialog, MoveUnitModal } from '../../components/unit-modals'
+import { AddEditUnitModal, DeleteUnitDialog, MoveUnitModal } from '../unit-modals'
 import { getDummyMembersForNode, INITIAL_ORG_TREE, MOCK_ORG_STATS } from '../../data/mock-org-data'
 import type { AddEditUnitPayload, MoveUnitPayload, OrgLevel, OrgNode } from '../../types'
 

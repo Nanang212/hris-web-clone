@@ -2,12 +2,8 @@
 import {
   IconAlertTriangle,
   IconBuilding,
-  IconCheck,
-  IconFolderPlus,
   IconHierarchy,
-  IconInfoCircle,
   IconTrash,
-  IconX,
 } from '@tabler/icons-react'
 import { useEffect, useState } from 'react'
 
