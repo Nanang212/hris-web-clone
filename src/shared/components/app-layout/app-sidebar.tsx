@@ -137,7 +137,7 @@ export function AppSidebar() {
                               subItem.items?.some((ss) => isPathActive(ss.to))
                             )
                           }
-                          return isPathActive(subItem.to)
+                          return isPathActive(subItem.to, subItem.exact)
                         })
                       : isPathActive(item.to)
 
@@ -179,7 +179,7 @@ export function AppSidebar() {
                                 const isSubActive = hasSubSubItems
                                   ? isPathActive(subItem.to) ||
                                     subItem.items?.some((ss) => isPathActive(ss.to))
-                                  : isPathActive(subItem.to)
+                                  : isPathActive(subItem.to, subItem.exact)
 
                                 if (!hasSubSubItems) {
                                   return (

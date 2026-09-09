@@ -23,10 +23,11 @@ import { Route as appAttendanceFaceRecognitionRouteImport } from './../../routes
 import { Route as appAttendanceGpsSecurityRouteImport } from './../../routes/(app)/attendance/gps-security'
 import { Route as appAttendanceHistoryRouteImport } from './../../routes/(app)/attendance/history'
 import { Route as appAttendanceSettingsRouteImport } from './../../routes/(app)/attendance/settings'
-import { Route as appCompanyEmployeeInfoRouteImport } from './../../routes/(app)/company/employee-info'
+import { Route as appEmploymentIndexRouteImport } from './../../routes/(app)/employment/index'
 import { Route as appLeaveIndexRouteImport } from './../../routes/(app)/leave/index'
 import { Route as appLeaveBalanceRouteImport } from './../../routes/(app)/leave/balance'
 import { Route as appLeaveHistoryRouteImport } from './../../routes/(app)/leave/history'
+import { Route as appOrganizationIndexRouteImport } from './../../routes/(app)/organization/index'
 import { Route as appOvertimeIndexRouteImport } from './../../routes/(app)/overtime/index'
 import { Route as appOvertimeHistoryRouteImport } from './../../routes/(app)/overtime/history'
 import { Route as appPayrollIndexRouteImport } from './../../routes/(app)/payroll/index'
@@ -46,25 +47,38 @@ import { Route as appAttendanceManagementIndexRouteImport } from './../../routes
 import { Route as appAttendanceManagementManualRouteImport } from './../../routes/(app)/attendance/management/manual'
 import { Route as appAttendanceRequestsIndexRouteImport } from './../../routes/(app)/attendance/requests/index'
 import { Route as appAttendanceRequestsNewRouteImport } from './../../routes/(app)/attendance/requests/new'
-import { Route as appCompanyDocumentIndexRouteImport } from './../../routes/(app)/company/document/index'
-import { Route as appCompanyEmployeeInfoEmployeeIdRouteImport } from './../../routes/(app)/company/employee-info_.$employeeId'
-import { Route as appCompanyEmployeeInfoExportRouteImport } from './../../routes/(app)/company/employee-info_.export'
-import { Route as appCompanyEmployeeInfoImportRouteImport } from './../../routes/(app)/company/employee-info_.import'
-import { Route as appCompanyEmployeeInfoNewRouteImport } from './../../routes/(app)/company/employee-info_.new'
-import { Route as appCompanyEmployeeIndexRouteImport } from './../../routes/(app)/company/employee/index'
-import { Route as appCompanyEmployeeIdRouteImport } from './../../routes/(app)/company/employee/$id'
-import { Route as appCompanyEmployeeNewRouteImport } from './../../routes/(app)/company/employee/new'
-import { Route as appCompanyEmployeeUpdateRouteImport } from './../../routes/(app)/company/employee/update'
-import { Route as appCompanyMcuIndexRouteImport } from './../../routes/(app)/company/mcu/index'
-import { Route as appCompanyOrganizationIndexRouteImport } from './../../routes/(app)/company/organization/index'
-import { Route as appCompanyOrganizationIdRouteImport } from './../../routes/(app)/company/organization/$id'
-import { Route as appCompanyOrganizationNewRouteImport } from './../../routes/(app)/company/organization/new'
-import { Route as appCompanyOrganizationUpdateRouteImport } from './../../routes/(app)/company/organization/update'
+import { Route as appEmploymentContractIndexRouteImport } from './../../routes/(app)/employment/contract/index'
+import { Route as appEmploymentContractNewRouteImport } from './../../routes/(app)/employment/contract/new'
+import { Route as appEmploymentDemotionIndexRouteImport } from './../../routes/(app)/employment/demotion/index'
+import { Route as appEmploymentDocumentIndexRouteImport } from './../../routes/(app)/employment/document/index'
+import { Route as appEmploymentEmployeeProfileIndexRouteImport } from './../../routes/(app)/employment/employee-profile/index'
+import { Route as appEmploymentEmployeeProfileEmployeeIdRouteImport } from './../../routes/(app)/employment/employee-profile/$employeeId'
+import { Route as appEmploymentEmployeeProfileExportRouteImport } from './../../routes/(app)/employment/employee-profile/export'
+import { Route as appEmploymentEmployeeProfileImportRouteImport } from './../../routes/(app)/employment/employee-profile/import'
+import { Route as appEmploymentEmployeeProfileNewRouteImport } from './../../routes/(app)/employment/employee-profile/new'
+import { Route as appEmploymentEmployeeIdRouteImport } from './../../routes/(app)/employment/employee/$id'
+import { Route as appEmploymentEmployeeNewRouteImport } from './../../routes/(app)/employment/employee/new'
+import { Route as appEmploymentEmployeeUpdateRouteImport } from './../../routes/(app)/employment/employee/update'
+import { Route as appEmploymentHistoryIndexRouteImport } from './../../routes/(app)/employment/history/index'
+import { Route as appEmploymentMcuIndexRouteImport } from './../../routes/(app)/employment/mcu/index'
+import { Route as appEmploymentPromotionIndexRouteImport } from './../../routes/(app)/employment/promotion/index'
+import { Route as appEmploymentResignationIndexRouteImport } from './../../routes/(app)/employment/resignation/index'
+import { Route as appEmploymentRotationIndexRouteImport } from './../../routes/(app)/employment/rotation/index'
 import { Route as appLeaveApprovalIndexRouteImport } from './../../routes/(app)/leave/approval/index'
 import { Route as appLeaveApprovalRequestIdRouteImport } from './../../routes/(app)/leave/approval/$requestId'
 import { Route as appLeaveRequestsIndexRouteImport } from './../../routes/(app)/leave/requests/index'
 import { Route as appLeaveRequestsRequestIdRouteImport } from './../../routes/(app)/leave/requests/$requestId'
 import { Route as appLeaveRequestsNewRouteImport } from './../../routes/(app)/leave/requests/new'
+import { Route as appOrganizationClientIndexRouteImport } from './../../routes/(app)/organization/client/index'
+import { Route as appOrganizationPositionIndexRouteImport } from './../../routes/(app)/organization/position/index'
+import { Route as appOrganizationProjectIndexRouteImport } from './../../routes/(app)/organization/project/index'
+import { Route as appOrganizationUnitIndexRouteImport } from './../../routes/(app)/organization/unit/index'
+import { Route as appOrganizationUnitIdRouteImport } from './../../routes/(app)/organization/unit/$id'
+import { Route as appOrganizationUnitDepartmentRouteImport } from './../../routes/(app)/organization/unit/department'
+import { Route as appOrganizationUnitDivisionRouteImport } from './../../routes/(app)/organization/unit/division'
+import { Route as appOrganizationUnitNewRouteImport } from './../../routes/(app)/organization/unit/new'
+import { Route as appOrganizationUnitSectionRouteImport } from './../../routes/(app)/organization/unit/section'
+import { Route as appOrganizationUnitUpdateRouteImport } from './../../routes/(app)/organization/unit/update'
 import { Route as appOvertimeApprovalIndexRouteImport } from './../../routes/(app)/overtime/approval/index'
 import { Route as appOvertimeApprovalRequestIdRouteImport } from './../../routes/(app)/overtime/approval/$requestId'
 import { Route as appOvertimeCalculationIndexRouteImport } from './../../routes/(app)/overtime/calculation/index'
@@ -104,12 +118,6 @@ import { Route as appAttendanceManagementShiftsIndexRouteImport } from './../../
 import { Route as appAttendanceManagementShiftsAssignmentsRouteImport } from './../../routes/(app)/attendance/management/shifts/assignments'
 import { Route as appAttendanceManagementShiftsSetupRouteImport } from './../../routes/(app)/attendance/management/shifts/setup'
 import { Route as appAttendanceManagementShiftsSwapsRouteImport } from './../../routes/(app)/attendance/management/shifts/swaps'
-import { Route as appCompanyEmployeeContractIndexRouteImport } from './../../routes/(app)/company/employee/contract/index'
-import { Route as appCompanyEmployeeContractNewRouteImport } from './../../routes/(app)/company/employee/contract/new'
-import { Route as appCompanyEmployeeHistoryIndexRouteImport } from './../../routes/(app)/company/employee/history/index'
-import { Route as appCompanyEmployeeMutationIndexRouteImport } from './../../routes/(app)/company/employee/mutation/index'
-import { Route as appCompanyEmployeePromotionIndexRouteImport } from './../../routes/(app)/company/employee/promotion/index'
-import { Route as appCompanyEmployeeResignationIndexRouteImport } from './../../routes/(app)/company/employee/resignation/index'
 import { Route as appSettingsApprovalWorkflowIdIndexRouteImport } from './../../routes/(app)/settings/approval-workflow/$id/index'
 import { Route as appSettingsApprovalWorkflowIdConditionsRouteImport } from './../../routes/(app)/settings/approval-workflow/$id/conditions'
 import { Route as appSettingsApprovalWorkflowIdLevelsRouteImport } from './../../routes/(app)/settings/approval-workflow/$id/levels'
@@ -194,9 +202,9 @@ const appAttendanceSettingsRoute = appAttendanceSettingsRouteImport.update({
   path: '/attendance/settings',
   getParentRoute: () => appRouteRoute,
 } as any)
-const appCompanyEmployeeInfoRoute = appCompanyEmployeeInfoRouteImport.update({
-  id: '/company/employee-info',
-  path: '/company/employee-info',
+const appEmploymentIndexRoute = appEmploymentIndexRouteImport.update({
+  id: '/employment/',
+  path: '/employment/',
   getParentRoute: () => appRouteRoute,
 } as any)
 const appLeaveIndexRoute = appLeaveIndexRouteImport.update({
@@ -212,6 +220,11 @@ const appLeaveBalanceRoute = appLeaveBalanceRouteImport.update({
 const appLeaveHistoryRoute = appLeaveHistoryRouteImport.update({
   id: '/leave/history',
   path: '/leave/history',
+  getParentRoute: () => appRouteRoute,
+} as any)
+const appOrganizationIndexRoute = appOrganizationIndexRouteImport.update({
+  id: '/organization/',
+  path: '/organization/',
   getParentRoute: () => appRouteRoute,
 } as any)
 const appOvertimeIndexRoute = appOvertimeIndexRouteImport.update({
@@ -322,83 +335,104 @@ const appAttendanceRequestsNewRoute =
     path: '/attendance/requests/new',
     getParentRoute: () => appRouteRoute,
   } as any)
-const appCompanyDocumentIndexRoute = appCompanyDocumentIndexRouteImport.update({
-  id: '/company/document/',
-  path: '/company/document/',
+const appEmploymentContractIndexRoute =
+  appEmploymentContractIndexRouteImport.update({
+    id: '/employment/contract/',
+    path: '/employment/contract/',
+    getParentRoute: () => appRouteRoute,
+  } as any)
+const appEmploymentContractNewRoute =
+  appEmploymentContractNewRouteImport.update({
+    id: '/employment/contract/new',
+    path: '/employment/contract/new',
+    getParentRoute: () => appRouteRoute,
+  } as any)
+const appEmploymentDemotionIndexRoute =
+  appEmploymentDemotionIndexRouteImport.update({
+    id: '/employment/demotion/',
+    path: '/employment/demotion/',
+    getParentRoute: () => appRouteRoute,
+  } as any)
+const appEmploymentDocumentIndexRoute =
+  appEmploymentDocumentIndexRouteImport.update({
+    id: '/employment/document/',
+    path: '/employment/document/',
+    getParentRoute: () => appRouteRoute,
+  } as any)
+const appEmploymentEmployeeProfileIndexRoute =
+  appEmploymentEmployeeProfileIndexRouteImport.update({
+    id: '/employment/employee-profile/',
+    path: '/employment/employee-profile/',
+    getParentRoute: () => appRouteRoute,
+  } as any)
+const appEmploymentEmployeeProfileEmployeeIdRoute =
+  appEmploymentEmployeeProfileEmployeeIdRouteImport.update({
+    id: '/employment/employee-profile/$employeeId',
+    path: '/employment/employee-profile/$employeeId',
+    getParentRoute: () => appRouteRoute,
+  } as any)
+const appEmploymentEmployeeProfileExportRoute =
+  appEmploymentEmployeeProfileExportRouteImport.update({
+    id: '/employment/employee-profile/export',
+    path: '/employment/employee-profile/export',
+    getParentRoute: () => appRouteRoute,
+  } as any)
+const appEmploymentEmployeeProfileImportRoute =
+  appEmploymentEmployeeProfileImportRouteImport.update({
+    id: '/employment/employee-profile/import',
+    path: '/employment/employee-profile/import',
+    getParentRoute: () => appRouteRoute,
+  } as any)
+const appEmploymentEmployeeProfileNewRoute =
+  appEmploymentEmployeeProfileNewRouteImport.update({
+    id: '/employment/employee-profile/new',
+    path: '/employment/employee-profile/new',
+    getParentRoute: () => appRouteRoute,
+  } as any)
+const appEmploymentEmployeeIdRoute = appEmploymentEmployeeIdRouteImport.update({
+  id: '/employment/employee/$id',
+  path: '/employment/employee/$id',
   getParentRoute: () => appRouteRoute,
 } as any)
-const appCompanyEmployeeInfoEmployeeIdRoute =
-  appCompanyEmployeeInfoEmployeeIdRouteImport.update({
-    id: '/company/employee-info_/$employeeId',
-    path: '/company/employee-info/$employeeId',
+const appEmploymentEmployeeNewRoute =
+  appEmploymentEmployeeNewRouteImport.update({
+    id: '/employment/employee/new',
+    path: '/employment/employee/new',
     getParentRoute: () => appRouteRoute,
   } as any)
-const appCompanyEmployeeInfoExportRoute =
-  appCompanyEmployeeInfoExportRouteImport.update({
-    id: '/company/employee-info_/export',
-    path: '/company/employee-info/export',
+const appEmploymentEmployeeUpdateRoute =
+  appEmploymentEmployeeUpdateRouteImport.update({
+    id: '/employment/employee/update',
+    path: '/employment/employee/update',
     getParentRoute: () => appRouteRoute,
   } as any)
-const appCompanyEmployeeInfoImportRoute =
-  appCompanyEmployeeInfoImportRouteImport.update({
-    id: '/company/employee-info_/import',
-    path: '/company/employee-info/import',
+const appEmploymentHistoryIndexRoute =
+  appEmploymentHistoryIndexRouteImport.update({
+    id: '/employment/history/',
+    path: '/employment/history/',
     getParentRoute: () => appRouteRoute,
   } as any)
-const appCompanyEmployeeInfoNewRoute =
-  appCompanyEmployeeInfoNewRouteImport.update({
-    id: '/company/employee-info_/new',
-    path: '/company/employee-info/new',
-    getParentRoute: () => appRouteRoute,
-  } as any)
-const appCompanyEmployeeIndexRoute = appCompanyEmployeeIndexRouteImport.update({
-  id: '/company/employee/',
-  path: '/company/employee/',
+const appEmploymentMcuIndexRoute = appEmploymentMcuIndexRouteImport.update({
+  id: '/employment/mcu/',
+  path: '/employment/mcu/',
   getParentRoute: () => appRouteRoute,
 } as any)
-const appCompanyEmployeeIdRoute = appCompanyEmployeeIdRouteImport.update({
-  id: '/company/employee/$id',
-  path: '/company/employee/$id',
-  getParentRoute: () => appRouteRoute,
-} as any)
-const appCompanyEmployeeNewRoute = appCompanyEmployeeNewRouteImport.update({
-  id: '/company/employee/new',
-  path: '/company/employee/new',
-  getParentRoute: () => appRouteRoute,
-} as any)
-const appCompanyEmployeeUpdateRoute =
-  appCompanyEmployeeUpdateRouteImport.update({
-    id: '/company/employee/update',
-    path: '/company/employee/update',
+const appEmploymentPromotionIndexRoute =
+  appEmploymentPromotionIndexRouteImport.update({
+    id: '/employment/promotion/',
+    path: '/employment/promotion/',
     getParentRoute: () => appRouteRoute,
   } as any)
-const appCompanyMcuIndexRoute = appCompanyMcuIndexRouteImport.update({
-  id: '/company/mcu/',
-  path: '/company/mcu/',
-  getParentRoute: () => appRouteRoute,
-} as any)
-const appCompanyOrganizationIndexRoute =
-  appCompanyOrganizationIndexRouteImport.update({
-    id: '/company/organization/',
-    path: '/company/organization/',
+const appEmploymentResignationIndexRoute =
+  appEmploymentResignationIndexRouteImport.update({
+    id: '/employment/resignation/',
+    path: '/employment/resignation/',
     getParentRoute: () => appRouteRoute,
   } as any)
-const appCompanyOrganizationIdRoute =
-  appCompanyOrganizationIdRouteImport.update({
-    id: '/company/organization/$id',
-    path: '/company/organization/$id',
-    getParentRoute: () => appRouteRoute,
-  } as any)
-const appCompanyOrganizationNewRoute =
-  appCompanyOrganizationNewRouteImport.update({
-    id: '/company/organization/new',
-    path: '/company/organization/new',
-    getParentRoute: () => appRouteRoute,
-  } as any)
-const appCompanyOrganizationUpdateRoute =
-  appCompanyOrganizationUpdateRouteImport.update({
-    id: '/company/organization/update',
-    path: '/company/organization/update',
+const appEmploymentRotationIndexRoute =
+  appEmploymentRotationIndexRouteImport.update({
+    id: '/employment/rotation/',
+    path: '/employment/rotation/',
     getParentRoute: () => appRouteRoute,
   } as any)
 const appLeaveApprovalIndexRoute = appLeaveApprovalIndexRouteImport.update({
@@ -428,6 +462,64 @@ const appLeaveRequestsNewRoute = appLeaveRequestsNewRouteImport.update({
   path: '/leave/requests/new',
   getParentRoute: () => appRouteRoute,
 } as any)
+const appOrganizationClientIndexRoute =
+  appOrganizationClientIndexRouteImport.update({
+    id: '/organization/client/',
+    path: '/organization/client/',
+    getParentRoute: () => appRouteRoute,
+  } as any)
+const appOrganizationPositionIndexRoute =
+  appOrganizationPositionIndexRouteImport.update({
+    id: '/organization/position/',
+    path: '/organization/position/',
+    getParentRoute: () => appRouteRoute,
+  } as any)
+const appOrganizationProjectIndexRoute =
+  appOrganizationProjectIndexRouteImport.update({
+    id: '/organization/project/',
+    path: '/organization/project/',
+    getParentRoute: () => appRouteRoute,
+  } as any)
+const appOrganizationUnitIndexRoute =
+  appOrganizationUnitIndexRouteImport.update({
+    id: '/organization/unit/',
+    path: '/organization/unit/',
+    getParentRoute: () => appRouteRoute,
+  } as any)
+const appOrganizationUnitIdRoute = appOrganizationUnitIdRouteImport.update({
+  id: '/organization/unit/$id',
+  path: '/organization/unit/$id',
+  getParentRoute: () => appRouteRoute,
+} as any)
+const appOrganizationUnitDepartmentRoute =
+  appOrganizationUnitDepartmentRouteImport.update({
+    id: '/organization/unit/department',
+    path: '/organization/unit/department',
+    getParentRoute: () => appRouteRoute,
+  } as any)
+const appOrganizationUnitDivisionRoute =
+  appOrganizationUnitDivisionRouteImport.update({
+    id: '/organization/unit/division',
+    path: '/organization/unit/division',
+    getParentRoute: () => appRouteRoute,
+  } as any)
+const appOrganizationUnitNewRoute = appOrganizationUnitNewRouteImport.update({
+  id: '/organization/unit/new',
+  path: '/organization/unit/new',
+  getParentRoute: () => appRouteRoute,
+} as any)
+const appOrganizationUnitSectionRoute =
+  appOrganizationUnitSectionRouteImport.update({
+    id: '/organization/unit/section',
+    path: '/organization/unit/section',
+    getParentRoute: () => appRouteRoute,
+  } as any)
+const appOrganizationUnitUpdateRoute =
+  appOrganizationUnitUpdateRouteImport.update({
+    id: '/organization/unit/update',
+    path: '/organization/unit/update',
+    getParentRoute: () => appRouteRoute,
+  } as any)
 const appOvertimeApprovalIndexRoute =
   appOvertimeApprovalIndexRouteImport.update({
     id: '/overtime/approval/',
@@ -660,42 +752,6 @@ const appAttendanceManagementShiftsSwapsRoute =
     path: '/attendance/management/shifts/swaps',
     getParentRoute: () => appRouteRoute,
   } as any)
-const appCompanyEmployeeContractIndexRoute =
-  appCompanyEmployeeContractIndexRouteImport.update({
-    id: '/company/employee/contract/',
-    path: '/company/employee/contract/',
-    getParentRoute: () => appRouteRoute,
-  } as any)
-const appCompanyEmployeeContractNewRoute =
-  appCompanyEmployeeContractNewRouteImport.update({
-    id: '/company/employee/contract/new',
-    path: '/company/employee/contract/new',
-    getParentRoute: () => appRouteRoute,
-  } as any)
-const appCompanyEmployeeHistoryIndexRoute =
-  appCompanyEmployeeHistoryIndexRouteImport.update({
-    id: '/company/employee/history/',
-    path: '/company/employee/history/',
-    getParentRoute: () => appRouteRoute,
-  } as any)
-const appCompanyEmployeeMutationIndexRoute =
-  appCompanyEmployeeMutationIndexRouteImport.update({
-    id: '/company/employee/mutation/',
-    path: '/company/employee/mutation/',
-    getParentRoute: () => appRouteRoute,
-  } as any)
-const appCompanyEmployeePromotionIndexRoute =
-  appCompanyEmployeePromotionIndexRouteImport.update({
-    id: '/company/employee/promotion/',
-    path: '/company/employee/promotion/',
-    getParentRoute: () => appRouteRoute,
-  } as any)
-const appCompanyEmployeeResignationIndexRoute =
-  appCompanyEmployeeResignationIndexRouteImport.update({
-    id: '/company/employee/resignation/',
-    path: '/company/employee/resignation/',
-    getParentRoute: () => appRouteRoute,
-  } as any)
 const appSettingsApprovalWorkflowIdIndexRoute =
   appSettingsApprovalWorkflowIdIndexRouteImport.update({
     id: '/settings/approval-workflow/$id/',
@@ -780,7 +836,6 @@ export interface FileRoutesByFullPath {
   '/attendance/gps-security': typeof appAttendanceGpsSecurityRoute
   '/attendance/history': typeof appAttendanceHistoryRoute
   '/attendance/settings': typeof appAttendanceSettingsRoute
-  '/company/employee-info': typeof appCompanyEmployeeInfoRoute
   '/leave/balance': typeof appLeaveBalanceRoute
   '/leave/history': typeof appLeaveHistoryRoute
   '/overtime/history': typeof appOvertimeHistoryRoute
@@ -788,7 +843,9 @@ export interface FileRoutesByFullPath {
   '/': typeof appdashboardIndexRoute
   '/approval/': typeof appApprovalIndexRoute
   '/attendance/': typeof appAttendanceIndexRoute
+  '/employment/': typeof appEmploymentIndexRoute
   '/leave/': typeof appLeaveIndexRoute
+  '/organization/': typeof appOrganizationIndexRoute
   '/overtime/': typeof appOvertimeIndexRoute
   '/payroll/': typeof appPayrollIndexRoute
   '/report/': typeof appReportIndexRoute
@@ -802,19 +859,23 @@ export interface FileRoutesByFullPath {
   '/attendance/calendar/settings': typeof appAttendanceCalendarSettingsRoute
   '/attendance/management/manual': typeof appAttendanceManagementManualRoute
   '/attendance/requests/new': typeof appAttendanceRequestsNewRoute
-  '/company/employee-info/$employeeId': typeof appCompanyEmployeeInfoEmployeeIdRoute
-  '/company/employee-info/export': typeof appCompanyEmployeeInfoExportRoute
-  '/company/employee-info/import': typeof appCompanyEmployeeInfoImportRoute
-  '/company/employee-info/new': typeof appCompanyEmployeeInfoNewRoute
-  '/company/employee/$id': typeof appCompanyEmployeeIdRoute
-  '/company/employee/new': typeof appCompanyEmployeeNewRoute
-  '/company/employee/update': typeof appCompanyEmployeeUpdateRoute
-  '/company/organization/$id': typeof appCompanyOrganizationIdRoute
-  '/company/organization/new': typeof appCompanyOrganizationNewRoute
-  '/company/organization/update': typeof appCompanyOrganizationUpdateRoute
+  '/employment/contract/new': typeof appEmploymentContractNewRoute
+  '/employment/employee-profile/$employeeId': typeof appEmploymentEmployeeProfileEmployeeIdRoute
+  '/employment/employee-profile/export': typeof appEmploymentEmployeeProfileExportRoute
+  '/employment/employee-profile/import': typeof appEmploymentEmployeeProfileImportRoute
+  '/employment/employee-profile/new': typeof appEmploymentEmployeeProfileNewRoute
+  '/employment/employee/$id': typeof appEmploymentEmployeeIdRoute
+  '/employment/employee/new': typeof appEmploymentEmployeeNewRoute
+  '/employment/employee/update': typeof appEmploymentEmployeeUpdateRoute
   '/leave/approval/$requestId': typeof appLeaveApprovalRequestIdRoute
   '/leave/requests/$requestId': typeof appLeaveRequestsRequestIdRoute
   '/leave/requests/new': typeof appLeaveRequestsNewRoute
+  '/organization/unit/$id': typeof appOrganizationUnitIdRoute
+  '/organization/unit/department': typeof appOrganizationUnitDepartmentRoute
+  '/organization/unit/division': typeof appOrganizationUnitDivisionRoute
+  '/organization/unit/new': typeof appOrganizationUnitNewRoute
+  '/organization/unit/section': typeof appOrganizationUnitSectionRoute
+  '/organization/unit/update': typeof appOrganizationUnitUpdateRoute
   '/overtime/approval/$requestId': typeof appOvertimeApprovalRequestIdRoute
   '/overtime/calculation/$requestId': typeof appOvertimeCalculationRequestIdRoute
   '/overtime/calculation/rules': typeof appOvertimeCalculationRulesRoute
@@ -842,12 +903,21 @@ export interface FileRoutesByFullPath {
   '/attendance/calendar/': typeof appAttendanceCalendarIndexRoute
   '/attendance/management/': typeof appAttendanceManagementIndexRoute
   '/attendance/requests/': typeof appAttendanceRequestsIndexRoute
-  '/company/document/': typeof appCompanyDocumentIndexRoute
-  '/company/employee/': typeof appCompanyEmployeeIndexRoute
-  '/company/mcu/': typeof appCompanyMcuIndexRoute
-  '/company/organization/': typeof appCompanyOrganizationIndexRoute
+  '/employment/contract/': typeof appEmploymentContractIndexRoute
+  '/employment/demotion/': typeof appEmploymentDemotionIndexRoute
+  '/employment/document/': typeof appEmploymentDocumentIndexRoute
+  '/employment/employee-profile/': typeof appEmploymentEmployeeProfileIndexRoute
+  '/employment/history/': typeof appEmploymentHistoryIndexRoute
+  '/employment/mcu/': typeof appEmploymentMcuIndexRoute
+  '/employment/promotion/': typeof appEmploymentPromotionIndexRoute
+  '/employment/resignation/': typeof appEmploymentResignationIndexRoute
+  '/employment/rotation/': typeof appEmploymentRotationIndexRoute
   '/leave/approval/': typeof appLeaveApprovalIndexRoute
   '/leave/requests/': typeof appLeaveRequestsIndexRoute
+  '/organization/client/': typeof appOrganizationClientIndexRoute
+  '/organization/position/': typeof appOrganizationPositionIndexRoute
+  '/organization/project/': typeof appOrganizationProjectIndexRoute
+  '/organization/unit/': typeof appOrganizationUnitIndexRoute
   '/overtime/approval/': typeof appOvertimeApprovalIndexRoute
   '/overtime/calculation/': typeof appOvertimeCalculationIndexRoute
   '/settings/approval-workflow/': typeof appSettingsApprovalWorkflowIndexRoute
@@ -863,7 +933,6 @@ export interface FileRoutesByFullPath {
   '/attendance/management/shifts/assignments': typeof appAttendanceManagementShiftsAssignmentsRoute
   '/attendance/management/shifts/setup': typeof appAttendanceManagementShiftsSetupRoute
   '/attendance/management/shifts/swaps': typeof appAttendanceManagementShiftsSwapsRoute
-  '/company/employee/contract/new': typeof appCompanyEmployeeContractNewRoute
   '/settings/approval-workflow/$id/conditions': typeof appSettingsApprovalWorkflowIdConditionsRoute
   '/settings/approval-workflow/$id/levels': typeof appSettingsApprovalWorkflowIdLevelsRoute
   '/settings/approval-workflow/$id/test': typeof appSettingsApprovalWorkflowIdTestRoute
@@ -876,11 +945,6 @@ export interface FileRoutesByFullPath {
   '/settings/security/device/registered-devices': typeof appSettingsSecurityDeviceRegisteredDevicesRoute
   '/settings/security/password/locked-accounts': typeof appSettingsSecurityPasswordLockedAccountsRoute
   '/attendance/management/shifts/': typeof appAttendanceManagementShiftsIndexRoute
-  '/company/employee/contract/': typeof appCompanyEmployeeContractIndexRoute
-  '/company/employee/history/': typeof appCompanyEmployeeHistoryIndexRoute
-  '/company/employee/mutation/': typeof appCompanyEmployeeMutationIndexRoute
-  '/company/employee/promotion/': typeof appCompanyEmployeePromotionIndexRoute
-  '/company/employee/resignation/': typeof appCompanyEmployeeResignationIndexRoute
   '/settings/approval-workflow/$id/': typeof appSettingsApprovalWorkflowIdIndexRoute
 }
 export interface FileRoutesByTo {
@@ -894,7 +958,6 @@ export interface FileRoutesByTo {
   '/attendance/gps-security': typeof appAttendanceGpsSecurityRoute
   '/attendance/history': typeof appAttendanceHistoryRoute
   '/attendance/settings': typeof appAttendanceSettingsRoute
-  '/company/employee-info': typeof appCompanyEmployeeInfoRoute
   '/leave/balance': typeof appLeaveBalanceRoute
   '/leave/history': typeof appLeaveHistoryRoute
   '/overtime/history': typeof appOvertimeHistoryRoute
@@ -902,7 +965,9 @@ export interface FileRoutesByTo {
   '/': typeof appdashboardIndexRoute
   '/approval': typeof appApprovalIndexRoute
   '/attendance': typeof appAttendanceIndexRoute
+  '/employment': typeof appEmploymentIndexRoute
   '/leave': typeof appLeaveIndexRoute
+  '/organization': typeof appOrganizationIndexRoute
   '/overtime': typeof appOvertimeIndexRoute
   '/payroll': typeof appPayrollIndexRoute
   '/report': typeof appReportIndexRoute
@@ -916,19 +981,23 @@ export interface FileRoutesByTo {
   '/attendance/calendar/settings': typeof appAttendanceCalendarSettingsRoute
   '/attendance/management/manual': typeof appAttendanceManagementManualRoute
   '/attendance/requests/new': typeof appAttendanceRequestsNewRoute
-  '/company/employee-info/$employeeId': typeof appCompanyEmployeeInfoEmployeeIdRoute
-  '/company/employee-info/export': typeof appCompanyEmployeeInfoExportRoute
-  '/company/employee-info/import': typeof appCompanyEmployeeInfoImportRoute
-  '/company/employee-info/new': typeof appCompanyEmployeeInfoNewRoute
-  '/company/employee/$id': typeof appCompanyEmployeeIdRoute
-  '/company/employee/new': typeof appCompanyEmployeeNewRoute
-  '/company/employee/update': typeof appCompanyEmployeeUpdateRoute
-  '/company/organization/$id': typeof appCompanyOrganizationIdRoute
-  '/company/organization/new': typeof appCompanyOrganizationNewRoute
-  '/company/organization/update': typeof appCompanyOrganizationUpdateRoute
+  '/employment/contract/new': typeof appEmploymentContractNewRoute
+  '/employment/employee-profile/$employeeId': typeof appEmploymentEmployeeProfileEmployeeIdRoute
+  '/employment/employee-profile/export': typeof appEmploymentEmployeeProfileExportRoute
+  '/employment/employee-profile/import': typeof appEmploymentEmployeeProfileImportRoute
+  '/employment/employee-profile/new': typeof appEmploymentEmployeeProfileNewRoute
+  '/employment/employee/$id': typeof appEmploymentEmployeeIdRoute
+  '/employment/employee/new': typeof appEmploymentEmployeeNewRoute
+  '/employment/employee/update': typeof appEmploymentEmployeeUpdateRoute
   '/leave/approval/$requestId': typeof appLeaveApprovalRequestIdRoute
   '/leave/requests/$requestId': typeof appLeaveRequestsRequestIdRoute
   '/leave/requests/new': typeof appLeaveRequestsNewRoute
+  '/organization/unit/$id': typeof appOrganizationUnitIdRoute
+  '/organization/unit/department': typeof appOrganizationUnitDepartmentRoute
+  '/organization/unit/division': typeof appOrganizationUnitDivisionRoute
+  '/organization/unit/new': typeof appOrganizationUnitNewRoute
+  '/organization/unit/section': typeof appOrganizationUnitSectionRoute
+  '/organization/unit/update': typeof appOrganizationUnitUpdateRoute
   '/overtime/approval/$requestId': typeof appOvertimeApprovalRequestIdRoute
   '/overtime/calculation/$requestId': typeof appOvertimeCalculationRequestIdRoute
   '/overtime/calculation/rules': typeof appOvertimeCalculationRulesRoute
@@ -956,12 +1025,21 @@ export interface FileRoutesByTo {
   '/attendance/calendar': typeof appAttendanceCalendarIndexRoute
   '/attendance/management': typeof appAttendanceManagementIndexRoute
   '/attendance/requests': typeof appAttendanceRequestsIndexRoute
-  '/company/document': typeof appCompanyDocumentIndexRoute
-  '/company/employee': typeof appCompanyEmployeeIndexRoute
-  '/company/mcu': typeof appCompanyMcuIndexRoute
-  '/company/organization': typeof appCompanyOrganizationIndexRoute
+  '/employment/contract': typeof appEmploymentContractIndexRoute
+  '/employment/demotion': typeof appEmploymentDemotionIndexRoute
+  '/employment/document': typeof appEmploymentDocumentIndexRoute
+  '/employment/employee-profile': typeof appEmploymentEmployeeProfileIndexRoute
+  '/employment/history': typeof appEmploymentHistoryIndexRoute
+  '/employment/mcu': typeof appEmploymentMcuIndexRoute
+  '/employment/promotion': typeof appEmploymentPromotionIndexRoute
+  '/employment/resignation': typeof appEmploymentResignationIndexRoute
+  '/employment/rotation': typeof appEmploymentRotationIndexRoute
   '/leave/approval': typeof appLeaveApprovalIndexRoute
   '/leave/requests': typeof appLeaveRequestsIndexRoute
+  '/organization/client': typeof appOrganizationClientIndexRoute
+  '/organization/position': typeof appOrganizationPositionIndexRoute
+  '/organization/project': typeof appOrganizationProjectIndexRoute
+  '/organization/unit': typeof appOrganizationUnitIndexRoute
   '/overtime/approval': typeof appOvertimeApprovalIndexRoute
   '/overtime/calculation': typeof appOvertimeCalculationIndexRoute
   '/settings/approval-workflow': typeof appSettingsApprovalWorkflowIndexRoute
@@ -977,7 +1055,6 @@ export interface FileRoutesByTo {
   '/attendance/management/shifts/assignments': typeof appAttendanceManagementShiftsAssignmentsRoute
   '/attendance/management/shifts/setup': typeof appAttendanceManagementShiftsSetupRoute
   '/attendance/management/shifts/swaps': typeof appAttendanceManagementShiftsSwapsRoute
-  '/company/employee/contract/new': typeof appCompanyEmployeeContractNewRoute
   '/settings/approval-workflow/$id/conditions': typeof appSettingsApprovalWorkflowIdConditionsRoute
   '/settings/approval-workflow/$id/levels': typeof appSettingsApprovalWorkflowIdLevelsRoute
   '/settings/approval-workflow/$id/test': typeof appSettingsApprovalWorkflowIdTestRoute
@@ -990,11 +1067,6 @@ export interface FileRoutesByTo {
   '/settings/security/device/registered-devices': typeof appSettingsSecurityDeviceRegisteredDevicesRoute
   '/settings/security/password/locked-accounts': typeof appSettingsSecurityPasswordLockedAccountsRoute
   '/attendance/management/shifts': typeof appAttendanceManagementShiftsIndexRoute
-  '/company/employee/contract': typeof appCompanyEmployeeContractIndexRoute
-  '/company/employee/history': typeof appCompanyEmployeeHistoryIndexRoute
-  '/company/employee/mutation': typeof appCompanyEmployeeMutationIndexRoute
-  '/company/employee/promotion': typeof appCompanyEmployeePromotionIndexRoute
-  '/company/employee/resignation': typeof appCompanyEmployeeResignationIndexRoute
   '/settings/approval-workflow/$id': typeof appSettingsApprovalWorkflowIdIndexRoute
 }
 export interface FileRoutesById {
@@ -1010,7 +1082,6 @@ export interface FileRoutesById {
   '/(app)/attendance/gps-security': typeof appAttendanceGpsSecurityRoute
   '/(app)/attendance/history': typeof appAttendanceHistoryRoute
   '/(app)/attendance/settings': typeof appAttendanceSettingsRoute
-  '/(app)/company/employee-info': typeof appCompanyEmployeeInfoRoute
   '/(app)/leave/balance': typeof appLeaveBalanceRoute
   '/(app)/leave/history': typeof appLeaveHistoryRoute
   '/(app)/overtime/history': typeof appOvertimeHistoryRoute
@@ -1018,7 +1089,9 @@ export interface FileRoutesById {
   '/(app)/(dashboard)/': typeof appdashboardIndexRoute
   '/(app)/approval/': typeof appApprovalIndexRoute
   '/(app)/attendance/': typeof appAttendanceIndexRoute
+  '/(app)/employment/': typeof appEmploymentIndexRoute
   '/(app)/leave/': typeof appLeaveIndexRoute
+  '/(app)/organization/': typeof appOrganizationIndexRoute
   '/(app)/overtime/': typeof appOvertimeIndexRoute
   '/(app)/payroll/': typeof appPayrollIndexRoute
   '/(app)/report/': typeof appReportIndexRoute
@@ -1032,19 +1105,23 @@ export interface FileRoutesById {
   '/(app)/attendance/calendar/settings': typeof appAttendanceCalendarSettingsRoute
   '/(app)/attendance/management/manual': typeof appAttendanceManagementManualRoute
   '/(app)/attendance/requests/new': typeof appAttendanceRequestsNewRoute
-  '/(app)/company/employee-info_/$employeeId': typeof appCompanyEmployeeInfoEmployeeIdRoute
-  '/(app)/company/employee-info_/export': typeof appCompanyEmployeeInfoExportRoute
-  '/(app)/company/employee-info_/import': typeof appCompanyEmployeeInfoImportRoute
-  '/(app)/company/employee-info_/new': typeof appCompanyEmployeeInfoNewRoute
-  '/(app)/company/employee/$id': typeof appCompanyEmployeeIdRoute
-  '/(app)/company/employee/new': typeof appCompanyEmployeeNewRoute
-  '/(app)/company/employee/update': typeof appCompanyEmployeeUpdateRoute
-  '/(app)/company/organization/$id': typeof appCompanyOrganizationIdRoute
-  '/(app)/company/organization/new': typeof appCompanyOrganizationNewRoute
-  '/(app)/company/organization/update': typeof appCompanyOrganizationUpdateRoute
+  '/(app)/employment/contract/new': typeof appEmploymentContractNewRoute
+  '/(app)/employment/employee-profile/$employeeId': typeof appEmploymentEmployeeProfileEmployeeIdRoute
+  '/(app)/employment/employee-profile/export': typeof appEmploymentEmployeeProfileExportRoute
+  '/(app)/employment/employee-profile/import': typeof appEmploymentEmployeeProfileImportRoute
+  '/(app)/employment/employee-profile/new': typeof appEmploymentEmployeeProfileNewRoute
+  '/(app)/employment/employee/$id': typeof appEmploymentEmployeeIdRoute
+  '/(app)/employment/employee/new': typeof appEmploymentEmployeeNewRoute
+  '/(app)/employment/employee/update': typeof appEmploymentEmployeeUpdateRoute
   '/(app)/leave/approval/$requestId': typeof appLeaveApprovalRequestIdRoute
   '/(app)/leave/requests/$requestId': typeof appLeaveRequestsRequestIdRoute
   '/(app)/leave/requests/new': typeof appLeaveRequestsNewRoute
+  '/(app)/organization/unit/$id': typeof appOrganizationUnitIdRoute
+  '/(app)/organization/unit/department': typeof appOrganizationUnitDepartmentRoute
+  '/(app)/organization/unit/division': typeof appOrganizationUnitDivisionRoute
+  '/(app)/organization/unit/new': typeof appOrganizationUnitNewRoute
+  '/(app)/organization/unit/section': typeof appOrganizationUnitSectionRoute
+  '/(app)/organization/unit/update': typeof appOrganizationUnitUpdateRoute
   '/(app)/overtime/approval/$requestId': typeof appOvertimeApprovalRequestIdRoute
   '/(app)/overtime/calculation/$requestId': typeof appOvertimeCalculationRequestIdRoute
   '/(app)/overtime/calculation/rules': typeof appOvertimeCalculationRulesRoute
@@ -1072,12 +1149,21 @@ export interface FileRoutesById {
   '/(app)/attendance/calendar/': typeof appAttendanceCalendarIndexRoute
   '/(app)/attendance/management/': typeof appAttendanceManagementIndexRoute
   '/(app)/attendance/requests/': typeof appAttendanceRequestsIndexRoute
-  '/(app)/company/document/': typeof appCompanyDocumentIndexRoute
-  '/(app)/company/employee/': typeof appCompanyEmployeeIndexRoute
-  '/(app)/company/mcu/': typeof appCompanyMcuIndexRoute
-  '/(app)/company/organization/': typeof appCompanyOrganizationIndexRoute
+  '/(app)/employment/contract/': typeof appEmploymentContractIndexRoute
+  '/(app)/employment/demotion/': typeof appEmploymentDemotionIndexRoute
+  '/(app)/employment/document/': typeof appEmploymentDocumentIndexRoute
+  '/(app)/employment/employee-profile/': typeof appEmploymentEmployeeProfileIndexRoute
+  '/(app)/employment/history/': typeof appEmploymentHistoryIndexRoute
+  '/(app)/employment/mcu/': typeof appEmploymentMcuIndexRoute
+  '/(app)/employment/promotion/': typeof appEmploymentPromotionIndexRoute
+  '/(app)/employment/resignation/': typeof appEmploymentResignationIndexRoute
+  '/(app)/employment/rotation/': typeof appEmploymentRotationIndexRoute
   '/(app)/leave/approval/': typeof appLeaveApprovalIndexRoute
   '/(app)/leave/requests/': typeof appLeaveRequestsIndexRoute
+  '/(app)/organization/client/': typeof appOrganizationClientIndexRoute
+  '/(app)/organization/position/': typeof appOrganizationPositionIndexRoute
+  '/(app)/organization/project/': typeof appOrganizationProjectIndexRoute
+  '/(app)/organization/unit/': typeof appOrganizationUnitIndexRoute
   '/(app)/overtime/approval/': typeof appOvertimeApprovalIndexRoute
   '/(app)/overtime/calculation/': typeof appOvertimeCalculationIndexRoute
   '/(app)/settings/approval-workflow/': typeof appSettingsApprovalWorkflowIndexRoute
@@ -1093,7 +1179,6 @@ export interface FileRoutesById {
   '/(app)/attendance/management/shifts/assignments': typeof appAttendanceManagementShiftsAssignmentsRoute
   '/(app)/attendance/management/shifts/setup': typeof appAttendanceManagementShiftsSetupRoute
   '/(app)/attendance/management/shifts/swaps': typeof appAttendanceManagementShiftsSwapsRoute
-  '/(app)/company/employee/contract/new': typeof appCompanyEmployeeContractNewRoute
   '/(app)/settings/approval-workflow/$id/conditions': typeof appSettingsApprovalWorkflowIdConditionsRoute
   '/(app)/settings/approval-workflow/$id/levels': typeof appSettingsApprovalWorkflowIdLevelsRoute
   '/(app)/settings/approval-workflow/$id/test': typeof appSettingsApprovalWorkflowIdTestRoute
@@ -1106,11 +1191,6 @@ export interface FileRoutesById {
   '/(app)/settings/security/device_/registered-devices': typeof appSettingsSecurityDeviceRegisteredDevicesRoute
   '/(app)/settings/security/password_/locked-accounts': typeof appSettingsSecurityPasswordLockedAccountsRoute
   '/(app)/attendance/management/shifts/': typeof appAttendanceManagementShiftsIndexRoute
-  '/(app)/company/employee/contract/': typeof appCompanyEmployeeContractIndexRoute
-  '/(app)/company/employee/history/': typeof appCompanyEmployeeHistoryIndexRoute
-  '/(app)/company/employee/mutation/': typeof appCompanyEmployeeMutationIndexRoute
-  '/(app)/company/employee/promotion/': typeof appCompanyEmployeePromotionIndexRoute
-  '/(app)/company/employee/resignation/': typeof appCompanyEmployeeResignationIndexRoute
   '/(app)/settings/approval-workflow/$id/': typeof appSettingsApprovalWorkflowIdIndexRoute
 }
 export interface FileRouteTypes {
@@ -1126,7 +1206,6 @@ export interface FileRouteTypes {
     | '/attendance/gps-security'
     | '/attendance/history'
     | '/attendance/settings'
-    | '/company/employee-info'
     | '/leave/balance'
     | '/leave/history'
     | '/overtime/history'
@@ -1134,7 +1213,9 @@ export interface FileRouteTypes {
     | '/'
     | '/approval/'
     | '/attendance/'
+    | '/employment/'
     | '/leave/'
+    | '/organization/'
     | '/overtime/'
     | '/payroll/'
     | '/report/'
@@ -1148,19 +1229,23 @@ export interface FileRouteTypes {
     | '/attendance/calendar/settings'
     | '/attendance/management/manual'
     | '/attendance/requests/new'
-    | '/company/employee-info/$employeeId'
-    | '/company/employee-info/export'
-    | '/company/employee-info/import'
-    | '/company/employee-info/new'
-    | '/company/employee/$id'
-    | '/company/employee/new'
-    | '/company/employee/update'
-    | '/company/organization/$id'
-    | '/company/organization/new'
-    | '/company/organization/update'
+    | '/employment/contract/new'
+    | '/employment/employee-profile/$employeeId'
+    | '/employment/employee-profile/export'
+    | '/employment/employee-profile/import'
+    | '/employment/employee-profile/new'
+    | '/employment/employee/$id'
+    | '/employment/employee/new'
+    | '/employment/employee/update'
     | '/leave/approval/$requestId'
     | '/leave/requests/$requestId'
     | '/leave/requests/new'
+    | '/organization/unit/$id'
+    | '/organization/unit/department'
+    | '/organization/unit/division'
+    | '/organization/unit/new'
+    | '/organization/unit/section'
+    | '/organization/unit/update'
     | '/overtime/approval/$requestId'
     | '/overtime/calculation/$requestId'
     | '/overtime/calculation/rules'
@@ -1188,12 +1273,21 @@ export interface FileRouteTypes {
     | '/attendance/calendar/'
     | '/attendance/management/'
     | '/attendance/requests/'
-    | '/company/document/'
-    | '/company/employee/'
-    | '/company/mcu/'
-    | '/company/organization/'
+    | '/employment/contract/'
+    | '/employment/demotion/'
+    | '/employment/document/'
+    | '/employment/employee-profile/'
+    | '/employment/history/'
+    | '/employment/mcu/'
+    | '/employment/promotion/'
+    | '/employment/resignation/'
+    | '/employment/rotation/'
     | '/leave/approval/'
     | '/leave/requests/'
+    | '/organization/client/'
+    | '/organization/position/'
+    | '/organization/project/'
+    | '/organization/unit/'
     | '/overtime/approval/'
     | '/overtime/calculation/'
     | '/settings/approval-workflow/'
@@ -1209,7 +1303,6 @@ export interface FileRouteTypes {
     | '/attendance/management/shifts/assignments'
     | '/attendance/management/shifts/setup'
     | '/attendance/management/shifts/swaps'
-    | '/company/employee/contract/new'
     | '/settings/approval-workflow/$id/conditions'
     | '/settings/approval-workflow/$id/levels'
     | '/settings/approval-workflow/$id/test'
@@ -1222,11 +1315,6 @@ export interface FileRouteTypes {
     | '/settings/security/device/registered-devices'
     | '/settings/security/password/locked-accounts'
     | '/attendance/management/shifts/'
-    | '/company/employee/contract/'
-    | '/company/employee/history/'
-    | '/company/employee/mutation/'
-    | '/company/employee/promotion/'
-    | '/company/employee/resignation/'
     | '/settings/approval-workflow/$id/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -1240,7 +1328,6 @@ export interface FileRouteTypes {
     | '/attendance/gps-security'
     | '/attendance/history'
     | '/attendance/settings'
-    | '/company/employee-info'
     | '/leave/balance'
     | '/leave/history'
     | '/overtime/history'
@@ -1248,7 +1335,9 @@ export interface FileRouteTypes {
     | '/'
     | '/approval'
     | '/attendance'
+    | '/employment'
     | '/leave'
+    | '/organization'
     | '/overtime'
     | '/payroll'
     | '/report'
@@ -1262,19 +1351,23 @@ export interface FileRouteTypes {
     | '/attendance/calendar/settings'
     | '/attendance/management/manual'
     | '/attendance/requests/new'
-    | '/company/employee-info/$employeeId'
-    | '/company/employee-info/export'
-    | '/company/employee-info/import'
-    | '/company/employee-info/new'
-    | '/company/employee/$id'
-    | '/company/employee/new'
-    | '/company/employee/update'
-    | '/company/organization/$id'
-    | '/company/organization/new'
-    | '/company/organization/update'
+    | '/employment/contract/new'
+    | '/employment/employee-profile/$employeeId'
+    | '/employment/employee-profile/export'
+    | '/employment/employee-profile/import'
+    | '/employment/employee-profile/new'
+    | '/employment/employee/$id'
+    | '/employment/employee/new'
+    | '/employment/employee/update'
     | '/leave/approval/$requestId'
     | '/leave/requests/$requestId'
     | '/leave/requests/new'
+    | '/organization/unit/$id'
+    | '/organization/unit/department'
+    | '/organization/unit/division'
+    | '/organization/unit/new'
+    | '/organization/unit/section'
+    | '/organization/unit/update'
     | '/overtime/approval/$requestId'
     | '/overtime/calculation/$requestId'
     | '/overtime/calculation/rules'
@@ -1302,12 +1395,21 @@ export interface FileRouteTypes {
     | '/attendance/calendar'
     | '/attendance/management'
     | '/attendance/requests'
-    | '/company/document'
-    | '/company/employee'
-    | '/company/mcu'
-    | '/company/organization'
+    | '/employment/contract'
+    | '/employment/demotion'
+    | '/employment/document'
+    | '/employment/employee-profile'
+    | '/employment/history'
+    | '/employment/mcu'
+    | '/employment/promotion'
+    | '/employment/resignation'
+    | '/employment/rotation'
     | '/leave/approval'
     | '/leave/requests'
+    | '/organization/client'
+    | '/organization/position'
+    | '/organization/project'
+    | '/organization/unit'
     | '/overtime/approval'
     | '/overtime/calculation'
     | '/settings/approval-workflow'
@@ -1323,7 +1425,6 @@ export interface FileRouteTypes {
     | '/attendance/management/shifts/assignments'
     | '/attendance/management/shifts/setup'
     | '/attendance/management/shifts/swaps'
-    | '/company/employee/contract/new'
     | '/settings/approval-workflow/$id/conditions'
     | '/settings/approval-workflow/$id/levels'
     | '/settings/approval-workflow/$id/test'
@@ -1336,11 +1437,6 @@ export interface FileRouteTypes {
     | '/settings/security/device/registered-devices'
     | '/settings/security/password/locked-accounts'
     | '/attendance/management/shifts'
-    | '/company/employee/contract'
-    | '/company/employee/history'
-    | '/company/employee/mutation'
-    | '/company/employee/promotion'
-    | '/company/employee/resignation'
     | '/settings/approval-workflow/$id'
   id:
     | '__root__'
@@ -1355,7 +1451,6 @@ export interface FileRouteTypes {
     | '/(app)/attendance/gps-security'
     | '/(app)/attendance/history'
     | '/(app)/attendance/settings'
-    | '/(app)/company/employee-info'
     | '/(app)/leave/balance'
     | '/(app)/leave/history'
     | '/(app)/overtime/history'
@@ -1363,7 +1458,9 @@ export interface FileRouteTypes {
     | '/(app)/(dashboard)/'
     | '/(app)/approval/'
     | '/(app)/attendance/'
+    | '/(app)/employment/'
     | '/(app)/leave/'
+    | '/(app)/organization/'
     | '/(app)/overtime/'
     | '/(app)/payroll/'
     | '/(app)/report/'
@@ -1377,19 +1474,23 @@ export interface FileRouteTypes {
     | '/(app)/attendance/calendar/settings'
     | '/(app)/attendance/management/manual'
     | '/(app)/attendance/requests/new'
-    | '/(app)/company/employee-info_/$employeeId'
-    | '/(app)/company/employee-info_/export'
-    | '/(app)/company/employee-info_/import'
-    | '/(app)/company/employee-info_/new'
-    | '/(app)/company/employee/$id'
-    | '/(app)/company/employee/new'
-    | '/(app)/company/employee/update'
-    | '/(app)/company/organization/$id'
-    | '/(app)/company/organization/new'
-    | '/(app)/company/organization/update'
+    | '/(app)/employment/contract/new'
+    | '/(app)/employment/employee-profile/$employeeId'
+    | '/(app)/employment/employee-profile/export'
+    | '/(app)/employment/employee-profile/import'
+    | '/(app)/employment/employee-profile/new'
+    | '/(app)/employment/employee/$id'
+    | '/(app)/employment/employee/new'
+    | '/(app)/employment/employee/update'
     | '/(app)/leave/approval/$requestId'
     | '/(app)/leave/requests/$requestId'
     | '/(app)/leave/requests/new'
+    | '/(app)/organization/unit/$id'
+    | '/(app)/organization/unit/department'
+    | '/(app)/organization/unit/division'
+    | '/(app)/organization/unit/new'
+    | '/(app)/organization/unit/section'
+    | '/(app)/organization/unit/update'
     | '/(app)/overtime/approval/$requestId'
     | '/(app)/overtime/calculation/$requestId'
     | '/(app)/overtime/calculation/rules'
@@ -1417,12 +1518,21 @@ export interface FileRouteTypes {
     | '/(app)/attendance/calendar/'
     | '/(app)/attendance/management/'
     | '/(app)/attendance/requests/'
-    | '/(app)/company/document/'
-    | '/(app)/company/employee/'
-    | '/(app)/company/mcu/'
-    | '/(app)/company/organization/'
+    | '/(app)/employment/contract/'
+    | '/(app)/employment/demotion/'
+    | '/(app)/employment/document/'
+    | '/(app)/employment/employee-profile/'
+    | '/(app)/employment/history/'
+    | '/(app)/employment/mcu/'
+    | '/(app)/employment/promotion/'
+    | '/(app)/employment/resignation/'
+    | '/(app)/employment/rotation/'
     | '/(app)/leave/approval/'
     | '/(app)/leave/requests/'
+    | '/(app)/organization/client/'
+    | '/(app)/organization/position/'
+    | '/(app)/organization/project/'
+    | '/(app)/organization/unit/'
     | '/(app)/overtime/approval/'
     | '/(app)/overtime/calculation/'
     | '/(app)/settings/approval-workflow/'
@@ -1438,7 +1548,6 @@ export interface FileRouteTypes {
     | '/(app)/attendance/management/shifts/assignments'
     | '/(app)/attendance/management/shifts/setup'
     | '/(app)/attendance/management/shifts/swaps'
-    | '/(app)/company/employee/contract/new'
     | '/(app)/settings/approval-workflow/$id/conditions'
     | '/(app)/settings/approval-workflow/$id/levels'
     | '/(app)/settings/approval-workflow/$id/test'
@@ -1451,11 +1560,6 @@ export interface FileRouteTypes {
     | '/(app)/settings/security/device_/registered-devices'
     | '/(app)/settings/security/password_/locked-accounts'
     | '/(app)/attendance/management/shifts/'
-    | '/(app)/company/employee/contract/'
-    | '/(app)/company/employee/history/'
-    | '/(app)/company/employee/mutation/'
-    | '/(app)/company/employee/promotion/'
-    | '/(app)/company/employee/resignation/'
     | '/(app)/settings/approval-workflow/$id/'
   fileRoutesById: FileRoutesById
 }
@@ -1567,11 +1671,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof appAttendanceSettingsRouteImport
       parentRoute: typeof appRouteRoute
     }
-    '/(app)/company/employee-info': {
-      id: '/(app)/company/employee-info'
-      path: '/company/employee-info'
-      fullPath: '/company/employee-info'
-      preLoaderRoute: typeof appCompanyEmployeeInfoRouteImport
+    '/(app)/employment/': {
+      id: '/(app)/employment/'
+      path: '/employment'
+      fullPath: '/employment/'
+      preLoaderRoute: typeof appEmploymentIndexRouteImport
       parentRoute: typeof appRouteRoute
     }
     '/(app)/leave/': {
@@ -1593,6 +1697,13 @@ declare module '@tanstack/react-router' {
       path: '/leave/history'
       fullPath: '/leave/history'
       preLoaderRoute: typeof appLeaveHistoryRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/organization/': {
+      id: '/(app)/organization/'
+      path: '/organization'
+      fullPath: '/organization/'
+      preLoaderRoute: typeof appOrganizationIndexRouteImport
       parentRoute: typeof appRouteRoute
     }
     '/(app)/overtime/': {
@@ -1728,102 +1839,123 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof appAttendanceRequestsNewRouteImport
       parentRoute: typeof appRouteRoute
     }
-    '/(app)/company/document/': {
-      id: '/(app)/company/document/'
-      path: '/company/document'
-      fullPath: '/company/document/'
-      preLoaderRoute: typeof appCompanyDocumentIndexRouteImport
+    '/(app)/employment/contract/': {
+      id: '/(app)/employment/contract/'
+      path: '/employment/contract'
+      fullPath: '/employment/contract/'
+      preLoaderRoute: typeof appEmploymentContractIndexRouteImport
       parentRoute: typeof appRouteRoute
     }
-    '/(app)/company/employee-info_/$employeeId': {
-      id: '/(app)/company/employee-info_/$employeeId'
-      path: '/company/employee-info/$employeeId'
-      fullPath: '/company/employee-info/$employeeId'
-      preLoaderRoute: typeof appCompanyEmployeeInfoEmployeeIdRouteImport
+    '/(app)/employment/contract/new': {
+      id: '/(app)/employment/contract/new'
+      path: '/employment/contract/new'
+      fullPath: '/employment/contract/new'
+      preLoaderRoute: typeof appEmploymentContractNewRouteImport
       parentRoute: typeof appRouteRoute
     }
-    '/(app)/company/employee-info_/export': {
-      id: '/(app)/company/employee-info_/export'
-      path: '/company/employee-info/export'
-      fullPath: '/company/employee-info/export'
-      preLoaderRoute: typeof appCompanyEmployeeInfoExportRouteImport
+    '/(app)/employment/demotion/': {
+      id: '/(app)/employment/demotion/'
+      path: '/employment/demotion'
+      fullPath: '/employment/demotion/'
+      preLoaderRoute: typeof appEmploymentDemotionIndexRouteImport
       parentRoute: typeof appRouteRoute
     }
-    '/(app)/company/employee-info_/import': {
-      id: '/(app)/company/employee-info_/import'
-      path: '/company/employee-info/import'
-      fullPath: '/company/employee-info/import'
-      preLoaderRoute: typeof appCompanyEmployeeInfoImportRouteImport
+    '/(app)/employment/document/': {
+      id: '/(app)/employment/document/'
+      path: '/employment/document'
+      fullPath: '/employment/document/'
+      preLoaderRoute: typeof appEmploymentDocumentIndexRouteImport
       parentRoute: typeof appRouteRoute
     }
-    '/(app)/company/employee-info_/new': {
-      id: '/(app)/company/employee-info_/new'
-      path: '/company/employee-info/new'
-      fullPath: '/company/employee-info/new'
-      preLoaderRoute: typeof appCompanyEmployeeInfoNewRouteImport
+    '/(app)/employment/employee-profile/': {
+      id: '/(app)/employment/employee-profile/'
+      path: '/employment/employee-profile'
+      fullPath: '/employment/employee-profile/'
+      preLoaderRoute: typeof appEmploymentEmployeeProfileIndexRouteImport
       parentRoute: typeof appRouteRoute
     }
-    '/(app)/company/employee/': {
-      id: '/(app)/company/employee/'
-      path: '/company/employee'
-      fullPath: '/company/employee/'
-      preLoaderRoute: typeof appCompanyEmployeeIndexRouteImport
+    '/(app)/employment/employee-profile/$employeeId': {
+      id: '/(app)/employment/employee-profile/$employeeId'
+      path: '/employment/employee-profile/$employeeId'
+      fullPath: '/employment/employee-profile/$employeeId'
+      preLoaderRoute: typeof appEmploymentEmployeeProfileEmployeeIdRouteImport
       parentRoute: typeof appRouteRoute
     }
-    '/(app)/company/employee/$id': {
-      id: '/(app)/company/employee/$id'
-      path: '/company/employee/$id'
-      fullPath: '/company/employee/$id'
-      preLoaderRoute: typeof appCompanyEmployeeIdRouteImport
+    '/(app)/employment/employee-profile/export': {
+      id: '/(app)/employment/employee-profile/export'
+      path: '/employment/employee-profile/export'
+      fullPath: '/employment/employee-profile/export'
+      preLoaderRoute: typeof appEmploymentEmployeeProfileExportRouteImport
       parentRoute: typeof appRouteRoute
     }
-    '/(app)/company/employee/new': {
-      id: '/(app)/company/employee/new'
-      path: '/company/employee/new'
-      fullPath: '/company/employee/new'
-      preLoaderRoute: typeof appCompanyEmployeeNewRouteImport
+    '/(app)/employment/employee-profile/import': {
+      id: '/(app)/employment/employee-profile/import'
+      path: '/employment/employee-profile/import'
+      fullPath: '/employment/employee-profile/import'
+      preLoaderRoute: typeof appEmploymentEmployeeProfileImportRouteImport
       parentRoute: typeof appRouteRoute
     }
-    '/(app)/company/employee/update': {
-      id: '/(app)/company/employee/update'
-      path: '/company/employee/update'
-      fullPath: '/company/employee/update'
-      preLoaderRoute: typeof appCompanyEmployeeUpdateRouteImport
+    '/(app)/employment/employee-profile/new': {
+      id: '/(app)/employment/employee-profile/new'
+      path: '/employment/employee-profile/new'
+      fullPath: '/employment/employee-profile/new'
+      preLoaderRoute: typeof appEmploymentEmployeeProfileNewRouteImport
       parentRoute: typeof appRouteRoute
     }
-    '/(app)/company/mcu/': {
-      id: '/(app)/company/mcu/'
-      path: '/company/mcu'
-      fullPath: '/company/mcu/'
-      preLoaderRoute: typeof appCompanyMcuIndexRouteImport
+    '/(app)/employment/employee/$id': {
+      id: '/(app)/employment/employee/$id'
+      path: '/employment/employee/$id'
+      fullPath: '/employment/employee/$id'
+      preLoaderRoute: typeof appEmploymentEmployeeIdRouteImport
       parentRoute: typeof appRouteRoute
     }
-    '/(app)/company/organization/': {
-      id: '/(app)/company/organization/'
-      path: '/company/organization'
-      fullPath: '/company/organization/'
-      preLoaderRoute: typeof appCompanyOrganizationIndexRouteImport
+    '/(app)/employment/employee/new': {
+      id: '/(app)/employment/employee/new'
+      path: '/employment/employee/new'
+      fullPath: '/employment/employee/new'
+      preLoaderRoute: typeof appEmploymentEmployeeNewRouteImport
       parentRoute: typeof appRouteRoute
     }
-    '/(app)/company/organization/$id': {
-      id: '/(app)/company/organization/$id'
-      path: '/company/organization/$id'
-      fullPath: '/company/organization/$id'
-      preLoaderRoute: typeof appCompanyOrganizationIdRouteImport
+    '/(app)/employment/employee/update': {
+      id: '/(app)/employment/employee/update'
+      path: '/employment/employee/update'
+      fullPath: '/employment/employee/update'
+      preLoaderRoute: typeof appEmploymentEmployeeUpdateRouteImport
       parentRoute: typeof appRouteRoute
     }
-    '/(app)/company/organization/new': {
-      id: '/(app)/company/organization/new'
-      path: '/company/organization/new'
-      fullPath: '/company/organization/new'
-      preLoaderRoute: typeof appCompanyOrganizationNewRouteImport
+    '/(app)/employment/history/': {
+      id: '/(app)/employment/history/'
+      path: '/employment/history'
+      fullPath: '/employment/history/'
+      preLoaderRoute: typeof appEmploymentHistoryIndexRouteImport
       parentRoute: typeof appRouteRoute
     }
-    '/(app)/company/organization/update': {
-      id: '/(app)/company/organization/update'
-      path: '/company/organization/update'
-      fullPath: '/company/organization/update'
-      preLoaderRoute: typeof appCompanyOrganizationUpdateRouteImport
+    '/(app)/employment/mcu/': {
+      id: '/(app)/employment/mcu/'
+      path: '/employment/mcu'
+      fullPath: '/employment/mcu/'
+      preLoaderRoute: typeof appEmploymentMcuIndexRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/employment/promotion/': {
+      id: '/(app)/employment/promotion/'
+      path: '/employment/promotion'
+      fullPath: '/employment/promotion/'
+      preLoaderRoute: typeof appEmploymentPromotionIndexRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/employment/resignation/': {
+      id: '/(app)/employment/resignation/'
+      path: '/employment/resignation'
+      fullPath: '/employment/resignation/'
+      preLoaderRoute: typeof appEmploymentResignationIndexRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/employment/rotation/': {
+      id: '/(app)/employment/rotation/'
+      path: '/employment/rotation'
+      fullPath: '/employment/rotation/'
+      preLoaderRoute: typeof appEmploymentRotationIndexRouteImport
       parentRoute: typeof appRouteRoute
     }
     '/(app)/leave/approval/': {
@@ -1859,6 +1991,76 @@ declare module '@tanstack/react-router' {
       path: '/leave/requests/new'
       fullPath: '/leave/requests/new'
       preLoaderRoute: typeof appLeaveRequestsNewRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/organization/client/': {
+      id: '/(app)/organization/client/'
+      path: '/organization/client'
+      fullPath: '/organization/client/'
+      preLoaderRoute: typeof appOrganizationClientIndexRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/organization/position/': {
+      id: '/(app)/organization/position/'
+      path: '/organization/position'
+      fullPath: '/organization/position/'
+      preLoaderRoute: typeof appOrganizationPositionIndexRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/organization/project/': {
+      id: '/(app)/organization/project/'
+      path: '/organization/project'
+      fullPath: '/organization/project/'
+      preLoaderRoute: typeof appOrganizationProjectIndexRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/organization/unit/': {
+      id: '/(app)/organization/unit/'
+      path: '/organization/unit'
+      fullPath: '/organization/unit/'
+      preLoaderRoute: typeof appOrganizationUnitIndexRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/organization/unit/$id': {
+      id: '/(app)/organization/unit/$id'
+      path: '/organization/unit/$id'
+      fullPath: '/organization/unit/$id'
+      preLoaderRoute: typeof appOrganizationUnitIdRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/organization/unit/department': {
+      id: '/(app)/organization/unit/department'
+      path: '/organization/unit/department'
+      fullPath: '/organization/unit/department'
+      preLoaderRoute: typeof appOrganizationUnitDepartmentRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/organization/unit/division': {
+      id: '/(app)/organization/unit/division'
+      path: '/organization/unit/division'
+      fullPath: '/organization/unit/division'
+      preLoaderRoute: typeof appOrganizationUnitDivisionRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/organization/unit/new': {
+      id: '/(app)/organization/unit/new'
+      path: '/organization/unit/new'
+      fullPath: '/organization/unit/new'
+      preLoaderRoute: typeof appOrganizationUnitNewRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/organization/unit/section': {
+      id: '/(app)/organization/unit/section'
+      path: '/organization/unit/section'
+      fullPath: '/organization/unit/section'
+      preLoaderRoute: typeof appOrganizationUnitSectionRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/organization/unit/update': {
+      id: '/(app)/organization/unit/update'
+      path: '/organization/unit/update'
+      fullPath: '/organization/unit/update'
+      preLoaderRoute: typeof appOrganizationUnitUpdateRouteImport
       parentRoute: typeof appRouteRoute
     }
     '/(app)/overtime/approval/': {
@@ -2134,48 +2336,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof appAttendanceManagementShiftsSwapsRouteImport
       parentRoute: typeof appRouteRoute
     }
-    '/(app)/company/employee/contract/': {
-      id: '/(app)/company/employee/contract/'
-      path: '/company/employee/contract'
-      fullPath: '/company/employee/contract/'
-      preLoaderRoute: typeof appCompanyEmployeeContractIndexRouteImport
-      parentRoute: typeof appRouteRoute
-    }
-    '/(app)/company/employee/contract/new': {
-      id: '/(app)/company/employee/contract/new'
-      path: '/company/employee/contract/new'
-      fullPath: '/company/employee/contract/new'
-      preLoaderRoute: typeof appCompanyEmployeeContractNewRouteImport
-      parentRoute: typeof appRouteRoute
-    }
-    '/(app)/company/employee/history/': {
-      id: '/(app)/company/employee/history/'
-      path: '/company/employee/history'
-      fullPath: '/company/employee/history/'
-      preLoaderRoute: typeof appCompanyEmployeeHistoryIndexRouteImport
-      parentRoute: typeof appRouteRoute
-    }
-    '/(app)/company/employee/mutation/': {
-      id: '/(app)/company/employee/mutation/'
-      path: '/company/employee/mutation'
-      fullPath: '/company/employee/mutation/'
-      preLoaderRoute: typeof appCompanyEmployeeMutationIndexRouteImport
-      parentRoute: typeof appRouteRoute
-    }
-    '/(app)/company/employee/promotion/': {
-      id: '/(app)/company/employee/promotion/'
-      path: '/company/employee/promotion'
-      fullPath: '/company/employee/promotion/'
-      preLoaderRoute: typeof appCompanyEmployeePromotionIndexRouteImport
-      parentRoute: typeof appRouteRoute
-    }
-    '/(app)/company/employee/resignation/': {
-      id: '/(app)/company/employee/resignation/'
-      path: '/company/employee/resignation'
-      fullPath: '/company/employee/resignation/'
-      preLoaderRoute: typeof appCompanyEmployeeResignationIndexRouteImport
-      parentRoute: typeof appRouteRoute
-    }
     '/(app)/settings/approval-workflow/$id/': {
       id: '/(app)/settings/approval-workflow/$id/'
       path: '/settings/approval-workflow/$id'
@@ -2285,7 +2445,6 @@ interface appRouteRouteChildren {
   appAttendanceGpsSecurityRoute: typeof appAttendanceGpsSecurityRoute
   appAttendanceHistoryRoute: typeof appAttendanceHistoryRoute
   appAttendanceSettingsRoute: typeof appAttendanceSettingsRoute
-  appCompanyEmployeeInfoRoute: typeof appCompanyEmployeeInfoRoute
   appLeaveBalanceRoute: typeof appLeaveBalanceRoute
   appLeaveHistoryRoute: typeof appLeaveHistoryRoute
   appOvertimeHistoryRoute: typeof appOvertimeHistoryRoute
@@ -2293,7 +2452,9 @@ interface appRouteRouteChildren {
   appdashboardIndexRoute: typeof appdashboardIndexRoute
   appApprovalIndexRoute: typeof appApprovalIndexRoute
   appAttendanceIndexRoute: typeof appAttendanceIndexRoute
+  appEmploymentIndexRoute: typeof appEmploymentIndexRoute
   appLeaveIndexRoute: typeof appLeaveIndexRoute
+  appOrganizationIndexRoute: typeof appOrganizationIndexRoute
   appOvertimeIndexRoute: typeof appOvertimeIndexRoute
   appPayrollIndexRoute: typeof appPayrollIndexRoute
   appReportIndexRoute: typeof appReportIndexRoute
@@ -2307,19 +2468,23 @@ interface appRouteRouteChildren {
   appAttendanceCalendarSettingsRoute: typeof appAttendanceCalendarSettingsRoute
   appAttendanceManagementManualRoute: typeof appAttendanceManagementManualRoute
   appAttendanceRequestsNewRoute: typeof appAttendanceRequestsNewRoute
-  appCompanyEmployeeInfoEmployeeIdRoute: typeof appCompanyEmployeeInfoEmployeeIdRoute
-  appCompanyEmployeeInfoExportRoute: typeof appCompanyEmployeeInfoExportRoute
-  appCompanyEmployeeInfoImportRoute: typeof appCompanyEmployeeInfoImportRoute
-  appCompanyEmployeeInfoNewRoute: typeof appCompanyEmployeeInfoNewRoute
-  appCompanyEmployeeIdRoute: typeof appCompanyEmployeeIdRoute
-  appCompanyEmployeeNewRoute: typeof appCompanyEmployeeNewRoute
-  appCompanyEmployeeUpdateRoute: typeof appCompanyEmployeeUpdateRoute
-  appCompanyOrganizationIdRoute: typeof appCompanyOrganizationIdRoute
-  appCompanyOrganizationNewRoute: typeof appCompanyOrganizationNewRoute
-  appCompanyOrganizationUpdateRoute: typeof appCompanyOrganizationUpdateRoute
+  appEmploymentContractNewRoute: typeof appEmploymentContractNewRoute
+  appEmploymentEmployeeProfileEmployeeIdRoute: typeof appEmploymentEmployeeProfileEmployeeIdRoute
+  appEmploymentEmployeeProfileExportRoute: typeof appEmploymentEmployeeProfileExportRoute
+  appEmploymentEmployeeProfileImportRoute: typeof appEmploymentEmployeeProfileImportRoute
+  appEmploymentEmployeeProfileNewRoute: typeof appEmploymentEmployeeProfileNewRoute
+  appEmploymentEmployeeIdRoute: typeof appEmploymentEmployeeIdRoute
+  appEmploymentEmployeeNewRoute: typeof appEmploymentEmployeeNewRoute
+  appEmploymentEmployeeUpdateRoute: typeof appEmploymentEmployeeUpdateRoute
   appLeaveApprovalRequestIdRoute: typeof appLeaveApprovalRequestIdRoute
   appLeaveRequestsRequestIdRoute: typeof appLeaveRequestsRequestIdRoute
   appLeaveRequestsNewRoute: typeof appLeaveRequestsNewRoute
+  appOrganizationUnitIdRoute: typeof appOrganizationUnitIdRoute
+  appOrganizationUnitDepartmentRoute: typeof appOrganizationUnitDepartmentRoute
+  appOrganizationUnitDivisionRoute: typeof appOrganizationUnitDivisionRoute
+  appOrganizationUnitNewRoute: typeof appOrganizationUnitNewRoute
+  appOrganizationUnitSectionRoute: typeof appOrganizationUnitSectionRoute
+  appOrganizationUnitUpdateRoute: typeof appOrganizationUnitUpdateRoute
   appOvertimeApprovalRequestIdRoute: typeof appOvertimeApprovalRequestIdRoute
   appOvertimeCalculationRequestIdRoute: typeof appOvertimeCalculationRequestIdRoute
   appOvertimeCalculationRulesRoute: typeof appOvertimeCalculationRulesRoute
@@ -2347,12 +2512,21 @@ interface appRouteRouteChildren {
   appAttendanceCalendarIndexRoute: typeof appAttendanceCalendarIndexRoute
   appAttendanceManagementIndexRoute: typeof appAttendanceManagementIndexRoute
   appAttendanceRequestsIndexRoute: typeof appAttendanceRequestsIndexRoute
-  appCompanyDocumentIndexRoute: typeof appCompanyDocumentIndexRoute
-  appCompanyEmployeeIndexRoute: typeof appCompanyEmployeeIndexRoute
-  appCompanyMcuIndexRoute: typeof appCompanyMcuIndexRoute
-  appCompanyOrganizationIndexRoute: typeof appCompanyOrganizationIndexRoute
+  appEmploymentContractIndexRoute: typeof appEmploymentContractIndexRoute
+  appEmploymentDemotionIndexRoute: typeof appEmploymentDemotionIndexRoute
+  appEmploymentDocumentIndexRoute: typeof appEmploymentDocumentIndexRoute
+  appEmploymentEmployeeProfileIndexRoute: typeof appEmploymentEmployeeProfileIndexRoute
+  appEmploymentHistoryIndexRoute: typeof appEmploymentHistoryIndexRoute
+  appEmploymentMcuIndexRoute: typeof appEmploymentMcuIndexRoute
+  appEmploymentPromotionIndexRoute: typeof appEmploymentPromotionIndexRoute
+  appEmploymentResignationIndexRoute: typeof appEmploymentResignationIndexRoute
+  appEmploymentRotationIndexRoute: typeof appEmploymentRotationIndexRoute
   appLeaveApprovalIndexRoute: typeof appLeaveApprovalIndexRoute
   appLeaveRequestsIndexRoute: typeof appLeaveRequestsIndexRoute
+  appOrganizationClientIndexRoute: typeof appOrganizationClientIndexRoute
+  appOrganizationPositionIndexRoute: typeof appOrganizationPositionIndexRoute
+  appOrganizationProjectIndexRoute: typeof appOrganizationProjectIndexRoute
+  appOrganizationUnitIndexRoute: typeof appOrganizationUnitIndexRoute
   appOvertimeApprovalIndexRoute: typeof appOvertimeApprovalIndexRoute
   appOvertimeCalculationIndexRoute: typeof appOvertimeCalculationIndexRoute
   appSettingsApprovalWorkflowIndexRoute: typeof appSettingsApprovalWorkflowIndexRoute
@@ -2367,7 +2541,6 @@ interface appRouteRouteChildren {
   appAttendanceManagementShiftsAssignmentsRoute: typeof appAttendanceManagementShiftsAssignmentsRoute
   appAttendanceManagementShiftsSetupRoute: typeof appAttendanceManagementShiftsSetupRoute
   appAttendanceManagementShiftsSwapsRoute: typeof appAttendanceManagementShiftsSwapsRoute
-  appCompanyEmployeeContractNewRoute: typeof appCompanyEmployeeContractNewRoute
   appSettingsApprovalWorkflowIdConditionsRoute: typeof appSettingsApprovalWorkflowIdConditionsRoute
   appSettingsApprovalWorkflowIdLevelsRoute: typeof appSettingsApprovalWorkflowIdLevelsRoute
   appSettingsApprovalWorkflowIdTestRoute: typeof appSettingsApprovalWorkflowIdTestRoute
@@ -2380,11 +2553,6 @@ interface appRouteRouteChildren {
   appSettingsSecurityDeviceRegisteredDevicesRoute: typeof appSettingsSecurityDeviceRegisteredDevicesRoute
   appSettingsSecurityPasswordLockedAccountsRoute: typeof appSettingsSecurityPasswordLockedAccountsRoute
   appAttendanceManagementShiftsIndexRoute: typeof appAttendanceManagementShiftsIndexRoute
-  appCompanyEmployeeContractIndexRoute: typeof appCompanyEmployeeContractIndexRoute
-  appCompanyEmployeeHistoryIndexRoute: typeof appCompanyEmployeeHistoryIndexRoute
-  appCompanyEmployeeMutationIndexRoute: typeof appCompanyEmployeeMutationIndexRoute
-  appCompanyEmployeePromotionIndexRoute: typeof appCompanyEmployeePromotionIndexRoute
-  appCompanyEmployeeResignationIndexRoute: typeof appCompanyEmployeeResignationIndexRoute
   appSettingsApprovalWorkflowIdIndexRoute: typeof appSettingsApprovalWorkflowIdIndexRoute
 }
 
@@ -2395,7 +2563,6 @@ const appRouteRouteChildren: appRouteRouteChildren = {
   appAttendanceGpsSecurityRoute: appAttendanceGpsSecurityRoute,
   appAttendanceHistoryRoute: appAttendanceHistoryRoute,
   appAttendanceSettingsRoute: appAttendanceSettingsRoute,
-  appCompanyEmployeeInfoRoute: appCompanyEmployeeInfoRoute,
   appLeaveBalanceRoute: appLeaveBalanceRoute,
   appLeaveHistoryRoute: appLeaveHistoryRoute,
   appOvertimeHistoryRoute: appOvertimeHistoryRoute,
@@ -2403,7 +2570,9 @@ const appRouteRouteChildren: appRouteRouteChildren = {
   appdashboardIndexRoute: appdashboardIndexRoute,
   appApprovalIndexRoute: appApprovalIndexRoute,
   appAttendanceIndexRoute: appAttendanceIndexRoute,
+  appEmploymentIndexRoute: appEmploymentIndexRoute,
   appLeaveIndexRoute: appLeaveIndexRoute,
+  appOrganizationIndexRoute: appOrganizationIndexRoute,
   appOvertimeIndexRoute: appOvertimeIndexRoute,
   appPayrollIndexRoute: appPayrollIndexRoute,
   appReportIndexRoute: appReportIndexRoute,
@@ -2418,19 +2587,26 @@ const appRouteRouteChildren: appRouteRouteChildren = {
   appAttendanceCalendarSettingsRoute: appAttendanceCalendarSettingsRoute,
   appAttendanceManagementManualRoute: appAttendanceManagementManualRoute,
   appAttendanceRequestsNewRoute: appAttendanceRequestsNewRoute,
-  appCompanyEmployeeInfoEmployeeIdRoute: appCompanyEmployeeInfoEmployeeIdRoute,
-  appCompanyEmployeeInfoExportRoute: appCompanyEmployeeInfoExportRoute,
-  appCompanyEmployeeInfoImportRoute: appCompanyEmployeeInfoImportRoute,
-  appCompanyEmployeeInfoNewRoute: appCompanyEmployeeInfoNewRoute,
-  appCompanyEmployeeIdRoute: appCompanyEmployeeIdRoute,
-  appCompanyEmployeeNewRoute: appCompanyEmployeeNewRoute,
-  appCompanyEmployeeUpdateRoute: appCompanyEmployeeUpdateRoute,
-  appCompanyOrganizationIdRoute: appCompanyOrganizationIdRoute,
-  appCompanyOrganizationNewRoute: appCompanyOrganizationNewRoute,
-  appCompanyOrganizationUpdateRoute: appCompanyOrganizationUpdateRoute,
+  appEmploymentContractNewRoute: appEmploymentContractNewRoute,
+  appEmploymentEmployeeProfileEmployeeIdRoute:
+    appEmploymentEmployeeProfileEmployeeIdRoute,
+  appEmploymentEmployeeProfileExportRoute:
+    appEmploymentEmployeeProfileExportRoute,
+  appEmploymentEmployeeProfileImportRoute:
+    appEmploymentEmployeeProfileImportRoute,
+  appEmploymentEmployeeProfileNewRoute: appEmploymentEmployeeProfileNewRoute,
+  appEmploymentEmployeeIdRoute: appEmploymentEmployeeIdRoute,
+  appEmploymentEmployeeNewRoute: appEmploymentEmployeeNewRoute,
+  appEmploymentEmployeeUpdateRoute: appEmploymentEmployeeUpdateRoute,
   appLeaveApprovalRequestIdRoute: appLeaveApprovalRequestIdRoute,
   appLeaveRequestsRequestIdRoute: appLeaveRequestsRequestIdRoute,
   appLeaveRequestsNewRoute: appLeaveRequestsNewRoute,
+  appOrganizationUnitIdRoute: appOrganizationUnitIdRoute,
+  appOrganizationUnitDepartmentRoute: appOrganizationUnitDepartmentRoute,
+  appOrganizationUnitDivisionRoute: appOrganizationUnitDivisionRoute,
+  appOrganizationUnitNewRoute: appOrganizationUnitNewRoute,
+  appOrganizationUnitSectionRoute: appOrganizationUnitSectionRoute,
+  appOrganizationUnitUpdateRoute: appOrganizationUnitUpdateRoute,
   appOvertimeApprovalRequestIdRoute: appOvertimeApprovalRequestIdRoute,
   appOvertimeCalculationRequestIdRoute: appOvertimeCalculationRequestIdRoute,
   appOvertimeCalculationRulesRoute: appOvertimeCalculationRulesRoute,
@@ -2461,12 +2637,22 @@ const appRouteRouteChildren: appRouteRouteChildren = {
   appAttendanceCalendarIndexRoute: appAttendanceCalendarIndexRoute,
   appAttendanceManagementIndexRoute: appAttendanceManagementIndexRoute,
   appAttendanceRequestsIndexRoute: appAttendanceRequestsIndexRoute,
-  appCompanyDocumentIndexRoute: appCompanyDocumentIndexRoute,
-  appCompanyEmployeeIndexRoute: appCompanyEmployeeIndexRoute,
-  appCompanyMcuIndexRoute: appCompanyMcuIndexRoute,
-  appCompanyOrganizationIndexRoute: appCompanyOrganizationIndexRoute,
+  appEmploymentContractIndexRoute: appEmploymentContractIndexRoute,
+  appEmploymentDemotionIndexRoute: appEmploymentDemotionIndexRoute,
+  appEmploymentDocumentIndexRoute: appEmploymentDocumentIndexRoute,
+  appEmploymentEmployeeProfileIndexRoute:
+    appEmploymentEmployeeProfileIndexRoute,
+  appEmploymentHistoryIndexRoute: appEmploymentHistoryIndexRoute,
+  appEmploymentMcuIndexRoute: appEmploymentMcuIndexRoute,
+  appEmploymentPromotionIndexRoute: appEmploymentPromotionIndexRoute,
+  appEmploymentResignationIndexRoute: appEmploymentResignationIndexRoute,
+  appEmploymentRotationIndexRoute: appEmploymentRotationIndexRoute,
   appLeaveApprovalIndexRoute: appLeaveApprovalIndexRoute,
   appLeaveRequestsIndexRoute: appLeaveRequestsIndexRoute,
+  appOrganizationClientIndexRoute: appOrganizationClientIndexRoute,
+  appOrganizationPositionIndexRoute: appOrganizationPositionIndexRoute,
+  appOrganizationProjectIndexRoute: appOrganizationProjectIndexRoute,
+  appOrganizationUnitIndexRoute: appOrganizationUnitIndexRoute,
   appOvertimeApprovalIndexRoute: appOvertimeApprovalIndexRoute,
   appOvertimeCalculationIndexRoute: appOvertimeCalculationIndexRoute,
   appSettingsApprovalWorkflowIndexRoute: appSettingsApprovalWorkflowIndexRoute,
@@ -2486,7 +2672,6 @@ const appRouteRouteChildren: appRouteRouteChildren = {
     appAttendanceManagementShiftsSetupRoute,
   appAttendanceManagementShiftsSwapsRoute:
     appAttendanceManagementShiftsSwapsRoute,
-  appCompanyEmployeeContractNewRoute: appCompanyEmployeeContractNewRoute,
   appSettingsApprovalWorkflowIdConditionsRoute:
     appSettingsApprovalWorkflowIdConditionsRoute,
   appSettingsApprovalWorkflowIdLevelsRoute:
@@ -2510,12 +2695,6 @@ const appRouteRouteChildren: appRouteRouteChildren = {
     appSettingsSecurityPasswordLockedAccountsRoute,
   appAttendanceManagementShiftsIndexRoute:
     appAttendanceManagementShiftsIndexRoute,
-  appCompanyEmployeeContractIndexRoute: appCompanyEmployeeContractIndexRoute,
-  appCompanyEmployeeHistoryIndexRoute: appCompanyEmployeeHistoryIndexRoute,
-  appCompanyEmployeeMutationIndexRoute: appCompanyEmployeeMutationIndexRoute,
-  appCompanyEmployeePromotionIndexRoute: appCompanyEmployeePromotionIndexRoute,
-  appCompanyEmployeeResignationIndexRoute:
-    appCompanyEmployeeResignationIndexRoute,
   appSettingsApprovalWorkflowIdIndexRoute:
     appSettingsApprovalWorkflowIdIndexRoute,
 }

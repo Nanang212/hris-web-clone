@@ -1,6 +1,6 @@
 // table-pagination.tsx — Reusable pagination footer for employment tables
-import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
+import { cn } from '@/shared/lib/utils'
 
 interface TablePaginationProps {
   /** Label at the end of "Showing X - Y of Z ___" */
@@ -31,11 +31,9 @@ export function TablePagination({
       {/* Left: info + rows per page */}
       <div className='flex flex-col items-center gap-4 text-xs text-muted-foreground sm:flex-row'>
         <p>
-          Showing{' '}
-          <span className='font-semibold text-foreground'>{startItemIdx}</span> -{' '}
+          Showing <span className='font-semibold text-foreground'>{startItemIdx}</span> -{' '}
           <span className='font-semibold text-foreground'>{endItemIdx}</span> of{' '}
-          <span className='font-semibold text-foreground'>{totalItems}</span>{' '}
-          {itemLabel}
+          <span className='font-semibold text-foreground'>{totalItems}</span> {itemLabel}
         </p>
 
         <div className='hidden h-3 w-px bg-border sm:block' />
@@ -76,7 +74,7 @@ export function TablePagination({
               size='sm'
               variant={isCurrent ? 'default' : 'outline'}
               onClick={() => onPageChange(pageNum)}
-              className={cn('h-8 w-8 text-xs font-bold p-0', isCurrent && 'shadow-sm')}
+              className={cn('h-8 w-8 p-0 text-xs font-bold', isCurrent && 'shadow-sm')}
             >
               {pageNum}
             </Button>
