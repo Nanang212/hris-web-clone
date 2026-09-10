@@ -1,18 +1,18 @@
 import { IconCircleCheck, IconX } from '@tabler/icons-react'
-import { Link, useNavigate } from '@tanstack/react-router'
+import { useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
 
 import { AppMain } from '@/shared/components/app-layout/app-main'
+import { ApprovalActionDialog } from '@/shared/components/approval/approval-action-dialog'
 import { Button } from '@/shared/components/ui/button'
 import { Field, FieldLabel } from '@/shared/components/ui/field'
 import { Textarea } from '@/shared/components/ui/textarea'
-import { ApprovalActionDialog } from '@/shared/components/approval/approval-action-dialog'
-import { snackbar } from '@/shared/lib/snackbar'
 import { useApprovalSyncStore } from '@/shared/lib/approval-sync-store'
+import { snackbar } from '@/shared/lib/snackbar'
+import { cn } from '@/shared/lib/utils'
 import { LeaveTabs } from '@/features/leave/components/leave-tabs'
 import { getLeaveTypeLabel } from '@/features/leave/components/leave-utils'
 import { m } from '@/i18n/paraglide/messages'
-import { cn } from '@/shared/lib/utils'
 
 export function LeaveApprovalDetailPage({ requestId }: Readonly<{ requestId: string }>) {
   const navigate = useNavigate()
@@ -51,6 +51,13 @@ export function LeaveApprovalDetailPage({ requestId }: Readonly<{ requestId: str
     <AppMain
       title={m.leave_approval_detail_title()}
       subtitle={m.leave_approval_detail_subtitle()}
+      breadcrumbs={[
+        { label: m.app_layout_nav_time_management() },
+        { to: '/leave', label: m.app_layout_nav_leave() },
+        { to: '/leave/approval', label: m.leave_tab_approval() },
+        { label: m.leave_approval_detail_title() },
+      ]}
+      backTo='/leave/approval'
       className='gap-5 bg-muted/30'
     >
       <LeaveTabs active='approval' />
@@ -79,7 +86,9 @@ export function LeaveApprovalDetailPage({ requestId }: Readonly<{ requestId: str
             <dt className='text-muted-foreground'>{m.leave_table_type()}</dt>
             <dd className='font-medium'>{getLeaveTypeLabel(request.leaveType)}</dd>
             <dt className='text-muted-foreground'>{m.leave_table_period()}</dt>
-            <dd className='font-medium'>{request.startDate} s.d {request.endDate}</dd>
+            <dd className='font-medium'>
+              {request.startDate} s.d {request.endDate}
+            </dd>
             <dt className='text-muted-foreground'>{m.leave_table_duration()}</dt>
             <dd className='font-medium'>{m.leave_days({ count: request.duration })}</dd>
             <dt className='text-muted-foreground'>{m.leave_create_reason_label()}</dt>

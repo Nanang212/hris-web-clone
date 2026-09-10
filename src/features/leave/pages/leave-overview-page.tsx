@@ -42,7 +42,6 @@ interface LeaveStatProps {
 
 interface QuickActionProps {
   icon: Icon
-  code: string
   title: string
   description: string
 }
@@ -78,21 +77,18 @@ function LeaveStat({
   )
 }
 
-function QuickAction({ icon: Icon, code, title, description }: Readonly<QuickActionProps>) {
+function QuickAction({ icon: Icon, title, description }: Readonly<QuickActionProps>) {
   return (
     <Button
       type='button'
       variant='outline'
       className='h-auto min-h-20 w-full justify-start gap-3 rounded-xl p-3 text-left'
     >
-      <span className='flex size-9 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-xs font-bold text-primary'>
-        {code}
+      <span className='flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary'>
+        <Icon className='size-4' aria-hidden='true' />
       </span>
       <span>
-        <span className='flex items-center gap-1 text-xs font-semibold'>
-          {title}
-          <Icon className='size-3 text-muted-foreground' />
-        </span>
+        <span className='flex items-center gap-1 text-xs font-semibold'>{title}</span>
         <span className='mt-1 block text-xs text-muted-foreground'>{description}</span>
       </span>
     </Button>
@@ -103,25 +99,21 @@ export function LeaveOverviewPage() {
   const quickActions: QuickActionProps[] = [
     {
       icon: IconCalendarPlus,
-      code: 'REQ',
       title: m.leave_action_create_title(),
       description: m.leave_action_create_description(),
     },
     {
       icon: IconClipboardCheck,
-      code: 'APP',
       title: m.leave_action_approval_title(),
       description: m.leave_action_approval_description(),
     },
     {
       icon: IconWallet,
-      code: 'BAL',
       title: m.leave_action_balance_title(),
       description: m.leave_action_balance_description(),
     },
     {
       icon: IconHistory,
-      code: 'HIS',
       title: m.leave_action_history_title(),
       description: m.leave_action_history_description(),
     },
@@ -131,6 +123,10 @@ export function LeaveOverviewPage() {
     <AppMain
       title={m.leave_overview_title()}
       subtitle={m.leave_overview_subtitle()}
+      breadcrumbs={[
+        { label: m.app_layout_nav_time_management() },
+        { label: m.app_layout_nav_leave() },
+      ]}
       actions={
         <Button className='rounded-lg' asChild>
           <Link to='/leave/requests/new'>
@@ -191,34 +187,38 @@ export function LeaveOverviewPage() {
               <Link to='/leave/requests'>{m.leave_view_all()}</Link>
             </Button>
           </div>
-          <Table>
-            <TableHeader className='bg-muted/40'>
-              <TableRow>
-                <TableHead>{m.leave_table_employee()}</TableHead>
-                <TableHead>{m.leave_table_type()}</TableHead>
-                <TableHead>{m.leave_table_period()}</TableHead>
-                <TableHead>{m.leave_table_duration()}</TableHead>
-                <TableHead>{m.leave_table_status()}</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {leaveRequests.map((request) => (
-                <TableRow key={`${request.employee}-${request.startDate}`}>
-                  <TableCell className='text-xs font-medium'>{request.employee}</TableCell>
-                  <TableCell className='text-xs'>{getLeaveTypeLabel(request.leaveType)}</TableCell>
-                  <TableCell className='text-xs'>
-                    {formatLeavePeriod(request.startDate, request.endDate)}
-                  </TableCell>
-                  <TableCell className='text-xs'>
-                    {m.leave_days({ count: request.duration })}
-                  </TableCell>
-                  <TableCell>
-                    <LeaveStatus status={request.status} />
-                  </TableCell>
+          <div className='w-full overflow-x-auto'>
+            <Table className='min-w-[680px]'>
+              <TableHeader className='bg-muted/40'>
+                <TableRow>
+                  <TableHead>{m.leave_table_employee()}</TableHead>
+                  <TableHead>{m.leave_table_type()}</TableHead>
+                  <TableHead>{m.leave_table_period()}</TableHead>
+                  <TableHead>{m.leave_table_duration()}</TableHead>
+                  <TableHead>{m.leave_table_status()}</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {leaveRequests.map((request) => (
+                  <TableRow key={`${request.employee}-${request.startDate}`}>
+                    <TableCell className='text-xs font-medium'>{request.employee}</TableCell>
+                    <TableCell className='text-xs'>
+                      {getLeaveTypeLabel(request.leaveType)}
+                    </TableCell>
+                    <TableCell className='text-xs'>
+                      {formatLeavePeriod(request.startDate, request.endDate)}
+                    </TableCell>
+                    <TableCell className='text-xs'>
+                      {m.leave_days({ count: request.duration })}
+                    </TableCell>
+                    <TableCell>
+                      <LeaveStatus status={request.status} />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </section>
 
         <section className='rounded-2xl border border-border bg-card p-4 shadow-sm'>
@@ -258,7 +258,7 @@ export function LeaveOverviewPage() {
         <h3 className='font-semibold'>{m.leave_quick_actions_title()}</h3>
         <div className='mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4'>
           {quickActions.map((action) => (
-            <QuickAction key={action.code} {...action} />
+            <QuickAction key={action.title} {...action} />
           ))}
         </div>
       </section>

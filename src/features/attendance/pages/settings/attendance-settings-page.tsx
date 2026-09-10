@@ -4,6 +4,7 @@ import { AppMain } from '@/shared/components/app-layout/app-main'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { Switch } from '@/shared/components/ui/switch'
+import { getAttendanceBreadcrumbs } from '@/features/attendance/components/attendance-breadcrumbs'
 import { AttendanceTabs } from '@/features/attendance/components/attendance-tabs'
 
 const policy = [
@@ -14,11 +15,20 @@ const policy = [
 ] as const
 
 export function AttendanceSettingsPage() {
-  const [hybrid, setHybrid] = useState(false)
+  const [workModes, setWorkModes] = useState<Record<string, boolean>>({
+    WFO: true,
+    WFH: true,
+    'Hybrid / WFA': false,
+  })
+  const [policyValues, setPolicyValues] = useState<Record<string, boolean>>(
+    Object.fromEntries(policy.map(([title, , checked]) => [title, checked])),
+  )
+  const hybrid = false
   return (
     <AppMain
       title='Edit Attendance Settings'
       subtitle='Ubah mode kerja, tolerance, automation, dan validation policy.'
+      breadcrumbs={getAttendanceBreadcrumbs('Attendance Settings')}
       className='gap-5 bg-muted/30'
     >
       <AttendanceTabs active='settings' />
@@ -36,8 +46,10 @@ export function AttendanceSettingsPage() {
                 <p className='mt-1 text-xs text-muted-foreground'>{desc}</p>
               </div>
               <Switch
-                checked={value as boolean}
-                onCheckedChange={name === 'Hybrid / WFA' ? setHybrid : undefined}
+                checked={workModes[name] ?? (value as boolean)}
+                onCheckedChange={(checked) =>
+                  setWorkModes((current) => ({ ...current, [name]: checked }))
+                }
               />
             </div>
           ))}
@@ -63,7 +75,7 @@ export function AttendanceSettingsPage() {
             ))}
           </div>
           <div className='mt-7 grid gap-7 md:grid-cols-2'>
-            {policy.map(([title, desc, checked]) => (
+            {policy.map(([title, desc]) => (
               <div key={title} className='flex items-start justify-between gap-3'>
                 <div>
                   <p className='text-sm font-semibold'>{title}</p>
@@ -78,7 +90,12 @@ export function AttendanceSettingsPage() {
                     </label>
                   )}
                 </div>
-                <Switch defaultChecked={checked} />
+                <Switch
+                  checked={policyValues[title] ?? false}
+                  onCheckedChange={(checked) =>
+                    setPolicyValues((current) => ({ ...current, [title]: checked }))
+                  }
+                />
               </div>
             ))}
           </div>

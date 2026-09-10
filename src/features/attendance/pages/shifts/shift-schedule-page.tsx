@@ -1,8 +1,15 @@
-import { IconCalendarEvent, IconPlus } from '@tabler/icons-react'
+import {
+  IconArrowsExchange,
+  IconClock,
+  IconPlus,
+  IconUsers,
+} from '@tabler/icons-react'
 import { Link } from '@tanstack/react-router'
 
 import { AppMain } from '@/shared/components/app-layout/app-main'
 import { Button } from '@/shared/components/ui/button'
+import { Badge } from '@/shared/components/ui/badge'
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card'
 import {
   Table,
   TableBody,
@@ -12,6 +19,7 @@ import {
   TableRow,
 } from '@/shared/components/ui/table'
 import { ShiftTabs } from '@/features/attendance/components/shift-tabs'
+import { getAttendanceBreadcrumbs } from '@/features/attendance/components/attendance-breadcrumbs'
 
 const shifts = [
   ['SFT-REG', 'Regular', '09:00–18:00', '12:00–13:00', '15 min', '842'],
@@ -24,6 +32,8 @@ export function ShiftSchedulePage() {
     <AppMain
       title='Shift Schedule'
       subtitle='Kelola master jadwal shift dan toleransi attendance.'
+      breadcrumbs={getAttendanceBreadcrumbs('Shift Schedule')}
+      backTo='/attendance/management'
       className='gap-5 bg-muted/30'
       actions={
         <Button asChild>
@@ -35,8 +45,8 @@ export function ShiftSchedulePage() {
       }
     >
       <ShiftTabs active='schedule' />
-      <section className='overflow-hidden rounded-2xl border bg-card shadow-sm'>
-        <Table>
+      <section className='overflow-x-auto rounded-2xl border bg-card shadow-sm'>
+        <Table className='min-w-[760px]'>
           <TableHeader className='bg-muted/50'>
             <TableRow>
               {[
@@ -65,9 +75,9 @@ export function ShiftSchedulePage() {
                   </TableCell>
                 ))}
                 <TableCell>
-                  <span className='rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-600'>
+                  <Badge variant='green'>
                     Active
-                  </span>
+                  </Badge>
                 </TableCell>
                 <TableCell>
                   <Link
@@ -82,26 +92,28 @@ export function ShiftSchedulePage() {
           </TableBody>
         </Table>
       </section>
-      <section className='rounded-2xl border bg-card p-5 shadow-sm'>
-        <h2 className='font-bold'>Shift Configuration Notes</h2>
-        <div className='mt-5 grid gap-5 md:grid-cols-3'>
+      <Card className='w-full min-w-0 shadow-sm'>
+        <CardHeader className='pb-3'>
+          <CardTitle>Shift Configuration Notes</CardTitle>
+        </CardHeader>
+        <CardContent className='grid min-w-0 gap-4 pt-0 md:grid-cols-3'>
           {[
-            ['Cross-day shift', 'Night shift dapat melewati tengah malam.'],
-            ['Attendance window', 'Clock In/Out mengikuti shift dan tolerance.'],
-            ['Assignment', 'Perubahan shift efektif berdasarkan tanggal assignment.'],
-          ].map(([title, description]) => (
-            <div key={title} className='flex gap-3'>
-              <span className='rounded-xl bg-blue-50 p-2 text-primary'>
-                <IconCalendarEvent className='size-4' />
+            [IconArrowsExchange, 'Cross-day shift', 'Night shift dapat melewati tengah malam.'],
+            [IconClock, 'Attendance window', 'Clock In/Out mengikuti shift dan tolerance.'],
+            [IconUsers, 'Assignment', 'Perubahan shift efektif berdasarkan tanggal assignment.'],
+          ].map(([Icon, title, description]) => (
+            <div key={title} className='flex min-w-0 items-start gap-3 rounded-xl border p-3'>
+              <span className='flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary'>
+                <Icon className='size-4' />
               </span>
-              <p className='text-xs'>
+              <div className='min-w-0 text-xs leading-5'>
                 <b className='block text-sm'>{title}</b>
-                <span className='mt-2 block text-muted-foreground'>{description}</span>
-              </p>
+                <p className='mt-1 text-muted-foreground'>{description}</p>
+              </div>
             </div>
           ))}
-        </div>
-      </section>
+        </CardContent>
+      </Card>
     </AppMain>
   )
 }

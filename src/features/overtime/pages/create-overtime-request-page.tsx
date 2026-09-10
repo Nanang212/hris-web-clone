@@ -37,6 +37,12 @@ export function CreateOvertimeRequestPage() {
     <AppMain
       title={m.overtime_create_title()}
       subtitle={m.overtime_create_subtitle()}
+      breadcrumbs={[
+        { label: m.app_layout_nav_time_management() },
+        { to: '/overtime', label: m.app_layout_nav_overtime() },
+        { label: m.overtime_create_title() },
+      ]}
+      backTo='/overtime'
       className='gap-5 bg-muted/30'
     >
       <OvertimeTabs active='requests' />

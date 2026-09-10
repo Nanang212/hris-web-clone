@@ -3,6 +3,7 @@ import { Link } from '@tanstack/react-router'
 
 import { AppMain } from '@/shared/components/app-layout/app-main'
 import { Button } from '@/shared/components/ui/button'
+import { Card, CardContent } from '@/shared/components/ui/card'
 import {
   Select,
   SelectContent,
@@ -18,6 +19,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/shared/components/ui/table'
+import { getAttendanceBreadcrumbs } from '@/features/attendance/components/attendance-breadcrumbs'
 import { AttendanceTabs } from '@/features/attendance/components/attendance-tabs'
 import { m } from '@/i18n/paraglide/messages'
 
@@ -58,6 +60,7 @@ export function AttendanceManagementPage() {
     <AppMain
       title={m.attendance_management_title()}
       subtitle={m.attendance_management_subtitle()}
+      breadcrumbs={getAttendanceBreadcrumbs(m.attendance_management_title())}
       className='gap-5 bg-muted/30'
       actions={
         <div className='flex gap-2'>
@@ -73,10 +76,8 @@ export function AttendanceManagementPage() {
       <AttendanceTabs active='management' />
       <div className='grid gap-3 sm:grid-cols-2 xl:grid-cols-4'>
         {stats.map(([Icon, value, label, color]) => (
-          <section
-            key={label as string}
-            className='flex items-center gap-3 rounded-2xl border border-border bg-card p-4 shadow-sm'
-          >
+          <Card key={label as string}>
+            <CardContent className='flex items-center gap-3 p-4'>
             <span
               className={`flex size-10 items-center justify-center rounded-xl ${color as string}`}
             >
@@ -86,10 +87,12 @@ export function AttendanceManagementPage() {
               <p className='text-2xl font-bold'>{value}</p>
               <p className='text-xs text-muted-foreground'>{label}</p>
             </div>
-          </section>
+            </CardContent>
+          </Card>
         ))}
       </div>
-      <section className='grid gap-3 rounded-2xl border border-border bg-card p-3 shadow-sm md:grid-cols-4'>
+      <Card>
+        <CardContent className='grid gap-3 p-4 md:grid-cols-4 md:items-end'>
         <Select>
           <SelectTrigger className='w-full'>
             <SelectValue placeholder={m.attendance_management_exception_type()} />
@@ -115,9 +118,11 @@ export function AttendanceManagementPage() {
           </SelectContent>
         </Select>
         <Button variant='outline'>{m.attendance_history_filter()}</Button>
-      </section>
-      <section className='overflow-hidden rounded-2xl border border-border bg-card shadow-sm'>
-        <Table>
+        </CardContent>
+      </Card>
+      <Card className='min-w-0 overflow-hidden py-0'>
+        <CardContent className='overflow-x-auto px-0'>
+        <Table className='min-w-[860px]'>
           <TableHeader className='bg-muted/50'>
             <TableRow>
               {[
@@ -151,18 +156,18 @@ export function AttendanceManagementPage() {
                   </TableCell>
                 ))}
                 <TableCell>
-                  <Link
-                    className='text-xs font-medium hover:underline'
-                    to='/attendance/management/exceptions/1'
-                  >
-                    {m.attendance_approval_review()}
-                  </Link>
+                  <Button variant='ghost' size='sm' asChild>
+                    <Link to='/attendance/management/exceptions/1'>
+                      {m.attendance_approval_review()}
+                    </Link>
+                  </Button>
                 </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
-      </section>
+        </CardContent>
+      </Card>
     </AppMain>
   )
 }

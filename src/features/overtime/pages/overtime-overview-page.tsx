@@ -101,6 +101,10 @@ export function OvertimeOverviewPage() {
     <AppMain
       title={m.overtime_overview_title()}
       subtitle={m.overtime_overview_subtitle()}
+      breadcrumbs={[
+        { label: m.app_layout_nav_time_management() },
+        { label: m.app_layout_nav_overtime() },
+      ]}
       actions={
         <Button type='button' asChild>
           <Link to='/overtime/requests/new'>
@@ -157,8 +161,8 @@ export function OvertimeOverviewPage() {
               <Link to='/overtime/history'>{m.overtime_view_all()}</Link>
             </Button>
           </div>
-          <CardContent className='p-0'>
-            <Table>
+          <CardContent className='overflow-x-auto p-0'>
+            <Table className='min-w-[720px]'>
               <TableHeader className='bg-muted/40'>
                 <TableRow>
                   <TableHead>{m.overtime_table_employee()}</TableHead>

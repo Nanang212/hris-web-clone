@@ -1,15 +1,19 @@
 // gps-security-page.tsx — GPS Security main hub with Overview, Geofences, and Detection Logs tabs
-import { IconPlus, IconChevronLeft } from '@tabler/icons-react'
-import { useState, useEffect } from 'react'
+import { IconChevronLeft, IconPlus } from '@tabler/icons-react'
+import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
+
+import { useAppLayoutStore } from '@/shared/components/app-layout/app-layout-store'
+import { AppMain } from '@/shared/components/app-layout/app-main'
+import { getAttendanceBreadcrumbs } from '@/features/attendance/components/attendance-breadcrumbs'
+import { Button } from '@/shared/components/ui/button'
+import { Tabs, TabsList, TabsTrigger } from '@/shared/components/ui/tabs'
+
 import { DetectionLogsTab } from './detection-logs-tab'
 import { GeofenceFormView } from './geofence-form-view'
 import { GeofenceManagementTab } from './geofence-management-tab'
 import { GpsSecurityOverviewTab } from './gps-security-overview-tab'
-import type { GeofenceItem, GpsSecurityTab, GeofenceViewMode } from './types'
-import { useAppLayoutStore } from '@/shared/components/app-layout/app-layout-store'
-import { AppMain } from '@/shared/components/app-layout/app-main'
-import { Button } from '@/shared/components/ui/button'
+import type { GeofenceItem, GeofenceViewMode, GpsSecurityTab } from './types'
 
 const initialGeofences: GeofenceItem[] = [
   {
@@ -69,13 +73,12 @@ const initialGeofences: GeofenceItem[] = [
     employeeScope: 'Project Assigned Team Yogyakarta',
     employeesCount: 42,
     status: 'Active',
-    policyNote:
-      'Temporary client location geofence for assigned consultants in Yogyakarta.',
+    policyNote: 'Temporary client location geofence for assigned consultants in Yogyakarta.',
   },
 ]
 
 export function GpsSecurityPage() {
-  const [activeTab, setActiveTab] = useState<GpsSecurityTab>('geofences')
+  const [activeTab, setActiveTab] = useState<GpsSecurityTab>('overview')
   const [geofenceViewMode, setGeofenceViewMode] = useState<GeofenceViewMode>('list')
   const [geofences, setGeofences] = useState<GeofenceItem[]>(initialGeofences)
   const [editingGeofence, setEditingGeofence] = useState<GeofenceItem | null>(null)
@@ -132,7 +135,7 @@ export function GpsSecurityPage() {
       headerActions = (
         <Button
           onClick={handleOpenAddGeofence}
-          className='gap-1.5 text-xs font-semibold rounded-xl shadow-xs'
+          className='gap-1.5 rounded-xl text-xs font-semibold shadow-xs'
         >
           <IconPlus size={15} />
           Add Geofence
@@ -159,6 +162,8 @@ export function GpsSecurityPage() {
     <AppMain
       title={title}
       subtitle={subtitle}
+      breadcrumbs={getAttendanceBreadcrumbs(title)}
+      backTo={geofenceViewMode === 'list' ? '/attendance' : undefined}
       actions={headerActions}
       className='gap-6'
     >
@@ -178,45 +183,24 @@ export function GpsSecurityPage() {
         )}
 
       {/* ── Tab Navigation Pills ───────────────────────────────────────────── */}
-      <div className='flex items-center gap-2'>
-        <Button
-          size='sm'
-          variant={activeTab === 'overview' ? 'default' : 'outline'}
-          onClick={() => {
-            setActiveTab('overview')
-            setGeofenceViewMode('list')
-          }}
-          className='h-8 px-4 text-xs font-semibold rounded-xl'
-        >
-          Overview
-        </Button>
-        <Button
-          size='sm'
-          variant={activeTab === 'geofences' ? 'default' : 'outline'}
-          onClick={() => setActiveTab('geofences')}
-          className='h-8 px-4 text-xs font-semibold rounded-xl'
-        >
-          Geofences
-        </Button>
-        <Button
-          size='sm'
-          variant={activeTab === 'logs' ? 'default' : 'outline'}
-          onClick={() => {
-            setActiveTab('logs')
-            setGeofenceViewMode('list')
-          }}
-          className='h-8 px-4 text-xs font-semibold rounded-xl'
-        >
-          Detection Logs
-        </Button>
-      </div>
+      <Tabs
+        value={activeTab}
+        onValueChange={(value) => {
+          setActiveTab(value as GpsSecurityTab)
+          setGeofenceViewMode('list')
+          setEditingGeofence(null)
+        }}
+      >
+        <TabsList variant='segmented'>
+          <TabsTrigger value='overview'>Overview</TabsTrigger>
+          <TabsTrigger value='geofences'>Geofences</TabsTrigger>
+          <TabsTrigger value='logs'>Detection Logs</TabsTrigger>
+        </TabsList>
+      </Tabs>
 
       {/* ── TAB CONTENT ────────────────────────────────────────────────────── */}
       {activeTab === 'geofences' && geofenceViewMode === 'list' && (
-        <GeofenceManagementTab
-          geofences={geofences}
-          onEdit={handleOpenEditGeofence}
-        />
+        <GeofenceManagementTab geofences={geofences} onEdit={handleOpenEditGeofence} />
       )}
 
       {activeTab === 'geofences' && geofenceViewMode !== 'list' && (
