@@ -3,6 +3,7 @@ import { IconCircle, IconMapPin } from '@tabler/icons-react'
 import { AppMain } from '@/shared/components/app-layout/app-main'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
+import { getAttendanceBreadcrumbs } from '@/features/attendance/components/attendance-breadcrumbs'
 import { AttendanceTabs } from '@/features/attendance/components/attendance-tabs'
 
 const details = [
@@ -18,6 +19,8 @@ export function AttendanceExceptionDetailPage() {
     <AppMain
       title='Exception Detail'
       subtitle='Investigasi dan resolve attendance exception.'
+      breadcrumbs={getAttendanceBreadcrumbs('Exception Detail')}
+      backTo='/attendance/management'
       className='gap-5 bg-muted/30'
     >
       <AttendanceTabs active='management' />

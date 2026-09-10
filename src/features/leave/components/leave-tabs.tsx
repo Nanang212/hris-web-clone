@@ -1,6 +1,6 @@
 import { Link } from '@tanstack/react-router'
 
-import { Button } from '@/shared/components/ui/button'
+import { Tabs, TabsList, TabsTrigger } from '@/shared/components/ui/tabs'
 import { m } from '@/i18n/paraglide/messages'
 
 interface LeaveTabsProps {
@@ -17,17 +17,14 @@ export function LeaveTabs({ active }: Readonly<LeaveTabsProps>) {
   ]
 
   return (
-    <nav className='flex gap-2 overflow-x-auto pb-1' aria-label={m.leave_navigation_label()}>
-      {tabs.map((tab) => (
-        <Button
-          key={tab.key}
-          size='sm'
-          variant={active === tab.key ? 'secondary' : 'outline'}
-          asChild
-        >
-          <Link to={tab.to}>{tab.label}</Link>
-        </Button>
-      ))}
-    </nav>
+    <Tabs value={active}>
+      <TabsList variant='segmented' aria-label={m.leave_navigation_label()}>
+        {tabs.map((tab) => (
+          <TabsTrigger key={tab.key} value={tab.key} asChild>
+            <Link to={tab.to}>{tab.label}</Link>
+          </TabsTrigger>
+        ))}
+      </TabsList>
+    </Tabs>
   )
 }

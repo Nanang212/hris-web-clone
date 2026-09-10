@@ -2,7 +2,6 @@ import {
   IconAlarm,
   IconArrowRight,
   IconBell,
-  IconBriefcase2,
   IconCalendarEvent,
   IconCalendarTime,
   IconChecklist,
@@ -14,6 +13,7 @@ import {
   IconReceipt,
   IconRosetteDiscountCheck,
 } from '@tabler/icons-react'
+import { Link } from '@tanstack/react-router'
 
 import { AppMain } from '@/shared/components/app-layout/app-main'
 import { Button } from '@/shared/components/ui/button'
@@ -26,6 +26,7 @@ import {
   TableRow,
 } from '@/shared/components/ui/table'
 import { cn } from '@/shared/lib/utils'
+import { getAttendanceBreadcrumbs } from '@/features/attendance/components/attendance-breadcrumbs'
 import { AttendanceTabs } from '@/features/attendance/components/attendance-tabs'
 import { m } from '@/i18n/paraglide/messages'
 
@@ -42,6 +43,15 @@ interface QuickMenuItemProps {
   icon: typeof IconCalendarEvent
   label: string
   iconClassName: string
+  to:
+    | '/leave'
+    | '/overtime'
+    | '/travel-expense/claim'
+    | '/travel-expense/business-trip'
+    | '/attendance/history'
+    | '/payroll'
+    | '/attendance/calendar'
+    | '/attendance/all-menu'
 }
 
 function AttendanceStat({
@@ -68,17 +78,21 @@ function AttendanceStat({
   )
 }
 
-function QuickMenuItem({ icon: Icon, label, iconClassName }: Readonly<QuickMenuItemProps>) {
+function QuickMenuItem({ icon: Icon, label, iconClassName, to }: Readonly<QuickMenuItemProps>) {
   return (
-    <button
-      type='button'
-      className='flex min-h-19 flex-col items-start justify-between rounded-xl border border-border bg-background p-3 text-left transition-colors hover:bg-muted/60'
-    >
-      <span className={cn('flex size-8 items-center justify-center rounded-lg', iconClassName)}>
-        <Icon className='size-4' stroke={2} />
-      </span>
-      <span className='text-xs font-medium'>{label}</span>
-    </button>
+    <Button asChild variant='ghost' className='h-auto min-h-19 w-full justify-start p-0'>
+      <Link
+        to={to}
+        className='flex min-w-0 w-full flex-col items-start justify-between rounded-xl border border-border bg-background p-3 text-left transition-colors hover:bg-muted/60'
+      >
+        <span className={cn('flex size-8 shrink-0 items-center justify-center rounded-lg', iconClassName)}>
+          <Icon className='size-4' stroke={2} />
+        </span>
+        <span className='min-w-0 whitespace-normal break-words text-xs leading-4 font-medium'>
+          {label}
+        </span>
+      </Link>
+    </Button>
   )
 }
 
@@ -88,41 +102,49 @@ export function AttendancePage() {
       icon: IconCalendarEvent,
       label: m.attendance_quick_menu_leave(),
       iconClassName: 'bg-emerald-50 text-emerald-600',
+      to: '/leave',
     },
     {
       icon: IconClock,
       label: m.attendance_quick_menu_overtime(),
       iconClassName: 'bg-orange-50 text-orange-500',
+      to: '/overtime',
     },
     {
       icon: IconFileText,
       label: m.attendance_quick_menu_claim(),
       iconClassName: 'bg-blue-50 text-blue-600',
+      to: '/travel-expense/claim',
     },
     {
       icon: IconPlane,
       label: m.attendance_quick_menu_business_trip(),
       iconClassName: 'bg-blue-50 text-blue-600',
+      to: '/travel-expense/business-trip',
     },
     {
       icon: IconChecklist,
       label: m.attendance_quick_menu_log(),
       iconClassName: 'bg-blue-50 text-blue-600',
+      to: '/attendance/history',
     },
     {
       icon: IconReceipt,
       label: m.attendance_quick_menu_payslip(),
       iconClassName: 'bg-cyan-50 text-cyan-600',
+      to: '/payroll',
     },
     {
       icon: IconCalendarTime,
       label: m.attendance_quick_menu_calendar(),
       iconClassName: 'bg-slate-100 text-slate-500',
+      to: '/attendance/calendar',
     },
     {
       icon: IconGridDots,
       label: m.attendance_quick_menu_all(),
       iconClassName: 'bg-slate-100 text-slate-500',
+      to: '/attendance/all-menu',
     },
   ]
 
@@ -130,6 +152,7 @@ export function AttendancePage() {
     <AppMain
       title={m.attendance_overview_title()}
       subtitle={m.attendance_overview_subtitle()}
+      breadcrumbs={getAttendanceBreadcrumbs()}
       className='gap-5 bg-muted/30'
     >
       <AttendanceTabs active='overview' />
@@ -173,9 +196,11 @@ export function AttendancePage() {
         <section className='rounded-2xl border border-border bg-card p-4 shadow-sm'>
           <div className='flex items-center justify-between gap-3'>
             <h3 className='font-semibold'>{m.attendance_today_shift_title()}</h3>
-            <Button size='sm' variant='outline' className='rounded-lg'>
-              <IconArrowRight />
-              {m.attendance_view_schedule()}
+            <Button size='sm' variant='outline' className='rounded-lg' asChild>
+              <Link to='/attendance/management/shifts'>
+                <IconArrowRight />
+                {m.attendance_view_schedule()}
+              </Link>
             </Button>
           </div>
           <div className='mt-4 flex gap-3'>
@@ -201,23 +226,28 @@ export function AttendancePage() {
             </span>
           </div>
           <div className='mt-4 grid gap-2 sm:grid-cols-2'>
-            <Button className='rounded-lg'>
-              <IconAlarm />
-              {m.attendance_clock_in()}
+            <Button className='rounded-lg' asChild>
+              <Link to='/attendance/clock-in-out'>
+                <IconAlarm />
+                {m.attendance_clock_in()}
+              </Link>
             </Button>
             <Button
               variant='outline'
               className='rounded-lg border-rose-100 text-rose-500 hover:bg-rose-50 hover:text-rose-600'
+              asChild
             >
-              <IconClock />
-              {m.attendance_clock_out()}
+              <Link to='/attendance/clock-in-out'>
+                <IconClock />
+                {m.attendance_clock_out()}
+              </Link>
             </Button>
           </div>
         </section>
 
         <section className='rounded-2xl border border-border bg-card p-4 shadow-sm'>
           <h3 className='font-semibold'>{m.attendance_quick_menu_title()}</h3>
-          <div className='mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4'>
+          <div className='mt-4 grid min-w-0 grid-cols-1 gap-3 min-[420px]:grid-cols-2 sm:grid-cols-4'>
             {menuItems.map((item) => (
               <QuickMenuItem key={item.label} {...item} />
             ))}
@@ -238,17 +268,21 @@ export function AttendancePage() {
               </p>
             </div>
           </div>
-          <Button size='sm' variant='outline' className='shrink-0 rounded-lg'>
-            <IconArrowRight />
-            {m.attendance_view_all()}
+          <Button size='sm' variant='outline' className='shrink-0 rounded-lg' asChild>
+            <Link to='/attendance/all-menu'>
+              <IconArrowRight />
+              {m.attendance_view_all()}
+            </Link>
           </Button>
         </section>
         <section className='rounded-2xl border border-border bg-card p-4 shadow-sm'>
           <div className='flex items-center justify-between'>
             <h3 className='font-semibold'>{m.attendance_today_summary_title()}</h3>
-            <Button size='sm' variant='outline' className='rounded-lg'>
-              <IconArrowRight />
-              {m.attendance_view_detail()}
+            <Button size='sm' variant='outline' className='rounded-lg' asChild>
+              <Link to='/attendance/history'>
+                <IconArrowRight />
+                {m.attendance_view_detail()}
+              </Link>
             </Button>
           </div>
           <dl className='mt-4 grid grid-cols-4 gap-3 text-xs'>
@@ -277,9 +311,11 @@ export function AttendancePage() {
       <section className='overflow-hidden rounded-2xl border border-border bg-card shadow-sm'>
         <div className='flex items-center justify-between p-4'>
           <h3 className='font-semibold'>{m.attendance_recent_history_title()}</h3>
-          <Button size='sm' variant='outline' className='rounded-lg'>
-            <IconArrowRight />
-            {m.attendance_view_all()}
+          <Button size='sm' variant='outline' className='rounded-lg' asChild>
+            <Link to='/attendance/history'>
+              <IconArrowRight />
+              {m.attendance_view_all()}
+            </Link>
           </Button>
         </div>
         <Table>

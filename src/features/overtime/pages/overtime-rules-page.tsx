@@ -22,6 +22,13 @@ export function OvertimeRulesPage() {
     <AppMain
       title={m.overtime_rules_title()}
       subtitle={m.overtime_rules_subtitle()}
+      breadcrumbs={[
+        { label: m.app_layout_nav_time_management() },
+        { to: '/overtime', label: m.app_layout_nav_overtime() },
+        { to: '/overtime/calculation', label: m.overtime_tab_calculation() },
+        { label: m.overtime_rules_title() },
+      ]}
+      backTo='/overtime/calculation'
       actions={<Badge variant='violet'>HR · Admin · Super Admin</Badge>}
       className='gap-5 bg-muted/30'
     >

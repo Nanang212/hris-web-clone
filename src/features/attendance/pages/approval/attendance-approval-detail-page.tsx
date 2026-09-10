@@ -10,6 +10,7 @@ import { useNavigate } from '@tanstack/react-router'
 import { AppMain } from '@/shared/components/app-layout/app-main'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
+import { getAttendanceBreadcrumbs } from '@/features/attendance/components/attendance-breadcrumbs'
 import { AttendanceTabs } from '@/features/attendance/components/attendance-tabs'
 
 const evidence = [
@@ -25,6 +26,8 @@ export function AttendanceApprovalDetailPage() {
     <AppMain
       title='Attendance Approval Detail'
       subtitle='Compare evidence sebelum approve atau reject.'
+      breadcrumbs={getAttendanceBreadcrumbs('Attendance Approval Detail')}
+      backTo='/attendance/approval'
       className='gap-5 bg-muted/30'
     >
       <AttendanceTabs active='approval' />

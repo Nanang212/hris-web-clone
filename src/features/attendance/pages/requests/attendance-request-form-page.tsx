@@ -4,6 +4,7 @@ import { Link } from '@tanstack/react-router'
 import { AppMain } from '@/shared/components/app-layout/app-main'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
+import { getAttendanceBreadcrumbs } from '@/features/attendance/components/attendance-breadcrumbs'
 import { AttendanceTabs } from '@/features/attendance/components/attendance-tabs'
 import { m } from '@/i18n/paraglide/messages'
 
@@ -21,6 +22,8 @@ export function AttendanceRequestFormPage() {
     <AppMain
       title={m.attendance_request_form_title()}
       subtitle={m.attendance_request_form_subtitle()}
+      breadcrumbs={getAttendanceBreadcrumbs(m.attendance_request_form_title())}
+      backTo='/attendance/requests'
       className='gap-5 bg-muted/30'
     >
       <AttendanceTabs active='requests' />
@@ -51,9 +54,10 @@ export function AttendanceRequestFormPage() {
             <p className='text-xs font-medium text-muted-foreground'>
               {m.attendance_request_form_attachment()}
             </p>
-            <button
+            <Button
               type='button'
-              className='mt-1.5 flex h-25 w-full items-center gap-4 rounded-xl border border-dashed border-border bg-muted/30 px-5 text-left'
+              variant='outline'
+              className='mt-1.5 flex h-25 w-full items-center justify-start gap-4 rounded-xl border-dashed border-border bg-muted/30 px-5 text-left'
             >
               <span className='rounded-lg bg-blue-50 p-3 text-blue-600'>
                 <IconFileUpload className='size-5' />
@@ -66,7 +70,7 @@ export function AttendanceRequestFormPage() {
                   {m.attendance_request_form_upload_hint()}
                 </span>
               </span>
-            </button>
+            </Button>
           </div>
           <div className='mt-5 flex gap-2 rounded-xl bg-blue-50 p-4 text-sm text-blue-600'>
             <IconMapPin className='size-5 shrink-0' />

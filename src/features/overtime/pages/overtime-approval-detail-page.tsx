@@ -1,11 +1,11 @@
-import { useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
+import { useState } from 'react'
 
 import { AppMain } from '@/shared/components/app-layout/app-main'
+import { ApprovalActionDialog } from '@/shared/components/approval/approval-action-dialog'
 import { Button } from '@/shared/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card'
 import { Textarea } from '@/shared/components/ui/textarea'
-import { ApprovalActionDialog } from '@/shared/components/approval/approval-action-dialog'
 import { snackbar } from '@/shared/lib/snackbar'
 import {
   OvertimeKeyValue,
@@ -32,8 +32,7 @@ export function OvertimeApprovalDetailPage() {
     })
   }
 
-  const handleExecuteAction = (actionNote: string) => {
-    const finalNote = actionNote || note
+  const handleExecuteAction = () => {
     if (confirmDialog.action === 'approve') {
       snackbar.success(m.overtime_approved_success())
     } else {
@@ -46,6 +45,13 @@ export function OvertimeApprovalDetailPage() {
     <AppMain
       title={m.overtime_approval_detail_title()}
       subtitle={m.overtime_approval_detail_subtitle()}
+      breadcrumbs={[
+        { label: m.app_layout_nav_time_management() },
+        { to: '/overtime', label: m.app_layout_nav_overtime() },
+        { to: '/overtime/approval', label: m.overtime_tab_approval() },
+        { label: m.overtime_approval_detail_title() },
+      ]}
+      backTo='/overtime/approval'
       className='gap-5 bg-muted/30'
     >
       <OvertimeTabs active='approval' />
@@ -105,9 +111,7 @@ export function OvertimeApprovalDetailPage() {
             <Button variant='destructive' onClick={() => handleOpenConfirm('reject')}>
               {m.overtime_reject()}
             </Button>
-            <Button onClick={() => handleOpenConfirm('approve')}>
-              {m.overtime_approve()}
-            </Button>
+            <Button onClick={() => handleOpenConfirm('approve')}>{m.overtime_approve()}</Button>
           </div>
         </div>
       </div>

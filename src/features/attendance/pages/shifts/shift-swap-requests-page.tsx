@@ -1,4 +1,5 @@
 import { AppMain } from '@/shared/components/app-layout/app-main'
+import { Badge } from '@/shared/components/ui/badge'
 import {
   Table,
   TableBody,
@@ -8,6 +9,7 @@ import {
   TableRow,
 } from '@/shared/components/ui/table'
 import { ShiftTabs } from '@/features/attendance/components/shift-tabs'
+import { getAttendanceBreadcrumbs } from '@/features/attendance/components/attendance-breadcrumbs'
 
 const requests = [
   ['Rama Aditya', 'Budi Setiawan', 'Regular', 'Morning', '20 May'],
@@ -18,24 +20,27 @@ export function ShiftSwapRequestsPage() {
     <AppMain
       title='Shift Swap Requests'
       subtitle='Review permintaan pertukaran shift antar employee.'
+      breadcrumbs={getAttendanceBreadcrumbs('Shift Swap Requests')}
+      backTo='/attendance/management/shifts'
       className='gap-5 bg-muted/30'
     >
       <ShiftTabs active='swaps' />
       <div className='grid gap-3 sm:grid-cols-3'>
         {[
-          ['6', 'Pending', 'bg-orange-500'],
-          ['21', 'Approved', 'bg-emerald-500'],
-          ['3', 'Rejected', 'bg-rose-500'],
-        ].map(([value, label, color]) => (
+          ['6', 'Pending', 'amber'],
+          ['21', 'Approved', 'green'],
+          ['3', 'Rejected', 'red'],
+        ].map(([value, label, variant]) => (
           <section key={label} className='rounded-2xl border bg-card p-5 shadow-sm'>
-            <i className={`float-right size-2 rounded-full ${color}`} />
+            <Badge className='float-right' variant={variant as 'amber' | 'green' | 'red'}>
+              {label}
+            </Badge>
             <p className='text-2xl font-bold'>{value}</p>
-            <p className='text-xs text-muted-foreground'>{label}</p>
           </section>
         ))}
       </div>
-      <section className='overflow-hidden rounded-2xl border bg-card shadow-sm'>
-        <Table>
+      <section className='overflow-x-auto rounded-2xl border bg-card shadow-sm'>
+        <Table className='min-w-[840px]'>
           <TableHeader className='bg-muted/50'>
             <TableRow>
               {[
@@ -64,14 +69,14 @@ export function ShiftSwapRequestsPage() {
                   </TableCell>
                 ))}
                 <TableCell>
-                  <span className='rounded-full bg-emerald-50 px-3 py-1 text-xs text-emerald-600'>
+                  <Badge variant='green'>
                     No
-                  </span>
+                  </Badge>
                 </TableCell>
                 <TableCell>
-                  <span className='rounded-full bg-orange-50 px-3 py-1 text-xs text-orange-600'>
+                  <Badge variant='amber'>
                     Pending
-                  </span>
+                  </Badge>
                 </TableCell>
                 <TableCell className='text-xs font-medium'>Review</TableCell>
               </TableRow>
