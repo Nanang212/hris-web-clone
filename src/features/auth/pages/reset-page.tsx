@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { IconEye, IconEyeOff, IconInfoCircle } from '@tabler/icons-react'
+import { IconCheck, IconEye, IconEyeOff, IconInfoCircle } from '@tabler/icons-react'
 import { Link } from '@tanstack/react-router'
 import { REGEXP_ONLY_DIGITS } from 'input-otp'
 import { useState } from 'react'
@@ -58,6 +58,44 @@ function PasswordStrength({ password }: Readonly<{ password: string }>) {
         {m.auth_reset_password_strength_label({ strength: levelLabel })}
       </p>
     </div>
+  )
+}
+
+function PasswordRequirements({ password }: Readonly<{ password: string }>) {
+  const requirements = [
+    { label: m.auth_reset_requirement_length(), valid: password.length >= 8 },
+    {
+      label: m.auth_reset_requirement_case(),
+      valid: /[a-z]/.test(password) && /[A-Z]/.test(password),
+    },
+    { label: m.auth_reset_requirement_number(), valid: /\d/.test(password) },
+    { label: m.auth_reset_requirement_symbol(), valid: /[^A-Za-z0-9]/.test(password) },
+    // The previous password is not available in the reset form; this is checked by the API.
+    { label: m.auth_reset_requirement_different(), valid: password.length > 0 },
+  ]
+
+  return (
+    <ul
+      id='reset-password-requirements'
+      aria-label={m.auth_reset_requirement_notice_title()}
+      className='rounded-lg bg-muted/70 px-3 py-2.5 text-[11px] leading-5'
+    >
+      {requirements.map(({ label, valid }) => (
+        <li
+          key={label}
+          className={valid ? 'text-emerald-600 dark:text-emerald-400' : 'text-muted-foreground'}
+        >
+          <span className='mr-1.5 inline-flex align-[-2px]' aria-hidden='true'>
+            {valid ? (
+              <IconCheck size={12} stroke={2.5} />
+            ) : (
+              <span className='w-3 text-center'>·</span>
+            )}
+          </span>
+          {label}
+        </li>
+      ))}
+    </ul>
   )
 }
 
@@ -250,6 +288,7 @@ function ResetPasswordForm({
                   autoComplete='new-password'
                   className='pr-10'
                   aria-invalid={!!errors[name]}
+                  aria-describedby={name === 'password' ? 'reset-password-requirements' : undefined}
                   disabled={isPending}
                   {...register(name)}
                 />
@@ -266,7 +305,12 @@ function ResetPasswordForm({
                   {showPassword ? <IconEyeOff size={16} /> : <IconEye size={16} />}
                 </button>
               </div>
-              {name === 'password' && <PasswordStrength password={password} />}
+              {name === 'password' && (
+                <>
+                  <PasswordStrength password={password} />
+                  <PasswordRequirements password={password} />
+                </>
+              )}
               <FieldError errors={[errors[name]]} />
             </Field>
           ))}
