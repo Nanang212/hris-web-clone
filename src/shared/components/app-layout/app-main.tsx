@@ -29,7 +29,8 @@ type BreadcrumbItemType = {
 
 type AppMainProps = React.ComponentProps<'main'> & {
   title?: React.ReactNode
-  subtitle?: string
+  subtitle?: React.ReactNode
+  description?: React.ReactNode
   actions?: React.ReactNode
   breadcrumbs?: BreadcrumbItemType[]
   notFound?: React.ReactNode

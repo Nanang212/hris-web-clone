@@ -1,6 +1,7 @@
+import { useSyncExternalStore } from 'react'
 import type { Project } from '../types'
 
-export const dummyProjects: Project[] = [
+export const initialProjects: Project[] = [
   {
     id: 'project-retail-hris-rollout',
     clientId: 'client-nusantara-retail',
@@ -46,3 +47,60 @@ export const dummyProjects: Project[] = [
     updatedAt: '2026-08-22T10:10:00+07:00',
   },
 ]
+
+let projectsStore: Project[] = [...initialProjects]
+
+export const dummyProjects: Project[] = [...initialProjects]
+
+function syncDummyProjects() {
+  dummyProjects.length = 0
+  dummyProjects.push(...projectsStore)
+}
+
+type Listener = () => void
+const listeners = new Set<Listener>()
+
+function notify() {
+  syncDummyProjects()
+  listeners.forEach((l) => l())
+}
+
+function subscribe(listener: Listener) {
+  listeners.add(listener)
+  return () => {
+    listeners.delete(listener)
+  }
+}
+
+export function getProjects(): Project[] {
+  return projectsStore
+}
+
+export function addProject(project: Project) {
+  projectsStore = [project, ...projectsStore]
+  notify()
+}
+
+export function updateProject(id: string, updated: Partial<Project>) {
+  projectsStore = projectsStore.map((p) =>
+    p.id === id
+      ? {
+          ...p,
+          ...updated,
+          updatedAt: new Date().toISOString(),
+        }
+      : p,
+  )
+  notify()
+}
+
+export function deleteProject(id: string) {
+  projectsStore = projectsStore.filter((p) => p.id !== id)
+  notify()
+}
+
+export function useProjects(): Project[] {
+  return useSyncExternalStore(subscribe, getProjects, getProjects)
+}
+
+
