@@ -39,8 +39,8 @@ export async function fetchApprovalRequests(params?: FetchApprovalsParams): Prom
     }
     return {
       items: filtered,
-      cursor: null,
-      total: filtered.length,
+      hasNext: false,
+      nextCursor: null,
     }
   }
 }

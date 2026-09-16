@@ -45,8 +45,9 @@ import { snackbar } from '@/shared/lib/snackbar'
 import { dummyClients } from '@/features/company/client/data/dummy-clients'
 import { m } from '@/i18n/paraglide/messages'
 
-import { dummyProjects } from '../data/dummy-projects'
+import { deleteProject, useProjects } from '../data/dummy-projects'
 import type { Project, ProjectStatus } from '../types'
+import { ProjectDetailDialog } from '../components/project-detail-dialog'
 
 const statusVariant: Record<ProjectStatus, 'blue' | 'green' | 'yellow' | 'slate' | 'red'> = {
   PLANNING: 'blue',
@@ -71,8 +72,10 @@ function formatDate(value?: string | null) {
 }
 
 export function ProjectPage() {
+  const projectList = useProjects()
   const [search, setSearch] = useState('')
   const [deleteTarget, setDeleteTarget] = useState<Project | null>(null)
+  const [selectedProjectForDetail, setSelectedProjectForDetail] = useState<Project | null>(null)
 
   const clientNameById = useMemo(
     () => new Map(dummyClients.map((client) => [client.id, client.name])),
@@ -80,25 +83,25 @@ export function ProjectPage() {
   )
   const projects = useMemo(() => {
     const keyword = search.trim().toLowerCase()
-    if (!keyword) return dummyProjects
+    if (!keyword) return projectList
 
-    return dummyProjects.filter((project) =>
+    return projectList.filter((project) =>
       [project.code, project.name, project.industryField, clientNameById.get(project.clientId)]
         .filter(Boolean)
         .some((value) => value?.toLowerCase().includes(keyword)),
     )
-  }, [clientNameById, search])
+  }, [clientNameById, projectList, search])
 
-  const activeProjects = dummyProjects.filter((project) => project.status === 'ONGOING').length
-  const completedProjects = dummyProjects.filter((project) => project.status === 'COMPLETED').length
-  const projectLocationCount = dummyProjects.reduce(
+  const activeProjects = projectList.filter((project) => project.status === 'ONGOING').length
+  const completedProjects = projectList.filter((project) => project.status === 'COMPLETED').length
+  const projectLocationCount = projectList.reduce(
     (total, project) => total + project.addresses.length,
     0,
   )
   const statsCards = [
     {
       label: m.company_project_stat_total(),
-      value: dummyProjects.length,
+      value: projectList.length,
       icon: IconBriefcase,
       color: 'text-blue-600',
       bg: 'bg-blue-50 dark:bg-blue-950/30',
@@ -127,6 +130,8 @@ export function ProjectPage() {
   ]
 
   const handleDelete = () => {
+    if (!deleteTarget) return
+    deleteProject(deleteTarget.id)
     snackbar.success(m.company_project_toast_deleted())
     setDeleteTarget(null)
   }
@@ -229,21 +234,21 @@ export function ProjectPage() {
                         {index + 1}
                       </TableCell>
                       <TableCell>
-                        <Link
-                          to='/company/project/$id'
-                          params={{ id: project.id }}
-                          className='flex items-center gap-3 hover:text-primary'
+                        <button
+                          type='button'
+                          onClick={() => setSelectedProjectForDetail(project)}
+                          className='flex items-center gap-3 text-left hover:text-primary transition-colors cursor-pointer group'
                         >
-                          <div className='flex size-9 items-center justify-center rounded-md bg-primary/10 text-primary'>
+                          <div className='flex size-9 items-center justify-center rounded-md bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors'>
                             <IconBriefcase className='size-4' />
                           </div>
                           <div>
-                            <div className='font-semibold'>{project.name}</div>
+                            <div className='font-semibold group-hover:underline'>{project.name}</div>
                             <div className='font-mono text-xs text-muted-foreground'>
                               {project.code}
                             </div>
                           </div>
-                        </Link>
+                        </button>
                       </TableCell>
                       <TableCell>
                         {clientNameById.get(project.clientId) ?? project.clientId}
@@ -273,11 +278,12 @@ export function ProjectPage() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align='end'>
-                            <DropdownMenuItem asChild>
-                              <Link to='/company/project/$id' params={{ id: project.id }}>
-                                <IconEye className='size-4' />
-                                {m.company_action_detail()}
-                              </Link>
+                            <DropdownMenuItem
+                              onClick={() => setSelectedProjectForDetail(project)}
+                              className='cursor-pointer'
+                            >
+                              <IconEye className='size-4' />
+                              {m.company_action_detail()}
                             </DropdownMenuItem>
                             <DropdownMenuItem asChild>
                               <Link to='/company/project/$id/update' params={{ id: project.id }}>
@@ -286,7 +292,7 @@ export function ProjectPage() {
                               </Link>
                             </DropdownMenuItem>
                             <DropdownMenuItem
-                              className='text-destructive focus:text-destructive'
+                              className='text-destructive focus:text-destructive cursor-pointer'
                               onClick={() => setDeleteTarget(project)}
                             >
                               <IconTrash className='size-4' />
@@ -303,6 +309,17 @@ export function ProjectPage() {
           </Table>
         </div>
       </div>
+
+      {/* Detail Pop-up Modal */}
+      <ProjectDetailDialog
+        project={
+          selectedProjectForDetail
+            ? projectList.find((p) => p.id === selectedProjectForDetail.id) ?? selectedProjectForDetail
+            : null
+        }
+        open={!!selectedProjectForDetail}
+        onOpenChange={(open) => !open && setSelectedProjectForDetail(null)}
+      />
 
       <Dialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
         <DialogContent>
