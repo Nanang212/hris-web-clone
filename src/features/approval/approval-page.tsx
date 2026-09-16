@@ -23,7 +23,6 @@ import { AppMain } from '@/shared/components/app-layout/app-main'
 import { TablePagination } from '@/shared/components/ui/table-pagination'
 import { snackbar } from '@/shared/lib/snackbar'
 import { cn } from '@/shared/lib/utils'
-import { useLocale } from '@/i18n/local-store'
 import { m } from '@/i18n/paraglide/messages'
 
 import { useApprovalSyncStore } from '@/shared/lib/approval-sync-store'
@@ -35,7 +34,6 @@ type TabType = string
 type StatusFilterType = 'all' | 'pending' | 'approved' | 'rejected'
 
 export function ApprovalPage() {
-  const locale = useLocale()
   const { approvals, approve: syncApprove, reject: syncReject } = useApprovalSyncStore()
   const requests = approvals
 

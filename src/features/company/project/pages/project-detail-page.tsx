@@ -1,35 +1,22 @@
-import { IconCalendar, IconEdit, IconMapPin, IconTrash } from '@tabler/icons-react'
-import { Link, useNavigate } from '@tanstack/react-router'
+import { IconCalendar, IconMapPin } from '@tabler/icons-react'
 import dayjs from 'dayjs'
-import { useState } from 'react'
 
 import { AppMain } from '@/shared/components/app-layout/app-main'
 import { Badge } from '@/shared/components/ui/badge'
-import { Button } from '@/shared/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/shared/components/ui/dialog'
 import { Map, MapControls, MapMarker, MarkerContent } from '@/shared/components/ui/map'
-import { snackbar } from '@/shared/lib/snackbar'
 import { dummyClients } from '@/features/company/client/data/dummy-clients'
 import { m } from '@/i18n/paraglide/messages'
 
-import { dummyProjects } from '../data/dummy-projects'
+import { useProjects } from '../data/dummy-projects'
 
 interface ProjectDetailPageProps {
   projectId: string
 }
 
 export function ProjectDetailPage({ projectId }: Readonly<ProjectDetailPageProps>) {
-  const navigate = useNavigate()
-  const [deleteOpen, setDeleteOpen] = useState(false)
-  const project = dummyProjects.find((item) => item.id === projectId)
+  const projects = useProjects()
+  const project = projects.find((item) => item.id === projectId)
   const client = dummyClients.find((item) => item.id === project?.clientId)
 
   if (!project) return <AppMain notFound />
@@ -42,11 +29,6 @@ export function ProjectDetailPage({ projectId }: Readonly<ProjectDetailPageProps
     CANCELLED: m.company_project_status_cancelled(),
   }[project.status]
 
-  const handleDelete = () => {
-    snackbar.success(m.company_project_toast_deleted())
-    navigate({ to: '/company/project' })
-  }
-
   return (
     <AppMain
       title={project.name}
@@ -58,20 +40,6 @@ export function ProjectDetailPage({ projectId }: Readonly<ProjectDetailPageProps
       ]}
       backTo='/company/project'
       className='w-full max-w-full min-w-0 gap-6'
-      actions={
-        <div className='flex flex-wrap gap-2'>
-          <Button variant='outline' size='sm' asChild>
-            <Link to='/company/project/$id/update' params={{ id: project.id }}>
-              <IconEdit className='size-4' />
-              {m.company_action_edit()}
-            </Link>
-          </Button>
-          <Button variant='destructive' size='sm' onClick={() => setDeleteOpen(true)}>
-            <IconTrash className='size-4' />
-            {m.company_action_delete()}
-          </Button>
-        </div>
-      }
     >
       <div className='grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1fr)_22rem]'>
         <Card>
@@ -179,22 +147,6 @@ export function ProjectDetailPage({ projectId }: Readonly<ProjectDetailPageProps
           </CardContent>
         </Card>
       </div>
-      <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{m.company_project_delete_title()}</DialogTitle>
-            <DialogDescription>{m.company_project_delete_description()}</DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant='outline' onClick={() => setDeleteOpen(false)}>
-              {m.company_action_cancel()}
-            </Button>
-            <Button variant='destructive' onClick={handleDelete}>
-              {m.company_action_delete()}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </AppMain>
   )
 }
