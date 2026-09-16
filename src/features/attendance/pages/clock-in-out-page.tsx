@@ -1,13 +1,9 @@
-import {
-  IconCheck,
-  IconCircleCheck,
-  IconFaceId,
-  IconMapPin,
-  IconNumber3,
-} from '@tabler/icons-react'
+import { IconCheck, IconCircleCheck, IconFaceId, IconNumber3 } from '@tabler/icons-react'
+import { useState } from 'react'
 
 import { AppMain } from '@/shared/components/app-layout/app-main'
 import { Button } from '@/shared/components/ui/button'
+import { RadioGroup, RadioGroupItem } from '@/shared/components/ui/radio-group'
 import { cn } from '@/shared/lib/utils'
 import { getAttendanceBreadcrumbs } from '@/features/attendance/components/attendance-breadcrumbs'
 import { AttendanceTabs } from '@/features/attendance/components/attendance-tabs'
@@ -45,6 +41,26 @@ function VerificationStep({
 }
 
 export function ClockInOutPage() {
+  const [attendanceType, setAttendanceType] = useState<'regular' | 'overtime' | 'business-trip'>(
+    'regular',
+  )
+  const attendanceTypes = [
+    {
+      value: 'regular' as const,
+      label: m.attendance_clock_type_regular(),
+      description: m.attendance_clock_type_regular_description(),
+    },
+    {
+      value: 'overtime' as const,
+      label: m.attendance_clock_type_overtime(),
+      description: m.attendance_clock_type_overtime_description(),
+    },
+    {
+      value: 'business-trip' as const,
+      label: m.attendance_clock_type_business_trip(),
+      description: m.attendance_clock_type_business_trip_description(),
+    },
+  ]
   const requirements = [
     { label: m.attendance_clock_gps_active(), value: m.attendance_clock_gps_accuracy() },
     { label: m.attendance_clock_location(), value: m.attendance_zone(), success: true },
@@ -60,6 +76,40 @@ export function ClockInOutPage() {
       className='gap-5 bg-muted/30'
     >
       <AttendanceTabs active='clock' />
+
+      <section className='rounded-2xl border border-border bg-card p-4 shadow-sm'>
+        <div className='flex flex-wrap items-center gap-x-6 gap-y-1'>
+          <h3 className='text-base font-semibold'>{m.attendance_clock_type_title()}</h3>
+          <p className='text-xs text-muted-foreground'>{m.attendance_clock_type_description()}</p>
+        </div>
+        <RadioGroup
+          value={attendanceType}
+          onValueChange={(value) => setAttendanceType(value as typeof attendanceType)}
+          className='mt-3 grid gap-3 md:grid-cols-3'
+          aria-label={m.attendance_clock_type_title()}
+        >
+          {attendanceTypes.map((type) => (
+            <label
+              key={type.value}
+              htmlFor={`attendance-type-${type.value}`}
+              className={cn(
+                'flex cursor-pointer items-center justify-between gap-3 rounded-xl border px-3 py-2.5 transition-colors',
+                attendanceType === type.value
+                  ? 'border-primary bg-primary/5'
+                  : 'border-border hover:bg-muted/50',
+              )}
+            >
+              <span className='min-w-0'>
+                <span className='block text-sm font-semibold'>{type.label}</span>
+                <span className='block truncate text-xs text-muted-foreground'>
+                  {type.description}
+                </span>
+              </span>
+              <RadioGroupItem id={`attendance-type-${type.value}`} value={type.value} />
+            </label>
+          ))}
+        </RadioGroup>
+      </section>
 
       <div className='grid items-stretch gap-4 xl:grid-cols-[minmax(0,1.75fr)_340px]'>
         <section className='rounded-2xl border border-border bg-card p-5 shadow-sm'>
