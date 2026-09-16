@@ -8,7 +8,7 @@ import {
 } from '@tabler/icons-react'
 import { Link, useNavigate } from '@tanstack/react-router'
 import dayjs from 'dayjs'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   Controller,
   type FieldError,
@@ -23,6 +23,7 @@ import { z } from 'zod'
 import { AppMain } from '@/shared/components/app-layout/app-main'
 import { Button } from '@/shared/components/ui/button'
 import { Card, CardContent } from '@/shared/components/ui/card'
+import { Checkbox } from '@/shared/components/ui/checkbox'
 import { DatePicker } from '@/shared/components/ui/date-picker'
 import { Field, FieldError as UIFieldError, FieldGroup, FieldLabel } from '@/shared/components/ui/field'
 import { Input } from '@/shared/components/ui/input'
@@ -38,7 +39,8 @@ import {
 import { Textarea } from '@/shared/components/ui/textarea'
 import { useSchema } from '@/shared/lib/schema'
 import { snackbar } from '@/shared/lib/snackbar'
-import { dummyClients } from '@/features/company/client/data/dummy-clients'
+import { useClients } from '@/features/company/client/data/dummy-clients'
+import { useGetEmployees } from '@/features/employment/employee/hooks'
 import { m } from '@/i18n/paraglide/messages'
 
 import { addProject, updateProject, useProjects } from '../data/dummy-projects'
@@ -151,6 +153,9 @@ type FormValues = {
   startDate: string
   endDate?: string
   status: 'PLANNING' | 'ONGOING' | 'ON_HOLD' | 'COMPLETED' | 'CANCELLED'
+  employeeIds?: string[]
+  assignmentStartDate?: string
+  assignmentEndDate?: string
   addresses: Array<{
     address: string
     latitude?: string
@@ -172,6 +177,9 @@ function buildNewProject(values: FormValues): Project {
     startDate: values.startDate,
     endDate: values.endDate || null,
     status: values.status,
+    employeeIds: values.employeeIds || [],
+    assignmentStartDate: values.assignmentStartDate || null,
+    assignmentEndDate: values.assignmentEndDate || null,
     addresses: values.addresses.map((addr, idx) => ({
       id: `addr-${timestamp}-${idx}`,
       address: addr.address,
@@ -197,6 +205,9 @@ function buildUpdatedProject(values: FormValues): Partial<Project> {
     startDate: values.startDate,
     endDate: values.endDate || null,
     status: values.status,
+    employeeIds: values.employeeIds || [],
+    assignmentStartDate: values.assignmentStartDate || null,
+    assignmentEndDate: values.assignmentEndDate || null,
     addresses: values.addresses.map((addr, idx) => ({
       id: `addr-${timestamp}-${idx}`,
       address: addr.address,
@@ -508,6 +519,9 @@ export function ProjectFormPage({ projectId }: Readonly<ProjectFormPageProps>) {
     startDate: z.string().min(1, { message: m.company_project_start_date_required() }),
     endDate: z.string().optional(),
     status: z.enum(['PLANNING', 'ONGOING', 'ON_HOLD', 'COMPLETED', 'CANCELLED']),
+    employeeIds: z.array(z.string()).optional(),
+    assignmentStartDate: z.string().optional(),
+    assignmentEndDate: z.string().optional(),
     addresses: z
       .array(
         z.object({
@@ -519,6 +533,12 @@ export function ProjectFormPage({ projectId }: Readonly<ProjectFormPageProps>) {
       )
       .min(1, { message: m.company_project_address_required() }),
   }))
+
+  const clients = useClients()
+  const { data: employeesResult } = useGetEmployees({})
+  const allEmployees = useMemo(() => employeesResult?.items ?? [], [employeesResult?.items])
+  const [employeeSearch, setEmployeeSearch] = useState('')
+  const [selectedDepartment, setSelectedDepartment] = useState('ALL')
 
   const {
     control,
@@ -537,6 +557,9 @@ export function ProjectFormPage({ projectId }: Readonly<ProjectFormPageProps>) {
       startDate: project?.startDate ?? '',
       endDate: project?.endDate ?? '',
       status: project?.status ?? 'PLANNING',
+      employeeIds: project?.employeeIds ?? [],
+      assignmentStartDate: project?.assignmentStartDate ?? '',
+      assignmentEndDate: project?.assignmentEndDate ?? '',
       addresses: project?.addresses.length
         ? project.addresses.map((address) => ({
             address: address.address,
@@ -549,6 +572,46 @@ export function ProjectFormPage({ projectId }: Readonly<ProjectFormPageProps>) {
   })
   const { fields, append, remove } = useFieldArray({ control, name: 'addresses' })
   const addressValues = useWatch({ control, name: 'addresses' })
+  const selectedEmployeeIds = useWatch({ control, name: 'employeeIds' }) ?? []
+  const watchProjectName = useWatch({ control, name: 'name' })
+
+  const toggleEmployee = (empId: string) => {
+    const current = selectedEmployeeIds
+    if (current.includes(empId)) {
+      setValue(
+        'employeeIds',
+        current.filter((id) => id !== empId),
+        { shouldValidate: true },
+      )
+    } else {
+      setValue('employeeIds', [...current, empId], { shouldValidate: true })
+    }
+  }
+
+  const departmentOptions = useMemo(() => {
+    const set = new Set<string>()
+    allEmployees.forEach((emp) => {
+      if (emp.departmentName) set.add(emp.departmentName)
+    })
+    return Array.from(set)
+  }, [allEmployees])
+
+  const filteredEmployees = useMemo(() => {
+    const q = employeeSearch.trim().toLowerCase()
+    return allEmployees.filter((emp) => {
+      const matchDept =
+        selectedDepartment === 'ALL' || emp.departmentName === selectedDepartment
+      if (!matchDept) return false
+
+      if (!q) return true
+      return (
+        emp.fullName.toLowerCase().includes(q) ||
+        emp.employeeCode.toLowerCase().includes(q) ||
+        (emp.departmentName && emp.departmentName.toLowerCase().includes(q)) ||
+        (emp.positionName && emp.positionName.toLowerCase().includes(q))
+      )
+    })
+  }, [allEmployees, employeeSearch, selectedDepartment])
 
   if (isEdit && !project) return <AppMain notFound />
 
@@ -613,7 +676,7 @@ export function ProjectFormPage({ projectId }: Readonly<ProjectFormPageProps>) {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectGroup>
-                          {dummyClients.map((client) => (
+                          {clients.map((client) => (
                             <SelectItem key={client.id} value={client.id}>
                               {client.name}
                             </SelectItem>
@@ -693,6 +756,137 @@ export function ProjectFormPage({ projectId }: Readonly<ProjectFormPageProps>) {
                 </FieldLabel>
                 <Textarea id='project-description' {...register('description')} />
               </Field>
+
+              {/* Assign Employees Section */}
+              <div className='flex flex-col gap-4 md:col-span-2 rounded-2xl border border-border/70 bg-card p-5 shadow-xs'>
+                {/* Search & Department Filters */}
+                <div className='grid gap-4 sm:grid-cols-2'>
+                  <div>
+                    <FieldLabel htmlFor='search-employee' className='text-xs font-semibold text-foreground'>
+                      Search Employee
+                    </FieldLabel>
+                    <Input
+                      id='search-employee'
+                      placeholder='Search name / NIP / position...'
+                      value={employeeSearch}
+                      onChange={(e) => setEmployeeSearch(e.target.value)}
+                      className='mt-1.5 h-10 text-xs'
+                    />
+                  </div>
+                  <div>
+                    <FieldLabel htmlFor='department-filter' className='text-xs font-semibold text-foreground'>
+                      Department
+                    </FieldLabel>
+                    <Select value={selectedDepartment} onValueChange={setSelectedDepartment}>
+                      <SelectTrigger id='department-filter' className='mt-1.5 h-10 text-xs'>
+                        <SelectValue placeholder='All departments' />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value='ALL'>All departments</SelectItem>
+                        {departmentOptions.map((dept) => (
+                          <SelectItem key={dept} value={dept}>
+                            {dept}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                {/* Employee List with Checkbox Cards */}
+                <div className='flex flex-col gap-2.5 max-h-64 overflow-y-auto pr-1'>
+                  {filteredEmployees.length === 0 ? (
+                    <div className='p-6 text-center text-xs text-muted-foreground rounded-xl border border-border/60 bg-muted/20'>
+                      No employees found.
+                    </div>
+                  ) : (
+                    filteredEmployees.map((emp) => {
+                      const isChecked = selectedEmployeeIds.includes(emp.id)
+                      return (
+                        <div
+                          key={emp.id}
+                          onClick={() => toggleEmployee(emp.id)}
+                          className={`flex items-center gap-3.5 rounded-xl border p-3.5 transition-all cursor-pointer ${
+                            isChecked
+                              ? 'border-primary/60 bg-primary/5 shadow-2xs'
+                              : 'border-border/70 bg-card hover:border-border hover:bg-muted/30 shadow-2xs'
+                          }`}
+                        >
+                          <Checkbox
+                            checked={isChecked}
+                            onCheckedChange={() => toggleEmployee(emp.id)}
+                            onClick={(e) => e.stopPropagation()}
+                            id={`emp-check-${emp.id}`}
+                            className='size-5 rounded-md'
+                          />
+                          <div className='min-w-0 flex-1'>
+                            <p className='text-sm font-semibold text-foreground leading-tight'>
+                              {emp.fullName}
+                            </p>
+                            <p className='mt-0.5 text-xs text-muted-foreground'>
+                              {emp.employeeCode} · {emp.departmentName || 'Operations'}
+                            </p>
+                          </div>
+                        </div>
+                      )
+                    })
+                  )}
+                </div>
+
+                {/* Assignment Dates (2-columns) */}
+                <div className='grid gap-4 sm:grid-cols-2 pt-1'>
+                  <div>
+                    <FieldLabel className='text-xs font-semibold text-foreground'>
+                      Assignment Start Date *
+                    </FieldLabel>
+                    <Controller
+                      name='assignmentStartDate'
+                      control={control}
+                      render={({ field }) => (
+                        <DatePicker
+                          mode='single'
+                          selected={field.value ? dayjs(field.value).toDate() : undefined}
+                          onSelect={(date) =>
+                            field.onChange(date ? dayjs(date).format('YYYY-MM-DD') : '')
+                          }
+                          placeholder='12 Sep 2026'
+                          className='mt-1.5'
+                        />
+                      )}
+                    />
+                  </div>
+                  <div>
+                    <FieldLabel className='text-xs font-semibold text-foreground'>
+                      Assignment End Date
+                    </FieldLabel>
+                    <Controller
+                      name='assignmentEndDate'
+                      control={control}
+                      render={({ field }) => (
+                        <DatePicker
+                          mode='single'
+                          selected={field.value ? dayjs(field.value).toDate() : undefined}
+                          onSelect={(date) =>
+                            field.onChange(date ? dayjs(date).format('YYYY-MM-DD') : '')
+                          }
+                          placeholder='Optional'
+                          className='mt-1.5'
+                        />
+                      )}
+                    />
+                  </div>
+                </div>
+
+                {/* Notice / Keterangan Box */}
+                <div className='rounded-xl border border-border/50 bg-muted/25 p-4'>
+                  <p className='text-sm font-semibold text-foreground'>
+                    Assignment to {watchProjectName?.trim() ? watchProjectName : 'BFP Operations'}
+                  </p>
+                  <p className='mt-0.5 text-xs text-muted-foreground'>
+                    Selected employees will be assigned directly to this project.
+                  </p>
+                </div>
+              </div>
 
               {/* Locations Section with Live Inline Map */}
               <div className='flex flex-col gap-4 md:col-span-2'>

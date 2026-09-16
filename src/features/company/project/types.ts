@@ -19,6 +19,9 @@ export interface Project {
   endDate?: string | null
   status: ProjectStatus
   addresses: ProjectAddress[]
+  employeeIds?: string[]
+  assignmentStartDate?: string | null
+  assignmentEndDate?: string | null
   createdAt: string
   updatedAt: string
 }

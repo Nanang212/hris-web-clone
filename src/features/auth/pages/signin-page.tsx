@@ -157,6 +157,19 @@ function SignInForm() {
             {isPending && <IconLoader2 data-icon='inline-start' className='animate-spin' />}
             {m.auth_signin_submit_button()}
           </Button>
+
+          <Button
+            type='button'
+            variant='outline'
+            className='w-full border-dashed text-xs text-muted-foreground hover:text-foreground'
+            onClick={() => {
+              bypassSignIn()
+              snackbar.success('Bypass login berhasil! Mengalihkan ke dashboard...')
+              void navigate({ to: '/', replace: true })
+            }}
+          >
+            Bypass Login (Direct to Dashboard)
+          </Button>
         </FieldGroup>
       </form>
 

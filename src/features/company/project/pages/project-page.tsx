@@ -10,6 +10,7 @@ import {
   IconPlus,
   IconSearch,
   IconTrash,
+  IconUsers,
 } from '@tabler/icons-react'
 import { Link } from '@tanstack/react-router'
 import dayjs from 'dayjs'
@@ -42,7 +43,7 @@ import {
   TableRow,
 } from '@/shared/components/ui/table'
 import { snackbar } from '@/shared/lib/snackbar'
-import { dummyClients } from '@/features/company/client/data/dummy-clients'
+import { useClients } from '@/features/company/client/data/dummy-clients'
 import { m } from '@/i18n/paraglide/messages'
 
 import { deleteProject, useProjects } from '../data/dummy-projects'
@@ -73,13 +74,14 @@ function formatDate(value?: string | null) {
 
 export function ProjectPage() {
   const projectList = useProjects()
+  const clientList = useClients()
   const [search, setSearch] = useState('')
   const [deleteTarget, setDeleteTarget] = useState<Project | null>(null)
   const [selectedProjectForDetail, setSelectedProjectForDetail] = useState<Project | null>(null)
 
   const clientNameById = useMemo(
-    () => new Map(dummyClients.map((client) => [client.id, client.name])),
-    [],
+    () => new Map(clientList.map((client) => [client.id, client.name])),
+    [clientList],
   )
   const projects = useMemo(() => {
     const keyword = search.trim().toLowerCase()
@@ -213,6 +215,7 @@ export function ProjectPage() {
                 <TableHead>{m.company_project_table_client()}</TableHead>
                 <TableHead>{m.company_project_table_period()}</TableHead>
                 <TableHead>{m.company_project_table_location()}</TableHead>
+                <TableHead className='text-center'>Karyawan</TableHead>
                 <TableHead className='text-center'>{m.company_project_table_status()}</TableHead>
                 <TableHead className='text-right'>{m.company_project_table_action()}</TableHead>
               </TableRow>
@@ -220,13 +223,14 @@ export function ProjectPage() {
             <TableBody>
               {projects.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className='h-32 text-center text-sm text-muted-foreground'>
+                  <TableCell colSpan={8} className='h-32 text-center text-sm text-muted-foreground'>
                     {m.company_project_empty()}
                   </TableCell>
                 </TableRow>
               ) : (
                 projects.map((project, index) => {
-                  const address = project.addresses[0]
+                  const locationCount = project.addresses.length
+                  const employeeCount = project.employeeIds?.length ?? 0
 
                   return (
                     <TableRow key={project.id} className='transition-colors hover:bg-muted/30'>
@@ -259,10 +263,16 @@ export function ProjectPage() {
                           {formatDate(project.startDate)} - {formatDate(project.endDate)}
                         </div>
                       </TableCell>
-                      <TableCell className='max-w-xs'>
-                        <div className='flex items-start gap-2 text-sm text-muted-foreground'>
-                          <IconMapPin className='mt-0.5 size-3.5 shrink-0' />
-                          <span className='line-clamp-2'>{address?.address || '-'}</span>
+                      <TableCell>
+                        <div className='inline-flex items-center gap-1.5 rounded-lg border border-border/60 bg-muted/20 px-2.5 py-1 text-xs font-medium text-foreground'>
+                          <IconMapPin className='size-3.5 text-amber-600 shrink-0' />
+                          <span>{locationCount} Lokasi</span>
+                        </div>
+                      </TableCell>
+                      <TableCell className='text-center'>
+                        <div className='inline-flex items-center gap-1.5 rounded-lg border border-border/60 bg-blue-50/60 dark:bg-blue-950/30 px-2.5 py-1 text-xs font-medium text-foreground'>
+                          <IconUsers className='size-3.5 text-blue-600 shrink-0' />
+                          <span>{employeeCount} Karyawan</span>
                         </div>
                       </TableCell>
                       <TableCell className='text-center'>
