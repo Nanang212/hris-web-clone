@@ -2308,6 +2308,8 @@
   "auth_verification_missing_token": "Token verifikasi tidak tersedia. Buka tautan lengkap dari email verifikasi Anda.",
   "auth_verification_submit_button": "Verifikasi email",
   "auth_verification_success": "Email berhasil diverifikasi. Anda sekarang dapat masuk.",
+  "auth_verification_success_title": "Akun berhasil diaktifkan",
+  "auth_verification_success_subtitle": "Akun HRIS Anda siap digunakan.",
   "auth_verification_error": "Verifikasi gagal. Coba lagi, atau gunakan tautan verifikasi yang valid jika tautan ini sudah kedaluwarsa.",
   "auth_reset_request_title": "Lupa password?",
   "auth_reset_request_subtitle": "Masukkan email akun untuk meminta OTP reset password.",

@@ -1,3 +1,4 @@
+import { IconCheck } from '@tabler/icons-react'
 import { Link } from '@tanstack/react-router'
 
 import { Alert, AlertDescription } from '@/shared/components/ui/alert'
@@ -34,10 +35,26 @@ export function VerificationPage({ token }: Readonly<VerificationPageProps>) {
 
   return (
     <AuthLayout title={m.auth_verification_title()} subtitle={m.auth_verification_subtitle()}>
-      {(!token || isSuccess || isError) && (
-        <Alert variant={!token || isError ? 'destructive-overlay' : 'info-overlay'}>
-          <AlertDescription>{getAlertMessage()}</AlertDescription>
-        </Alert>
+      {isSuccess ? (
+        <div className='flex flex-col items-center gap-3 text-center'>
+          <div className='flex size-12 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'>
+            <IconCheck size={22} stroke={2.5} />
+          </div>
+          <div className='space-y-1'>
+            <h2 className='text-sm font-semibold text-foreground'>
+              {m.auth_verification_success_title()}
+            </h2>
+            <p className='text-[11px] text-muted-foreground'>
+              {m.auth_verification_success_subtitle()}
+            </p>
+          </div>
+        </div>
+      ) : (
+        (!token || isError) && (
+          <Alert variant={!token || isError ? 'destructive-overlay' : 'info-overlay'}>
+            <AlertDescription>{getAlertMessage()}</AlertDescription>
+          </Alert>
+        )
       )}
       {token && !isSuccess && (
         <Button onClick={verify} disabled={isPending}>

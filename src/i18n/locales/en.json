@@ -2309,6 +2309,8 @@
   "auth_verification_missing_token": "The verification token is missing. Open the complete link from your verification email.",
   "auth_verification_submit_button": "Verify email",
   "auth_verification_success": "Your email has been verified. You can now sign in.",
+  "auth_verification_success_title": "Account activated",
+  "auth_verification_success_subtitle": "Your HRIS account is ready to use.",
   "auth_verification_error": "Verification failed. Try again, or use a valid verification link if this one has expired.",
   "auth_reset_request_title": "Forgot password?",
   "auth_reset_request_subtitle": "Enter your account email to request a password reset OTP.",
