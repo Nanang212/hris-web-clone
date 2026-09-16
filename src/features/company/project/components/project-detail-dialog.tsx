@@ -12,6 +12,7 @@ import {
 } from '@/shared/components/ui/dialog'
 import { Map, MapControls, MapMarker, MarkerContent } from '@/shared/components/ui/map'
 import { dummyClients } from '@/features/company/client/data/dummy-clients'
+import { useGetEmployees } from '@/features/employment/employee/hooks'
 import { m } from '@/i18n/paraglide/messages'
 
 import type { Project, ProjectStatus } from '../types'
@@ -49,12 +50,19 @@ export function ProjectDetailDialog({
   open,
   onOpenChange,
 }: Readonly<ProjectDetailDialogProps>) {
+  const { data: employeesResult } = useGetEmployees({})
+
   if (!project) return null
 
   const client = dummyClients.find((item) => item.id === project.clientId)
   const defaultAddress = project.addresses[0]
   const mapLat = defaultAddress?.latitude ?? -6.2247
   const mapLng = defaultAddress?.longitude ?? 106.8099
+
+  const allEmployees = employeesResult?.items ?? []
+  const assignedEmployees = (project.employeeIds ?? [])
+    .map((empId) => allEmployees.find((e) => e.id === empId))
+    .filter(Boolean) as typeof allEmployees
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -84,12 +92,12 @@ export function ProjectDetailDialog({
         {/* Content */}
         <div className='space-y-6 px-6 py-5'>
           {/* Main Info Grid */}
-          <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-4 rounded-xl border border-border/60 bg-muted/20 p-4'>
+          <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-5 rounded-xl border border-border/60 bg-muted/20 p-4'>
             <div>
               <p className='text-[11px] font-medium text-muted-foreground uppercase tracking-wider'>
                 {m.company_project_client()}
               </p>
-              <p className='mt-1 text-sm font-semibold text-foreground'>
+              <p className='mt-1 text-sm font-semibold text-foreground truncate'>
                 {client?.name ?? project.clientId}
               </p>
             </div>
@@ -97,7 +105,7 @@ export function ProjectDetailDialog({
               <p className='text-[11px] font-medium text-muted-foreground uppercase tracking-wider'>
                 {m.company_project_industry()}
               </p>
-              <p className='mt-1 text-sm font-semibold text-foreground'>
+              <p className='mt-1 text-sm font-semibold text-foreground truncate'>
                 {project.industryField || '-'}
               </p>
             </div>
@@ -106,8 +114,8 @@ export function ProjectDetailDialog({
                 {m.company_project_table_period()}
               </p>
               <div className='mt-1 flex items-center gap-1.5 text-sm font-semibold text-foreground'>
-                <IconCalendar className='size-4 text-muted-foreground' />
-                <span>
+                <IconCalendar className='size-4 text-muted-foreground shrink-0' />
+                <span className='truncate text-xs sm:text-sm'>
                   {formatDate(project.startDate)} - {formatDate(project.endDate)}
                 </span>
               </div>
@@ -118,6 +126,14 @@ export function ProjectDetailDialog({
               </p>
               <p className='mt-1 text-sm font-semibold text-foreground'>
                 {project.addresses.length} Lokasi
+              </p>
+            </div>
+            <div>
+              <p className='text-[11px] font-medium text-muted-foreground uppercase tracking-wider'>
+                {m.company_project_table_employee()}
+              </p>
+              <p className='mt-1 text-sm font-semibold text-foreground'>
+                {project.employeeIds?.length ?? 0} Orang
               </p>
             </div>
           </div>
@@ -133,6 +149,43 @@ export function ProjectDetailDialog({
               </p>
             </div>
           )}
+
+          {/* Assigned Employees Section */}
+          <div>
+            <div className='mb-2.5 flex items-center justify-between'>
+              <h4 className='text-xs font-semibold uppercase tracking-wider text-muted-foreground'>
+                {m.company_project_assign_employee()} ({project.employeeIds?.length ?? 0})
+              </h4>
+            </div>
+            {assignedEmployees.length === 0 ? (
+              <div className='rounded-xl border border-border/50 bg-muted/20 p-4 text-center text-xs text-muted-foreground italic'>
+                Belum ada karyawan yang ditugaskan pada proyek ini.
+              </div>
+            ) : (
+              <div className='grid gap-3 sm:grid-cols-2 md:grid-cols-3'>
+                {assignedEmployees.map((emp) => (
+                  <div
+                    key={emp.id}
+                    className='flex items-center gap-3 rounded-xl border border-border/60 bg-card p-3 shadow-2xs'
+                  >
+                    <div className='flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary overflow-hidden border border-border/40'>
+                      {emp.photo ? (
+                        <img src={emp.photo} alt={emp.fullName} className='size-full object-cover' />
+                      ) : (
+                        emp.fullName.slice(0, 2).toUpperCase()
+                      )}
+                    </div>
+                    <div className='min-w-0 flex-1'>
+                      <p className='truncate text-xs font-semibold text-foreground'>{emp.fullName}</p>
+                      <p className='truncate text-[11px] text-muted-foreground'>
+                        {emp.employeeCode} • {emp.positionName || emp.departmentName}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
 
           {/* Location & Map Section */}
           <div>

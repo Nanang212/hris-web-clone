@@ -27,6 +27,27 @@ const defaultStyles = {
   light: 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json',
 }
 
+const osmRasterStyle: MapLibreGL.StyleSpecification = {
+  version: 8,
+  sources: {
+    'osm-tiles': {
+      type: 'raster',
+      tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
+      tileSize: 256,
+      attribution: '&copy; OpenStreetMap contributors',
+    },
+  },
+  layers: [
+    {
+      id: 'osm-tiles-layer',
+      type: 'raster',
+      source: 'osm-tiles',
+      minzoom: 0,
+      maxzoom: 19,
+    },
+  ],
+}
+
 // A tile-less, dependency-free style with a transparent background. Use it for
 // data visualizations (choropleths, world arcs, dot maps) where you draw your
 // own layers and don't need a street basemap. The easiest way to opt in is the
@@ -222,7 +243,7 @@ function getViewport(map: MapLibreGL.Map): MapViewport {
   }
 }
 
-const Map = forwardRef<MapRef, MapProps>(function map(
+const Map = forwardRef<MapRef, MapProps>(function Map(
   {
     children,
     className,
@@ -241,7 +262,6 @@ const Map = forwardRef<MapRef, MapProps>(function map(
   const [mapInstance, setMapInstance] = useState<MapLibreGL.Map | null>(null)
   const [isLoaded, setIsLoaded] = useState(false)
   const [isStyleLoaded, setIsStyleLoaded] = useState(false)
-  const [pendingStyle, setPendingStyle] = useState<MapStyleOption | null>(null)
   const currentStyleRef = useRef<MapStyleOption | null>(null)
   const styleSwapInFlightRef = useRef(false)
   const internalUpdateRef = useRef(false)
@@ -250,7 +270,9 @@ const Map = forwardRef<MapRef, MapProps>(function map(
   const isControlled = viewport !== undefined && onViewportChange !== undefined
 
   const onViewportChangeRef = useRef(onViewportChange)
-  onViewportChangeRef.current = onViewportChange
+  useEffect(() => {
+    onViewportChangeRef.current = onViewportChange
+  })
 
   const stableStyles = useStableValue(styles)
 
@@ -302,12 +324,26 @@ const Map = forwardRef<MapRef, MapProps>(function map(
       onViewportChangeRef.current?.(getViewport(map))
     }
 
+    // Fallback to OSM raster style if the primary style fails (e.g. Carto CDN blocked by client AdBlock)
+    const errorHandler = () => {
+      if (!blank && currentStyleRef.current !== osmRasterStyle) {
+        currentStyleRef.current = osmRasterStyle
+        try {
+          map.setStyle(osmRasterStyle)
+        } catch {
+          // ignore
+        }
+      }
+    }
+
+    map.on('error', errorHandler)
     map.on('load', loadHandler)
     map.on('style.load', styleLoadHandler)
     map.on('move', handleMove)
     setMapInstance(map)
 
     return () => {
+      map.off('error', errorHandler)
       map.off('load', loadHandler)
       map.off('style.load', styleLoadHandler)
       map.off('move', handleMove)
@@ -348,7 +384,7 @@ const Map = forwardRef<MapRef, MapProps>(function map(
   }, [mapInstance, isControlled, viewport])
 
   // Handle style change: close the gate (so layer children tear down and
-  // re-add on the incoming style) - the swap itself is staged to the effect below.
+  // re-add on the incoming style).
   useEffect(() => {
     if (!mapInstance || !resolvedTheme) return
 
@@ -358,18 +394,11 @@ const Map = forwardRef<MapRef, MapProps>(function map(
 
     currentStyleRef.current = newStyle
     setIsStyleLoaded(false)
-    setPendingStyle(newStyle)
-  }, [mapInstance, resolvedTheme, mapStyles])
-
-  useEffect(() => {
-    if (!mapInstance || !pendingStyle) return
-
-    setPendingStyle(null)
     styleSwapInFlightRef.current = true
     // Full reload (no diff) so `style.load` fires deterministically. A
     // successful diff would never fire it, leaving isStyleLoaded stuck false.
-    mapInstance.setStyle(pendingStyle, { diff: false })
-  }, [mapInstance, pendingStyle])
+    mapInstance.setStyle(newStyle, { diff: false })
+  }, [mapInstance, resolvedTheme, mapStyles])
 
   // Sync projection when the prop changes after mount.
   useEffect(() => {
@@ -457,51 +486,62 @@ function MapMarker({
     onDrag,
     onDragEnd,
   })
-  callbacksRef.current = {
-    onClick,
-    onMouseEnter,
-    onMouseLeave,
-    onDragStart,
-    onDrag,
-    onDragEnd,
-  }
+  useEffect(() => {
+    callbacksRef.current = {
+      onClick,
+      onMouseEnter,
+      onMouseLeave,
+      onDragStart,
+      onDrag,
+      onDragEnd,
+    }
+  })
 
   const marker = useMemo(() => {
-    const markerInstance = new MapLibreGL.Marker({
+    return new MapLibreGL.Marker({
       ...markerOptions,
       element: document.createElement('div'),
       draggable,
     }).setLngLat([longitude, latitude])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
+  useEffect(() => {
+    const el = marker.getElement()
     const handleClick = (e: MouseEvent) => callbacksRef.current.onClick?.(e)
     const handleMouseEnter = (e: MouseEvent) => callbacksRef.current.onMouseEnter?.(e)
     const handleMouseLeave = (e: MouseEvent) => callbacksRef.current.onMouseLeave?.(e)
 
-    markerInstance.getElement()?.addEventListener('click', handleClick)
-    markerInstance.getElement()?.addEventListener('mouseenter', handleMouseEnter)
-    markerInstance.getElement()?.addEventListener('mouseleave', handleMouseLeave)
+    el?.addEventListener('click', handleClick)
+    el?.addEventListener('mouseenter', handleMouseEnter)
+    el?.addEventListener('mouseleave', handleMouseLeave)
 
     const handleDragStart = () => {
-      const lngLat = markerInstance.getLngLat()
+      const lngLat = marker.getLngLat()
       callbacksRef.current.onDragStart?.({ lng: lngLat.lng, lat: lngLat.lat })
     }
     const handleDrag = () => {
-      const lngLat = markerInstance.getLngLat()
+      const lngLat = marker.getLngLat()
       callbacksRef.current.onDrag?.({ lng: lngLat.lng, lat: lngLat.lat })
     }
     const handleDragEnd = () => {
-      const lngLat = markerInstance.getLngLat()
+      const lngLat = marker.getLngLat()
       callbacksRef.current.onDragEnd?.({ lng: lngLat.lng, lat: lngLat.lat })
     }
 
-    markerInstance.on('dragstart', handleDragStart)
-    markerInstance.on('drag', handleDrag)
-    markerInstance.on('dragend', handleDragEnd)
+    marker.on('dragstart', handleDragStart)
+    marker.on('drag', handleDrag)
+    marker.on('dragend', handleDragEnd)
 
-    return markerInstance
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+    return () => {
+      el?.removeEventListener('click', handleClick)
+      el?.removeEventListener('mouseenter', handleMouseEnter)
+      el?.removeEventListener('mouseleave', handleMouseLeave)
+      marker.off('dragstart', handleDragStart)
+      marker.off('drag', handleDrag)
+      marker.off('dragend', handleDragEnd)
+    }
+  }, [marker])
 
   useEffect(() => {
     if (!map) return
@@ -988,7 +1028,9 @@ function MapPopup({
 }: MapPopupProps) {
   const { map } = useMap()
   const onCloseRef = useRef(onClose)
-  onCloseRef.current = onClose
+  useEffect(() => {
+    onCloseRef.current = onClose
+  })
   const container = useMemo(() => document.createElement('div'), [])
   const { offset, maxWidth } = popupOptions
 
@@ -1303,7 +1345,9 @@ function MapGeoJSON<P extends GeoJSON.GeoJsonProperties = GeoJSON.GeoJsonPropert
     [defaults.line, linePaint],
   )
   const latestRef = useRef({ onClick, onHover })
-  latestRef.current = { onClick, onHover }
+  useEffect(() => {
+    latestRef.current = { onClick, onHover }
+  })
 
   // Add source on mount.
   useEffect(() => {
@@ -1636,7 +1680,9 @@ function MapArc<T extends MapArcDatum = MapArcDatum>({
   )
 
   const latestRef = useRef({ data, onClick, onHover })
-  latestRef.current = { data, onClick, onHover }
+  useEffect(() => {
+    latestRef.current = { data, onClick, onHover }
+  })
 
   // Add source and layers on mount.
   useEffect(() => {

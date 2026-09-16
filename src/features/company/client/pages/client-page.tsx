@@ -1,24 +1,8 @@
-import {
-  IconBuildingCommunity,
-  IconDotsVertical,
-  IconEdit,
-  IconEye,
-  IconMail,
-  IconMapPin,
-  IconPhone,
-  IconPlus,
-  IconSearch,
-  IconTrash,
-  IconUser,
-  IconUserCheck,
-  IconUsers,
-  IconUserX,
-} from '@tabler/icons-react'
-import { Link } from '@tanstack/react-router'
+import { IconPlus } from '@tabler/icons-react'
 import { useMemo, useState } from 'react'
 
+import { useProjects } from '@/features/company/project/data/dummy-projects'
 import { AppMain } from '@/shared/components/app-layout/app-main'
-import { Badge } from '@/shared/components/ui/badge'
 import { Button } from '@/shared/components/ui/button'
 import {
   Dialog,
@@ -28,13 +12,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/shared/components/ui/dialog'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/shared/components/ui/dropdown-menu'
+import { FieldLabel } from '@/shared/components/ui/field'
 import { Input } from '@/shared/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/shared/components/ui/select'
 import {
   Table,
   TableBody,
@@ -44,251 +30,593 @@ import {
   TableRow,
 } from '@/shared/components/ui/table'
 import { snackbar } from '@/shared/lib/snackbar'
-import { m } from '@/i18n/paraglide/messages'
 
-import { dummyClients } from '../data/dummy-clients'
+import {
+  addClient,
+  deleteClient,
+  updateClient,
+  useClients,
+} from '../data/dummy-clients'
 import type { Client } from '../types'
 
+interface ClientFormData {
+  name: string
+  code: string
+  contactPersonName: string
+  contactPersonEmail: string
+  contactPersonPhone: string
+  address: string
+}
+
+const defaultFormData: ClientFormData = {
+  name: '',
+  code: '',
+  contactPersonName: '',
+  contactPersonEmail: '',
+  contactPersonPhone: '',
+  address: '',
+}
+
 export function ClientPage() {
+  const clients = useClients()
+  const projects = useProjects()
+
   const [search, setSearch] = useState('')
+  const [projectUsage, setProjectUsage] = useState<'ALL' | 'USED' | 'UNUSED'>('ALL')
+
+  // Modals state
+  const [isAddOpen, setIsAddOpen] = useState(false)
+  const [addForm, setAddForm] = useState<ClientFormData>(defaultFormData)
+  const [editingClient, setEditingClient] = useState<Client | null>(null)
+  const [editForm, setEditForm] = useState<ClientFormData>(defaultFormData)
   const [deleteTarget, setDeleteTarget] = useState<Client | null>(null)
 
-  const clients = useMemo(() => {
+  // Map each client to project count
+  const clientProjectCounts = useMemo(() => {
+    const counts = new Map<string, number>()
+    for (const project of projects) {
+      if (project.clientId) {
+        counts.set(project.clientId, (counts.get(project.clientId) ?? 0) + 1)
+      }
+    }
+    return counts
+  }, [projects])
+
+  // Filtered clients list
+  const filteredClients = useMemo(() => {
     const keyword = search.trim().toLowerCase()
-    if (!keyword) return dummyClients
+    return clients.filter((client) => {
+      const matchKeyword =
+        !keyword ||
+        [client.code, client.name, client.contactPersonName, client.contactPersonEmail]
+          .filter(Boolean)
+          .some((val) => val?.toLowerCase().includes(keyword))
 
-    return dummyClients.filter((client) =>
-      [client.code, client.name, client.contactPersonName, client.contactPersonEmail]
-        .filter(Boolean)
-        .some((value) => value?.toLowerCase().includes(keyword)),
-    )
-  }, [search])
+      if (!matchKeyword) return false
 
-  const activeCount = dummyClients.filter((client) => client.isActive).length
-  const clientsWithContacts = dummyClients.filter(
-    (client) => client.contactPersonName || client.contactPersonEmail || client.contactPersonPhone,
-  ).length
-  const statsCards = [
-    {
-      label: m.company_client_stat_total(),
-      value: dummyClients.length,
-      icon: IconUsers,
-      color: 'text-blue-600',
-      bg: 'bg-blue-50 dark:bg-blue-950/30',
-    },
-    {
-      label: m.company_client_stat_active(),
-      value: activeCount,
-      icon: IconUserCheck,
-      color: 'text-emerald-600',
-      bg: 'bg-emerald-50 dark:bg-emerald-950/30',
-    },
-    {
-      label: m.company_client_stat_inactive(),
-      value: dummyClients.length - activeCount,
-      icon: IconUserX,
-      color: 'text-rose-600',
-      bg: 'bg-rose-50 dark:bg-rose-950/30',
-    },
-    {
-      label: m.company_client_stat_contacts(),
-      value: clientsWithContacts,
-      icon: IconMail,
-      color: 'text-amber-600',
-      bg: 'bg-amber-50 dark:bg-amber-950/30',
-    },
-  ]
+      const projectCount = clientProjectCounts.get(client.id) ?? 0
+      if (projectUsage === 'USED') return projectCount > 0
+      if (projectUsage === 'UNUSED') return projectCount === 0
+      return true
+    })
+  }, [clients, search, projectUsage, clientProjectCounts])
 
-  const handleDelete = () => {
-    snackbar.success(m.company_client_toast_deleted())
+  // Open Edit Modal
+  const openEditModal = (client: Client) => {
+    setEditingClient(client)
+    setEditForm({
+      name: client.name ?? '',
+      code: client.code ?? '',
+      contactPersonName: client.contactPersonName ?? '',
+      contactPersonEmail: client.contactPersonEmail ?? '',
+      contactPersonPhone: client.contactPersonPhone ?? '',
+      address: client.address ?? '',
+    })
+  }
+
+  // Handle Create Client
+  const handleSaveNewClient = () => {
+    if (!addForm.name.trim() || !addForm.code.trim()) {
+      snackbar.error('Please enter Client Name and Client Code.')
+      return
+    }
+
+    const newClient: Client = {
+      id: `client-${Date.now()}`,
+      code: addForm.code.trim(),
+      name: addForm.name.trim(),
+      contactPersonName: addForm.contactPersonName.trim() || null,
+      contactPersonEmail: addForm.contactPersonEmail.trim() || null,
+      contactPersonPhone: addForm.contactPersonPhone.trim() || null,
+      address: addForm.address.trim() || null,
+      isActive: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    }
+
+    addClient(newClient)
+    snackbar.success('Client created successfully')
+    setIsAddOpen(false)
+    setAddForm(defaultFormData)
+  }
+
+  // Handle Update Client
+  const handleSaveEditClient = () => {
+    if (!editingClient) return
+    if (!editForm.name.trim() || !editForm.code.trim()) {
+      snackbar.error('Please enter Client Name and Client Code.')
+      return
+    }
+
+    updateClient(editingClient.id, {
+      name: editForm.name.trim(),
+      code: editForm.code.trim(),
+      contactPersonName: editForm.contactPersonName.trim() || null,
+      contactPersonEmail: editForm.contactPersonEmail.trim() || null,
+      contactPersonPhone: editForm.contactPersonPhone.trim() || null,
+      address: editForm.address.trim() || null,
+    })
+
+    snackbar.success('Client updated successfully')
+    setEditingClient(null)
+  }
+
+  // Handle Delete Client
+  const handleConfirmDelete = () => {
+    if (!deleteTarget) return
+    deleteClient(deleteTarget.id)
+    snackbar.success('Client deleted successfully')
     setDeleteTarget(null)
   }
 
   return (
     <AppMain
-      title={m.organization_client_title()}
-      subtitle={m.organization_client_subtitle()}
+      title='Client'
+      subtitle='Manage client master data used by projects.'
       breadcrumbs={[
-        { to: '/', label: m.app_layout_nav_company() },
-        { to: '.', label: m.app_layout_nav_company_client() },
+        { to: '/', label: 'Company' },
+        { to: '.', label: 'Client' },
       ]}
       className='w-full max-w-full min-w-0 gap-6'
+      actions={
+        <Button
+          type='button'
+          onClick={() => {
+            setAddForm(defaultFormData)
+            setIsAddOpen(true)
+          }}
+          className='h-10 gap-1.5 rounded-lg bg-blue-600 px-4 text-xs font-semibold text-white shadow-xs hover:bg-blue-700'
+        >
+          <IconPlus size={16} />
+          Add Client
+        </Button>
+      }
     >
-      <div className='flex flex-col gap-4'>
-        <div className='mb-2 grid grid-cols-2 gap-4 lg:grid-cols-4'>
-          {statsCards.map((card) => {
-            const Icon = card.icon
-            return (
-              <div
-                key={card.label}
-                className='flex items-center gap-4 rounded-2xl border border-border/60 bg-card p-5 shadow-sm'
-              >
-                <div
-                  className={`flex size-11 shrink-0 items-center justify-center rounded-xl ${card.bg}`}
-                >
-                  <Icon size={22} className={card.color} />
-                </div>
-                <div className='min-w-0'>
-                  <p className='text-[11px] font-medium text-muted-foreground'>{card.label}</p>
-                  <p className={`text-2xl font-extrabold ${card.color}`}>{card.value}</p>
-                </div>
-              </div>
-            )
-          })}
-        </div>
-        <div className='flex flex-wrap items-center gap-3 rounded-2xl border border-border/60 bg-card p-4 shadow-sm'>
-          <div className='relative w-full md:max-w-sm'>
-            <IconSearch className='absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground' />
+      <div className='flex flex-col gap-6'>
+        {/* Filters Row */}
+        <div className='grid gap-4 sm:grid-cols-2'>
+          <div>
+            <FieldLabel htmlFor='search-client' className='text-xs font-semibold text-foreground'>
+              Search Client
+            </FieldLabel>
             <Input
+              id='search-client'
               value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder={m.company_client_search_placeholder()}
-              className='pl-9'
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder='Search code, name, PIC, or email'
+              className='mt-1.5 h-10 text-xs'
             />
           </div>
-          <div className='ml-auto flex w-full items-center justify-between gap-3 sm:w-auto'>
-            <span className='text-xs font-medium text-muted-foreground'>
-              {m.company_client_count({ count: clients.length })}
-            </span>
-            <Button
-              type='button'
-              size='sm'
-              className='h-9 shrink-0 gap-1.5 rounded-xl px-4 text-xs font-bold shadow-xs'
-              asChild
+
+          <div>
+            <FieldLabel htmlFor='project-usage' className='text-xs font-semibold text-foreground'>
+              Project Usage
+            </FieldLabel>
+            <Select
+              value={projectUsage}
+              onValueChange={(val) => setProjectUsage(val as 'ALL' | 'USED' | 'UNUSED')}
             >
-              <Link to='/company/client/new'>
-                <IconPlus size={15} />
-                {m.company_client_add()}
-              </Link>
-            </Button>
+              <SelectTrigger id='project-usage' className='mt-1.5 h-10 text-xs'>
+                <SelectValue placeholder='All clients' />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value='ALL'>All clients</SelectItem>
+                <SelectItem value='USED'>Used in projects</SelectItem>
+                <SelectItem value='UNUSED'>Not used in projects</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
-        <div className='overflow-hidden rounded-2xl border border-border/60 bg-card shadow-sm'>
-          <div className='border-b border-border/60 p-5'>
-            <h3 className='text-sm font-bold text-foreground'>{m.company_client_table_client()}</h3>
+        {/* Card with Table */}
+        <div className='overflow-hidden rounded-2xl border border-border/70 bg-card p-6 shadow-xs'>
+          {/* Card Header */}
+          <div className='mb-4'>
+            <h3 className='text-base font-bold text-foreground'>
+              Clients · {filteredClients.length}
+            </h3>
             <p className='mt-0.5 text-xs text-muted-foreground'>
-              {m.company_client_form_description()}
+              Client master data is used by the Client field when creating or editing a project.
             </p>
           </div>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className='w-12 text-center'>No</TableHead>
-                <TableHead>{m.company_client_table_client()}</TableHead>
-                <TableHead>{m.company_client_table_contact()}</TableHead>
-                <TableHead>{m.company_client_table_address()}</TableHead>
-                <TableHead className='text-center'>{m.company_client_table_status()}</TableHead>
-                <TableHead className='text-right'>{m.company_client_table_action()}</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {clients.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={6} className='h-32 text-center text-sm text-muted-foreground'>
-                    {m.company_client_empty()}
-                  </TableCell>
+
+          {/* Table */}
+          <div className='overflow-x-auto'>
+            <Table>
+              <TableHeader>
+                <TableRow className='hover:bg-transparent'>
+                  <TableHead className='font-semibold text-xs text-foreground'>Client Code</TableHead>
+                  <TableHead className='font-semibold text-xs text-foreground'>Client Name</TableHead>
+                  <TableHead className='font-semibold text-xs text-foreground'>PIC Name</TableHead>
+                  <TableHead className='font-semibold text-xs text-foreground'>Email</TableHead>
+                  <TableHead className='font-semibold text-xs text-foreground'>Phone</TableHead>
+                  <TableHead className='font-semibold text-xs text-foreground'>Projects</TableHead>
+                  <TableHead className='font-semibold text-xs text-foreground'>Action</TableHead>
                 </TableRow>
-              ) : (
-                clients.map((client, index) => (
-                  <TableRow key={client.id} className='transition-colors hover:bg-muted/30'>
-                    <TableCell className='text-center text-xs font-semibold text-muted-foreground'>
-                      {index + 1}
-                    </TableCell>
-                    <TableCell>
-                      <Link
-                        to='/company/client/$id'
-                        params={{ id: client.id }}
-                        className='flex items-center gap-3 hover:text-primary'
-                      >
-                        <div className='flex size-9 items-center justify-center rounded-md bg-primary/10 text-primary'>
-                          <IconBuildingCommunity className='size-4' />
-                        </div>
-                        <div>
-                          <div className='font-semibold'>{client.name}</div>
-                          <div className='font-mono text-xs text-muted-foreground'>
-                            {client.code}
-                          </div>
-                        </div>
-                      </Link>
-                    </TableCell>
-                    <TableCell>
-                      <div className='flex flex-col gap-1 text-sm'>
-                        <div className='flex items-center gap-2'>
-                          <IconUser className='size-3.5 text-muted-foreground' />
-                          {client.contactPersonName || '-'}
-                        </div>
-                        <div className='flex items-center gap-2 text-muted-foreground'>
-                          <IconMail className='size-3.5' />
-                          {client.contactPersonEmail || '-'}
-                        </div>
-                        <div className='flex items-center gap-2 text-muted-foreground'>
-                          <IconPhone className='size-3.5' />
-                          {client.contactPersonPhone || '-'}
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell className='max-w-sm'>
-                      <div className='flex items-start gap-2 text-sm text-muted-foreground'>
-                        <IconMapPin className='mt-0.5 size-3.5 shrink-0' />
-                        <span className='line-clamp-2'>{client.address || '-'}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell className='text-center'>
-                      <Badge variant={client.isActive ? 'green' : 'slate'}>
-                        {client.isActive ? m.company_status_active() : m.company_status_inactive()}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className='text-right'>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant='ghost' size='icon-sm'>
-                            <IconDotsVertical className='size-4' />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align='end'>
-                          <DropdownMenuItem asChild>
-                            <Link to='/company/client/$id' params={{ id: client.id }}>
-                              <IconEye className='size-4' />
-                              {m.company_action_detail()}
-                            </Link>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem asChild>
-                            <Link to='/company/client/$id/update' params={{ id: client.id }}>
-                              <IconEdit className='size-4' />
-                              {m.company_action_edit()}
-                            </Link>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            className='text-destructive focus:text-destructive'
-                            onClick={() => setDeleteTarget(client)}
-                          >
-                            <IconTrash className='size-4' />
-                            {m.company_action_delete()}
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+              </TableHeader>
+              <TableBody>
+                {filteredClients.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={7} className='h-32 text-center text-xs text-muted-foreground'>
+                      No clients found.
                     </TableCell>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+                ) : (
+                  filteredClients.map((client) => {
+                    const count = clientProjectCounts.get(client.id) ?? 0
+                    return (
+                      <TableRow key={client.id} className='transition-colors hover:bg-muted/30'>
+                        <TableCell className='font-mono text-xs font-medium text-foreground'>
+                          {client.code}
+                        </TableCell>
+                        <TableCell className='text-xs font-semibold text-foreground'>
+                          {client.name}
+                        </TableCell>
+                        <TableCell className='text-xs text-foreground'>
+                          {client.contactPersonName || '-'}
+                        </TableCell>
+                        <TableCell className='text-xs text-foreground'>
+                          {client.contactPersonEmail || '-'}
+                        </TableCell>
+                        <TableCell className='text-xs text-foreground'>
+                          {client.contactPersonPhone || '-'}
+                        </TableCell>
+                        <TableCell className='text-xs text-foreground'>
+                          {count} {count === 1 ? 'project' : 'projects'}
+                        </TableCell>
+                        <TableCell className='text-xs'>
+                          <div className='flex items-center gap-3'>
+                            <button
+                              type='button'
+                              onClick={() => openEditModal(client)}
+                              className='font-medium text-blue-600 hover:text-blue-700 hover:underline'
+                            >
+                              Edit
+                            </button>
+                            <button
+                              type='button'
+                              onClick={() => setDeleteTarget(client)}
+                              className='font-medium text-red-600 hover:text-red-700 hover:underline'
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    )
+                  })
+                )}
+              </TableBody>
+            </Table>
+          </div>
+
+          {/* Pagination Row */}
+          <div className='mt-5 flex flex-wrap items-center justify-between gap-3 text-xs text-muted-foreground'>
+            <span>
+              Showing {filteredClients.length > 0 ? 1 : 0}–{filteredClients.length} of {filteredClients.length} clients
+            </span>
+            <div className='flex items-center gap-3'>
+              <button
+                type='button'
+                disabled
+                className='cursor-not-allowed opacity-50 hover:text-foreground'
+              >
+                ‹ Previous
+              </button>
+              <span className='font-semibold text-foreground'>1</span>
+              <button
+                type='button'
+                disabled
+                className='cursor-not-allowed opacity-50 hover:text-foreground'
+              >
+                Next ›
+              </button>
+            </div>
+          </div>
+
+          {/* Project Integration Callout */}
+          <div className='mt-6 rounded-xl border border-blue-100 bg-blue-50/70 p-4 dark:border-blue-900/40 dark:bg-blue-950/25'>
+            <p className='text-xs font-bold text-blue-600 dark:text-blue-400'>
+              Project integration
+            </p>
+            <p className='mt-0.5 text-xs text-muted-foreground'>
+              The Project &gt; Client field should load its options from this Client master data.
+            </p>
+          </div>
         </div>
       </div>
 
-      <Dialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
-        <DialogContent>
+      {/* Add Client Dialog */}
+      <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
+        <DialogContent className='sm:max-w-xl p-6'>
           <DialogHeader>
-            <DialogTitle>{m.company_client_delete_title()}</DialogTitle>
-            <DialogDescription>{m.company_client_delete_description()}</DialogDescription>
+            <DialogTitle className='text-lg font-bold text-foreground'>Add Client</DialogTitle>
+            <DialogDescription className='text-xs text-muted-foreground'>
+              Add a client that can be selected in projects.
+            </DialogDescription>
           </DialogHeader>
-          <DialogFooter>
-            <Button variant='outline' onClick={() => setDeleteTarget(null)}>
-              {m.company_action_cancel()}
+
+          <div className='flex flex-col gap-4 py-2'>
+            <div className='grid gap-4 sm:grid-cols-2'>
+              <div>
+                <FieldLabel className='text-xs font-semibold text-foreground'>
+                  Client Name *
+                </FieldLabel>
+                <Input
+                  value={addForm.name}
+                  onChange={(e) => setAddForm({ ...addForm, name: e.target.value })}
+                  placeholder='Enter client name'
+                  className='mt-1.5 h-10 text-xs'
+                />
+              </div>
+              <div>
+                <FieldLabel className='text-xs font-semibold text-foreground'>
+                  Client Code *
+                </FieldLabel>
+                <Input
+                  value={addForm.code}
+                  onChange={(e) => setAddForm({ ...addForm, code: e.target.value })}
+                  placeholder='Enter client code'
+                  className='mt-1.5 h-10 text-xs'
+                />
+              </div>
+            </div>
+
+            <div className='grid gap-4 sm:grid-cols-2'>
+              <div>
+                <FieldLabel className='text-xs font-semibold text-foreground'>
+                  PIC Name *
+                </FieldLabel>
+                <Input
+                  value={addForm.contactPersonName}
+                  onChange={(e) => setAddForm({ ...addForm, contactPersonName: e.target.value })}
+                  placeholder='Enter contact person'
+                  className='mt-1.5 h-10 text-xs'
+                />
+              </div>
+              <div>
+                <FieldLabel className='text-xs font-semibold text-foreground'>
+                  Email *
+                </FieldLabel>
+                <Input
+                  type='email'
+                  value={addForm.contactPersonEmail}
+                  onChange={(e) => setAddForm({ ...addForm, contactPersonEmail: e.target.value })}
+                  placeholder='name@company.com'
+                  className='mt-1.5 h-10 text-xs'
+                />
+              </div>
+            </div>
+
+            <div className='grid gap-4 sm:grid-cols-2'>
+              <div>
+                <FieldLabel className='text-xs font-semibold text-foreground'>
+                  Phone *
+                </FieldLabel>
+                <Input
+                  value={addForm.contactPersonPhone}
+                  onChange={(e) => setAddForm({ ...addForm, contactPersonPhone: e.target.value })}
+                  placeholder='+62 ...'
+                  className='mt-1.5 h-10 text-xs'
+                />
+              </div>
+              <div>
+                <FieldLabel className='text-xs font-semibold text-foreground'>
+                  Address *
+                </FieldLabel>
+                <Input
+                  value={addForm.address}
+                  onChange={(e) => setAddForm({ ...addForm, address: e.target.value })}
+                  placeholder='Enter client address'
+                  className='mt-1.5 h-10 text-xs'
+                />
+              </div>
+            </div>
+
+            {/* Callout notice */}
+            <div className='rounded-xl border border-border/60 bg-muted/30 p-4'>
+              <p className='text-xs font-semibold text-foreground'>Used by Project</p>
+              <p className='mt-0.5 text-xs text-muted-foreground'>
+                Saved clients become options in the Client field when creating or editing a project.
+              </p>
+            </div>
+          </div>
+
+          <DialogFooter className='gap-2 sm:gap-0'>
+            <Button
+              type='button'
+              variant='outline'
+              onClick={() => setIsAddOpen(false)}
+              className='h-9 rounded-lg text-xs'
+            >
+              Cancel
             </Button>
-            <Button variant='destructive' onClick={handleDelete}>
-              {m.company_action_delete()}
+            <Button
+              type='button'
+              onClick={handleSaveNewClient}
+              className='h-9 rounded-lg bg-blue-600 px-4 text-xs font-semibold text-white shadow-xs hover:bg-blue-700'
+            >
+              Save Client
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Client Dialog */}
+      <Dialog open={!!editingClient} onOpenChange={(open) => !open && setEditingClient(null)}>
+        <DialogContent className='sm:max-w-xl p-6'>
+          <DialogHeader>
+            <DialogTitle className='text-lg font-bold text-foreground'>Edit Client</DialogTitle>
+            <DialogDescription className='text-xs text-muted-foreground'>
+              Update client information used by projects.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className='flex flex-col gap-4 py-2'>
+            <div className='grid gap-4 sm:grid-cols-2'>
+              <div>
+                <FieldLabel className='text-xs font-semibold text-foreground'>
+                  Client Name *
+                </FieldLabel>
+                <Input
+                  value={editForm.name}
+                  onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                  placeholder='Client Name'
+                  className='mt-1.5 h-10 text-xs'
+                />
+              </div>
+              <div>
+                <FieldLabel className='text-xs font-semibold text-foreground'>
+                  Client Code *
+                </FieldLabel>
+                <Input
+                  value={editForm.code}
+                  onChange={(e) => setEditForm({ ...editForm, code: e.target.value })}
+                  placeholder='Client Code'
+                  className='mt-1.5 h-10 text-xs'
+                />
+              </div>
+            </div>
+
+            <div className='grid gap-4 sm:grid-cols-2'>
+              <div>
+                <FieldLabel className='text-xs font-semibold text-foreground'>
+                  PIC Name *
+                </FieldLabel>
+                <Input
+                  value={editForm.contactPersonName}
+                  onChange={(e) => setEditForm({ ...editForm, contactPersonName: e.target.value })}
+                  placeholder='PIC Name'
+                  className='mt-1.5 h-10 text-xs'
+                />
+              </div>
+              <div>
+                <FieldLabel className='text-xs font-semibold text-foreground'>
+                  Email *
+                </FieldLabel>
+                <Input
+                  type='email'
+                  value={editForm.contactPersonEmail}
+                  onChange={(e) => setEditForm({ ...editForm, contactPersonEmail: e.target.value })}
+                  placeholder='Email'
+                  className='mt-1.5 h-10 text-xs'
+                />
+              </div>
+            </div>
+
+            <div className='grid gap-4 sm:grid-cols-2'>
+              <div>
+                <FieldLabel className='text-xs font-semibold text-foreground'>
+                  Phone *
+                </FieldLabel>
+                <Input
+                  value={editForm.contactPersonPhone}
+                  onChange={(e) => setEditForm({ ...editForm, contactPersonPhone: e.target.value })}
+                  placeholder='Phone'
+                  className='mt-1.5 h-10 text-xs'
+                />
+              </div>
+              <div>
+                <FieldLabel className='text-xs font-semibold text-foreground'>
+                  Address *
+                </FieldLabel>
+                <Input
+                  value={editForm.address}
+                  onChange={(e) => setEditForm({ ...editForm, address: e.target.value })}
+                  placeholder='Address'
+                  className='mt-1.5 h-10 text-xs'
+                />
+              </div>
+            </div>
+
+            {/* Callout notice */}
+            <div className='rounded-xl border border-border/60 bg-muted/30 p-4'>
+              <p className='text-xs font-semibold text-foreground'>Client reference</p>
+              <p className='mt-0.5 text-xs text-muted-foreground'>
+                Changes will be reflected in the Client field used when creating or editing projects.
+              </p>
+            </div>
+          </div>
+
+          <DialogFooter className='gap-2 sm:gap-0'>
+            <Button
+              type='button'
+              variant='outline'
+              onClick={() => setEditingClient(null)}
+              className='h-9 rounded-lg text-xs'
+            >
+              Cancel
+            </Button>
+            <Button
+              type='button'
+              onClick={handleSaveEditClient}
+              className='h-9 rounded-lg bg-blue-600 px-4 text-xs font-semibold text-white shadow-xs hover:bg-blue-700'
+            >
+              Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Client Dialog */}
+      <Dialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+        <DialogContent className='sm:max-w-md p-6'>
+          <DialogHeader>
+            <DialogTitle className='text-lg font-bold text-foreground'>Delete Client</DialogTitle>
+            <DialogDescription className='text-xs text-muted-foreground'>
+              This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className='py-2'>
+            <div className='rounded-xl border border-red-200/80 bg-red-50/70 p-4 dark:border-red-900/50 dark:bg-red-950/30'>
+              <p className='text-sm font-semibold text-red-600 dark:text-red-400'>
+                {deleteTarget?.name}
+              </p>
+              <p className='mt-1 text-xs text-red-600/90 dark:text-red-400/90'>
+                This client will no longer be available in the Project &gt; Client field.
+              </p>
+            </div>
+            <p className='mt-4 text-xs text-muted-foreground'>
+              Review projects that reference this client before deleting it.
+            </p>
+          </div>
+
+          <DialogFooter className='gap-2 sm:gap-0'>
+            <Button
+              type='button'
+              variant='outline'
+              onClick={() => setDeleteTarget(null)}
+              className='h-9 rounded-lg text-xs'
+            >
+              Cancel
+            </Button>
+            <Button
+              type='button'
+              onClick={handleConfirmDelete}
+              className='h-9 rounded-lg bg-red-600 px-4 text-xs font-semibold text-white shadow-xs hover:bg-red-700'
+            >
+              Delete Client
             </Button>
           </DialogFooter>
         </DialogContent>

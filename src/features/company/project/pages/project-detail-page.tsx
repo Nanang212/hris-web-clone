@@ -1,4 +1,4 @@
-import { IconCalendar, IconMapPin } from '@tabler/icons-react'
+import { IconCalendar, IconMapPin, IconUsers } from '@tabler/icons-react'
 import dayjs from 'dayjs'
 
 import { AppMain } from '@/shared/components/app-layout/app-main'
@@ -6,6 +6,7 @@ import { Badge } from '@/shared/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card'
 import { Map, MapControls, MapMarker, MarkerContent } from '@/shared/components/ui/map'
 import { dummyClients } from '@/features/company/client/data/dummy-clients'
+import { useGetEmployees } from '@/features/employment/employee/hooks'
 import { m } from '@/i18n/paraglide/messages'
 
 import { useProjects } from '../data/dummy-projects'
@@ -16,6 +17,7 @@ interface ProjectDetailPageProps {
 
 export function ProjectDetailPage({ projectId }: Readonly<ProjectDetailPageProps>) {
   const projects = useProjects()
+  const { data: employeesResult } = useGetEmployees({})
   const project = projects.find((item) => item.id === projectId)
   const client = dummyClients.find((item) => item.id === project?.clientId)
 
@@ -28,6 +30,11 @@ export function ProjectDetailPage({ projectId }: Readonly<ProjectDetailPageProps
     COMPLETED: m.company_project_status_completed(),
     CANCELLED: m.company_project_status_cancelled(),
   }[project.status]
+
+  const allEmployees = employeesResult?.items ?? []
+  const assignedEmployees = (project.employeeIds ?? [])
+    .map((empId) => allEmployees.find((e) => e.id === empId))
+    .filter(Boolean) as typeof allEmployees
 
   return (
     <AppMain
@@ -78,6 +85,50 @@ export function ProjectDetailPage({ projectId }: Readonly<ProjectDetailPageProps
             </dl>
           </CardContent>
         </Card>
+
+        {/* Assigned Employees Card */}
+        <Card>
+          <CardHeader className='border-b'>
+            <div className='flex items-center justify-between gap-3'>
+              <div className='flex items-center gap-2'>
+                <IconUsers className='size-4 text-blue-600' />
+                <CardTitle className='text-base'>{m.company_project_assign_employee()}</CardTitle>
+              </div>
+              <Badge variant='secondary'>{assignedEmployees.length} Orang</Badge>
+            </div>
+          </CardHeader>
+          <CardContent className='pt-4'>
+            {assignedEmployees.length === 0 ? (
+              <p className='text-xs text-muted-foreground italic py-6 text-center'>
+                Belum ada karyawan yang ditugaskan pada proyek ini.
+              </p>
+            ) : (
+              <div className='flex flex-col gap-2.5 max-h-72 overflow-y-auto pr-1'>
+                {assignedEmployees.map((emp) => (
+                  <div
+                    key={emp.id}
+                    className='flex items-center gap-3 rounded-xl border border-border/60 bg-muted/10 p-2.5'
+                  >
+                    <div className='flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary overflow-hidden border border-border/40'>
+                      {emp.photo ? (
+                        <img src={emp.photo} alt={emp.fullName} className='size-full object-cover' />
+                      ) : (
+                        emp.fullName.slice(0, 2).toUpperCase()
+                      )}
+                    </div>
+                    <div className='min-w-0 flex-1'>
+                      <p className='truncate text-xs font-semibold text-foreground'>{emp.fullName}</p>
+                      <p className='truncate text-[11px] text-muted-foreground'>
+                        {emp.employeeCode} • {emp.positionName || emp.departmentName}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
         <Card className='xl:col-span-2'>
           <CardHeader className='border-b'>
             <CardTitle className='text-base'>{m.company_project_table_location()}</CardTitle>
