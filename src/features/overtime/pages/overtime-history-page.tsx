@@ -20,6 +20,11 @@ export function OvertimeHistoryPage() {
     <AppMain
       title={m.overtime_history_title()}
       subtitle={m.overtime_history_subtitle()}
+      breadcrumbs={[
+        { label: m.app_layout_nav_time_management() },
+        { to: '/overtime', label: m.app_layout_nav_overtime() },
+        { label: m.overtime_tab_history() },
+      ]}
       className='gap-5 bg-muted/30'
     >
       <OvertimeTabs active='history' />
@@ -28,8 +33,8 @@ export function OvertimeHistoryPage() {
           <h3 className='font-semibold'>{m.overtime_history_list()}</h3>
           <p className='mt-1 text-xs text-muted-foreground'>{m.overtime_history_subtitle()}</p>
         </div>
-        <CardContent className='p-0'>
-          <Table>
+        <CardContent className='overflow-x-auto p-0'>
+          <Table className='min-w-[720px]'>
             <TableHeader className='bg-muted/40'>
               <TableRow>
                 <TableHead>{m.overtime_table_employee()}</TableHead>

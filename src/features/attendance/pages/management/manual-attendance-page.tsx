@@ -3,6 +3,7 @@ import { IconAlertTriangle, IconPlus } from '@tabler/icons-react'
 import { AppMain } from '@/shared/components/app-layout/app-main'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
+import { getAttendanceBreadcrumbs } from '@/features/attendance/components/attendance-breadcrumbs'
 import { AttendanceTabs } from '@/features/attendance/components/attendance-tabs'
 
 const fields = [
@@ -21,6 +22,8 @@ export function ManualAttendancePage() {
     <AppMain
       title='Manual Attendance'
       subtitle='HR dapat menambahkan atau memperbaiki attendance dengan audit trail.'
+      breadcrumbs={getAttendanceBreadcrumbs('Manual Attendance')}
+      backTo='/attendance/management'
       className='gap-5 bg-muted/30'
     >
       <AttendanceTabs active='management' />
@@ -45,9 +48,10 @@ export function ManualAttendancePage() {
           </div>
           <div className='mt-7 text-xs font-medium text-muted-foreground'>
             Supporting Evidence
-            <button
+            <Button
               type='button'
-              className='mt-2 flex w-full items-center gap-3 rounded-xl border border-dashed bg-muted/30 p-5 text-left text-foreground'
+              variant='outline'
+              className='mt-2 flex h-auto w-full items-center justify-start gap-3 rounded-xl border-dashed bg-muted/30 p-5 text-left text-foreground'
             >
               <span className='rounded-lg bg-blue-50 p-2 text-primary'>
                 <IconPlus />
@@ -56,7 +60,7 @@ export function ManualAttendancePage() {
                 <b className='block'>Upload bukti pendukung</b>
                 <span className='text-muted-foreground'>PDF, JPG, PNG • max 5 MB</span>
               </span>
-            </button>
+            </Button>
           </div>
           <div className='mt-4 flex items-center gap-3 rounded-xl bg-orange-50 p-4 text-xs text-orange-600'>
             <IconAlertTriangle className='size-5 shrink-0' />

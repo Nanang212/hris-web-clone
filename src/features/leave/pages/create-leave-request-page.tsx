@@ -54,6 +54,13 @@ export function CreateLeaveRequestPage() {
     <AppMain
       title={m.leave_create_title()}
       subtitle={m.leave_create_subtitle()}
+      breadcrumbs={[
+        { label: m.app_layout_nav_time_management() },
+        { to: '/leave', label: m.app_layout_nav_leave() },
+        { to: '/leave/requests', label: m.leave_tab_requests() },
+        { label: m.leave_create_title() },
+      ]}
+      backTo='/leave/requests'
       className='gap-5 bg-muted/30'
     >
       <LeaveTabs active='requests' />

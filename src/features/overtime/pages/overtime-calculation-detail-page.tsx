@@ -14,6 +14,13 @@ export function OvertimeCalculationDetailPage() {
     <AppMain
       title={m.overtime_calculation_detail_title()}
       subtitle={m.overtime_calculation_detail_subtitle()}
+      breadcrumbs={[
+        { label: m.app_layout_nav_time_management() },
+        { to: '/overtime', label: m.app_layout_nav_overtime() },
+        { to: '/overtime/calculation', label: m.overtime_tab_calculation() },
+        { label: m.overtime_calculation_detail_title() },
+      ]}
+      backTo='/overtime/calculation'
       className='gap-5 bg-muted/30'
     >
       <OvertimeTabs active='calculation' />

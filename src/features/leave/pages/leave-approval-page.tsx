@@ -1,6 +1,14 @@
+import {
+  IconAlertTriangle,
+  IconCircleCheck,
+  IconCircleX,
+  IconClockHour4,
+} from '@tabler/icons-react'
 import { Link } from '@tanstack/react-router'
 
 import { AppMain } from '@/shared/components/app-layout/app-main'
+import { Button } from '@/shared/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card'
 import {
   Table,
   TableBody,
@@ -9,8 +17,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/shared/components/ui/table'
-import { cn } from '@/shared/lib/utils'
 import { useApprovalSyncStore } from '@/shared/lib/approval-sync-store'
+import { cn } from '@/shared/lib/utils'
 import { LeaveTabs } from '@/features/leave/components/leave-tabs'
 import { formatLeavePeriod, getLeaveTypeLabel } from '@/features/leave/components/leave-utils'
 import { m } from '@/i18n/paraglide/messages'
@@ -27,51 +35,62 @@ export function LeaveApprovalPage() {
     <AppMain
       title={m.leave_approval_title()}
       subtitle={m.leave_approval_subtitle()}
+      breadcrumbs={[
+        { label: m.app_layout_nav_time_management() },
+        { to: '/leave', label: m.app_layout_nav_leave() },
+        { label: m.leave_tab_approval() },
+      ]}
       className='gap-5 bg-muted/30'
     >
       <LeaveTabs active='approval' />
       <div className='grid gap-3 sm:grid-cols-2 xl:grid-cols-4'>
         {[
-          [
-            m.leave_stat_pending(),
-            '11',
-            m.leave_stat_pending_detail(),
-            'bg-orange-50 text-orange-500',
-          ],
-          [
-            m.leave_stat_approved(),
-            '8',
-            m.leave_stat_on_leave_detail(),
-            'bg-emerald-50 text-emerald-600',
-          ],
-          [
-            m.leave_stat_rejected(),
-            '1',
-            m.leave_stat_on_leave_detail(),
-            'bg-rose-50 text-rose-500',
-          ],
-          [
-            m.leave_coverage_risk(),
-            '2',
-            m.leave_coverage_attention(),
-            'bg-violet-50 text-violet-600',
-          ],
-        ].map(([label, value, detail, tone]) => (
-          <section key={label} className='rounded-2xl border border-border bg-card p-4 shadow-sm'>
-            <span className={cn('inline-flex rounded-xl px-3 py-2 text-xs font-bold', tone)}>
-              {label.slice(0, 2)}
-            </span>
-            <p className='mt-3 text-xs text-muted-foreground'>{label}</p>
-            <p className='text-2xl font-bold'>{value}</p>
-            <p className='mt-2 text-xs text-muted-foreground'>{detail}</p>
-          </section>
+          {
+            label: m.leave_stat_pending(),
+            value: '11',
+            detail: m.leave_stat_pending_detail(),
+            tone: 'bg-orange-500/10 text-orange-600 dark:text-orange-400',
+            icon: IconClockHour4,
+          },
+          {
+            label: m.leave_stat_approved(),
+            value: '8',
+            detail: m.leave_stat_on_leave_detail(),
+            tone: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
+            icon: IconCircleCheck,
+          },
+          {
+            label: m.leave_stat_rejected(),
+            value: '1',
+            detail: m.leave_stat_on_leave_detail(),
+            tone: 'bg-rose-500/10 text-rose-600 dark:text-rose-400',
+            icon: IconCircleX,
+          },
+          {
+            label: m.leave_coverage_risk(),
+            value: '2',
+            detail: m.leave_coverage_attention(),
+            tone: 'bg-violet-500/10 text-violet-600 dark:text-violet-400',
+            icon: IconAlertTriangle,
+          },
+        ].map(({ label, value, detail, tone, icon: Icon }) => (
+          <Card key={label}>
+            <CardContent className='p-4'>
+              <span className={cn('inline-flex rounded-xl p-2.5', tone)} aria-hidden='true'>
+                <Icon className='size-5' />
+              </span>
+              <p className='mt-3 text-xs text-muted-foreground'>{label}</p>
+              <p className='text-2xl font-bold'>{value}</p>
+              <p className='mt-2 text-xs text-muted-foreground'>{detail}</p>
+            </CardContent>
+          </Card>
         ))}
       </div>
-      <section className='overflow-hidden rounded-2xl border border-border bg-card shadow-sm'>
-        <div className='p-4'>
-          <h3 className='font-semibold'>{m.leave_approval_queue_title()}</h3>
+      <Card className='min-w-0 overflow-hidden'>
+        <CardHeader className='p-4'>
+          <CardTitle>{m.leave_approval_queue_title()}</CardTitle>
           <p className='mt-1 text-xs text-muted-foreground'>{m.leave_approval_queue_subtitle()}</p>
-        </div>
+        </CardHeader>
         <div className='w-full overflow-x-auto pb-1'>
           <Table className='min-w-[900px]'>
             <TableHeader className='bg-muted/40'>
@@ -88,15 +107,23 @@ export function LeaveApprovalPage() {
             <TableBody>
               {pending.map((request) => (
                 <TableRow key={request.id}>
-                  <TableCell className='whitespace-nowrap font-medium'>{request.employee}</TableCell>
-                  <TableCell className='whitespace-nowrap'>{getLeaveTypeLabel(request.leaveType)}</TableCell>
-                  <TableCell className='whitespace-nowrap'>{formatLeavePeriod(request.startDate, request.endDate)}</TableCell>
-                  <TableCell className='whitespace-nowrap'>{m.leave_days({ count: request.duration })}</TableCell>
-                  <TableCell className='whitespace-nowrap font-mono'>12 → 9</TableCell>
+                  <TableCell className='font-medium whitespace-nowrap'>
+                    {request.employee}
+                  </TableCell>
+                  <TableCell className='whitespace-nowrap'>
+                    {getLeaveTypeLabel(request.leaveType)}
+                  </TableCell>
+                  <TableCell className='whitespace-nowrap'>
+                    {formatLeavePeriod(request.startDate, request.endDate)}
+                  </TableCell>
+                  <TableCell className='whitespace-nowrap'>
+                    {m.leave_days({ count: request.duration })}
+                  </TableCell>
+                  <TableCell className='font-mono whitespace-nowrap'>12 → 9</TableCell>
                   <TableCell className='whitespace-nowrap'>
                     <span
                       className={cn(
-                        'inline-flex items-center justify-center whitespace-nowrap rounded-full px-3 py-1 text-xs font-semibold',
+                        'inline-flex items-center justify-center rounded-full px-3 py-1 text-xs font-semibold whitespace-nowrap',
                         request.coverage === 'safe' && 'bg-emerald-50 text-emerald-600',
                         request.coverage === 'review' && 'bg-orange-50 text-orange-600',
                         request.coverage === 'conflict' && 'bg-rose-50 text-rose-500',
@@ -106,20 +133,18 @@ export function LeaveApprovalPage() {
                     </span>
                   </TableCell>
                   <TableCell className='whitespace-nowrap'>
-                    <Link
-                      to='/leave/approval/$requestId'
-                      params={{ requestId: request.id }}
-                      className='text-xs font-medium text-primary hover:underline'
-                    >
-                      {m.leave_approval_review()}
-                    </Link>
+                    <Button variant='link' size='sm' asChild>
+                      <Link to='/leave/approval/$requestId' params={{ requestId: request.id }}>
+                        {m.leave_approval_review()}
+                      </Link>
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         </div>
-      </section>
+      </Card>
     </AppMain>
   )
 }

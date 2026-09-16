@@ -1,12 +1,10 @@
-import { createFileRoute } from '@tanstack/react-router'
-
-import { ProjectDetailPage } from '@/features/company/project/pages/project-detail-page'
+import { createFileRoute, Outlet } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/(app)/company/project/$id')({
   component: RouteComponent,
 })
 
 function RouteComponent() {
-  const { id } = Route.useParams()
-  return <ProjectDetailPage projectId={id} />
+  return <Outlet />
 }
+

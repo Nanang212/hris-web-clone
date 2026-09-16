@@ -268,6 +268,11 @@ export const mainMenu: Menu[] = [
         to: '/settings/master-data',
       },
       {
+        key: 'scheduler',
+        title: () => 'Work Schedule',
+        to: '/settings/scheduler',
+      },
+      {
         key: 'approval-workflow',
         title: m.app_layout_nav_approval_workflow,
         to: '/settings/approval-workflow',

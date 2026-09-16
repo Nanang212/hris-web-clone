@@ -1,11 +1,11 @@
 import { IconLoader2, IconLogout } from '@tabler/icons-react'
 import { Link, useNavigate } from '@tanstack/react-router'
 
-import { Button } from '@/shared/components/ui/button'
-import { snackbar } from '@/shared/lib/snackbar'
-import { cn } from '@/shared/lib/utils'
 import { useSignOut } from '@/features/auth/hooks'
 import { m } from '@/i18n/paraglide/messages'
+import { Button } from '@/shared/components/ui/button'
+import { snackbar } from '@/shared/lib/snackbar'
+import { cn, removeCookie } from '@/shared/lib/utils'
 
 export type SignOutPageProps = React.ComponentProps<'div'>
 
@@ -18,6 +18,7 @@ export function SignOutPage({ className, ...props }: SignOutPageProps) {
       { refreshToken: '' },
       {
         onSuccess: () => {
+          removeCookie('is_signed_in')
           snackbar.success(m.auth_signout_toast_success())
           navigate({ to: '/signin', replace: true })
         },

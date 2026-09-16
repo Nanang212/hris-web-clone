@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router'
 
-import { Button } from '@/shared/components/ui/button'
 import { m } from '@/i18n/paraglide/messages'
+import { Tabs, TabsList, TabsTrigger } from '@/shared/components/ui/tabs'
 
 interface AttendanceTabsProps {
   active:
@@ -31,23 +31,14 @@ export function AttendanceTabs({ active }: Readonly<AttendanceTabsProps>) {
   ]
 
   return (
-    <nav className='flex gap-2 overflow-x-auto pb-1' aria-label={m.attendance_navigation_label()}>
-      {tabs.map((tab) =>
-        tab.to ? (
-          <Button
-            key={tab.key}
-            size='sm'
-            variant={active === tab.key ? 'secondary' : 'outline'}
-            asChild
-          >
+    <Tabs value={active}>
+      <TabsList variant='segmented' aria-label={m.attendance_navigation_label()}>
+        {tabs.map((tab) => (
+          <TabsTrigger key={tab.key} value={tab.key} asChild>
             <Link to={tab.to}>{tab.label}</Link>
-          </Button>
-        ) : (
-          <Button key={tab.key} size='sm' variant='outline'>
-            {tab.label}
-          </Button>
-        ),
-      )}
-    </nav>
+          </TabsTrigger>
+        ))}
+      </TabsList>
+    </Tabs>
   )
 }

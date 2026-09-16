@@ -12,6 +12,9 @@ import { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import * as z from 'zod'
 
+import { AuthLayout } from '@/features/auth/components/auth-layout'
+import { useSignIn } from '@/features/auth/hooks'
+import { m } from '@/i18n/paraglide/messages'
 import { Alert, AlertDescription, AlertTitle } from '@/shared/components/ui/alert'
 import { Button } from '@/shared/components/ui/button'
 import { Checkbox } from '@/shared/components/ui/checkbox'
@@ -19,9 +22,7 @@ import { Field, FieldError, FieldGroup, FieldLabel } from '@/shared/components/u
 import { Input } from '@/shared/components/ui/input'
 import { useSchema } from '@/shared/lib/schema'
 import { snackbar } from '@/shared/lib/snackbar'
-import { AuthLayout } from '@/features/auth/components/auth-layout'
-import { useSignIn } from '@/features/auth/hooks'
-import { m } from '@/i18n/paraglide/messages'
+import { setCookie } from '@/shared/lib/utils'
 
 function SecureAccessNotice() {
   return (
@@ -61,6 +62,7 @@ function SignInForm() {
   const handleSignIn = (values: z.infer<typeof formSchema>) => {
     signIn(values, {
       onSuccess: () => {
+        setCookie('is_signed_in', 'true')
         snackbar.success(m.auth_signin_toast_success())
         navigate({ to: '/', replace: true })
       },
@@ -154,6 +156,19 @@ function SignInForm() {
           <Button type='submit' className='w-full' disabled={isPending}>
             {isPending && <IconLoader2 data-icon='inline-start' className='animate-spin' />}
             {m.auth_signin_submit_button()}
+          </Button>
+
+          <Button
+            type='button'
+            variant='outline'
+            className='w-full border-dashed text-xs text-muted-foreground hover:text-foreground'
+            onClick={() => {
+              bypassSignIn()
+              snackbar.success('Bypass login berhasil! Mengalihkan ke dashboard...')
+              void navigate({ to: '/', replace: true })
+            }}
+          >
+            Bypass Login (Direct to Dashboard)
           </Button>
         </FieldGroup>
       </form>

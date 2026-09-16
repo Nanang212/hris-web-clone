@@ -29,6 +29,11 @@ export function OvertimeCalculationPage() {
     <AppMain
       title={m.overtime_calculation_title()}
       subtitle={m.overtime_calculation_subtitle()}
+      breadcrumbs={[
+        { label: m.app_layout_nav_time_management() },
+        { to: '/overtime', label: m.app_layout_nav_overtime() },
+        { label: m.overtime_tab_calculation() },
+      ]}
       actions={
         <Button asChild>
           <Link to='/overtime/calculation/rules'>{m.overtime_configure_rules()}</Link>
@@ -120,8 +125,8 @@ export function OvertimeCalculationPage() {
             </p>
           </div>
         </div>
-        <CardContent className='p-0'>
-          <Table>
+        <CardContent className='overflow-x-auto p-0'>
+          <Table className='min-w-[820px]'>
             <TableHeader className='bg-muted/40'>
               <TableRow>
                 <TableHead>{m.overtime_table_employee()}</TableHead>

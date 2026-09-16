@@ -9,6 +9,7 @@ import {
 import { AppMain } from '@/shared/components/app-layout/app-main'
 import { Button } from '@/shared/components/ui/button'
 import { cn } from '@/shared/lib/utils'
+import { getAttendanceBreadcrumbs } from '@/features/attendance/components/attendance-breadcrumbs'
 import { AttendanceTabs } from '@/features/attendance/components/attendance-tabs'
 import { m } from '@/i18n/paraglide/messages'
 
@@ -55,6 +56,7 @@ export function ClockInOutPage() {
     <AppMain
       title={m.attendance_clock_title()}
       subtitle={m.attendance_clock_subtitle()}
+      breadcrumbs={getAttendanceBreadcrumbs(m.attendance_clock_title())}
       className='gap-5 bg-muted/30'
     >
       <AttendanceTabs active='clock' />

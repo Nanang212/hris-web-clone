@@ -8,7 +8,16 @@ import {
 import { useState } from 'react'
 
 import { AppMain } from '@/shared/components/app-layout/app-main'
+import { Badge } from '@/shared/components/ui/badge'
 import { Button } from '@/shared/components/ui/button'
+import { Card, CardContent } from '@/shared/components/ui/card'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/shared/components/ui/dialog'
 import {
   Select,
   SelectContent,
@@ -24,6 +33,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/shared/components/ui/table'
+import { getAttendanceBreadcrumbs } from '@/features/attendance/components/attendance-breadcrumbs'
 import { AttendanceTabs } from '@/features/attendance/components/attendance-tabs'
 import { m } from '@/i18n/paraglide/messages'
 
@@ -48,20 +58,31 @@ export function AttendanceHistoryPage() {
     late: [m.attendance_history_late(), 'bg-orange-50 text-orange-500'],
     missing: [m.attendance_history_missing_clock_out(), 'bg-rose-50 text-rose-600'],
   } as const
+  const displayRows = rows.map(([date, employee, clockIn, clockOut, duration, rowStatus]) => [
+    date,
+    employee,
+    'Regular',
+    clockIn,
+    clockOut,
+    duration,
+    rowStatus,
+  ])
+  const [selectedRow, setSelectedRow] = useState<string[] | null>(null)
 
   return (
     <AppMain
       title={m.attendance_history_title()}
       subtitle={m.attendance_history_subtitle()}
+      breadcrumbs={getAttendanceBreadcrumbs(m.attendance_history_title())}
       className='gap-5 bg-muted/30'
     >
       <AttendanceTabs active='history' />
       <div className='grid gap-3 sm:grid-cols-2 xl:grid-cols-4'>
         {stats.map(([Icon, value, label, color]) => (
-          <section
+          <Card
             key={label as string}
-            className='flex items-center gap-3 rounded-2xl border border-border bg-card p-4 shadow-sm'
           >
+            <CardContent className='flex items-center gap-3 p-4'>
             <span
               className={`flex size-10 items-center justify-center rounded-xl ${color as string}`}
             >
@@ -71,10 +92,12 @@ export function AttendanceHistoryPage() {
               <p className='text-2xl font-bold'>{value}</p>
               <p className='text-xs text-muted-foreground'>{label}</p>
             </div>
-          </section>
+            </CardContent>
+          </Card>
         ))}
       </div>
-      <section className='grid gap-3 rounded-2xl border border-border bg-card p-3 shadow-sm md:grid-cols-3 xl:grid-cols-[1.1fr_1.1fr_1fr_1fr_auto_auto]'>
+      <Card>
+        <CardContent className='grid gap-3 p-4 md:grid-cols-3 xl:grid-cols-[1.1fr_1.1fr_1fr_1fr_auto_auto] xl:items-end'>
         <Select value={scope} onValueChange={setScope}>
           <SelectTrigger className='w-full'>
             <SelectValue placeholder={m.attendance_history_scope()} />
@@ -117,9 +140,11 @@ export function AttendanceHistoryPage() {
           <IconDownload />
           {m.attendance_history_export()}
         </Button>
-      </section>
-      <section className='overflow-hidden rounded-2xl border border-border bg-card shadow-sm'>
-        <Table>
+        </CardContent>
+      </Card>
+      <Card className='min-w-0 overflow-hidden py-0'>
+        <CardContent className='overflow-x-auto px-0'>
+        <Table className='min-w-[860px]'>
           <TableHeader className='bg-muted/50'>
             <TableRow>
               {[
@@ -137,28 +162,34 @@ export function AttendanceHistoryPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {rows.map((row) => {
-              const item = status[row[5] as keyof typeof status]
+            {displayRows.map((row) => {
+              const item = status[row[6] as keyof typeof status]
               return (
                 <TableRow key={row[0]}>
-                  {row.slice(0, 5).map((cell) => (
+                  {row.slice(0, 6).map((cell) => (
                     <TableCell key={cell} className='text-xs'>
                       {cell}
                     </TableCell>
                   ))}
                   <TableCell>
-                    <span className={`rounded-full px-3 py-1 text-xs font-medium ${item[1]}`}>
+                    <Badge variant={row[6] === 'late' ? 'amber' : row[6] === 'missing' ? 'red' : 'green'}>
                       {item[0]}
-                    </span>
+                    </Badge>
                   </TableCell>
-                  <TableCell className='text-xs'>{m.attendance_history_view()}</TableCell>
+                  <TableCell>
+                    <Button size='sm' variant='ghost' onClick={() => setSelectedRow(row)}>
+                      {m.attendance_history_view()}
+                    </Button>
+                  </TableCell>
                 </TableRow>
               )
             })}
           </TableBody>
         </Table>
-      </section>
-      <section className='rounded-2xl border border-border bg-card p-4 shadow-sm'>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardContent className='p-4'>
         <h3 className='font-semibold'>{m.attendance_history_monthly_recap()}</h3>
         <div className='mt-4 grid gap-3 sm:grid-cols-5'>
           {[
@@ -174,7 +205,48 @@ export function AttendanceHistoryPage() {
             </div>
           ))}
         </div>
-      </section>
+        </CardContent>
+      </Card>
+      <Dialog open={!!selectedRow} onOpenChange={(open) => !open && setSelectedRow(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{m.attendance_history_view()}</DialogTitle>
+            <DialogDescription>
+              {selectedRow?.[1]} · {selectedRow?.[0]}
+            </DialogDescription>
+          </DialogHeader>
+          {selectedRow && (
+            <dl className='grid gap-3 rounded-xl border bg-muted/30 p-4 text-sm sm:grid-cols-2'>
+              <div>
+                <dt className='text-xs text-muted-foreground'>{m.attendance_table_date()}</dt>
+                <dd className='mt-1 font-medium'>{selectedRow[0]}</dd>
+              </div>
+              <div>
+                <dt className='text-xs text-muted-foreground'>{m.attendance_history_shift()}</dt>
+                <dd className='mt-1 font-medium'>{selectedRow[2]}</dd>
+              </div>
+              <div>
+                <dt className='text-xs text-muted-foreground'>{m.attendance_table_clock_in()}</dt>
+                <dd className='mt-1 font-medium'>{selectedRow[3]}</dd>
+              </div>
+              <div>
+                <dt className='text-xs text-muted-foreground'>{m.attendance_table_clock_out()}</dt>
+                <dd className='mt-1 font-medium'>{selectedRow[4]}</dd>
+              </div>
+              <div>
+                <dt className='text-xs text-muted-foreground'>{m.attendance_table_duration()}</dt>
+                <dd className='mt-1 font-medium'>{selectedRow[5]}</dd>
+              </div>
+              <div>
+                <dt className='text-xs text-muted-foreground'>{m.attendance_table_status()}</dt>
+                <dd className='mt-1 font-medium'>
+                  {status[selectedRow[6] as keyof typeof status][0]}
+                </dd>
+              </div>
+            </dl>
+          )}
+        </DialogContent>
+      </Dialog>
     </AppMain>
   )
 }
