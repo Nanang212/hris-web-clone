@@ -5,6 +5,7 @@ import { AppMain } from '@/shared/components/app-layout/app-main'
 import { Alert, AlertDescription, AlertIcon } from '@/shared/components/ui/alert'
 import { Badge } from '@/shared/components/ui/badge'
 import { Button } from '@/shared/components/ui/button'
+import { Card, CardContent } from '@/shared/components/ui/card'
 import {
   Dialog,
   DialogContent,
@@ -14,6 +15,14 @@ import {
   DialogTitle,
 } from '@/shared/components/ui/dialog'
 import { Input } from '@/shared/components/ui/input'
+import { Label } from '@/shared/components/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/shared/components/ui/select'
 import {
   Table,
   TableBody,
@@ -22,13 +31,13 @@ import {
   TableHeader,
   TableRow,
 } from '@/shared/components/ui/table'
-import { ShiftTabs } from '@/features/attendance/components/shift-tabs'
 import { getAttendanceBreadcrumbs } from '@/features/attendance/components/attendance-breadcrumbs'
+import { ShiftTabs } from '@/features/attendance/components/shift-tabs'
 
 const employees = [
-  ['Rama Aditya', 'Product', 'Regular', 'Regular', '16 May', 'Assigned'],
-  ['Sinta Maharani', 'Design', 'Regular', 'Morning', '20 May', 'Scheduled'],
-  ['Budi Setiawan', 'Engineering', 'Morning', 'Evening', '20 May', 'Scheduled'],
+  ['EMP-014 · Andi Pratama', 'BFP Operations', 'Regular', 'Morning', '01 Sep 2026', 'Assigned'],
+  ['EMP-021 · Rina Sari', 'BFP Operations', 'Regular', 'Evening', '01 Sep 2026', 'Scheduled'],
+  ['EMP-032 · Dodi Saputra', 'BFP Operations', 'Morning', 'Night', '02 Sep 2026', 'Scheduled'],
 ]
 export function ShiftAssignmentsPage() {
   const [modalOpen, setModalOpen] = useState(false)
@@ -41,13 +50,52 @@ export function ShiftAssignmentsPage() {
       className='gap-5 bg-muted/30'
     >
       <ShiftTabs active='assignments' />
-      <section className='grid gap-3 rounded-2xl border bg-card p-4 shadow-sm md:grid-cols-[1fr_1fr_1fr_auto_auto]'>
-        <Input className='bg-background' defaultValue='All Department' />
-        <Input className='bg-background' defaultValue='All Shift' />
-        <Input className='bg-background' defaultValue='16 May 2024' />
-        <Button variant='outline'>Filter</Button>
-        <Button onClick={() => setModalOpen(true)}>Bulk Assign Shift</Button>
-      </section>
+      <Card className='shadow-sm'>
+        <CardContent className='grid gap-4 p-4 md:grid-cols-[1fr_1fr_1fr_auto_auto] md:items-end'>
+          <div className='grid gap-1.5'>
+            <Label htmlFor='assignment-department' className='text-xs text-muted-foreground'>
+              Department / Project
+            </Label>
+            <Select defaultValue='bfp-operations'>
+              <SelectTrigger id='assignment-department'>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value='bfp-operations'>BFP Operations</SelectItem>
+                <SelectItem value='all-departments'>All departments</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className='grid gap-1.5'>
+            <Label htmlFor='assignment-shift' className='text-xs text-muted-foreground'>
+              Shift
+            </Label>
+            <Select defaultValue='all-shifts'>
+              <SelectTrigger id='assignment-shift'>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value='all-shifts'>All shifts</SelectItem>
+                <SelectItem value='morning'>Morning · 06:00–14:00</SelectItem>
+                <SelectItem value='evening'>Evening · 14:00–23:00</SelectItem>
+                <SelectItem value='night'>Night · 23:00–07:00</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className='grid gap-1.5'>
+            <Label htmlFor='assignment-effective-date' className='text-xs text-muted-foreground'>
+              Effective Date
+            </Label>
+            <Input
+              id='assignment-effective-date'
+              className='bg-background'
+              defaultValue='01 Sep 2026'
+            />
+          </div>
+          <Button variant='outline'>Filter</Button>
+          <Button onClick={() => setModalOpen(true)}>Bulk Assign Shift</Button>
+        </CardContent>
+      </Card>
       <div className='flex flex-wrap items-center gap-x-4 gap-y-2 rounded-xl border bg-primary/10 px-4 py-3 text-xs text-primary'>
         <span className='font-medium'>3 employees on this page selected</span>
         <Button type='button' variant='link' size='sm' className='h-auto px-0'>
@@ -58,7 +106,7 @@ export function ShiftAssignmentsPage() {
         </Button>
       </div>
       <section className='overflow-x-auto rounded-2xl border bg-card shadow-sm'>
-        <Table className='min-w-[760px]'>
+        <Table className='min-w-[860px]'>
           <TableHeader className='bg-muted/50'>
             <TableRow>
               {[
@@ -83,15 +131,17 @@ export function ShiftAssignmentsPage() {
                     className={index === 0 ? 'text-xs font-semibold' : 'text-xs'}
                   >
                     {index === 5 ? (
-                      <Badge variant='blue'>
-                        {cell}
-                      </Badge>
+                      <Badge variant={cell === 'Assigned' ? 'green' : 'blue'}>{cell}</Badge>
                     ) : (
                       cell
                     )}
                   </TableCell>
                 ))}
-                <TableCell className='text-xs'>Edit</TableCell>
+                <TableCell className='text-xs'>
+                  <Button variant='link' size='sm' className='px-0'>
+                    Edit
+                  </Button>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -133,28 +183,38 @@ export function ShiftAssignmentsPage() {
               <Badge variant='blue'>3 employees selected</Badge>
             </div>
             <div className='grid gap-4 sm:grid-cols-2'>
-              <label className='text-xs text-muted-foreground'>
-                New Shift
+              <div className='grid gap-1.5'>
+                <Label htmlFor='bulk-new-shift' className='text-xs text-muted-foreground'>
+                  New Shift
+                </Label>
+                <Select defaultValue='morning'>
+                  <SelectTrigger id='bulk-new-shift'>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value='morning'>Morning · 06:00–14:00</SelectItem>
+                    <SelectItem value='evening'>Evening · 14:00–23:00</SelectItem>
+                    <SelectItem value='night'>Night · 23:00–07:00</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className='grid gap-1.5'>
+                <Label htmlFor='bulk-effective-date' className='text-xs text-muted-foreground'>
+                  Effective Date
+                </Label>
                 <Input
-                  className='mt-2 bg-background'
-                  defaultValue='Morning • 07:00–16:00'
+                  id='bulk-effective-date'
+                  className='bg-background'
+                  defaultValue='01 Sep 2026'
                 />
-              </label>
-              <label className='text-xs text-muted-foreground'>
-                Effective Date
-                <Input
-                  className='mt-2 bg-background'
-                  defaultValue='20 May 2024'
-                />
-              </label>
+              </div>
             </div>
-            <label className='flex flex-col gap-2 text-xs text-muted-foreground'>
-              Reason
-              <Input
-                className='bg-background'
-                defaultValue='Team rotation'
-              />
-            </label>
+            <div className='grid gap-1.5'>
+              <Label htmlFor='bulk-reason' className='text-xs text-muted-foreground'>
+                Reason
+              </Label>
+              <Input id='bulk-reason' className='bg-background' defaultValue='Team rotation' />
+            </div>
             <h3 className='pt-1 text-xs font-semibold'>Selected Employees</h3>
             <div className='flex flex-col gap-2'>
               {employees.map(([name, dept]) => (
@@ -172,7 +232,7 @@ export function ShiftAssignmentsPage() {
                 <IconCircleCheck />
               </AlertIcon>
               <AlertDescription>
-              ● No shift conflicts detected for 3 selected employees
+                No shift conflicts detected for 3 selected employees
               </AlertDescription>
             </Alert>
             <DialogFooter className='flex-col-reverse gap-2 sm:flex-row'>

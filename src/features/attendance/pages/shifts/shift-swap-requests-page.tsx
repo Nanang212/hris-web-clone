@@ -1,5 +1,8 @@
+import { Link } from '@tanstack/react-router'
+
 import { AppMain } from '@/shared/components/app-layout/app-main'
 import { Badge } from '@/shared/components/ui/badge'
+import { Button } from '@/shared/components/ui/button'
 import {
   Table,
   TableBody,
@@ -8,8 +11,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/shared/components/ui/table'
-import { ShiftTabs } from '@/features/attendance/components/shift-tabs'
 import { getAttendanceBreadcrumbs } from '@/features/attendance/components/attendance-breadcrumbs'
+import { ShiftTabs } from '@/features/attendance/components/shift-tabs'
 
 const requests = [
   ['Rama Aditya', 'Budi Setiawan', 'Regular', 'Morning', '20 May'],
@@ -36,6 +39,7 @@ export function ShiftSwapRequestsPage() {
               {label}
             </Badge>
             <p className='text-2xl font-bold'>{value}</p>
+            <p className='mt-1 text-xs text-muted-foreground'>swap requests</p>
           </section>
         ))}
       </div>
@@ -69,16 +73,21 @@ export function ShiftSwapRequestsPage() {
                   </TableCell>
                 ))}
                 <TableCell>
-                  <Badge variant='green'>
-                    No
-                  </Badge>
+                  <Badge variant='green'>No</Badge>
                 </TableCell>
                 <TableCell>
-                  <Badge variant='amber'>
-                    Pending
-                  </Badge>
+                  <Badge variant='amber'>Pending</Badge>
                 </TableCell>
-                <TableCell className='text-xs font-medium'>Review</TableCell>
+                <TableCell>
+                  <Button asChild variant='link' size='sm' className='px-0'>
+                    <Link
+                      to='/attendance/management/shifts/swaps/$swapId'
+                      params={{ swapId: row[0] === 'Rama Aditya' ? '1' : '2' }}
+                    >
+                      Review
+                    </Link>
+                  </Button>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>

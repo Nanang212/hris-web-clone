@@ -19,7 +19,12 @@ import { Route as appApprovalIndexRouteImport } from './../../routes/(app)/appro
 import { Route as appAttendanceIndexRouteImport } from './../../routes/(app)/attendance/index'
 import { Route as appAttendanceAllMenuRouteImport } from './../../routes/(app)/attendance/all-menu'
 import { Route as appAttendanceClockInOutRouteImport } from './../../routes/(app)/attendance/clock-in-out'
+import { Route as appAttendanceClockInSuccessRouteImport } from './../../routes/(app)/attendance/clock-in-success'
+import { Route as appAttendanceClockOutRouteImport } from './../../routes/(app)/attendance/clock-out'
+import { Route as appAttendanceClockOutSuccessRouteImport } from './../../routes/(app)/attendance/clock-out-success'
 import { Route as appAttendanceFaceRecognitionRouteImport } from './../../routes/(app)/attendance/face-recognition'
+import { Route as appAttendanceFaceResetRouteImport } from './../../routes/(app)/attendance/face-reset'
+import { Route as appAttendanceFaceVerificationSettingsRouteImport } from './../../routes/(app)/attendance/face-verification-settings'
 import { Route as appAttendanceGpsSecurityRouteImport } from './../../routes/(app)/attendance/gps-security'
 import { Route as appAttendanceHistoryRouteImport } from './../../routes/(app)/attendance/history'
 import { Route as appAttendanceSettingsRouteImport } from './../../routes/(app)/attendance/settings'
@@ -43,9 +48,12 @@ import { Route as appAttendanceApprovalRequestIdRouteImport } from './../../rout
 import { Route as appAttendanceCalendarIndexRouteImport } from './../../routes/(app)/attendance/calendar/index'
 import { Route as appAttendanceCalendarHolidaysRouteImport } from './../../routes/(app)/attendance/calendar/holidays'
 import { Route as appAttendanceCalendarSettingsRouteImport } from './../../routes/(app)/attendance/calendar/settings'
+import { Route as appAttendanceFaceEnrollmentEmployeeIdRouteImport } from './../../routes/(app)/attendance/face-enrollment/$employeeId'
 import { Route as appAttendanceManagementIndexRouteImport } from './../../routes/(app)/attendance/management/index'
+import { Route as appAttendanceManagementLiveRouteImport } from './../../routes/(app)/attendance/management/live'
 import { Route as appAttendanceManagementManualRouteImport } from './../../routes/(app)/attendance/management/manual'
 import { Route as appAttendanceRequestsIndexRouteImport } from './../../routes/(app)/attendance/requests/index'
+import { Route as appAttendanceRequestsRequestIdRouteImport } from './../../routes/(app)/attendance/requests/$requestId'
 import { Route as appAttendanceRequestsNewRouteImport } from './../../routes/(app)/attendance/requests/new'
 import { Route as appCompanyClientIndexRouteImport } from './../../routes/(app)/company/client/index'
 import { Route as appCompanyClientIdRouteImport } from './../../routes/(app)/company/client/$id'
@@ -116,11 +124,13 @@ import { Route as appSettingsSecuritySessionRouteImport } from './../../routes/(
 import { Route as appTravelExpenseBusinessTripIndexRouteImport } from './../../routes/(app)/travel-expense/business-trip/index'
 import { Route as appTravelExpenseClaimIndexRouteImport } from './../../routes/(app)/travel-expense/claim/index'
 import { Route as appAttendanceApprovalRequestIdRejectRouteImport } from './../../routes/(app)/attendance/approval/$requestId/reject'
+import { Route as appAttendanceGpsSecurityEventsEventIdRouteImport } from './../../routes/(app)/attendance/gps-security/events/$eventId'
 import { Route as appAttendanceManagementExceptionsExceptionIdRouteImport } from './../../routes/(app)/attendance/management/exceptions/$exceptionId'
 import { Route as appAttendanceManagementShiftsIndexRouteImport } from './../../routes/(app)/attendance/management/shifts/index'
 import { Route as appAttendanceManagementShiftsAssignmentsRouteImport } from './../../routes/(app)/attendance/management/shifts/assignments'
 import { Route as appAttendanceManagementShiftsSetupRouteImport } from './../../routes/(app)/attendance/management/shifts/setup'
 import { Route as appAttendanceManagementShiftsSwapsRouteImport } from './../../routes/(app)/attendance/management/shifts/swaps'
+import { Route as appAttendanceManagementShiftsVsActualRouteImport } from './../../routes/(app)/attendance/management/shifts/vs-actual'
 import { Route as appCompanyClientIdUpdateRouteImport } from './../../routes/(app)/company/client/$id/update'
 import { Route as appCompanyProjectIdIndexRouteImport } from './../../routes/(app)/company/project/$id/index'
 import { Route as appCompanyProjectIdUpdateRouteImport } from './../../routes/(app)/company/project/$id/update'
@@ -138,6 +148,7 @@ import { Route as appSettingsSecurityDeviceChangeRequestsRouteImport } from './.
 import { Route as appSettingsSecurityDeviceRegisterRouteImport } from './../../routes/(app)/settings/security/device_.register'
 import { Route as appSettingsSecurityDeviceRegisteredDevicesRouteImport } from './../../routes/(app)/settings/security/device_.registered-devices'
 import { Route as appSettingsSecurityPasswordLockedAccountsRouteImport } from './../../routes/(app)/settings/security/password_.locked-accounts'
+import { Route as appAttendanceManagementShiftsSwapsSwapIdRouteImport } from './../../routes/(app)/attendance/management/shifts/swaps/$swapId'
 import { Route as appSettingsSchedulerIdErrorRunIdRouteImport } from './../../routes/(app)/settings/scheduler/$id.error.$runId'
 import { Route as appSettingsSchedulerIdExecutionRunIdRouteImport } from './../../routes/(app)/settings/scheduler/$id.execution.$runId'
 
@@ -190,10 +201,38 @@ const appAttendanceClockInOutRoute = appAttendanceClockInOutRouteImport.update({
   path: '/attendance/clock-in-out',
   getParentRoute: () => appRouteRoute,
 } as any)
+const appAttendanceClockInSuccessRoute =
+  appAttendanceClockInSuccessRouteImport.update({
+    id: '/attendance/clock-in-success',
+    path: '/attendance/clock-in-success',
+    getParentRoute: () => appRouteRoute,
+  } as any)
+const appAttendanceClockOutRoute = appAttendanceClockOutRouteImport.update({
+  id: '/attendance/clock-out',
+  path: '/attendance/clock-out',
+  getParentRoute: () => appRouteRoute,
+} as any)
+const appAttendanceClockOutSuccessRoute =
+  appAttendanceClockOutSuccessRouteImport.update({
+    id: '/attendance/clock-out-success',
+    path: '/attendance/clock-out-success',
+    getParentRoute: () => appRouteRoute,
+  } as any)
 const appAttendanceFaceRecognitionRoute =
   appAttendanceFaceRecognitionRouteImport.update({
     id: '/attendance/face-recognition',
     path: '/attendance/face-recognition',
+    getParentRoute: () => appRouteRoute,
+  } as any)
+const appAttendanceFaceResetRoute = appAttendanceFaceResetRouteImport.update({
+  id: '/attendance/face-reset',
+  path: '/attendance/face-reset',
+  getParentRoute: () => appRouteRoute,
+} as any)
+const appAttendanceFaceVerificationSettingsRoute =
+  appAttendanceFaceVerificationSettingsRouteImport.update({
+    id: '/attendance/face-verification-settings',
+    path: '/attendance/face-verification-settings',
     getParentRoute: () => appRouteRoute,
   } as any)
 const appAttendanceGpsSecurityRoute =
@@ -321,10 +360,22 @@ const appAttendanceCalendarSettingsRoute =
     path: '/attendance/calendar/settings',
     getParentRoute: () => appRouteRoute,
   } as any)
+const appAttendanceFaceEnrollmentEmployeeIdRoute =
+  appAttendanceFaceEnrollmentEmployeeIdRouteImport.update({
+    id: '/attendance/face-enrollment/$employeeId',
+    path: '/attendance/face-enrollment/$employeeId',
+    getParentRoute: () => appRouteRoute,
+  } as any)
 const appAttendanceManagementIndexRoute =
   appAttendanceManagementIndexRouteImport.update({
     id: '/attendance/management/',
     path: '/attendance/management/',
+    getParentRoute: () => appRouteRoute,
+  } as any)
+const appAttendanceManagementLiveRoute =
+  appAttendanceManagementLiveRouteImport.update({
+    id: '/attendance/management/live',
+    path: '/attendance/management/live',
     getParentRoute: () => appRouteRoute,
   } as any)
 const appAttendanceManagementManualRoute =
@@ -337,6 +388,12 @@ const appAttendanceRequestsIndexRoute =
   appAttendanceRequestsIndexRouteImport.update({
     id: '/attendance/requests/',
     path: '/attendance/requests/',
+    getParentRoute: () => appRouteRoute,
+  } as any)
+const appAttendanceRequestsRequestIdRoute =
+  appAttendanceRequestsRequestIdRouteImport.update({
+    id: '/attendance/requests/$requestId',
+    path: '/attendance/requests/$requestId',
     getParentRoute: () => appRouteRoute,
   } as any)
 const appAttendanceRequestsNewRoute =
@@ -744,6 +801,12 @@ const appAttendanceApprovalRequestIdRejectRoute =
     path: '/reject',
     getParentRoute: () => appAttendanceApprovalRequestIdRoute,
   } as any)
+const appAttendanceGpsSecurityEventsEventIdRoute =
+  appAttendanceGpsSecurityEventsEventIdRouteImport.update({
+    id: '/events/$eventId',
+    path: '/events/$eventId',
+    getParentRoute: () => appAttendanceGpsSecurityRoute,
+  } as any)
 const appAttendanceManagementExceptionsExceptionIdRoute =
   appAttendanceManagementExceptionsExceptionIdRouteImport.update({
     id: '/attendance/management/exceptions/$exceptionId',
@@ -772,6 +835,12 @@ const appAttendanceManagementShiftsSwapsRoute =
   appAttendanceManagementShiftsSwapsRouteImport.update({
     id: '/attendance/management/shifts/swaps',
     path: '/attendance/management/shifts/swaps',
+    getParentRoute: () => appRouteRoute,
+  } as any)
+const appAttendanceManagementShiftsVsActualRoute =
+  appAttendanceManagementShiftsVsActualRouteImport.update({
+    id: '/attendance/management/shifts/vs-actual',
+    path: '/attendance/management/shifts/vs-actual',
     getParentRoute: () => appRouteRoute,
   } as any)
 const appCompanyClientIdUpdateRoute =
@@ -876,6 +945,12 @@ const appSettingsSecurityPasswordLockedAccountsRoute =
     path: '/settings/security/password/locked-accounts',
     getParentRoute: () => appRouteRoute,
   } as any)
+const appAttendanceManagementShiftsSwapsSwapIdRoute =
+  appAttendanceManagementShiftsSwapsSwapIdRouteImport.update({
+    id: '/$swapId',
+    path: '/$swapId',
+    getParentRoute: () => appAttendanceManagementShiftsSwapsRoute,
+  } as any)
 const appSettingsSchedulerIdErrorRunIdRoute =
   appSettingsSchedulerIdErrorRunIdRouteImport.update({
     id: '/error/$runId',
@@ -896,8 +971,13 @@ export interface FileRoutesByFullPath {
   '/verification': typeof authVerificationRoute
   '/attendance/all-menu': typeof appAttendanceAllMenuRoute
   '/attendance/clock-in-out': typeof appAttendanceClockInOutRoute
+  '/attendance/clock-in-success': typeof appAttendanceClockInSuccessRoute
+  '/attendance/clock-out': typeof appAttendanceClockOutRoute
+  '/attendance/clock-out-success': typeof appAttendanceClockOutSuccessRoute
   '/attendance/face-recognition': typeof appAttendanceFaceRecognitionRoute
-  '/attendance/gps-security': typeof appAttendanceGpsSecurityRoute
+  '/attendance/face-reset': typeof appAttendanceFaceResetRoute
+  '/attendance/face-verification-settings': typeof appAttendanceFaceVerificationSettingsRoute
+  '/attendance/gps-security': typeof appAttendanceGpsSecurityRouteWithChildren
   '/attendance/history': typeof appAttendanceHistoryRoute
   '/attendance/settings': typeof appAttendanceSettingsRoute
   '/leave/balance': typeof appLeaveBalanceRoute
@@ -921,7 +1001,10 @@ export interface FileRoutesByFullPath {
   '/attendance/approval/$requestId': typeof appAttendanceApprovalRequestIdRouteWithChildren
   '/attendance/calendar/holidays': typeof appAttendanceCalendarHolidaysRoute
   '/attendance/calendar/settings': typeof appAttendanceCalendarSettingsRoute
+  '/attendance/face-enrollment/$employeeId': typeof appAttendanceFaceEnrollmentEmployeeIdRoute
+  '/attendance/management/live': typeof appAttendanceManagementLiveRoute
   '/attendance/management/manual': typeof appAttendanceManagementManualRoute
+  '/attendance/requests/$requestId': typeof appAttendanceRequestsRequestIdRoute
   '/attendance/requests/new': typeof appAttendanceRequestsNewRoute
   '/company/client/$id': typeof appCompanyClientIdRouteWithChildren
   '/company/client/new': typeof appCompanyClientNewRoute
@@ -996,10 +1079,12 @@ export interface FileRoutesByFullPath {
   '/travel-expense/business-trip/': typeof appTravelExpenseBusinessTripIndexRoute
   '/travel-expense/claim/': typeof appTravelExpenseClaimIndexRoute
   '/attendance/approval/$requestId/reject': typeof appAttendanceApprovalRequestIdRejectRoute
+  '/attendance/gps-security/events/$eventId': typeof appAttendanceGpsSecurityEventsEventIdRoute
   '/attendance/management/exceptions/$exceptionId': typeof appAttendanceManagementExceptionsExceptionIdRoute
   '/attendance/management/shifts/assignments': typeof appAttendanceManagementShiftsAssignmentsRoute
   '/attendance/management/shifts/setup': typeof appAttendanceManagementShiftsSetupRoute
-  '/attendance/management/shifts/swaps': typeof appAttendanceManagementShiftsSwapsRoute
+  '/attendance/management/shifts/swaps': typeof appAttendanceManagementShiftsSwapsRouteWithChildren
+  '/attendance/management/shifts/vs-actual': typeof appAttendanceManagementShiftsVsActualRoute
   '/company/client/$id/update': typeof appCompanyClientIdUpdateRoute
   '/company/project/$id/update': typeof appCompanyProjectIdUpdateRoute
   '/settings/approval-workflow/$id/conditions': typeof appSettingsApprovalWorkflowIdConditionsRoute
@@ -1018,6 +1103,7 @@ export interface FileRoutesByFullPath {
   '/company/project/$id/': typeof appCompanyProjectIdIndexRoute
   '/settings/approval-workflow/$id/': typeof appSettingsApprovalWorkflowIdIndexRoute
   '/settings/scheduler/$id/': typeof appSettingsSchedulerIdIndexRoute
+  '/attendance/management/shifts/swaps/$swapId': typeof appAttendanceManagementShiftsSwapsSwapIdRoute
   '/settings/scheduler/$id/error/$runId': typeof appSettingsSchedulerIdErrorRunIdRoute
   '/settings/scheduler/$id/execution/$runId': typeof appSettingsSchedulerIdExecutionRunIdRoute
 }
@@ -1028,8 +1114,13 @@ export interface FileRoutesByTo {
   '/verification': typeof authVerificationRoute
   '/attendance/all-menu': typeof appAttendanceAllMenuRoute
   '/attendance/clock-in-out': typeof appAttendanceClockInOutRoute
+  '/attendance/clock-in-success': typeof appAttendanceClockInSuccessRoute
+  '/attendance/clock-out': typeof appAttendanceClockOutRoute
+  '/attendance/clock-out-success': typeof appAttendanceClockOutSuccessRoute
   '/attendance/face-recognition': typeof appAttendanceFaceRecognitionRoute
-  '/attendance/gps-security': typeof appAttendanceGpsSecurityRoute
+  '/attendance/face-reset': typeof appAttendanceFaceResetRoute
+  '/attendance/face-verification-settings': typeof appAttendanceFaceVerificationSettingsRoute
+  '/attendance/gps-security': typeof appAttendanceGpsSecurityRouteWithChildren
   '/attendance/history': typeof appAttendanceHistoryRoute
   '/attendance/settings': typeof appAttendanceSettingsRoute
   '/leave/balance': typeof appLeaveBalanceRoute
@@ -1053,7 +1144,10 @@ export interface FileRoutesByTo {
   '/attendance/approval/$requestId': typeof appAttendanceApprovalRequestIdRouteWithChildren
   '/attendance/calendar/holidays': typeof appAttendanceCalendarHolidaysRoute
   '/attendance/calendar/settings': typeof appAttendanceCalendarSettingsRoute
+  '/attendance/face-enrollment/$employeeId': typeof appAttendanceFaceEnrollmentEmployeeIdRoute
+  '/attendance/management/live': typeof appAttendanceManagementLiveRoute
   '/attendance/management/manual': typeof appAttendanceManagementManualRoute
+  '/attendance/requests/$requestId': typeof appAttendanceRequestsRequestIdRoute
   '/attendance/requests/new': typeof appAttendanceRequestsNewRoute
   '/company/client/$id': typeof appCompanyClientIdRouteWithChildren
   '/company/client/new': typeof appCompanyClientNewRoute
@@ -1126,10 +1220,12 @@ export interface FileRoutesByTo {
   '/travel-expense/business-trip': typeof appTravelExpenseBusinessTripIndexRoute
   '/travel-expense/claim': typeof appTravelExpenseClaimIndexRoute
   '/attendance/approval/$requestId/reject': typeof appAttendanceApprovalRequestIdRejectRoute
+  '/attendance/gps-security/events/$eventId': typeof appAttendanceGpsSecurityEventsEventIdRoute
   '/attendance/management/exceptions/$exceptionId': typeof appAttendanceManagementExceptionsExceptionIdRoute
   '/attendance/management/shifts/assignments': typeof appAttendanceManagementShiftsAssignmentsRoute
   '/attendance/management/shifts/setup': typeof appAttendanceManagementShiftsSetupRoute
-  '/attendance/management/shifts/swaps': typeof appAttendanceManagementShiftsSwapsRoute
+  '/attendance/management/shifts/swaps': typeof appAttendanceManagementShiftsSwapsRouteWithChildren
+  '/attendance/management/shifts/vs-actual': typeof appAttendanceManagementShiftsVsActualRoute
   '/company/client/$id/update': typeof appCompanyClientIdUpdateRoute
   '/company/project/$id/update': typeof appCompanyProjectIdUpdateRoute
   '/settings/approval-workflow/$id/conditions': typeof appSettingsApprovalWorkflowIdConditionsRoute
@@ -1148,6 +1244,7 @@ export interface FileRoutesByTo {
   '/company/project/$id': typeof appCompanyProjectIdIndexRoute
   '/settings/approval-workflow/$id': typeof appSettingsApprovalWorkflowIdIndexRoute
   '/settings/scheduler/$id': typeof appSettingsSchedulerIdIndexRoute
+  '/attendance/management/shifts/swaps/$swapId': typeof appAttendanceManagementShiftsSwapsSwapIdRoute
   '/settings/scheduler/$id/error/$runId': typeof appSettingsSchedulerIdErrorRunIdRoute
   '/settings/scheduler/$id/execution/$runId': typeof appSettingsSchedulerIdExecutionRunIdRoute
 }
@@ -1160,8 +1257,13 @@ export interface FileRoutesById {
   '/(auth)/verification': typeof authVerificationRoute
   '/(app)/attendance/all-menu': typeof appAttendanceAllMenuRoute
   '/(app)/attendance/clock-in-out': typeof appAttendanceClockInOutRoute
+  '/(app)/attendance/clock-in-success': typeof appAttendanceClockInSuccessRoute
+  '/(app)/attendance/clock-out': typeof appAttendanceClockOutRoute
+  '/(app)/attendance/clock-out-success': typeof appAttendanceClockOutSuccessRoute
   '/(app)/attendance/face-recognition': typeof appAttendanceFaceRecognitionRoute
-  '/(app)/attendance/gps-security': typeof appAttendanceGpsSecurityRoute
+  '/(app)/attendance/face-reset': typeof appAttendanceFaceResetRoute
+  '/(app)/attendance/face-verification-settings': typeof appAttendanceFaceVerificationSettingsRoute
+  '/(app)/attendance/gps-security': typeof appAttendanceGpsSecurityRouteWithChildren
   '/(app)/attendance/history': typeof appAttendanceHistoryRoute
   '/(app)/attendance/settings': typeof appAttendanceSettingsRoute
   '/(app)/leave/balance': typeof appLeaveBalanceRoute
@@ -1185,7 +1287,10 @@ export interface FileRoutesById {
   '/(app)/attendance/approval/$requestId': typeof appAttendanceApprovalRequestIdRouteWithChildren
   '/(app)/attendance/calendar/holidays': typeof appAttendanceCalendarHolidaysRoute
   '/(app)/attendance/calendar/settings': typeof appAttendanceCalendarSettingsRoute
+  '/(app)/attendance/face-enrollment/$employeeId': typeof appAttendanceFaceEnrollmentEmployeeIdRoute
+  '/(app)/attendance/management/live': typeof appAttendanceManagementLiveRoute
   '/(app)/attendance/management/manual': typeof appAttendanceManagementManualRoute
+  '/(app)/attendance/requests/$requestId': typeof appAttendanceRequestsRequestIdRoute
   '/(app)/attendance/requests/new': typeof appAttendanceRequestsNewRoute
   '/(app)/company/client/$id': typeof appCompanyClientIdRouteWithChildren
   '/(app)/company/client/new': typeof appCompanyClientNewRoute
@@ -1260,10 +1365,12 @@ export interface FileRoutesById {
   '/(app)/travel-expense/business-trip/': typeof appTravelExpenseBusinessTripIndexRoute
   '/(app)/travel-expense/claim/': typeof appTravelExpenseClaimIndexRoute
   '/(app)/attendance/approval/$requestId/reject': typeof appAttendanceApprovalRequestIdRejectRoute
+  '/(app)/attendance/gps-security/events/$eventId': typeof appAttendanceGpsSecurityEventsEventIdRoute
   '/(app)/attendance/management/exceptions/$exceptionId': typeof appAttendanceManagementExceptionsExceptionIdRoute
   '/(app)/attendance/management/shifts/assignments': typeof appAttendanceManagementShiftsAssignmentsRoute
   '/(app)/attendance/management/shifts/setup': typeof appAttendanceManagementShiftsSetupRoute
-  '/(app)/attendance/management/shifts/swaps': typeof appAttendanceManagementShiftsSwapsRoute
+  '/(app)/attendance/management/shifts/swaps': typeof appAttendanceManagementShiftsSwapsRouteWithChildren
+  '/(app)/attendance/management/shifts/vs-actual': typeof appAttendanceManagementShiftsVsActualRoute
   '/(app)/company/client/$id/update': typeof appCompanyClientIdUpdateRoute
   '/(app)/company/project/$id/update': typeof appCompanyProjectIdUpdateRoute
   '/(app)/settings/approval-workflow/$id/conditions': typeof appSettingsApprovalWorkflowIdConditionsRoute
@@ -1282,6 +1389,7 @@ export interface FileRoutesById {
   '/(app)/company/project/$id/': typeof appCompanyProjectIdIndexRoute
   '/(app)/settings/approval-workflow/$id/': typeof appSettingsApprovalWorkflowIdIndexRoute
   '/(app)/settings/scheduler/$id/': typeof appSettingsSchedulerIdIndexRoute
+  '/(app)/attendance/management/shifts/swaps/$swapId': typeof appAttendanceManagementShiftsSwapsSwapIdRoute
   '/(app)/settings/scheduler/$id/error/$runId': typeof appSettingsSchedulerIdErrorRunIdRoute
   '/(app)/settings/scheduler/$id/execution/$runId': typeof appSettingsSchedulerIdExecutionRunIdRoute
 }
@@ -1294,7 +1402,12 @@ export interface FileRouteTypes {
     | '/verification'
     | '/attendance/all-menu'
     | '/attendance/clock-in-out'
+    | '/attendance/clock-in-success'
+    | '/attendance/clock-out'
+    | '/attendance/clock-out-success'
     | '/attendance/face-recognition'
+    | '/attendance/face-reset'
+    | '/attendance/face-verification-settings'
     | '/attendance/gps-security'
     | '/attendance/history'
     | '/attendance/settings'
@@ -1319,7 +1432,10 @@ export interface FileRouteTypes {
     | '/attendance/approval/$requestId'
     | '/attendance/calendar/holidays'
     | '/attendance/calendar/settings'
+    | '/attendance/face-enrollment/$employeeId'
+    | '/attendance/management/live'
     | '/attendance/management/manual'
+    | '/attendance/requests/$requestId'
     | '/attendance/requests/new'
     | '/company/client/$id'
     | '/company/client/new'
@@ -1394,10 +1510,12 @@ export interface FileRouteTypes {
     | '/travel-expense/business-trip/'
     | '/travel-expense/claim/'
     | '/attendance/approval/$requestId/reject'
+    | '/attendance/gps-security/events/$eventId'
     | '/attendance/management/exceptions/$exceptionId'
     | '/attendance/management/shifts/assignments'
     | '/attendance/management/shifts/setup'
     | '/attendance/management/shifts/swaps'
+    | '/attendance/management/shifts/vs-actual'
     | '/company/client/$id/update'
     | '/company/project/$id/update'
     | '/settings/approval-workflow/$id/conditions'
@@ -1416,6 +1534,7 @@ export interface FileRouteTypes {
     | '/company/project/$id/'
     | '/settings/approval-workflow/$id/'
     | '/settings/scheduler/$id/'
+    | '/attendance/management/shifts/swaps/$swapId'
     | '/settings/scheduler/$id/error/$runId'
     | '/settings/scheduler/$id/execution/$runId'
   fileRoutesByTo: FileRoutesByTo
@@ -1426,7 +1545,12 @@ export interface FileRouteTypes {
     | '/verification'
     | '/attendance/all-menu'
     | '/attendance/clock-in-out'
+    | '/attendance/clock-in-success'
+    | '/attendance/clock-out'
+    | '/attendance/clock-out-success'
     | '/attendance/face-recognition'
+    | '/attendance/face-reset'
+    | '/attendance/face-verification-settings'
     | '/attendance/gps-security'
     | '/attendance/history'
     | '/attendance/settings'
@@ -1451,7 +1575,10 @@ export interface FileRouteTypes {
     | '/attendance/approval/$requestId'
     | '/attendance/calendar/holidays'
     | '/attendance/calendar/settings'
+    | '/attendance/face-enrollment/$employeeId'
+    | '/attendance/management/live'
     | '/attendance/management/manual'
+    | '/attendance/requests/$requestId'
     | '/attendance/requests/new'
     | '/company/client/$id'
     | '/company/client/new'
@@ -1524,10 +1651,12 @@ export interface FileRouteTypes {
     | '/travel-expense/business-trip'
     | '/travel-expense/claim'
     | '/attendance/approval/$requestId/reject'
+    | '/attendance/gps-security/events/$eventId'
     | '/attendance/management/exceptions/$exceptionId'
     | '/attendance/management/shifts/assignments'
     | '/attendance/management/shifts/setup'
     | '/attendance/management/shifts/swaps'
+    | '/attendance/management/shifts/vs-actual'
     | '/company/client/$id/update'
     | '/company/project/$id/update'
     | '/settings/approval-workflow/$id/conditions'
@@ -1546,6 +1675,7 @@ export interface FileRouteTypes {
     | '/company/project/$id'
     | '/settings/approval-workflow/$id'
     | '/settings/scheduler/$id'
+    | '/attendance/management/shifts/swaps/$swapId'
     | '/settings/scheduler/$id/error/$runId'
     | '/settings/scheduler/$id/execution/$runId'
   id:
@@ -1557,7 +1687,12 @@ export interface FileRouteTypes {
     | '/(auth)/verification'
     | '/(app)/attendance/all-menu'
     | '/(app)/attendance/clock-in-out'
+    | '/(app)/attendance/clock-in-success'
+    | '/(app)/attendance/clock-out'
+    | '/(app)/attendance/clock-out-success'
     | '/(app)/attendance/face-recognition'
+    | '/(app)/attendance/face-reset'
+    | '/(app)/attendance/face-verification-settings'
     | '/(app)/attendance/gps-security'
     | '/(app)/attendance/history'
     | '/(app)/attendance/settings'
@@ -1582,7 +1717,10 @@ export interface FileRouteTypes {
     | '/(app)/attendance/approval/$requestId'
     | '/(app)/attendance/calendar/holidays'
     | '/(app)/attendance/calendar/settings'
+    | '/(app)/attendance/face-enrollment/$employeeId'
+    | '/(app)/attendance/management/live'
     | '/(app)/attendance/management/manual'
+    | '/(app)/attendance/requests/$requestId'
     | '/(app)/attendance/requests/new'
     | '/(app)/company/client/$id'
     | '/(app)/company/client/new'
@@ -1657,10 +1795,12 @@ export interface FileRouteTypes {
     | '/(app)/travel-expense/business-trip/'
     | '/(app)/travel-expense/claim/'
     | '/(app)/attendance/approval/$requestId/reject'
+    | '/(app)/attendance/gps-security/events/$eventId'
     | '/(app)/attendance/management/exceptions/$exceptionId'
     | '/(app)/attendance/management/shifts/assignments'
     | '/(app)/attendance/management/shifts/setup'
     | '/(app)/attendance/management/shifts/swaps'
+    | '/(app)/attendance/management/shifts/vs-actual'
     | '/(app)/company/client/$id/update'
     | '/(app)/company/project/$id/update'
     | '/(app)/settings/approval-workflow/$id/conditions'
@@ -1679,6 +1819,7 @@ export interface FileRouteTypes {
     | '/(app)/company/project/$id/'
     | '/(app)/settings/approval-workflow/$id/'
     | '/(app)/settings/scheduler/$id/'
+    | '/(app)/attendance/management/shifts/swaps/$swapId'
     | '/(app)/settings/scheduler/$id/error/$runId'
     | '/(app)/settings/scheduler/$id/execution/$runId'
   fileRoutesById: FileRoutesById
@@ -1763,11 +1904,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof appAttendanceClockInOutRouteImport
       parentRoute: typeof appRouteRoute
     }
+    '/(app)/attendance/clock-in-success': {
+      id: '/(app)/attendance/clock-in-success'
+      path: '/attendance/clock-in-success'
+      fullPath: '/attendance/clock-in-success'
+      preLoaderRoute: typeof appAttendanceClockInSuccessRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/attendance/clock-out': {
+      id: '/(app)/attendance/clock-out'
+      path: '/attendance/clock-out'
+      fullPath: '/attendance/clock-out'
+      preLoaderRoute: typeof appAttendanceClockOutRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/attendance/clock-out-success': {
+      id: '/(app)/attendance/clock-out-success'
+      path: '/attendance/clock-out-success'
+      fullPath: '/attendance/clock-out-success'
+      preLoaderRoute: typeof appAttendanceClockOutSuccessRouteImport
+      parentRoute: typeof appRouteRoute
+    }
     '/(app)/attendance/face-recognition': {
       id: '/(app)/attendance/face-recognition'
       path: '/attendance/face-recognition'
       fullPath: '/attendance/face-recognition'
       preLoaderRoute: typeof appAttendanceFaceRecognitionRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/attendance/face-reset': {
+      id: '/(app)/attendance/face-reset'
+      path: '/attendance/face-reset'
+      fullPath: '/attendance/face-reset'
+      preLoaderRoute: typeof appAttendanceFaceResetRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/attendance/face-verification-settings': {
+      id: '/(app)/attendance/face-verification-settings'
+      path: '/attendance/face-verification-settings'
+      fullPath: '/attendance/face-verification-settings'
+      preLoaderRoute: typeof appAttendanceFaceVerificationSettingsRouteImport
       parentRoute: typeof appRouteRoute
     }
     '/(app)/attendance/gps-security': {
@@ -1931,11 +2107,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof appAttendanceCalendarSettingsRouteImport
       parentRoute: typeof appRouteRoute
     }
+    '/(app)/attendance/face-enrollment/$employeeId': {
+      id: '/(app)/attendance/face-enrollment/$employeeId'
+      path: '/attendance/face-enrollment/$employeeId'
+      fullPath: '/attendance/face-enrollment/$employeeId'
+      preLoaderRoute: typeof appAttendanceFaceEnrollmentEmployeeIdRouteImport
+      parentRoute: typeof appRouteRoute
+    }
     '/(app)/attendance/management/': {
       id: '/(app)/attendance/management/'
       path: '/attendance/management'
       fullPath: '/attendance/management/'
       preLoaderRoute: typeof appAttendanceManagementIndexRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/attendance/management/live': {
+      id: '/(app)/attendance/management/live'
+      path: '/attendance/management/live'
+      fullPath: '/attendance/management/live'
+      preLoaderRoute: typeof appAttendanceManagementLiveRouteImport
       parentRoute: typeof appRouteRoute
     }
     '/(app)/attendance/management/manual': {
@@ -1950,6 +2140,13 @@ declare module '@tanstack/react-router' {
       path: '/attendance/requests'
       fullPath: '/attendance/requests/'
       preLoaderRoute: typeof appAttendanceRequestsIndexRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/attendance/requests/$requestId': {
+      id: '/(app)/attendance/requests/$requestId'
+      path: '/attendance/requests/$requestId'
+      fullPath: '/attendance/requests/$requestId'
+      preLoaderRoute: typeof appAttendanceRequestsRequestIdRouteImport
       parentRoute: typeof appRouteRoute
     }
     '/(app)/attendance/requests/new': {
@@ -2442,6 +2639,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof appAttendanceApprovalRequestIdRejectRouteImport
       parentRoute: typeof appAttendanceApprovalRequestIdRoute
     }
+    '/(app)/attendance/gps-security/events/$eventId': {
+      id: '/(app)/attendance/gps-security/events/$eventId'
+      path: '/events/$eventId'
+      fullPath: '/attendance/gps-security/events/$eventId'
+      preLoaderRoute: typeof appAttendanceGpsSecurityEventsEventIdRouteImport
+      parentRoute: typeof appAttendanceGpsSecurityRoute
+    }
     '/(app)/attendance/management/exceptions/$exceptionId': {
       id: '/(app)/attendance/management/exceptions/$exceptionId'
       path: '/attendance/management/exceptions/$exceptionId'
@@ -2475,6 +2679,13 @@ declare module '@tanstack/react-router' {
       path: '/attendance/management/shifts/swaps'
       fullPath: '/attendance/management/shifts/swaps'
       preLoaderRoute: typeof appAttendanceManagementShiftsSwapsRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/attendance/management/shifts/vs-actual': {
+      id: '/(app)/attendance/management/shifts/vs-actual'
+      path: '/attendance/management/shifts/vs-actual'
+      fullPath: '/attendance/management/shifts/vs-actual'
+      preLoaderRoute: typeof appAttendanceManagementShiftsVsActualRouteImport
       parentRoute: typeof appRouteRoute
     }
     '/(app)/company/client/$id/update': {
@@ -2596,6 +2807,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof appSettingsSecurityPasswordLockedAccountsRouteImport
       parentRoute: typeof appRouteRoute
     }
+    '/(app)/attendance/management/shifts/swaps/$swapId': {
+      id: '/(app)/attendance/management/shifts/swaps/$swapId'
+      path: '/$swapId'
+      fullPath: '/attendance/management/shifts/swaps/$swapId'
+      preLoaderRoute: typeof appAttendanceManagementShiftsSwapsSwapIdRouteImport
+      parentRoute: typeof appAttendanceManagementShiftsSwapsRoute
+    }
     '/(app)/settings/scheduler/$id/error/$runId': {
       id: '/(app)/settings/scheduler/$id/error/$runId'
       path: '/error/$runId'
@@ -2612,6 +2830,21 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface appAttendanceGpsSecurityRouteChildren {
+  appAttendanceGpsSecurityEventsEventIdRoute: typeof appAttendanceGpsSecurityEventsEventIdRoute
+}
+
+const appAttendanceGpsSecurityRouteChildren: appAttendanceGpsSecurityRouteChildren =
+  {
+    appAttendanceGpsSecurityEventsEventIdRoute:
+      appAttendanceGpsSecurityEventsEventIdRoute,
+  }
+
+const appAttendanceGpsSecurityRouteWithChildren =
+  appAttendanceGpsSecurityRoute._addFileChildren(
+    appAttendanceGpsSecurityRouteChildren,
+  )
 
 interface appAttendanceApprovalRequestIdRouteChildren {
   appAttendanceApprovalRequestIdRejectRoute: typeof appAttendanceApprovalRequestIdRejectRoute
@@ -2674,11 +2907,31 @@ const appSettingsSchedulerIdRouteWithChildren =
     appSettingsSchedulerIdRouteChildren,
   )
 
+interface appAttendanceManagementShiftsSwapsRouteChildren {
+  appAttendanceManagementShiftsSwapsSwapIdRoute: typeof appAttendanceManagementShiftsSwapsSwapIdRoute
+}
+
+const appAttendanceManagementShiftsSwapsRouteChildren: appAttendanceManagementShiftsSwapsRouteChildren =
+  {
+    appAttendanceManagementShiftsSwapsSwapIdRoute:
+      appAttendanceManagementShiftsSwapsSwapIdRoute,
+  }
+
+const appAttendanceManagementShiftsSwapsRouteWithChildren =
+  appAttendanceManagementShiftsSwapsRoute._addFileChildren(
+    appAttendanceManagementShiftsSwapsRouteChildren,
+  )
+
 interface appRouteRouteChildren {
   appAttendanceAllMenuRoute: typeof appAttendanceAllMenuRoute
   appAttendanceClockInOutRoute: typeof appAttendanceClockInOutRoute
+  appAttendanceClockInSuccessRoute: typeof appAttendanceClockInSuccessRoute
+  appAttendanceClockOutRoute: typeof appAttendanceClockOutRoute
+  appAttendanceClockOutSuccessRoute: typeof appAttendanceClockOutSuccessRoute
   appAttendanceFaceRecognitionRoute: typeof appAttendanceFaceRecognitionRoute
-  appAttendanceGpsSecurityRoute: typeof appAttendanceGpsSecurityRoute
+  appAttendanceFaceResetRoute: typeof appAttendanceFaceResetRoute
+  appAttendanceFaceVerificationSettingsRoute: typeof appAttendanceFaceVerificationSettingsRoute
+  appAttendanceGpsSecurityRoute: typeof appAttendanceGpsSecurityRouteWithChildren
   appAttendanceHistoryRoute: typeof appAttendanceHistoryRoute
   appAttendanceSettingsRoute: typeof appAttendanceSettingsRoute
   appLeaveBalanceRoute: typeof appLeaveBalanceRoute
@@ -2702,7 +2955,10 @@ interface appRouteRouteChildren {
   appAttendanceApprovalRequestIdRoute: typeof appAttendanceApprovalRequestIdRouteWithChildren
   appAttendanceCalendarHolidaysRoute: typeof appAttendanceCalendarHolidaysRoute
   appAttendanceCalendarSettingsRoute: typeof appAttendanceCalendarSettingsRoute
+  appAttendanceFaceEnrollmentEmployeeIdRoute: typeof appAttendanceFaceEnrollmentEmployeeIdRoute
+  appAttendanceManagementLiveRoute: typeof appAttendanceManagementLiveRoute
   appAttendanceManagementManualRoute: typeof appAttendanceManagementManualRoute
+  appAttendanceRequestsRequestIdRoute: typeof appAttendanceRequestsRequestIdRoute
   appAttendanceRequestsNewRoute: typeof appAttendanceRequestsNewRoute
   appCompanyClientIdRoute: typeof appCompanyClientIdRouteWithChildren
   appCompanyClientNewRoute: typeof appCompanyClientNewRoute
@@ -2779,7 +3035,8 @@ interface appRouteRouteChildren {
   appAttendanceManagementExceptionsExceptionIdRoute: typeof appAttendanceManagementExceptionsExceptionIdRoute
   appAttendanceManagementShiftsAssignmentsRoute: typeof appAttendanceManagementShiftsAssignmentsRoute
   appAttendanceManagementShiftsSetupRoute: typeof appAttendanceManagementShiftsSetupRoute
-  appAttendanceManagementShiftsSwapsRoute: typeof appAttendanceManagementShiftsSwapsRoute
+  appAttendanceManagementShiftsSwapsRoute: typeof appAttendanceManagementShiftsSwapsRouteWithChildren
+  appAttendanceManagementShiftsVsActualRoute: typeof appAttendanceManagementShiftsVsActualRoute
   appSettingsApprovalWorkflowIdConditionsRoute: typeof appSettingsApprovalWorkflowIdConditionsRoute
   appSettingsApprovalWorkflowIdLevelsRoute: typeof appSettingsApprovalWorkflowIdLevelsRoute
   appSettingsApprovalWorkflowIdTestRoute: typeof appSettingsApprovalWorkflowIdTestRoute
@@ -2798,8 +3055,14 @@ interface appRouteRouteChildren {
 const appRouteRouteChildren: appRouteRouteChildren = {
   appAttendanceAllMenuRoute: appAttendanceAllMenuRoute,
   appAttendanceClockInOutRoute: appAttendanceClockInOutRoute,
+  appAttendanceClockInSuccessRoute: appAttendanceClockInSuccessRoute,
+  appAttendanceClockOutRoute: appAttendanceClockOutRoute,
+  appAttendanceClockOutSuccessRoute: appAttendanceClockOutSuccessRoute,
   appAttendanceFaceRecognitionRoute: appAttendanceFaceRecognitionRoute,
-  appAttendanceGpsSecurityRoute: appAttendanceGpsSecurityRoute,
+  appAttendanceFaceResetRoute: appAttendanceFaceResetRoute,
+  appAttendanceFaceVerificationSettingsRoute:
+    appAttendanceFaceVerificationSettingsRoute,
+  appAttendanceGpsSecurityRoute: appAttendanceGpsSecurityRouteWithChildren,
   appAttendanceHistoryRoute: appAttendanceHistoryRoute,
   appAttendanceSettingsRoute: appAttendanceSettingsRoute,
   appLeaveBalanceRoute: appLeaveBalanceRoute,
@@ -2824,7 +3087,11 @@ const appRouteRouteChildren: appRouteRouteChildren = {
     appAttendanceApprovalRequestIdRouteWithChildren,
   appAttendanceCalendarHolidaysRoute: appAttendanceCalendarHolidaysRoute,
   appAttendanceCalendarSettingsRoute: appAttendanceCalendarSettingsRoute,
+  appAttendanceFaceEnrollmentEmployeeIdRoute:
+    appAttendanceFaceEnrollmentEmployeeIdRoute,
+  appAttendanceManagementLiveRoute: appAttendanceManagementLiveRoute,
   appAttendanceManagementManualRoute: appAttendanceManagementManualRoute,
+  appAttendanceRequestsRequestIdRoute: appAttendanceRequestsRequestIdRoute,
   appAttendanceRequestsNewRoute: appAttendanceRequestsNewRoute,
   appCompanyClientIdRoute: appCompanyClientIdRouteWithChildren,
   appCompanyClientNewRoute: appCompanyClientNewRoute,
@@ -2913,7 +3180,9 @@ const appRouteRouteChildren: appRouteRouteChildren = {
   appAttendanceManagementShiftsSetupRoute:
     appAttendanceManagementShiftsSetupRoute,
   appAttendanceManagementShiftsSwapsRoute:
-    appAttendanceManagementShiftsSwapsRoute,
+    appAttendanceManagementShiftsSwapsRouteWithChildren,
+  appAttendanceManagementShiftsVsActualRoute:
+    appAttendanceManagementShiftsVsActualRoute,
   appSettingsApprovalWorkflowIdConditionsRoute:
     appSettingsApprovalWorkflowIdConditionsRoute,
   appSettingsApprovalWorkflowIdLevelsRoute:
