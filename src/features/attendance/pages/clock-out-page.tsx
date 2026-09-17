@@ -1,4 +1,5 @@
 import { IconCheck, IconClock } from '@tabler/icons-react'
+import { Link } from '@tanstack/react-router'
 
 import { AppMain } from '@/shared/components/app-layout/app-main'
 import { Button } from '@/shared/components/ui/button'
@@ -55,8 +56,12 @@ export function ClockOutPage() {
               <IconCheck className='size-4' />
               Inside Jakarta HQ zone
             </div>
-            <Button size='lg'>Clock Out Sekarang</Button>
-            <Button variant='outline'>Batal</Button>
+            <Button size='lg' asChild>
+              <Link to='/attendance/clock-out-success'>Clock Out Sekarang</Link>
+            </Button>
+            <Button variant='outline' asChild>
+              <Link to='/attendance/clock-in-out'>Batal</Link>
+            </Button>
           </CardContent>
         </Card>
       </div>
