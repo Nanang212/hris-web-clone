@@ -99,7 +99,7 @@ export function AllMenuPage() {
       title: m.attendance_menu_settings_title(),
       description: m.attendance_menu_settings_description(),
       icon: IconSettings,
-      to: '/employment/employee-profile' as const,
+      to: '/attendance/settings' as const,
     },
   ]
 
@@ -115,18 +115,23 @@ export function AllMenuPage() {
       <div className='grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'>
         {menus.map(({ code, title, description, icon: Icon, to }) => {
           return (
-            <Button key={code} asChild variant='ghost' className='h-auto min-h-37 w-full justify-start p-0'>
+            <Button
+              key={code}
+              asChild
+              variant='ghost'
+              className='h-auto min-h-37 w-full justify-start p-0'
+            >
               <Link
                 to={to}
-                className='flex min-w-0 w-full flex-col justify-between rounded-2xl border border-border bg-card p-4 text-left shadow-sm transition-colors hover:bg-muted/50'
+                className='flex w-full min-w-0 flex-col justify-between rounded-2xl border border-border bg-card p-4 text-left shadow-sm transition-colors hover:bg-muted/50'
               >
                 <div className='flex min-w-0 items-start justify-between gap-4'>
                   <div className='flex min-w-0 flex-1 flex-col items-start gap-2'>
                     <span className='flex size-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-xs font-bold text-blue-600'>
                       <Icon className='size-5' />
                     </span>
-                    <h3 className='break-words font-semibold leading-5'>{title}</h3>
-                    <p className='break-words text-xs leading-5 text-muted-foreground'>
+                    <h3 className='leading-5 font-semibold break-words'>{title}</h3>
+                    <p className='text-xs leading-5 break-words text-muted-foreground'>
                       {description}
                     </p>
                   </div>

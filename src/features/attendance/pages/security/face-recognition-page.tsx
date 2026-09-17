@@ -8,12 +8,12 @@ import {
   IconUserPlus,
   IconUsers,
 } from '@tabler/icons-react'
+import { Link } from '@tanstack/react-router'
 import { useMemo, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { z } from 'zod'
 
 import { AppMain } from '@/shared/components/app-layout/app-main'
-import { getAttendanceBreadcrumbs } from '@/features/attendance/components/attendance-breadcrumbs'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -61,6 +61,7 @@ import {
 import { Tabs, TabsList, TabsTrigger } from '@/shared/components/ui/tabs'
 import { useSchema } from '@/shared/lib/schema'
 import { snackbar } from '@/shared/lib/snackbar'
+import { getAttendanceBreadcrumbs } from '@/features/attendance/components/attendance-breadcrumbs'
 
 interface FaceEmployee {
   id: string
@@ -272,8 +273,13 @@ export function FaceRecognitionPage() {
                         Reset
                       </Button>
                     ) : (
-                      <Button size='sm' variant='ghost' onClick={() => setSelectedPerson(person)}>
-                        View
+                      <Button size='sm' variant='ghost' asChild>
+                        <Link
+                          to='/attendance/face-enrollment/$employeeId'
+                          params={{ employeeId: person.id }}
+                        >
+                          View
+                        </Link>
                       </Button>
                     )}
                   </TableCell>
@@ -294,10 +300,15 @@ export function FaceRecognitionPage() {
       backTo='/attendance'
       className='gap-5 bg-muted/30'
       actions={
-        <Button onClick={() => setEnrollmentOpen(true)}>
-          <IconUserPlus />
-          Enroll Employee
-        </Button>
+        <div className='flex flex-wrap gap-2'>
+          <Button variant='outline' asChild>
+            <Link to='/attendance/face-reset'>Reset Management</Link>
+          </Button>
+          <Button onClick={() => setEnrollmentOpen(true)}>
+            <IconUserPlus />
+            Enroll Employee
+          </Button>
+        </div>
       }
     >
       <Tabs value={activeSection} onValueChange={(value) => setActiveSection(value as FaceSection)}>
@@ -359,6 +370,13 @@ export function FaceRecognitionPage() {
                   <p className='mt-1 text-sm font-semibold'>{value}</p>
                 </div>
               ))}
+              <div className='sm:col-span-2 lg:col-span-3'>
+                <Button variant='outline' size='sm' asChild>
+                  <Link to='/attendance/face-verification-settings'>
+                    Open Verification Settings
+                  </Link>
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </>

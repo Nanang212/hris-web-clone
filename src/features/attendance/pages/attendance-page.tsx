@@ -83,12 +83,17 @@ function QuickMenuItem({ icon: Icon, label, iconClassName, to }: Readonly<QuickM
     <Button asChild variant='ghost' className='h-auto min-h-19 w-full justify-start p-0'>
       <Link
         to={to}
-        className='flex min-w-0 w-full flex-col items-start justify-between rounded-xl border border-border bg-background p-3 text-left transition-colors hover:bg-muted/60'
+        className='flex w-full min-w-0 flex-col items-start justify-between rounded-xl border border-border bg-background p-3 text-left transition-colors hover:bg-muted/60'
       >
-        <span className={cn('flex size-8 shrink-0 items-center justify-center rounded-lg', iconClassName)}>
+        <span
+          className={cn(
+            'flex size-8 shrink-0 items-center justify-center rounded-lg',
+            iconClassName,
+          )}
+        >
           <Icon className='size-4' stroke={2} />
         </span>
-        <span className='min-w-0 whitespace-normal break-words text-xs leading-4 font-medium'>
+        <span className='min-w-0 text-xs leading-4 font-medium break-words whitespace-normal'>
           {label}
         </span>
       </Link>
@@ -237,7 +242,7 @@ export function AttendancePage() {
               className='rounded-lg border-rose-100 text-rose-500 hover:bg-rose-50 hover:text-rose-600'
               asChild
             >
-              <Link to='/attendance/clock-in-out'>
+              <Link to='/attendance/clock-out'>
                 <IconClock />
                 {m.attendance_clock_out()}
               </Link>

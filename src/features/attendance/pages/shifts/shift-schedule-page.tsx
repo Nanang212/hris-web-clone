@@ -1,4 +1,5 @@
 import { IconFileSpreadsheet, IconInfoCircle, IconPlus } from '@tabler/icons-react'
+import { Link } from '@tanstack/react-router'
 import { useState } from 'react'
 
 import { AppMain } from '@/shared/components/app-layout/app-main'
@@ -199,6 +200,9 @@ export function ShiftSchedulePage() {
           <Badge variant='blue'>OFF</Badge>
           Day Off
         </span>
+        <Button variant='link' size='sm' className='h-auto px-0' asChild>
+          <Link to='/attendance/management/shifts/setup'>Edit shift masters</Link>
+        </Button>
       </div>
       <ScheduleDialog
         modal={modal}

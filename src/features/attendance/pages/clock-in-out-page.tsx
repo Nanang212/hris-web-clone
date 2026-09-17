@@ -1,4 +1,5 @@
 import { IconCheck, IconCircleCheck, IconFaceId, IconNumber3 } from '@tabler/icons-react'
+import { Link } from '@tanstack/react-router'
 import { useState } from 'react'
 
 import { AppMain } from '@/shared/components/app-layout/app-main'
@@ -180,10 +181,17 @@ export function ClockInOutPage() {
             ))}
           </dl>
 
-          <Button className='mt-auto w-full rounded-lg' size='lg'>
-            <IconCircleCheck />
-            {m.attendance_clock_submit_button()}
-          </Button>
+          <div className='mt-auto grid gap-2'>
+            <Button className='w-full rounded-lg' size='lg' asChild>
+              <Link to='/attendance/clock-in-success'>
+                <IconCircleCheck />
+                {m.attendance_clock_submit_button()}
+              </Link>
+            </Button>
+            <Button variant='link' size='sm' className='h-auto' asChild>
+              <Link to='/attendance/clock-out'>Already clocked in? Clock Out</Link>
+            </Button>
+          </div>
         </aside>
       </div>
     </AppMain>

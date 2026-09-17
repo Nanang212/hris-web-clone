@@ -4,6 +4,7 @@
 @import '@fontsource-variable/montserrat';
 @import '@fontsource/merriweather';
 @import '@fontsource/jetbrains-mono';
+@import '@bprogress/core/css';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -60,6 +61,9 @@
   --shadow-2xl: 0px 4px 15px 0px hsl(0 0% 0% / 0.38);
   --tracking-normal: -0.01em;
   --spacing: 0.25rem;
+  --bprogress-color: var(--primary);
+  --bprogress-height: 2px;
+  --bprogress-z-index: 99999;
 }
 
 .dark {
@@ -113,6 +117,7 @@
   --shadow-lg: 0px 10px 25px 0px hsl(0 0% 0% / 0.15), 0px 4px 6px -1px hsl(0 0% 0% / 0.15);
   --shadow-xl: 0px 10px 25px 0px hsl(0 0% 0% / 0.15), 0px 8px 10px -1px hsl(0 0% 0% / 0.15);
   --shadow-2xl: 0px 10px 25px 0px hsl(0 0% 0% / 0.38);
+  --bprogress-color: var(--primary);
 }
 
 @theme inline {
@@ -213,6 +218,10 @@
 }
 
 @keyframes slide-in-out {
-  0% { transform: translateX(-200%); }
-  100% { transform: translateX(300%); }
+  0% {
+    transform: translateX(-200%);
+  }
+  100% {
+    transform: translateX(300%);
+  }
 }

@@ -1,4 +1,5 @@
 import { IconCheck } from '@tabler/icons-react'
+import { Link } from '@tanstack/react-router'
 
 import { AppMain } from '@/shared/components/app-layout/app-main'
 import { Button } from '@/shared/components/ui/button'
@@ -56,9 +57,11 @@ export function ClockResultPage({ mode }: Readonly<ClockResultPageProps>) {
             ))}
           </div>
           <div className='flex w-full flex-col gap-2 sm:flex-row'>
-            <Button className='flex-1'>Kembali ke Attendance</Button>
-            <Button className='flex-1' variant='outline'>
-              Lihat Detail Kehadiran
+            <Button className='flex-1' asChild>
+              <Link to='/attendance'>Kembali ke Attendance</Link>
+            </Button>
+            <Button className='flex-1' variant='outline' asChild>
+              <Link to='/attendance/history'>Lihat Detail Kehadiran</Link>
             </Button>
           </div>
         </CardContent>
