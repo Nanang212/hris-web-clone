@@ -4,6 +4,11 @@ import { AppMain } from '@/shared/components/app-layout/app-main'
 import { Badge } from '@/shared/components/ui/badge'
 import { Button } from '@/shared/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/shared/components/ui/tooltip'
 import { getAttendanceBreadcrumbs } from '@/features/attendance/components/attendance-breadcrumbs'
 
 export function FaceResetManagementPage() {
@@ -34,10 +39,22 @@ export function FaceResetManagementPage() {
               </div>
               <div className='flex items-center gap-3'>
                 <Badge variant={status === 'Enrolled' ? 'green' : 'amber'}>{status}</Badge>
-                <Button variant='outline' size='sm'>
-                  <IconRefresh />
-                  Reset
-                </Button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      type='button'
+                      variant='ghost'
+                      size='icon'
+                      className='size-8 text-muted-foreground hover:bg-amber-500/10 hover:text-amber-600'
+                      aria-label='Reset Profile'
+                    >
+                      <IconRefresh size={16} />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side='top'>
+                    <p>Reset Profile</p>
+                  </TooltipContent>
+                </Tooltip>
               </div>
             </div>
           ))}

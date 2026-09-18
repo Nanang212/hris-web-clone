@@ -6,6 +6,11 @@ import type { SalaryComponent } from '../../types'
 import { Badge } from '@/shared/components/ui/badge'
 import { Button } from '@/shared/components/ui/button'
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/shared/components/ui/tooltip'
+import {
   Dialog,
   DialogContent,
   DialogHeader,
@@ -174,21 +179,40 @@ export function SalaryComponentsView() {
                   {item.defaultAmount > 0 ? formatIDR(item.defaultAmount) : 'Formula-based'}
                 </TableCell>
                 <TableCell className='py-3.5 pr-6 text-right'>
-                  <div className='flex items-center justify-end gap-2'>
-                    <button
-                      type='button'
-                      onClick={() => handleOpenEdit(item)}
-                      className='text-primary hover:opacity-80 p-1'
-                    >
-                      <IconEdit size={15} />
-                    </button>
-                    <button
-                      type='button'
-                      onClick={() => handleDelete(item.id)}
-                      className='text-destructive hover:opacity-80 p-1'
-                    >
-                      <IconTrash size={15} />
-                    </button>
+                  <div className='flex items-center justify-end gap-1'>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant='ghost'
+                          size='icon'
+                          onClick={() => handleOpenEdit(item)}
+                          className='size-8 text-muted-foreground hover:text-primary hover:bg-primary/10'
+                          aria-label='Edit Component'
+                        >
+                          <IconEdit size={16} />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent side='left'>
+                        <p>Edit Component</p>
+                      </TooltipContent>
+                    </Tooltip>
+
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant='ghost'
+                          size='icon'
+                          onClick={() => handleDelete(item.id)}
+                          className='size-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10'
+                          aria-label='Delete Component'
+                        >
+                          <IconTrash size={16} />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent side='left'>
+                        <p>Delete Component</p>
+                      </TooltipContent>
+                    </Tooltip>
                   </div>
                 </TableCell>
               </TableRow>
@@ -242,21 +266,40 @@ export function SalaryComponentsView() {
                   {item.defaultAmount > 0 ? `-${formatIDR(item.defaultAmount)}` : 'Formula / Rate'}
                 </TableCell>
                 <TableCell className='py-3.5 pr-6 text-right'>
-                  <div className='flex items-center justify-end gap-2'>
-                    <button
-                      type='button'
-                      onClick={() => handleOpenEdit(item)}
-                      className='text-primary hover:opacity-80 p-1'
-                    >
-                      <IconEdit size={15} />
-                    </button>
-                    <button
-                      type='button'
-                      onClick={() => handleDelete(item.id)}
-                      className='text-destructive hover:opacity-80 p-1'
-                    >
-                      <IconTrash size={15} />
-                    </button>
+                  <div className='flex items-center justify-end gap-1'>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant='ghost'
+                          size='icon'
+                          onClick={() => handleOpenEdit(item)}
+                          className='size-8 text-muted-foreground hover:text-primary hover:bg-primary/10'
+                          aria-label='Edit Component'
+                        >
+                          <IconEdit size={16} />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent side='left'>
+                        <p>Edit Component</p>
+                      </TooltipContent>
+                    </Tooltip>
+
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant='ghost'
+                          size='icon'
+                          onClick={() => handleDelete(item.id)}
+                          className='size-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10'
+                          aria-label='Delete Component'
+                        >
+                          <IconTrash size={16} />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent side='left'>
+                        <p>Delete Component</p>
+                      </TooltipContent>
+                    </Tooltip>
                   </div>
                 </TableCell>
               </TableRow>
