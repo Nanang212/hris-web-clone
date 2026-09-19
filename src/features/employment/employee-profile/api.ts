@@ -31,7 +31,7 @@ export async function getEmployeeCreationOptions() {
  * Endpoint: `/api/v1/company/employee-information`
  * Method: `POST`
  * Request body: `multipart/form-data` with field `employee` containing the JSON payload and optional field `profilePhoto` containing a JPG, PNG, or WebP file.
- * The `employee` JSON contains `status: "Draft"` for Save Draft or `status: "Active"` for Create Employee. Reaching the review step does not call this endpoint.
+ * The `employee` JSON contains the new employee profile payload with `employee`, `assignments`, `contacts`, `contracts`, `documents`, `educations`, and `projects` collections.
  * Expected response: `{ "success": true, "code": "CREATED", "data": { "employeeId": "employee-10242", "employeeNumber": "10042", "status": "Active", "createdAt": "2026-09-01T10:30:00+07:00" }, "messages": ["Employee created successfully"] }`
  */
 export async function createEmployeeInformation(request: CreateEmployeeInformationRequest) {

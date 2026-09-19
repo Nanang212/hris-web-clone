@@ -111,42 +111,129 @@ export interface EmployeeCreationOptionsData {
   employmentTypes: EmployeeInformationEmploymentType[]
 }
 
-export interface EmployeePersonalInformationPayload {
-  employeeNumber: string
-  fullName: string
-  workEmail: string
-  phoneNumber?: string
-  gender?: EmployeeGender
-  birthDate?: string
-  address?: string
-}
-
-export interface EmployeeEmploymentInformationPayload {
-  departmentId: string
-  divisionId: string
-  positionId: string
-  gradeId: string
-  branchId: string
-  managerId?: string
-  employmentType: EmployeeInformationEmploymentType
-  joinDate: string
-  workLocation: string
-}
-
-export interface EmployeePayrollIdentificationPayload {
-  bankId: string
-  bankAccountNumber: string
-  bankAccountHolder: string
-  npwpNumber?: string
-  bpjsHealthNumber?: string
-  bpjsEmploymentNumber?: string
-}
-
 export interface CreateEmployeeInformationPayload {
-  status: 'Draft' | 'Active'
-  personalInformation: EmployeePersonalInformationPayload
-  employmentInformation: EmployeeEmploymentInformationPayload
-  payrollAndIdentification: EmployeePayrollIdentificationPayload
+  employee: EmployeeCreateEmployeePayload
+  assignments: EmployeeCreateAssignmentPayload[]
+  contacts: EmployeeCreateContactPayload[]
+  contracts: EmployeeCreateContractPayload[]
+  documents: EmployeeCreateDocumentPayload[]
+  educations: EmployeeCreateEducationPayload[]
+  projects: EmployeeCreateProjectPayload[]
+}
+
+export interface EmployeeCreateAssignmentPayload {
+  changeReason?: string
+  departmentUnitId?: string
+  divisionUnitId?: string
+  effectiveEndDate?: string
+  effectiveStartDate: string
+  gradeId?: string
+  positionId?: string
+  sectionUnitId?: string
+  supervisorEmployeeId?: string
+  workLocation?: string
+}
+
+export interface EmployeeCreateContactPayload {
+  address?: string
+  birthDate?: string
+  contactType: string
+  effectiveEndDate?: string
+  email?: string
+  fullName: string
+  isDependent: boolean
+  isEmergency: boolean
+  ktpNumber?: string
+  occupation?: string
+  phone?: string
+  startDate: string
+}
+
+export interface EmployeeCreateContractPayload {
+  contractFileId?: string
+  contractNumber?: string
+  contractType: string
+  effectiveEndDate?: string
+  maxExtensionDate?: string
+  probationEffectiveEndDate?: string
+  startDate: string
+  status: string
+}
+
+export interface EmployeeCreateDocumentPayload {
+  documentFileId?: string
+  documentNumber?: string
+  documentTypeId?: string
+  expiryDate?: string
+  issuedDate?: string
+  verificationStatus: string
+  verifiedAt?: string
+  verifiedBy?: string
+}
+
+export interface EmployeeCreateEducationPayload {
+  certificateFileId?: string
+  educationLevel: string
+  gpa?: number
+  graduationYear?: number
+  institutionName?: string
+  major?: string
+}
+
+export interface EmployeeCreateProjectPayload {
+  effectiveEndDate?: string
+  effectiveStartDate: string
+  employeeId?: string
+  isPrimary: boolean
+  projectId?: string
+  roleInProject?: string
+}
+
+export interface EmployeeCreateEmployeePayload {
+  address?: string
+  attendanceMachineNumber?: string
+  bankAccountHolderName?: string
+  bankAccountNumber?: string
+  bankId?: string
+  bankName?: string
+  bloodType?: string
+  bpjsKesehatanNumber?: string
+  bpjsKetenagakerjaanNumber?: string
+  citizenshipStatus?: string
+  city?: string
+  country?: string
+  dateOfBirth?: string
+  district?: string
+  domicileAddress?: string
+  drivingLicenseNumber?: string
+  employeeNumber: string
+  employeeStatus?: string
+  employmentType?: string
+  fullName: string
+  gender?: string
+  heightCm?: number
+  hireDate: string
+  kkNumber?: string
+  ktpNumber?: string
+  lastEducationLevel?: string
+  latitude?: number
+  longitude?: number
+  maritalStatus?: string
+  motherMaidenName?: string
+  npwpNumber?: string
+  personalEmail?: string
+  phoneNumber?: string
+  photoFileId?: string
+  placeOfBirth?: string
+  postalCode?: string
+  province?: string
+  religion?: string
+  resignDate?: string
+  terminationReason?: string
+  village?: string
+  weightKg?: number
+  whatsappNumber?: string
+  workPermitNumber?: string
 }
 
 export interface CreateEmployeeInformationRequest {
