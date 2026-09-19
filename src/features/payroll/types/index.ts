@@ -1,6 +1,25 @@
 // src/features/payroll/types/index.ts — Complete TypeScript definitions for Payroll Module
 
-export type PayrollTab = 'overview' | 'configuration' | 'process' | 'approval' | 'payslip'
+export type PayrollTab = 'overview' | 'configuration' | 'process' | 'approval' | 'payslip' | 'attendance'
+
+export type AttendanceSyncStatus =
+  | 'synced_auto'
+  | 'synced_manual'
+  | 'pending'
+  | 'needs_review'
+
+export interface AttendancePayrollRecord {
+  nik: string
+  employeeName: string
+  period: string // e.g. "Juni 2026"
+  workingDays: number
+  presentDays: number
+  leavePermitDays: number
+  lateCount: number
+  overtimeHours: number
+  salaryAdjustment: number
+  syncStatus: AttendanceSyncStatus
+}
 
 export type ConfigSubTab =
   | 'general'

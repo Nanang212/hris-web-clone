@@ -3,6 +3,8 @@ import {
   IconAlertTriangle,
   IconChartBar,
   IconCircleCheck,
+  IconEye,
+  IconRefresh,
   IconSearch,
   IconSettings,
   IconUserPlus,
@@ -59,6 +61,11 @@ import {
   TableRow,
 } from '@/shared/components/ui/table'
 import { Tabs, TabsList, TabsTrigger } from '@/shared/components/ui/tabs'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/shared/components/ui/tooltip'
 import { useSchema } from '@/shared/lib/schema'
 import { snackbar } from '@/shared/lib/snackbar'
 import { getAttendanceBreadcrumbs } from '@/features/attendance/components/attendance-breadcrumbs'
@@ -264,23 +271,49 @@ export function FaceRecognitionPage() {
                   </TableCell>
                   <TableCell>
                     {activeSection === 'reset' ? (
-                      <Button
-                        size='sm'
-                        variant='outline'
-                        disabled={person.status === 'Not Enrolled'}
-                        onClick={() => setResetTarget(person)}
-                      >
-                        Reset
-                      </Button>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span>
+                            <Button
+                              type='button'
+                              size='icon'
+                              variant='ghost'
+                              disabled={person.status === 'Not Enrolled'}
+                              onClick={() => setResetTarget(person)}
+                              className='size-8 text-muted-foreground hover:bg-amber-500/10 hover:text-amber-600 disabled:opacity-40 disabled:pointer-events-none'
+                              aria-label='Reset Enrollment'
+                            >
+                              <IconRefresh size={16} />
+                            </Button>
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent side='top'>
+                          <p>{person.status === 'Not Enrolled' ? 'Not Enrolled' : 'Reset Enrollment'}</p>
+                        </TooltipContent>
+                      </Tooltip>
                     ) : (
-                      <Button size='sm' variant='ghost' asChild>
-                        <Link
-                          to='/attendance/face-enrollment/$employeeId'
-                          params={{ employeeId: person.id }}
-                        >
-                          View
-                        </Link>
-                      </Button>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            type='button'
+                            size='icon'
+                            variant='ghost'
+                            className='size-8 text-muted-foreground hover:bg-primary/10 hover:text-primary'
+                            aria-label='View Enrollment'
+                            asChild
+                          >
+                            <Link
+                              to='/attendance/face-enrollment/$employeeId'
+                              params={{ employeeId: person.id }}
+                            >
+                              <IconEye size={16} />
+                            </Link>
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent side='top'>
+                          <p>View Enrollment</p>
+                        </TooltipContent>
+                      </Tooltip>
                     )}
                   </TableCell>
                 </TableRow>
@@ -423,9 +456,23 @@ export function FaceRecognitionPage() {
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <Button size='sm' variant='ghost' onClick={() => setSelectedPerson(person)}>
-                          View
-                        </Button>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              type='button'
+                              size='icon'
+                              variant='ghost'
+                              onClick={() => setSelectedPerson(person)}
+                              className='size-8 text-muted-foreground hover:bg-primary/10 hover:text-primary'
+                              aria-label='View Detail'
+                            >
+                              <IconEye size={16} />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent side='top'>
+                            <p>View Detail</p>
+                          </TooltipContent>
+                        </Tooltip>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -468,9 +515,23 @@ export function FaceRecognitionPage() {
                       <TableCell>{index === 0 ? 'System' : 'HR Administrator'}</TableCell>
                       <TableCell className='whitespace-nowrap'>{person.lastUpdate}</TableCell>
                       <TableCell>
-                        <Button size='sm' variant='ghost' onClick={() => setSelectedPerson(person)}>
-                          View
-                        </Button>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              type='button'
+                              size='icon'
+                              variant='ghost'
+                              onClick={() => setSelectedPerson(person)}
+                              className='size-8 text-muted-foreground hover:bg-primary/10 hover:text-primary'
+                              aria-label='View Detail'
+                            >
+                              <IconEye size={16} />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent side='top'>
+                            <p>View Detail</p>
+                          </TooltipContent>
+                        </Tooltip>
                       </TableCell>
                     </TableRow>
                   ))}
