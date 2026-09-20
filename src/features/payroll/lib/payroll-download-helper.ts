@@ -9,176 +9,180 @@ import type { PayslipRecord, PayrollRun } from '../types'
  */
 function escapePdfText(text: string): string {
   if (!text) return ''
-  return text.replace(/\\/g, '\\\\').replace(/\(/g, '\\(').replace(/\)/g, '\\)')
+  return text
+    .replace(/\u00a0/g, ' ')
+    .replace(/\\/g, '\\\\')
+    .replace(/\(/g, '\\(')
+    .replace(/\)/g, '\\)')
 }
 
 /**
  * Generates a valid standard PDF 1.4 binary blob for an official Payslip
+ * Matches the visual design of the on-screen preview (payslip-detail-view.tsx)
  */
 export function generatePayslipPdfBlob(payslip: PayslipRecord): Blob {
   const checksum = `AGY-HRIS-${payslip.payslipNumber.replace(/[^A-Za-z0-9]/g, '')}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`
 
+  // Status Badge styling mapping
+  const badgeMap: Record<string, { bg: string; border: string; text: string; label: string }> = {
+    sent: {
+      bg: '0.86 0.99 0.90',
+      border: '0.52 0.94 0.67',
+      text: '0.08 0.50 0.24',
+      label: 'SENT',
+    },
+    downloaded: {
+      bg: '0.86 0.92 1.0',
+      border: '0.58 0.77 0.99',
+      text: '0.11 0.31 0.85',
+      label: 'DOWNLOADED',
+    },
+    published: {
+      bg: '1.0 0.95 0.78',
+      border: '0.99 0.90 0.54',
+      text: '0.71 0.33 0.04',
+      label: 'PUBLISHED',
+    },
+    draft: {
+      bg: '0.95 0.96 0.98',
+      border: '0.79 0.83 0.88',
+      text: '0.28 0.33 0.41',
+      label: 'DRAFT',
+    },
+  }
+  const badge = badgeMap[payslip.status.toLowerCase()] || badgeMap.draft
+
   // Compute positions for financial items
   const maxItems = Math.max(payslip.earnings.length, payslip.deductions.length)
-  const itemStartY = 590
-  const rowHeight = 18
-  const earningsEndOffset = payslip.earnings.length * rowHeight
-  const deductionsEndOffset = payslip.deductions.length * rowHeight
-  const maxTableHeight = (maxItems + 1) * rowHeight + 15
-
-  const yTableBottom = itemStartY - maxTableHeight
-  const yNetBox = yTableBottom - 65
-  const yFooter = 65
+  const itemStartY = 582
+  const rowHeight = 17
 
   // Generate earnings text stream lines
   let earningsStream = ''
   payslip.earnings.forEach((e, idx) => {
     const curY = itemStartY - idx * rowHeight
     earningsStream += `
-BT /F2 8.5 Tf 0.2 0.25 0.3 rg 45 ${curY} Td (${escapePdfText(e.name)}) Tj ET
-BT /F1 8.5 Tf 0.1 0.15 0.25 rg 210 ${curY} Td (${escapePdfText(formatIDR(e.amount))}) Tj ET
-q 0.9 0.92 0.95 RG 0.5 w 45 ${curY - 4} m 285 ${curY - 4} l S Q
+BT /F2 8.5 Tf 0.28 0.33 0.41 rg 40 ${curY} Td (${escapePdfText(e.name)}) Tj ET
+BT /F1 8.5 Tf 0.06 0.09 0.16 rg 210 ${curY} Td (${escapePdfText(formatIDR(e.amount))}) Tj ET
 `
   })
-
-  // Total earnings line
-  const yEarnTotal = itemStartY - earningsEndOffset - 8
-  earningsStream += `
-q 0.93 0.98 0.95 rg 0.7 0.88 0.78 RG 0.75 w 35 ${yEarnTotal - 6} 255 20 re B Q
-BT /F1 8 Tf 0.05 0.5 0.25 rg 43 ${yEarnTotal} Td (TOTAL PENDAPATAN KOTOR (A)) Tj ET
-BT /F1 8.5 Tf 0.05 0.5 0.25 rg 205 ${yEarnTotal} Td (${escapePdfText(formatIDR(payslip.totalEarnings))}) Tj ET
-`
 
   // Generate deductions text stream lines
   let deductionsStream = ''
   payslip.deductions.forEach((d, idx) => {
     const curY = itemStartY - idx * rowHeight
     deductionsStream += `
-BT /F2 8.5 Tf 0.2 0.25 0.3 rg 315 ${curY} Td (${escapePdfText(d.name)}) Tj ET
-BT /F1 8.5 Tf 0.8 0.15 0.2 rg 475 ${curY} Td (-${escapePdfText(formatIDR(d.amount))}) Tj ET
-q 0.9 0.92 0.95 RG 0.5 w 315 ${curY - 4} m 555 ${curY - 4} l S Q
+BT /F2 8.5 Tf 0.28 0.33 0.41 rg 310 ${curY} Td (${escapePdfText(d.name)}) Tj ET
+BT /F1 8.5 Tf 0.88 0.11 0.28 rg 480 ${curY} Td (-${escapePdfText(formatIDR(d.amount))}) Tj ET
 `
   })
 
-  // Total deductions line
-  const yDedTotal = itemStartY - deductionsEndOffset - 8
-  deductionsStream += `
-q 0.99 0.94 0.94 rg 0.92 0.75 0.78 RG 0.75 w 305 ${yDedTotal - 6} 255 20 re B Q
-BT /F1 8 Tf 0.8 0.15 0.2 rg 313 ${yDedTotal} Td (TOTAL POTONGAN (B)) Tj ET
-BT /F1 8.5 Tf 0.8 0.15 0.2 rg 470 ${yDedTotal} Td (-${escapePdfText(formatIDR(payslip.totalDeductions))}) Tj ET
+  const yTotal = itemStartY - maxItems * rowHeight - 6
+  const yNetBox = yTotal - 64
+  const yFooter = 60
+
+  // Total earnings & deductions rows matching preview (clean line divider + colored total)
+  const totalsStream = `
+% Earnings Total Row
+q 0.79 0.83 0.88 RG 0.75 w 40 ${yTotal + 11} m 285 ${yTotal + 11} l S Q
+BT /F1 8 Tf 0.06 0.09 0.16 rg 40 ${yTotal} Td (TOTAL PENDAPATAN KOTOR (A)) Tj ET
+BT /F1 8.5 Tf 0.02 0.59 0.41 rg 205 ${yTotal} Td (${escapePdfText(formatIDR(payslip.totalEarnings))}) Tj ET
+
+% Deductions Total Row
+q 0.79 0.83 0.88 RG 0.75 w 310 ${yTotal + 11} m 555 ${yTotal + 11} l S Q
+BT /F1 8 Tf 0.06 0.09 0.16 rg 310 ${yTotal} Td (TOTAL POTONGAN (B)) Tj ET
+BT /F1 8.5 Tf 0.88 0.11 0.28 rg 475 ${yTotal} Td (-${escapePdfText(formatIDR(payslip.totalDeductions))}) Tj ET
 `
 
   // Build the complete PDF graphic and text stream
   const contentStream = `
-% Top Accent Strip
-q 0.15 0.35 0.75 rg 35 802 525 4 re f Q
-
-% Company Logo Box
-q 0.15 0.35 0.75 rg 35 745 42 42 re f Q
-BT /F1 16 Tf 1 1 1 rg 46 760 Td (AG) Tj ET
+% Company Logo Box (Blue rounded icon container)
+q 0.15 0.39 0.92 rg 40 735 36 36 re f Q
+BT /F1 14 Tf 1 1 1 rg 49 747 Td (AG) Tj ET
 
 % Company Header Info
-BT
-/F1 14 Tf 0.12 0.15 0.22 rg 85 772 Td (PT ANTIGRAVITY NUSANTARA) Tj
-0 -14 Td
-/F2 8 Tf 0.4 0.45 0.5 rg (Sudirman Central Business District (SCBD), Tower 2 Lt. 18, Jakarta Selatan 12190) Tj
-0 -12 Td
-/F2 8 Tf 0.4 0.45 0.5 rg (NPWP: 01.829.471.2-014.000  |  Telp: (021) 5299-8800) Tj
-ET
+BT /F1 13 Tf 0.06 0.09 0.16 rg 86 761 Td (PT ANTIGRAVITY NUSANTARA) Tj ET
+BT /F2 7.5 Tf 0.39 0.45 0.55 rg 86 748 Td (Sudirman Central Business District (SCBD), Tower 2 Lt. 18, Jakarta Selatan 12190) Tj ET
+BT /F2 7.5 Tf 0.39 0.45 0.55 rg 86 737 Td (NPWP: 01.829.471.2-014.000  |  Telp: (021) 5299-8800) Tj ET
 
-% Right Document Header
-BT
-/F1 12.5 Tf 0.15 0.35 0.75 rg 360 772 Td (SLIP GAJI KARYAWAN) Tj
-0 -14 Td
-/F1 8.5 Tf 0.15 0.18 0.25 rg (Periode: ) Tj
-/F2 8.5 Tf (${escapePdfText(payslip.period)}) Tj
-0 -12 Td
-/F2 8 Tf 0.4 0.45 0.5 rg (No: ${escapePdfText(payslip.payslipNumber)}) Tj
-ET
+% Right Document Header (Cleanly separated & aligned vertically)
+BT /F1 11 Tf 0.15 0.39 0.92 rg 380 770 Td (SLIP GAJI KARYAWAN) Tj ET
+BT /F1 8.5 Tf 0.06 0.09 0.16 rg 380 754 Td (Periode: ) Tj /F2 8.5 Tf (${escapePdfText(payslip.period)}) Tj ET
+BT /F3 8 Tf 0.39 0.45 0.55 rg 380 740 Td (No: ${escapePdfText(payslip.payslipNumber)}) Tj ET
 
-% Status Badge
-q 0.9 0.95 0.92 rg 0.2 0.6 0.35 RG 0.5 w 505 746 55 16 re B Q
-BT /F1 7.5 Tf 0.1 0.55 0.25 rg 515 751 Td (${escapePdfText(payslip.status.toUpperCase())}) Tj ET
+% Status Badge (Positioned below document metadata)
+q ${badge.bg} rg ${badge.border} RG 0.75 w 495 721 60 15 re B Q
+BT /F1 7.5 Tf ${badge.text} rg 505 725 Td (${escapePdfText(badge.label)}) Tj ET
 
 % Header Divider
-q 0.85 0.88 0.92 RG 1 w 35 733 m 560 733 l S Q
+q 0.88 0.91 0.94 RG 0.75 w 40 712 m 555 712 l S Q
 
-% Employee Information Card Box
-q 0.96 0.97 0.99 rg 0.82 0.86 0.92 RG 0.75 w 35 645 525 76 re B Q
+% Employee Information Card Box (Subtle slate background with thin border)
+q 0.97 0.98 0.99 rg 0.88 0.91 0.94 RG 0.75 w 40 634 515 68 re B Q
 
 % Employee Info Details Row 1
-BT /F2 7 Tf 0.45 0.5 0.55 rg 48 706 Td (Nama Karyawan) Tj ET
-BT /F1 8.5 Tf 0.12 0.15 0.22 rg 48 694 Td (${escapePdfText(payslip.employeeName)}) Tj ET
+BT /F2 7 Tf 0.39 0.45 0.55 rg 52 686 Td (Nama Karyawan) Tj ET
+BT /F1 8.5 Tf 0.06 0.09 0.16 rg 52 673 Td (${escapePdfText(payslip.employeeName)}) Tj ET
 
-BT /F2 7 Tf 0.45 0.5 0.55 rg 180 706 Td (NIK / Employee ID) Tj ET
-BT /F3 8.5 Tf 0.12 0.15 0.22 rg 180 694 Td (${escapePdfText(payslip.employeeCode)}) Tj ET
+BT /F2 7 Tf 0.39 0.45 0.55 rg 180 686 Td (NIK / Employee ID) Tj ET
+BT /F3 8.5 Tf 0.06 0.09 0.16 rg 180 673 Td (${escapePdfText(payslip.employeeCode)}) Tj ET
 
-BT /F2 7 Tf 0.45 0.5 0.55 rg 300 706 Td (Departemen) Tj ET
-BT /F1 8.5 Tf 0.12 0.15 0.22 rg 300 694 Td (${escapePdfText(payslip.department)}) Tj ET
+BT /F2 7 Tf 0.39 0.45 0.55 rg 305 686 Td (Departemen) Tj ET
+BT /F1 8.5 Tf 0.06 0.09 0.16 rg 305 673 Td (${escapePdfText(payslip.department)}) Tj ET
 
-BT /F2 7 Tf 0.45 0.5 0.55 rg 425 706 Td (Jabatan / Grade) Tj ET
-BT /F1 8.5 Tf 0.12 0.15 0.22 rg 425 694 Td (${escapePdfText(payslip.position)}) Tj ET
+BT /F2 7 Tf 0.39 0.45 0.55 rg 430 686 Td (Jabatan / Grade) Tj ET
+BT /F1 8.5 Tf 0.06 0.09 0.16 rg 430 673 Td (${escapePdfText(payslip.position)}) Tj ET
 
 % Employee Info Details Row 2
-BT /F2 7 Tf 0.45 0.5 0.55 rg 48 672 Td (Status PTKP) Tj ET
-BT /F1 8.5 Tf 0.12 0.15 0.22 rg 48 660 Td (${escapePdfText(payslip.ptkpStatus)}) Tj ET
+BT /F2 7 Tf 0.39 0.45 0.55 rg 52 655 Td (Status PTKP) Tj ET
+BT /F1 8.5 Tf 0.06 0.09 0.16 rg 52 643 Td (${escapePdfText(payslip.ptkpStatus)}) Tj ET
 
-BT /F2 7 Tf 0.45 0.5 0.55 rg 180 672 Td (Nomor NPWP) Tj ET
-BT /F3 8 Tf 0.12 0.15 0.22 rg 180 660 Td (${escapePdfText(payslip.npwp)}) Tj ET
+BT /F2 7 Tf 0.39 0.45 0.55 rg 180 655 Td (Nomor NPWP) Tj ET
+BT /F3 8 Tf 0.06 0.09 0.16 rg 180 643 Td (${escapePdfText(payslip.npwp)}) Tj ET
 
-BT /F2 7 Tf 0.45 0.5 0.55 rg 300 672 Td (Rekening Bank) Tj ET
-BT /F1 8 Tf 0.12 0.15 0.22 rg 300 660 Td (${escapePdfText(payslip.bankName)} - ${escapePdfText(payslip.bankAccountNumber)}) Tj ET
+BT /F2 7 Tf 0.39 0.45 0.55 rg 305 655 Td (Rekening Bank) Tj ET
+BT /F1 8 Tf 0.06 0.09 0.16 rg 305 643 Td (${escapePdfText(payslip.bankName)} - ${escapePdfText(payslip.bankAccountNumber)}) Tj ET
 
-BT /F2 7 Tf 0.45 0.5 0.55 rg 425 672 Td (Tanggal Pembayaran) Tj ET
-BT /F1 8.5 Tf 0.12 0.15 0.22 rg 425 660 Td (${escapePdfText(payslip.paymentDate)}) Tj ET
+BT /F2 7 Tf 0.39 0.45 0.55 rg 430 655 Td (Tanggal Pembayaran) Tj ET
+BT /F1 8.5 Tf 0.06 0.09 0.16 rg 430 643 Td (${escapePdfText(payslip.paymentDate)}) Tj ET
 
-% Section Table Headers
-q 0.05 0.6 0.35 rg 35 615 255 18 re f Q
-BT /F1 8 Tf 1 1 1 rg 45 621 Td (A. PENDAPATAN (EARNINGS)) Tj 225 621 Td (Nominal (Rp)) Tj ET
+% Financial Breakdown Section Headers (Clean border lines, no solid blocks)
+BT /F1 8.5 Tf 0.02 0.59 0.41 rg 40 612 Td (A. PENDAPATAN (EARNINGS)) Tj ET
+BT /F1 7.5 Tf 0.39 0.45 0.55 rg 225 612 Td (Nominal (Rp)) Tj ET
+q 0.88 0.91 0.94 RG 0.75 w 40 604 m 285 604 l S Q
 
-q 0.85 0.2 0.25 rg 305 615 255 18 re f Q
-BT /F1 8 Tf 1 1 1 rg 315 621 Td (B. POTONGAN (DEDUCTIONS)) Tj 490 621 Td (Nominal (Rp)) Tj ET
+BT /F1 8.5 Tf 0.88 0.11 0.28 rg 310 612 Td (B. POTONGAN (DEDUCTIONS)) Tj ET
+BT /F1 7.5 Tf 0.39 0.45 0.55 rg 495 612 Td (Nominal (Rp)) Tj ET
+q 0.88 0.91 0.94 RG 0.75 w 310 604 m 555 604 l S Q
 
-% Financial Breakdown Items
+% Financial Breakdown Rows & Totals
 ${earningsStream}
 ${deductionsStream}
+${totalsStream}
 
-% Take Home Pay (Net Pay) Banner Box
-q 0.93 0.96 1.0 rg 0.2 0.45 0.85 RG 1.5 w 35 ${yNetBox} 525 46 re B Q
-BT
-/F1 9.5 Tf 0.12 0.35 0.8 rg 50 ${yNetBox + 27} Td (GAJI BERSIH (TAKE HOME PAY)) Tj
-0 -14 Td
-/F2 7.5 Tf 0.4 0.45 0.55 rg (Jumlah yang ditransfer ke rekening ${escapePdfText(payslip.bankName)} ${escapePdfText(payslip.bankAccountNumber)}) Tj
-ET
-
-BT /F1 16 Tf 0.12 0.35 0.8 rg 370 ${yNetBox + 18} Td (${escapePdfText(formatIDR(payslip.netPay))}) Tj ET
+% Take Home Pay (Net Pay) Banner Box (Light blue tint with blue border)
+q 0.94 0.96 1.0 rg 0.58 0.77 0.99 RG 1.5 w 40 ${yNetBox} 515 48 re B Q
+BT /F1 9 Tf 0.15 0.39 0.92 rg 52 ${yNetBox + 28} Td (GAJI BERSIH (TAKE HOME PAY)) Tj ET
+BT /F2 7.5 Tf 0.39 0.45 0.55 rg 52 ${yNetBox + 14} Td (Jumlah yang ditransfer ke rekening ${escapePdfText(payslip.bankName)} ${escapePdfText(payslip.bankAccountNumber)}) Tj ET
+BT /F1 16 Tf 0.15 0.39 0.92 rg 395 ${yNetBox + 18} Td (${escapePdfText(formatIDR(payslip.netPay))}) Tj ET
 
 % Bottom Divider
-q 0.85 0.88 0.92 RG 0.75 w 35 ${yFooter + 75} m 560 ${yFooter + 75} l S Q
+q 0.88 0.91 0.94 RG 0.75 w 40 ${yFooter + 75} m 555 ${yFooter + 75} l S Q
 
 % Digital Verification Box
-q 0.96 0.97 0.99 rg 0.85 0.88 0.92 RG 0.5 w 35 ${yFooter} 275 60 re B Q
-q 0.15 0.35 0.75 rg 45 ${yFooter + 12} 36 36 re f Q
-BT /F1 11 Tf 1 1 1 rg 53 ${yFooter + 25} Td (QR) Tj ET
+q 0.97 0.98 0.99 rg 0.88 0.91 0.94 RG 0.75 w 40 ${yFooter} 275 62 re B Q
+q 1 1 1 rg 0.79 0.83 0.88 RG 0.75 w 48 ${yFooter + 12} 38 38 re B Q
+BT /F1 10 Tf 0.15 0.39 0.92 rg 60 ${yFooter + 25} Td (QR) Tj ET
 
-BT
-/F1 8 Tf 0.15 0.2 0.3 rg 90 ${yFooter + 44} Td (Verifikasi Digital HRIS) Tj
-0 -11 Td
-/F2 6.5 Tf 0.4 0.45 0.5 rg (Dokumen ini sah digenerate secara elektronik melalui) Tj
-0 -9 Td
-/F2 6.5 Tf 0.4 0.45 0.5 rg (Antigravity HRMS dan tidak memerlukan tanda tangan basah.) Tj
-0 -10 Td
-/F3 6 Tf 0.5 0.55 0.6 rg (ID: ${checksum}) Tj
-ET
+BT /F1 8.5 Tf 0.06 0.09 0.16 rg 96 ${yFooter + 46} Td (Verifikasi Digital HRIS) Tj ET
+BT /F2 6.5 Tf 0.39 0.45 0.55 rg 96 ${yFooter + 35} Td (Dokumen ini sah digenerate secara elektronik melalui) Tj ET
+BT /F2 6.5 Tf 0.39 0.45 0.55 rg 96 ${yFooter + 25} Td (Antigravity HRMS dan tidak memerlukan tanda tangan basah.) Tj ET
+BT /F3 6.5 Tf 0.58 0.64 0.72 rg 96 ${yFooter + 14} Td (ID: ${checksum}) Tj ET
 
 % Sign-off Column
-BT
-/F2 7.5 Tf 0.4 0.45 0.5 rg 380 ${yFooter + 48} Td (Jakarta, ${escapePdfText(payslip.paymentDate)}) Tj
-0 -16 Td
-/F1 8.5 Tf 0.15 0.2 0.3 rg (Finance & Payroll Division) Tj
-0 -11 Td
-/F2 7.5 Tf 0.4 0.45 0.5 rg (PT Antigravity Nusantara) Tj
-ET
+BT /F2 7.5 Tf 0.39 0.45 0.55 rg 385 ${yFooter + 48} Td (Jakarta, ${escapePdfText(payslip.paymentDate)}) Tj ET
+BT /F1 8.5 Tf 0.06 0.09 0.16 rg 385 ${yFooter + 24} Td (Finance & Payroll Division) Tj ET
+BT /F2 7.5 Tf 0.39 0.45 0.55 rg 385 ${yFooter + 12} Td (PT Antigravity Nusantara) Tj ET
 `.trim()
 
   const streamLength = contentStream.length

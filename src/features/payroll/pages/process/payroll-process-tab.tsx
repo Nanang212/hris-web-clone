@@ -4,6 +4,7 @@ import {
   IconSearch,
   IconClockCheck,
   IconUsers,
+  IconEye,
 } from '@tabler/icons-react'
 import { useState } from 'react'
 import { PayrollStatusBadge } from '../../components/payroll-status-badge'
@@ -11,6 +12,11 @@ import { formatIDR } from '../../data/mock-payroll-data'
 import type { PayrollRun } from '../../types'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/shared/components/ui/tooltip'
 import {
   Table,
   TableBody,
@@ -113,13 +119,22 @@ export function PayrollProcessTab({
                   <PayrollStatusBadge status={run.status} />
                 </TableCell>
                 <TableCell className='py-4 pr-6 text-right'>
-                  <button
-                    type='button'
-                    onClick={() => onViewDetail(run)}
-                    className='text-xs font-semibold text-primary hover:underline cursor-pointer'
-                  >
-                    View Detail
-                  </button>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant='ghost'
+                        size='icon'
+                        onClick={() => onViewDetail(run)}
+                        className='size-8 text-muted-foreground hover:text-primary hover:bg-primary/10'
+                        aria-label='View Detail'
+                      >
+                        <IconEye size={16} />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side='left'>
+                      <p>View Detail</p>
+                    </TooltipContent>
+                  </Tooltip>
                 </TableCell>
               </TableRow>
             ))}

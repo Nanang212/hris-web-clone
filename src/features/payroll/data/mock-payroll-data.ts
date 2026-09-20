@@ -16,7 +16,10 @@ export function formatIDR(amount: number): string {
     style: 'currency',
     currency: 'IDR',
     maximumFractionDigits: 0,
-  }).format(amount)
+  })
+    .format(amount)
+    .replace(/\u00a0/g, ' ')
+    .trim()
 }
 
 export function formatCompactIDR(amount: number): string {
@@ -556,5 +559,143 @@ export const initialPayslips: PayslipRecord[] = [
     totalDeductions: 655000,
     netPay: 11630000,
     status: 'published',
+  },
+]
+
+import type { AttendancePayrollRecord } from '../types'
+
+export const initialAttendancePayrollRecords: AttendancePayrollRecord[] = [
+  // ── Juni 2026 ──────────────────────────────────────────────────────────────
+  {
+    nik: 'EMP-00001', employeeName: 'Rizky Saputra', period: 'Juni 2026',
+    workingDays: 22, presentDays: 21, leavePermitDays: 1, lateCount: 1,
+    overtimeHours: 0, salaryAdjustment: 0, syncStatus: 'synced_auto',
+  },
+  {
+    nik: 'EMP-00002', employeeName: 'Agus Suharto', period: 'Juni 2026',
+    workingDays: 22, presentDays: 22, leavePermitDays: 0, lateCount: 0,
+    overtimeHours: 3, salaryAdjustment: 255000, syncStatus: 'synced_auto',
+  },
+  {
+    nik: 'EMP-00003', employeeName: 'Bambang Kusuma', period: 'Juni 2026',
+    workingDays: 22, presentDays: 22, leavePermitDays: 0, lateCount: 0,
+    overtimeHours: 6, salaryAdjustment: 510000, syncStatus: 'synced_auto',
+  },
+  {
+    nik: 'EMP-00004', employeeName: 'Mega Ramadhan', period: 'Juni 2026',
+    workingDays: 22, presentDays: 22, leavePermitDays: 0, lateCount: 0,
+    overtimeHours: 9, salaryAdjustment: 765000, syncStatus: 'synced_auto',
+  },
+  {
+    nik: 'EMP-00005', employeeName: 'Rizky Firmansyah', period: 'Juni 2026',
+    workingDays: 22, presentDays: 22, leavePermitDays: 0, lateCount: 0,
+    overtimeHours: 12, salaryAdjustment: 1020000, syncStatus: 'synced_auto',
+  },
+  {
+    nik: 'EMP-00006', employeeName: 'Agus Suryani', period: 'Juni 2026',
+    workingDays: 22, presentDays: 22, leavePermitDays: 0, lateCount: 3,
+    overtimeHours: 0, salaryAdjustment: 0, syncStatus: 'synced_auto',
+  },
+  {
+    nik: 'EMP-00007', employeeName: 'Bambang Pratama', period: 'Juni 2026',
+    workingDays: 22, presentDays: 22, leavePermitDays: 0, lateCount: 0,
+    overtimeHours: 3, salaryAdjustment: 255000, syncStatus: 'synced_auto',
+  },
+  {
+    nik: 'EMP-00008', employeeName: 'Mega Wahyudi', period: 'Juni 2026',
+    workingDays: 22, presentDays: 22, leavePermitDays: 0, lateCount: 0,
+    overtimeHours: 6, salaryAdjustment: 510000, syncStatus: 'synced_auto',
+  },
+  {
+    nik: 'EMP-00009', employeeName: 'Sinta Dewi', period: 'Juni 2026',
+    workingDays: 22, presentDays: 20, leavePermitDays: 2, lateCount: 2,
+    overtimeHours: 0, salaryAdjustment: -100000, syncStatus: 'needs_review',
+  },
+  {
+    nik: 'EMP-00010', employeeName: 'Hendra Gunawan', period: 'Juni 2026',
+    workingDays: 22, presentDays: 22, leavePermitDays: 0, lateCount: 0,
+    overtimeHours: 15, salaryAdjustment: 1275000, syncStatus: 'synced_auto',
+  },
+  {
+    nik: 'EMP-00011', employeeName: 'Yuliana Putri', period: 'Juni 2026',
+    workingDays: 22, presentDays: 19, leavePermitDays: 3, lateCount: 5,
+    overtimeHours: 0, salaryAdjustment: -250000, syncStatus: 'needs_review',
+  },
+  {
+    nik: 'EMP-00012', employeeName: 'Dedi Kurniawan', period: 'Juni 2026',
+    workingDays: 22, presentDays: 22, leavePermitDays: 0, lateCount: 1,
+    overtimeHours: 4, salaryAdjustment: 340000, syncStatus: 'synced_manual',
+  },
+  // ── Mei 2026 ───────────────────────────────────────────────────────────────
+  {
+    nik: 'EMP-00001', employeeName: 'Rizky Saputra', period: 'Mei 2026',
+    workingDays: 21, presentDays: 21, leavePermitDays: 0, lateCount: 0,
+    overtimeHours: 5, salaryAdjustment: 425000, syncStatus: 'synced_auto',
+  },
+  {
+    nik: 'EMP-00002', employeeName: 'Agus Suharto', period: 'Mei 2026',
+    workingDays: 21, presentDays: 20, leavePermitDays: 1, lateCount: 2,
+    overtimeHours: 0, salaryAdjustment: -100000, syncStatus: 'synced_auto',
+  },
+  {
+    nik: 'EMP-00003', employeeName: 'Bambang Kusuma', period: 'Mei 2026',
+    workingDays: 21, presentDays: 21, leavePermitDays: 0, lateCount: 0,
+    overtimeHours: 8, salaryAdjustment: 680000, syncStatus: 'synced_auto',
+  },
+  {
+    nik: 'EMP-00004', employeeName: 'Mega Ramadhan', period: 'Mei 2026',
+    workingDays: 21, presentDays: 21, leavePermitDays: 0, lateCount: 1,
+    overtimeHours: 4, salaryAdjustment: 340000, syncStatus: 'synced_auto',
+  },
+  {
+    nik: 'EMP-00005', employeeName: 'Rizky Firmansyah', period: 'Mei 2026',
+    workingDays: 21, presentDays: 19, leavePermitDays: 2, lateCount: 0,
+    overtimeHours: 10, salaryAdjustment: 850000, syncStatus: 'synced_auto',
+  },
+  {
+    nik: 'EMP-00006', employeeName: 'Agus Suryani', period: 'Mei 2026',
+    workingDays: 21, presentDays: 18, leavePermitDays: 3, lateCount: 4,
+    overtimeHours: 0, salaryAdjustment: -200000, syncStatus: 'needs_review',
+  },
+  {
+    nik: 'EMP-00007', employeeName: 'Bambang Pratama', period: 'Mei 2026',
+    workingDays: 21, presentDays: 21, leavePermitDays: 0, lateCount: 0,
+    overtimeHours: 6, salaryAdjustment: 510000, syncStatus: 'synced_auto',
+  },
+  {
+    nik: 'EMP-00008', employeeName: 'Mega Wahyudi', period: 'Mei 2026',
+    workingDays: 21, presentDays: 21, leavePermitDays: 0, lateCount: 0,
+    overtimeHours: 2, salaryAdjustment: 170000, syncStatus: 'synced_auto',
+  },
+  // ── April 2026 ─────────────────────────────────────────────────────────────
+  {
+    nik: 'EMP-00001', employeeName: 'Rizky Saputra', period: 'April 2026',
+    workingDays: 22, presentDays: 22, leavePermitDays: 0, lateCount: 0,
+    overtimeHours: 8, salaryAdjustment: 680000, syncStatus: 'synced_auto',
+  },
+  {
+    nik: 'EMP-00002', employeeName: 'Agus Suharto', period: 'April 2026',
+    workingDays: 22, presentDays: 22, leavePermitDays: 0, lateCount: 1,
+    overtimeHours: 5, salaryAdjustment: 425000, syncStatus: 'synced_auto',
+  },
+  {
+    nik: 'EMP-00003', employeeName: 'Bambang Kusuma', period: 'April 2026',
+    workingDays: 22, presentDays: 20, leavePermitDays: 2, lateCount: 3,
+    overtimeHours: 0, salaryAdjustment: -150000, syncStatus: 'needs_review',
+  },
+  {
+    nik: 'EMP-00004', employeeName: 'Mega Ramadhan', period: 'April 2026',
+    workingDays: 22, presentDays: 22, leavePermitDays: 0, lateCount: 0,
+    overtimeHours: 11, salaryAdjustment: 935000, syncStatus: 'synced_auto',
+  },
+  {
+    nik: 'EMP-00005', employeeName: 'Rizky Firmansyah', period: 'April 2026',
+    workingDays: 22, presentDays: 22, leavePermitDays: 0, lateCount: 0,
+    overtimeHours: 14, salaryAdjustment: 1190000, syncStatus: 'synced_auto',
+  },
+  {
+    nik: 'EMP-00006', employeeName: 'Agus Suryani', period: 'April 2026',
+    workingDays: 22, presentDays: 22, leavePermitDays: 0, lateCount: 0,
+    overtimeHours: 2, salaryAdjustment: 170000, syncStatus: 'synced_manual',
   },
 ]

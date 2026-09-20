@@ -1,4 +1,4 @@
-import { IconPlus } from '@tabler/icons-react'
+import { IconEdit, IconPlus, IconTrash } from '@tabler/icons-react'
 import { useMemo, useState } from 'react'
 
 import { useProjects } from '@/features/company/project/data/dummy-projects'
@@ -29,6 +29,11 @@ import {
   TableHeader,
   TableRow,
 } from '@/shared/components/ui/table'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/shared/components/ui/tooltip'
 import { snackbar } from '@/shared/lib/snackbar'
 
 import {
@@ -285,21 +290,42 @@ export function ClientPage() {
                           {count} {count === 1 ? 'project' : 'projects'}
                         </TableCell>
                         <TableCell className='text-xs'>
-                          <div className='flex items-center gap-3'>
-                            <button
-                              type='button'
-                              onClick={() => openEditModal(client)}
-                              className='font-medium text-blue-600 hover:text-blue-700 hover:underline'
-                            >
-                              Edit
-                            </button>
-                            <button
-                              type='button'
-                              onClick={() => setDeleteTarget(client)}
-                              className='font-medium text-red-600 hover:text-red-700 hover:underline'
-                            >
-                              Delete
-                            </button>
+                          <div className='flex items-center gap-1'>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  type='button'
+                                  variant='ghost'
+                                  size='icon'
+                                  onClick={() => openEditModal(client)}
+                                  className='size-8 text-muted-foreground hover:bg-primary/10 hover:text-primary'
+                                  aria-label='Edit'
+                                >
+                                  <IconEdit size={16} />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent side='top'>
+                                <p>Edit</p>
+                              </TooltipContent>
+                            </Tooltip>
+
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  type='button'
+                                  variant='ghost'
+                                  size='icon'
+                                  onClick={() => setDeleteTarget(client)}
+                                  className='size-8 text-muted-foreground hover:bg-destructive/10 hover:text-destructive'
+                                  aria-label='Delete'
+                                >
+                                  <IconTrash size={16} />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent side='top'>
+                                <p>Delete</p>
+                              </TooltipContent>
+                            </Tooltip>
                           </div>
                         </TableCell>
                       </TableRow>

@@ -46,6 +46,7 @@ export function DatePicker(props: DatePickerProps) {
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
+          type='button'
           variant='outline'
           className='w-65 justify-start text-left font-normal'
           {...buttonProps}

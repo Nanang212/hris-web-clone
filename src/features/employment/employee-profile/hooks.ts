@@ -2,7 +2,7 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tansta
 
 import {
   archiveEmployeeInformation,
-  createEmployeeInformation,
+  createEmployeeProfile,
   downloadEmployeeProfile,
   exportEmployeeInformation,
   getEmployeeCreationOptions,
@@ -15,7 +15,7 @@ import {
   updateEmployeeInformationStatus,
 } from '@/features/employment/employee-profile/api'
 import type {
-  CreateEmployeeInformationRequest,
+  CreateEmployeeProfileInput,
   EmployeeInformationFilterParams,
   UpdateEmployeeInformationRequest,
   UpdateEmployeeStatusPayload,
@@ -53,7 +53,7 @@ export function useGetEmployeeCreationOptions() {
 export function useCreateEmployeeInformation() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (request: CreateEmployeeInformationRequest) => createEmployeeInformation(request),
+    mutationFn: (input: CreateEmployeeProfileInput) => createEmployeeProfile(input),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: employeeInformationQueryKeys.all })
     },

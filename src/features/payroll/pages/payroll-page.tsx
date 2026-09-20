@@ -6,9 +6,11 @@ import {
   IconFileText,
   IconChecklist,
   IconChartBar,
+  IconCalendarStats,
 } from '@tabler/icons-react'
 import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
+import { AttendancePayrollTab } from './attendance/attendance-payroll-tab'
 import { PayrollApprovalTab } from './approval/payroll-approval-tab'
 import { PayrollConfigTab } from './configuration/payroll-config-tab'
 import { PayrollOverviewTab } from './overview/payroll-overview-tab'
@@ -65,6 +67,7 @@ export function PayrollPage({
 
   const tabs: { id: PayrollTab; label: string; icon: React.ComponentType<{ size: number }> }[] = [
     { id: 'overview', label: 'Overview', icon: IconChartBar },
+    { id: 'attendance', label: 'Attendance to Payroll', icon: IconCalendarStats },
     { id: 'configuration', label: 'Configuration', icon: IconSettings },
     { id: 'process', label: 'Process', icon: IconReportMoney },
     { id: 'approval', label: 'Approval & Disbursement', icon: IconChecklist },
@@ -195,6 +198,8 @@ export function PayrollPage({
           )}
         </>
       )}
+
+      {activeTab === 'attendance' && <AttendancePayrollTab />}
 
       {activeTab === 'approval' && <PayrollApprovalTab />}
 
