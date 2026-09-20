@@ -23,6 +23,12 @@ import { useCreateEmployeeInformation } from '@/features/employment/employee-pro
 import type {
   CreateEmployeeInformationPayload,
   EmployeeCreationOptionsData,
+  EmployeeProfileContactType,
+  EmployeeProfileContractStatus,
+  EmployeeProfileContractType,
+  EmployeeProfileEducationLevel,
+  EmployeeProfileEmploymentType,
+  EmployeeProfileVerificationStatus,
 } from '@/features/employment/employee-profile/types'
 import { m } from '@/i18n/paraglide/messages'
 
@@ -32,13 +38,43 @@ interface EmployeeCreateFormProps {
 
 const stepFields = [
   ['employee'],
-  ['assignments', 'contracts', 'projects'],
+  ['assignments', 'contracts', 'projects', 'payrollComponents', 'taxProfile'],
   ['contacts'],
   ['educations', 'documents'],
 ] as const
 
 function optionalNumber(value: string) {
   return value === '' ? undefined : Number(value)
+}
+
+function optionalProfileValue(value: string | number) {
+  const parsed = value === '' ? undefined : value
+  return parsed === undefined ? undefined : (parsed as unknown as Record<string, unknown>)
+}
+
+function optionalDate(value: string) {
+  return value || null
+}
+
+function getPayrollAssignmentValueFields(
+  component: EmployeeCreateFormValues['payrollComponents'][number],
+  options: EmployeeCreationOptionsData,
+) {
+  const selectedComponent = options.payrollComponents?.find(
+    (option) => option.id === component.componentId,
+  )
+  const calculationMethod = selectedComponent?.calculationMethod
+  const isBasicSalary = selectedComponent?.code === 'BASIC_SALARY'
+
+  return {
+    amount:
+      calculationMethod === 'MANUAL' || (calculationMethod === 'SYSTEM' && isBasicSalary)
+        ? component.amount || null
+        : null,
+    customFormulaExpression:
+      calculationMethod === 'FORMULA' ? component.customFormulaExpression || null : null,
+    percentage: calculationMethod === 'PERCENTAGE' ? component.percentage || null : null,
+  }
 }
 
 function toPayload(
@@ -48,29 +84,86 @@ function toPayload(
   return {
     employee: {
       ...form.employee,
+      citizenshipStatus: form.employee.citizenshipStatus as 'WNI' | 'WNA',
+      employmentType: form.employee.employmentType as EmployeeProfileEmploymentType,
       bankName: options.banks.find((bank) => bank.id === form.employee.bankId)?.name ?? '',
-      heightCm: optionalNumber(form.employee.heightCm),
-      latitude: optionalNumber(form.employee.latitude),
-      longitude: optionalNumber(form.employee.longitude),
-      weightKg: optionalNumber(form.employee.weightKg),
+      dateOfBirth: optionalDate(form.employee.dateOfBirth),
+      heightCm: optionalProfileValue(optionalNumber(form.employee.heightCm) ?? ''),
+      latitude: optionalProfileValue(optionalNumber(form.employee.latitude) ?? ''),
+      longitude: optionalProfileValue(optionalNumber(form.employee.longitude) ?? ''),
+      resignDate: optionalDate(form.employee.resignDate),
+      weightKg: optionalProfileValue(optionalNumber(form.employee.weightKg) ?? ''),
     },
-    assignments: form.assignments,
-    contacts: form.contacts,
-    contracts: form.contracts,
-    documents: form.documents,
-    educations: form.educations.map((education) => ({
-      ...education,
-      gpa: optionalNumber(education.gpa),
-      graduationYear: optionalNumber(education.graduationYear),
+    assignments: form.assignments.map((assignment) => ({
+      ...assignment,
+      effectiveEndDate: optionalDate(assignment.effectiveEndDate),
     })),
-    projects: form.projects,
+    contacts: form.contacts.map((contact) => ({
+      ...contact,
+      contactType: contact.contactType as EmployeeProfileContactType,
+      birthDate: optionalDate(contact.birthDate),
+      effectiveEndDate: optionalDate(contact.effectiveEndDate),
+    })),
+    contracts: form.contracts.map((contract) => ({
+      ...contract,
+      contractType: contract.contractType as EmployeeProfileContractType,
+      status: contract.status as EmployeeProfileContractStatus,
+      effectiveEndDate: optionalDate(contract.effectiveEndDate),
+      maxExtensionDate: optionalDate(contract.maxExtensionDate),
+      probationEffectiveEndDate: optionalDate(contract.probationEffectiveEndDate),
+    })),
+    documents: form.documents
+      .filter((document) => document.documentFileId && document.documentTypeId)
+      .map((document) => ({
+        ...document,
+        verificationStatus: document.verificationStatus as EmployeeProfileVerificationStatus,
+        expiryDate: optionalDate(document.expiryDate),
+        issuedDate: optionalDate(document.issuedDate),
+        verifiedAt: optionalDate(document.verifiedAt),
+      })),
+    educations: form.educations
+      .filter((education) => education.institutionName)
+      .map((education) => ({
+        ...education,
+        educationLevel: education.educationLevel as EmployeeProfileEducationLevel,
+        gpa: optionalProfileValue(optionalNumber(education.gpa) ?? ''),
+        graduationYear: optionalNumber(education.graduationYear),
+      })),
+    projects: form.projects.map((project) => ({
+      ...project,
+      employeeId: form.employee.employeeNumber,
+      effectiveEndDate: optionalDate(project.effectiveEndDate),
+    })),
+    payrollComponents: form.payrollComponents
+      .filter((component) => component.componentId)
+      .map((component) => ({
+        ...component,
+        ...getPayrollAssignmentValueFields(component, options),
+        effectiveEndDate: optionalDate(component.effectiveEndDate),
+        employeeId: form.employee.employeeNumber,
+      })),
+    taxProfile: {
+      ...form.taxProfile,
+      ptkpStatus: form.taxProfile.ptkpStatus as
+        | 'TK/0'
+        | 'TK/1'
+        | 'TK/2'
+        | 'TK/3'
+        | 'K/0'
+        | 'K/1'
+        | 'K/2'
+        | 'K/3'
+        | 'K/I/1'
+        | 'K/I/2'
+        | 'K/I/3',
+    },
   }
 }
 
 export function EmployeeCreateForm({ options }: EmployeeCreateFormProps) {
   const navigate = useNavigate()
   const [currentStep, setCurrentStep] = useState(0)
-  const [profilePhoto, setProfilePhoto] = useState<File>()
+  const [, setProfilePhoto] = useState<File>()
   const mutation = useCreateEmployeeInformation()
   const schema = useSchema((schema, messages) =>
     employeeCreateFormShape(schema, {
@@ -104,21 +197,25 @@ export function EmployeeCreateForm({ options }: EmployeeCreateFormProps) {
   ]
 
   const submit = (form: EmployeeCreateFormValues) => {
-    mutation.mutate(
-      { payload: toPayload(form, options), profilePhoto },
-      {
-        onSuccess: () => {
-          snackbar.success(m.employee_information_create_success())
-          void navigate({ to: '/employment/employee-profile' })
-        },
-        onError: (error) => snackbar.exception(error),
+    mutation.mutate(toPayload(form, options), {
+      onSuccess: () => {
+        snackbar.success(m.employee_information_create_success())
+        void navigate({ to: '/employment/employee-profile' })
       },
-    )
+      onError: (error) => snackbar.exception(error),
+    })
   }
 
   const handleInvalid: SubmitErrorHandler<EmployeeCreateFormValues> = (errors) => {
     if (errors.employee) setCurrentStep(0)
-    else if (errors.assignments || errors.contracts || errors.projects) setCurrentStep(1)
+    else if (
+      errors.assignments ||
+      errors.contracts ||
+      errors.projects ||
+      errors.payrollComponents ||
+      errors.taxProfile
+    )
+      setCurrentStep(1)
     else if (errors.contacts) setCurrentStep(2)
     else setCurrentStep(3)
   }
@@ -146,7 +243,7 @@ export function EmployeeCreateForm({ options }: EmployeeCreateFormProps) {
         )}
         {currentStep === 1 && <EmployeeCreateEmploymentStep options={options} />}
         {currentStep === 2 && <EmployeeCreateContactsStep />}
-        {currentStep === 3 && <EmployeeCreateEducationDocumentsStep />}
+        {currentStep === 3 && <EmployeeCreateEducationDocumentsStep options={options} />}
 
         <Card className='border-primary/15 bg-primary/5'>
           <CardContent className='flex items-start gap-2 text-sm text-primary'>
@@ -176,7 +273,7 @@ export function EmployeeCreateForm({ options }: EmployeeCreateFormProps) {
                 <IconArrowRight />
               </Button>
             ) : (
-              <Button type='button' disabled={mutation.isPending}>
+              <Button type='submit' disabled={mutation.isPending}>
                 {mutation.isPending ? <Spinner /> : <IconCheck />}
                 {m.employee_information_create_submit()}
               </Button>

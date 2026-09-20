@@ -1,6 +1,7 @@
 // types.ts — Master Data feature types
 
 export type MasterDataStatus = 'active' | 'inactive'
+export type PayrollCalculationMethod = 'MANUAL' | 'PERCENTAGE' | 'FORMULA' | 'SYSTEM'
 
 export interface Department {
   id: string
@@ -77,6 +78,8 @@ export interface PayrollComponent {
   defaultValue: number
   isFormula: boolean
   formula: string
+  calculationMethod?: PayrollCalculationMethod
+  formulaExpression?: string | null
   status: MasterDataStatus
 }
 

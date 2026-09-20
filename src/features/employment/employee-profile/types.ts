@@ -93,6 +93,9 @@ export type EmployeeGender = 'Male' | 'Female'
 export interface EmployeeCreationOption {
   id: string
   name: string
+  code?: string
+  calculationMethod?: 'MANUAL' | 'PERCENTAGE' | 'FORMULA' | 'SYSTEM'
+  formulaExpression?: string | null
 }
 
 export interface EmployeeCreationPositionOption extends EmployeeCreationOption {
@@ -109,17 +112,163 @@ export interface EmployeeCreationOptionsData {
   banks: EmployeeCreationOption[]
   genders: EmployeeGender[]
   employmentTypes: EmployeeInformationEmploymentType[]
+  sections?: EmployeeCreationOption[]
+  documentTypes?: EmployeeCreationOption[]
+  projects?: EmployeeCreationOption[]
+  payrollComponents?: EmployeeCreationOption[]
 }
 
-export interface CreateEmployeeInformationPayload {
-  employee: EmployeeCreateEmployeePayload
-  assignments: EmployeeCreateAssignmentPayload[]
-  contacts: EmployeeCreateContactPayload[]
-  contracts: EmployeeCreateContractPayload[]
-  documents: EmployeeCreateDocumentPayload[]
-  educations: EmployeeCreateEducationPayload[]
-  projects: EmployeeCreateProjectPayload[]
+export type EmployeeProfileJsonValue = Record<string, unknown>
+
+export type EmployeeProfileContactType = 'SPOUSE' | 'CHILD' | 'PARENT' | 'SIBLING' | 'OTHER'
+export type EmployeeProfileContractType = 'PKWT' | 'PKWTT' | 'NON_EMPLOYMENT'
+export type EmployeeProfileContractStatus = 'ACTIVE' | 'EXPIRED' | 'TERMINATED' | 'RENEWED'
+export type EmployeeProfileVerificationStatus = 'PENDING' | 'VERIFIED' | 'REJECTED' | 'EXPIRED'
+export type EmployeeProfileEducationLevel =
+  'SD' | 'SMP' | 'SMA' | 'DIPLOMA' | 'BACHELOR' | 'MASTER' | 'DOCTOR'
+export type EmployeeProfileEmploymentType =
+  'PERMANENT' | 'CONTRACT' | 'OUTSOURCING' | 'INTERN' | 'FREELANCE'
+
+export interface CreateEmployeeProfileInput {
+  assignments?: Array<{
+    changeReason?: string | null
+    departmentUnitId?: string | null
+    divisionUnitId: string
+    effectiveEndDate?: string | null
+    effectiveStartDate: string
+    gradeId?: string | null
+    positionId: string
+    sectionUnitId?: string | null
+    supervisorEmployeeId?: string | null
+    workLocation?: string | null
+  }>
+  contacts?: Array<{
+    address?: string | null
+    birthDate?: string | null
+    contactType: EmployeeProfileContactType
+    effectiveEndDate?: string | null
+    email?: string | null
+    fullName: string
+    isDependent?: boolean
+    isEmergency?: boolean
+    ktpNumber?: string | null
+    occupation?: string | null
+    phone?: string | null
+    startDate: string
+  }>
+  contracts?: Array<{
+    contractFileId?: string | null
+    contractNumber?: string | null
+    contractType: EmployeeProfileContractType
+    effectiveEndDate?: string | null
+    maxExtensionDate?: string | null
+    probationEffectiveEndDate?: string | null
+    startDate: string
+    status: EmployeeProfileContractStatus
+  }>
+  documents?: Array<{
+    documentFileId: string
+    documentNumber?: string | null
+    documentTypeId: string
+    expiryDate?: string | null
+    issuedDate?: string | null
+    verificationStatus: EmployeeProfileVerificationStatus
+    verifiedAt?: string | null
+    verifiedBy?: string | null
+  }>
+  educations?: Array<{
+    certificateFileId?: string | null
+    educationLevel: EmployeeProfileEducationLevel
+    gpa?: EmployeeProfileJsonValue
+    graduationYear?: number | null
+    institutionName: string
+    major?: string | null
+  }>
+  employee: {
+    address?: string | null
+    attendanceMachineNumber?: string | null
+    bankAccountHolderName?: string | null
+    bankAccountNumber?: string | null
+    bankId?: string | null
+    bankName?: string | null
+    bloodType?: string | null
+    bpjsKesehatanNumber?: string | null
+    bpjsKetenagakerjaanNumber?: string | null
+    citizenshipStatus: 'WNI' | 'WNA'
+    city?: string | null
+    country?: string | null
+    dateOfBirth?: string | null
+    district?: string | null
+    domicileAddress?: string | null
+    drivingLicenseNumber?: string | null
+    employeeNumber: string
+    employeeStatus?: string | null
+    employmentType: EmployeeProfileEmploymentType
+    fullName: string
+    gender?: string | null
+    heightCm?: EmployeeProfileJsonValue
+    hireDate: string
+    kkNumber?: string | null
+    ktpNumber?: string | null
+    lastEducationLevel?: string | null
+    latitude?: EmployeeProfileJsonValue
+    longitude?: EmployeeProfileJsonValue
+    maritalStatus?: string | null
+    motherMaidenName?: string | null
+    npwpNumber?: string | null
+    personalEmail?: string | null
+    phoneNumber?: string | null
+    photoFileId?: string | null
+    placeOfBirth?: string | null
+    postalCode?: string | null
+    province?: string | null
+    religion?: string | null
+    resignDate?: string | null
+    terminationReason?: string | null
+    village?: string | null
+    weightKg?: EmployeeProfileJsonValue
+    whatsappNumber?: string | null
+    workPermitNumber?: string | null
+  }
+  payrollComponents?: Array<{
+    amount?: string | null
+    componentId: string
+    customFormulaExpression?: string | null
+    effectiveEndDate?: string | null
+    effectiveStartDate: string
+    employeeId: string
+    notes?: string | null
+    percentage?: string | null
+  }>
+  projects?: Array<{
+    effectiveEndDate?: string | null
+    effectiveStartDate: string
+    employeeId: string
+    isPrimary?: boolean
+    projectId: string
+    roleInProject?: string | null
+  }>
+  taxProfile: {
+    effectiveStartDate: string
+    isDtpEligible?: boolean
+    isKtpUsedAsNpwp?: boolean
+    npwpNumber?: string | null
+    ptkpStatus:
+      | 'TK/0'
+      | 'TK/1'
+      | 'TK/2'
+      | 'TK/3'
+      | 'K/0'
+      | 'K/1'
+      | 'K/2'
+      | 'K/3'
+      | 'K/I/1'
+      | 'K/I/2'
+      | 'K/I/3'
+  }
 }
+
+export type CreateEmployeeInformationPayload = CreateEmployeeProfileInput
 
 export interface EmployeeCreateAssignmentPayload {
   changeReason?: string
@@ -183,7 +332,6 @@ export interface EmployeeCreateEducationPayload {
 export interface EmployeeCreateProjectPayload {
   effectiveEndDate?: string
   effectiveStartDate: string
-  employeeId?: string
   isPrimary: boolean
   projectId?: string
   roleInProject?: string
@@ -236,17 +384,23 @@ export interface EmployeeCreateEmployeePayload {
   workPermitNumber?: string
 }
 
-export interface CreateEmployeeInformationRequest {
-  payload: CreateEmployeeInformationPayload
-  profilePhoto?: File
+export interface CreateEmployeeProfileRequest {
+  payload: CreateEmployeeProfileInput
 }
 
-export interface CreateEmployeeInformationData {
-  employeeId: string
-  employeeNumber: string
-  status: 'Draft' | 'Active'
-  createdAt: string
+export interface CreateEmployeeProfileOutput {
+  assignments: string[]
+  contacts: string[]
+  contracts: string[]
+  documents: string[]
+  educations: string[]
+  id: string
+  payrollComponentAssignments: string[]
+  projects: string[]
+  taxProfileId: string
 }
+
+export type CreateEmployeeInformationData = CreateEmployeeProfileOutput
 
 export interface EmployeeInformationPersonalDetail {
   fullName: string

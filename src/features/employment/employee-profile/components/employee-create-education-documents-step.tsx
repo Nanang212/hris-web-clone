@@ -20,9 +20,16 @@ import {
   CollectionCard,
   CollectionItem,
 } from '@/features/employment/employee-profile/components/employee-create-form-ui'
+import type { EmployeeCreationOptionsData } from '@/features/employment/employee-profile/types'
 import { m } from '@/i18n/paraglide/messages'
 
-export function EmployeeCreateEducationDocumentsStep() {
+interface EmployeeCreateEducationDocumentsStepProps {
+  options: EmployeeCreationOptionsData
+}
+
+export function EmployeeCreateEducationDocumentsStep({
+  options,
+}: EmployeeCreateEducationDocumentsStepProps) {
   const { control } = useFormContext<EmployeeCreateFormValues>()
   const educations = useFieldArray({ control, name: 'educations' })
   const documents = useFieldArray({ control, name: 'documents' })
@@ -106,7 +113,9 @@ export function EmployeeCreateEducationDocumentsStep() {
               <EmployeeSelectField
                 name={`documents.${index}.documentTypeId`}
                 label={m.employee_information_create_document_type_label()}
-                options={toSelectOptions(getDummyEmployeeCreateOptions().documentTypes)}
+                options={toSelectOptions(
+                  options.documentTypes ?? getDummyEmployeeCreateOptions().documentTypes,
+                )}
               />
               <EmployeeTextField
                 name={`documents.${index}.documentNumber`}

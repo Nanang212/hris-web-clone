@@ -3,11 +3,6 @@ import dayjs from 'dayjs'
 import { useRef } from 'react'
 import { Controller, useFormContext, type FieldPath } from 'react-hook-form'
 
-import type {
-  EmployeeCreateFormValues,
-  SelectOption,
-} from '@/features/employment/employee-profile/components/employee-create-form-config'
-import { m } from '@/i18n/paraglide/messages'
 import { Checkbox } from '@/shared/components/ui/checkbox'
 import { DatePicker } from '@/shared/components/ui/date-picker'
 import { Field, FieldError, FieldLabel } from '@/shared/components/ui/field'
@@ -20,6 +15,12 @@ import {
   SelectValue,
 } from '@/shared/components/ui/select'
 import { Textarea } from '@/shared/components/ui/textarea'
+import { cn } from '@/shared/lib/utils'
+import type {
+  EmployeeCreateFormValues,
+  SelectOption,
+} from '@/features/employment/employee-profile/components/employee-create-form-config'
+import { m } from '@/i18n/paraglide/messages'
 
 interface BaseFieldProps {
   name: FieldPath<EmployeeCreateFormValues>
@@ -184,9 +185,18 @@ export function EmployeeBooleanField({ name, label }: BaseFieldProps) {
       name={name}
       control={control}
       render={({ field }) => (
-        <FieldLabel className='h-10 flex-row items-center justify-start rounded-xl border bg-background px-3 transition-colors hover:bg-muted/50'>
-          <Checkbox checked={Boolean(field.value)} onCheckedChange={field.onChange} />
-          <span>{label}</span>
+        <FieldLabel
+          className={cn(
+            'h-10 w-full flex-row items-center justify-start rounded-xl border border-border/70 bg-background px-3 transition-colors hover:bg-muted/50',
+            Boolean(field.value) && 'border-primary/30 bg-primary/5',
+          )}
+        >
+          <Checkbox
+            checked={Boolean(field.value)}
+            onCheckedChange={field.onChange}
+            className='size-4 rounded-[4px]'
+          />
+          <span className='truncate text-sm'>{label}</span>
         </FieldLabel>
       )}
     />

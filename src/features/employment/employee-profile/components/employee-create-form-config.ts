@@ -8,12 +8,12 @@ export interface SelectOption {
 export const employeeCreateValues = {
   bloodTypes: ['A', 'B', 'AB', 'O'],
   citizenships: ['WNI', 'WNA'],
-  contactTypes: ['SPOUSE', 'CHILD', 'PARENT', 'SIBLING', 'EMERGENCY'],
-  contractStatuses: ['ACTIVE', 'EXPIRED', 'TERMINATED'],
-  contractTypes: ['PKWT', 'PKWTT', 'INTERNSHIP', 'FREELANCE'],
-  educationLevels: ['SD', 'SMP', 'SMA', 'DIPLOMA', 'S1', 'S2', 'S3'],
+  contactTypes: ['SPOUSE', 'CHILD', 'PARENT', 'SIBLING', 'OTHER'],
+  contractStatuses: ['ACTIVE', 'EXPIRED', 'TERMINATED', 'RENEWED'],
+  contractTypes: ['PKWT', 'PKWTT', 'NON_EMPLOYMENT'],
+  educationLevels: ['SD', 'SMP', 'SMA', 'DIPLOMA', 'BACHELOR', 'MASTER', 'DOCTOR'],
   employeeStatuses: ['ACTIVE', 'INACTIVE', 'RESIGNED'],
-  employmentTypes: ['PERMANENT', 'CONTRACT', 'INTERNSHIP', 'FREELANCE'],
+  employmentTypes: ['PERMANENT', 'CONTRACT', 'OUTSOURCING', 'INTERN', 'FREELANCE'],
   maritalStatuses: ['SINGLE', 'MARRIED', 'DIVORCED', 'WIDOWED'],
   religions: ['ISLAM', 'PROTESTANT', 'CATHOLIC', 'HINDU', 'BUDDHIST', 'CONFUCIAN'],
   verificationStatuses: ['PENDING', 'VERIFIED', 'REJECTED'],
@@ -46,6 +46,24 @@ export function getDummyEmployeeCreateOptions() {
 }
 
 export const dummyEmployeeCreateOptions = getDummyEmployeeCreateOptions()
+
+// Seeded from the master-data example supplied by the backend.
+export const examplePayrollComponents = [
+  { id: '95000000-0000-4000-8000-000000000001', name: 'Gaji Pokok' },
+  { id: '95000000-0000-4000-8000-000000000002', name: 'Tunjangan Tetap' },
+  { id: '95000000-0000-4000-8000-000000000003', name: 'Tunjangan Non-Pajak' },
+  { id: '95000000-0000-4000-8000-000000000004', name: 'Upah Lembur' },
+  { id: '95000000-0000-4000-8000-000000000005', name: 'Tunjangan Hari Raya' },
+  { id: '95000000-0000-4000-8000-000000000006', name: 'PPh 21' },
+  { id: '95000000-0000-4000-8000-000000000007', name: 'BPJS Kesehatan (Pekerja)' },
+  { id: '95000000-0000-4000-8000-000000000008', name: 'BPJS TK JHT (Pekerja)' },
+  { id: '95000000-0000-4000-8000-000000000009', name: 'BPJS TK JP (Pekerja)' },
+  { id: '95000000-0000-4000-8000-000000000010', name: 'BPJS TK JHT (Pemberi Kerja)' },
+  { id: '95000000-0000-4000-8000-000000000011', name: 'BPJS TK JKK (Pemberi Kerja)' },
+  { id: '95000000-0000-4000-8000-000000000012', name: 'BPJS TK JKM (Pemberi Kerja)' },
+  { id: '95000000-0000-4000-8000-000000000013', name: 'BPJS TK JP (Pemberi Kerja)' },
+  { id: '95000000-0000-4000-8000-000000000014', name: 'BPJS Kesehatan (Pemberi Kerja)' },
+] as const
 
 interface EmployeeCreateValidationMessages {
   required?: string
@@ -106,11 +124,11 @@ export function employeeCreateFormShape(
       schema.object({
         changeReason: schema.string(),
         departmentUnitId: schema.string(),
-        divisionUnitId: schema.string(),
+        divisionUnitId: schema.string().min(1, { message: messages.required }),
         effectiveEndDate: schema.string(),
         effectiveStartDate: schema.string().min(1, { message: messages.required }),
         gradeId: schema.string(),
-        positionId: schema.string(),
+        positionId: schema.string().min(1, { message: messages.required }),
         sectionUnitId: schema.string(),
         supervisorEmployeeId: schema.string(),
         workLocation: schema.string(),
@@ -170,12 +188,29 @@ export function employeeCreateFormShape(
       schema.object({
         effectiveEndDate: schema.string(),
         effectiveStartDate: schema.string().min(1, { message: messages.required }),
-        employeeId: schema.string(),
         isPrimary: schema.boolean(),
         projectId: schema.string(),
         roleInProject: schema.string(),
       }),
     ),
+    payrollComponents: schema.array(
+      schema.object({
+        amount: schema.string(),
+        componentId: schema.string().min(1, { message: messages.required }),
+        customFormulaExpression: schema.string(),
+        effectiveEndDate: schema.string(),
+        effectiveStartDate: schema.string().min(1, { message: messages.required }),
+        notes: schema.string(),
+        percentage: schema.string(),
+      }),
+    ),
+    taxProfile: schema.object({
+      effectiveStartDate: schema.string().min(1, { message: messages.required }),
+      isDtpEligible: schema.boolean(),
+      isKtpUsedAsNpwp: schema.boolean(),
+      npwpNumber: schema.string(),
+      ptkpStatus: schema.string().min(1, { message: messages.required }),
+    }),
   }
 }
 
@@ -244,10 +279,19 @@ export const emptyEducation = (): EmployeeCreateFormValues['educations'][number]
 export const emptyProject = (): EmployeeCreateFormValues['projects'][number] => ({
   effectiveEndDate: '',
   effectiveStartDate: '',
-  employeeId: '',
   isPrimary: false,
   projectId: '',
   roleInProject: '',
+})
+
+export const emptyPayrollComponent = (): EmployeeCreateFormValues['payrollComponents'][number] => ({
+  amount: '',
+  componentId: '',
+  customFormulaExpression: '',
+  effectiveEndDate: '',
+  effectiveStartDate: '',
+  notes: '',
+  percentage: '',
 })
 
 export const employeeCreateDefaultValues: EmployeeCreateFormValues = {
@@ -302,6 +346,14 @@ export const employeeCreateDefaultValues: EmployeeCreateFormValues = {
   documents: [emptyDocument()],
   educations: [emptyEducation()],
   projects: [],
+  payrollComponents: [],
+  taxProfile: {
+    effectiveStartDate: '',
+    isDtpEligible: false,
+    isKtpUsedAsNpwp: false,
+    npwpNumber: '',
+    ptkpStatus: 'TK/0',
+  },
 }
 
 export function toSelectOptions(items: Array<{ id: string; name: string }>): SelectOption[] {
@@ -328,7 +380,7 @@ export function toValueOptions(items: readonly string[]): SelectOption[] {
     CHILD: 'Child',
     PARENT: 'Parent',
     SIBLING: 'Sibling',
-    EMERGENCY: 'Emergency',
+    OTHER: 'Other',
     ACTIVE: 'Active',
     INACTIVE: 'Inactive',
     RESIGNED: 'Resigned',
@@ -341,6 +393,13 @@ export function toValueOptions(items: readonly string[]): SelectOption[] {
     CONTRACT: 'Contract',
     INTERNSHIP: 'Internship',
     FREELANCE: 'Freelance',
+    OUTSOURCING: 'Outsourcing',
+    INTERN: 'Intern',
+    NON_EMPLOYMENT: 'Non-employment',
+    RENEWED: 'Renewed',
+    BACHELOR: 'Bachelor',
+    MASTER: 'Master',
+    DOCTOR: 'Doctor',
   }
 
   return items.map((item) => ({ label: labels[item] ?? item, value: item }))
