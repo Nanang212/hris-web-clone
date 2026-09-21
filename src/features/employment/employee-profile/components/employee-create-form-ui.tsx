@@ -37,14 +37,7 @@ export function EmployeeCreateStepper({
   return (
     <ScrollArea className='w-full rounded-2xl border bg-muted/20 shadow-sm'>
       <div className='px-3 py-3 sm:px-4 sm:py-4'>
-        <div className='relative grid min-w-[760px] grid-cols-5 gap-1'>
-          <div aria-hidden='true' className='absolute inset-x-[10%] top-7 h-0.5 bg-border' />
-          <div
-            aria-hidden='true'
-            className='absolute top-7 left-[10%] h-0.5 bg-primary transition-[width] duration-300'
-            style={{ width: `${(currentStep / (steps.length - 1)) * 80}%` }}
-          />
-
+        <div className='relative grid min-w-[760px] grid-cols-5 gap-0'>
           {steps.map((step, index) => {
             const completed = index < currentStep
             const active = index === currentStep
@@ -65,7 +58,7 @@ export function EmployeeCreateStepper({
                 >
                   <span
                     className={cn(
-                      'flex size-10 shrink-0 items-center justify-center rounded-full border-2 bg-background text-sm font-semibold shadow-sm transition-colors',
+                      'relative z-10 flex size-10 shrink-0 items-center justify-center rounded-full border-2 bg-background text-sm font-semibold shadow-sm transition-colors',
                       active &&
                         'border-primary bg-primary text-primary-foreground shadow-primary/20',
                       completed &&
@@ -75,6 +68,16 @@ export function EmployeeCreateStepper({
                   >
                     {completed ? <IconCheck className='size-4' /> : index + 1}
                   </span>
+                  {index < steps.length - 1 && (
+                    <span
+                      aria-hidden='true'
+                      className={cn(
+                        'pointer-events-none absolute top-7 z-0 h-0.5',
+                        'right-[calc(-50%+20px)] left-[calc(50%+20px)]',
+                        completed ? 'bg-primary' : 'bg-border',
+                      )}
+                    />
+                  )}
                   <span className='max-w-full min-w-0'>
                     <span
                       className={cn(
