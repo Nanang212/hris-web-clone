@@ -1,11 +1,13 @@
 import { IconCircleCheck } from '@tabler/icons-react'
+import dayjs from 'dayjs'
 import { useState } from 'react'
 
 import { AppMain } from '@/shared/components/app-layout/app-main'
 import { Alert, AlertDescription, AlertIcon } from '@/shared/components/ui/alert'
 import { Badge } from '@/shared/components/ui/badge'
 import { Button } from '@/shared/components/ui/button'
-import { Card, CardContent } from '@/shared/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card'
+import { DatePicker } from '@/shared/components/ui/date-picker'
 import {
   Dialog,
   DialogContent,
@@ -41,6 +43,12 @@ const employees = [
 ]
 export function ShiftAssignmentsPage() {
   const [modalOpen, setModalOpen] = useState(false)
+  const [effectiveDate, setEffectiveDate] = useState<Date | undefined>(
+    dayjs('2026-09-01').toDate(),
+  )
+  const [bulkEffectiveDate, setBulkEffectiveDate] = useState<Date | undefined>(
+    dayjs('2026-09-01').toDate(),
+  )
   return (
     <AppMain
       title='Shift Assignment'
@@ -86,10 +94,12 @@ export function ShiftAssignmentsPage() {
             <Label htmlFor='assignment-effective-date' className='text-xs text-muted-foreground'>
               Effective Date
             </Label>
-            <Input
+            <DatePicker
               id='assignment-effective-date'
-              className='bg-background'
-              defaultValue='01 Sep 2026'
+              mode='single'
+              selected={effectiveDate}
+              onSelect={setEffectiveDate}
+              className='w-full'
             />
           </div>
           <Button variant='outline'>Filter</Button>
@@ -105,7 +115,8 @@ export function ShiftAssignmentsPage() {
           Clear selection
         </Button>
       </div>
-      <section className='overflow-x-auto rounded-2xl border bg-card shadow-sm'>
+      <Card className='min-w-0 overflow-hidden py-0'>
+        <CardContent className='overflow-x-auto px-0'>
         <Table className='min-w-[860px]'>
           <TableHeader className='bg-muted/50'>
             <TableRow>
@@ -146,10 +157,13 @@ export function ShiftAssignmentsPage() {
             ))}
           </TableBody>
         </Table>
-      </section>
-      <section className='rounded-2xl border bg-card p-5 shadow-sm'>
-        <h2 className='font-bold'>Assignment History</h2>
-        <div className='mt-4 overflow-x-auto'>
+        </CardContent>
+      </Card>
+      <Card className='min-w-0 overflow-hidden py-0'>
+        <CardHeader className='p-4'>
+          <CardTitle>Assignment History</CardTitle>
+        </CardHeader>
+        <CardContent className='overflow-x-auto px-0'>
           <Table className='min-w-[640px]'>
             <TableHeader>
               <TableRow>
@@ -169,8 +183,8 @@ export function ShiftAssignmentsPage() {
               </TableRow>
             </TableBody>
           </Table>
-        </div>
-      </section>
+        </CardContent>
+      </Card>
       {modalOpen && (
         <Dialog open={modalOpen} onOpenChange={setModalOpen}>
           <DialogContent className='max-h-[90vh] overflow-y-auto sm:max-w-2xl'>
@@ -202,10 +216,12 @@ export function ShiftAssignmentsPage() {
                 <Label htmlFor='bulk-effective-date' className='text-xs text-muted-foreground'>
                   Effective Date
                 </Label>
-                <Input
+                <DatePicker
                   id='bulk-effective-date'
-                  className='bg-background'
-                  defaultValue='01 Sep 2026'
+                  mode='single'
+                  selected={bulkEffectiveDate}
+                  onSelect={setBulkEffectiveDate}
+                  className='w-full'
                 />
               </div>
             </div>

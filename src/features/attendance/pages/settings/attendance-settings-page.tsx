@@ -2,6 +2,7 @@ import { useState } from 'react'
 
 import { AppMain } from '@/shared/components/app-layout/app-main'
 import { Button } from '@/shared/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card'
 import { Input } from '@/shared/components/ui/input'
 import { Switch } from '@/shared/components/ui/switch'
 import { getAttendanceBreadcrumbs } from '@/features/attendance/components/attendance-breadcrumbs'
@@ -32,9 +33,11 @@ export function AttendanceSettingsPage() {
       className='gap-5 bg-muted/30'
     >
       <AttendanceTabs active='settings' />
-      <section className='rounded-2xl border bg-card p-5 shadow-sm'>
-        <h2 className='font-bold'>Work Modes</h2>
-        <div className='mt-5 grid gap-6 md:grid-cols-3'>
+      <Card>
+        <CardHeader>
+          <CardTitle>Work Modes</CardTitle>
+        </CardHeader>
+        <CardContent className='grid gap-6 md:grid-cols-3'>
           {[
             ['WFO', 'Office · Geofence + Face', true],
             ['WFH', 'Home · Face + Location', true],
@@ -53,14 +56,17 @@ export function AttendanceSettingsPage() {
               />
             </div>
           ))}
-        </div>
-      </section>
+        </CardContent>
+      </Card>
       <div className='grid gap-5 xl:grid-cols-[minmax(0,1.8fr)_305px]'>
-        <section className='rounded-2xl border bg-card p-5 shadow-sm'>
-          <h2 className='font-bold'>Attendance Policy</h2>
-          <p className='mt-1 text-xs text-muted-foreground'>
-            Semua perubahan wajib memiliki audit reason.
-          </p>
+        <Card>
+          <CardHeader>
+            <CardTitle>Attendance Policy</CardTitle>
+            <p className='text-xs text-muted-foreground'>
+              Semua perubahan wajib memiliki audit reason.
+            </p>
+          </CardHeader>
+          <CardContent>
           <div className='mt-5 grid gap-5 md:grid-cols-2'>
             {[
               ['Late tolerance', '15 minutes'],
@@ -99,9 +105,13 @@ export function AttendanceSettingsPage() {
               </div>
             ))}
           </div>
-        </section>
-        <aside className='h-fit rounded-2xl border bg-card p-5 shadow-sm'>
-          <h2 className='font-bold'>Change Summary</h2>
+          </CardContent>
+        </Card>
+        <Card className='h-fit'>
+          <CardHeader>
+            <CardTitle>Change Summary</CardTitle>
+          </CardHeader>
+          <CardContent>
           <span className='mt-5 inline-block rounded-full bg-orange-50 px-3 py-1 text-xs font-semibold text-orange-600'>
             3 unsaved changes
           </span>
@@ -130,7 +140,8 @@ export function AttendanceSettingsPage() {
             <Button variant='outline'>Cancel</Button>
             <Button>Save Changes</Button>
           </div>
-        </aside>
+          </CardContent>
+        </Card>
       </div>
     </AppMain>
   )

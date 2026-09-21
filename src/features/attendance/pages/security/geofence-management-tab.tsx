@@ -39,7 +39,7 @@ export function GeofenceManagementTab({ geofences, onEdit }: GeofenceManagementT
         </CardHeader>
         <CardContent className='px-0'>
           <div className='overflow-x-auto'>
-            <Table>
+            <Table className='min-w-[860px]'>
               <TableHeader>
                 <TableRow>
                   {[

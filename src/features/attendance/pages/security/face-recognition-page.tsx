@@ -237,7 +237,7 @@ export function FaceRecognitionPage() {
           </div>
         </div>
         <div className='overflow-x-auto'>
-          <Table>
+          <Table className='min-w-[860px]'>
             <TableHeader>
               <TableRow>
                 {[
@@ -425,7 +425,7 @@ export function FaceRecognitionPage() {
           </CardHeader>
           <CardContent className='px-0'>
             <div className='overflow-x-auto'>
-              <Table>
+              <Table className='min-w-[760px]'>
                 <TableHeader>
                   <TableRow>
                     {['Employee', 'Time', 'Match Score', 'Liveness', 'Result', 'Action'].map(
@@ -491,7 +491,7 @@ export function FaceRecognitionPage() {
           </CardHeader>
           <CardContent className='px-0'>
             <div className='overflow-x-auto'>
-              <Table>
+              <Table className='min-w-[760px]'>
                 <TableHeader>
                   <TableRow>
                     {['Employee', 'Activity', 'Performed By', 'Timestamp', 'Action'].map(

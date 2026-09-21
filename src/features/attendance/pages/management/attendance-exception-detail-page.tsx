@@ -2,6 +2,7 @@ import { IconCircle, IconMapPin } from '@tabler/icons-react'
 
 import { AppMain } from '@/shared/components/app-layout/app-main'
 import { Button } from '@/shared/components/ui/button'
+import { Card, CardContent } from '@/shared/components/ui/card'
 import { Input } from '@/shared/components/ui/input'
 import { getAttendanceBreadcrumbs } from '@/features/attendance/components/attendance-breadcrumbs'
 import { AttendanceTabs } from '@/features/attendance/components/attendance-tabs'
@@ -25,7 +26,8 @@ export function AttendanceExceptionDetailPage() {
     >
       <AttendanceTabs active='management' />
       <div className='grid gap-5 xl:grid-cols-[minmax(0,1.8fr)_320px]'>
-        <section className='rounded-2xl border bg-card p-5 shadow-sm'>
+        <Card>
+          <CardContent className='p-5'>
           <div className='flex justify-between'>
             <h2 className='text-lg font-bold'>Missing Clock Out</h2>
             <span className='rounded-full bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-600'>
@@ -67,8 +69,10 @@ export function AttendanceExceptionDetailPage() {
               </p>
             ))}
           </div>
-        </section>
-        <aside className='flex min-h-120 flex-col rounded-2xl border bg-card p-5 shadow-sm'>
+          </CardContent>
+        </Card>
+        <Card className='min-h-120'>
+          <CardContent className='flex flex-1 flex-col p-5'>
           <h2 className='font-bold'>Resolve Exception</h2>
           <label className='mt-6 text-xs text-muted-foreground'>
             Resolution
@@ -96,7 +100,8 @@ export function AttendanceExceptionDetailPage() {
             <Button variant='outline'>Mark Unresolved</Button>
             <Button>Resolve</Button>
           </div>
-        </aside>
+          </CardContent>
+        </Card>
       </div>
     </AppMain>
   )

@@ -9,6 +9,7 @@ import { useNavigate } from '@tanstack/react-router'
 
 import { AppMain } from '@/shared/components/app-layout/app-main'
 import { Button } from '@/shared/components/ui/button'
+import { Card, CardContent } from '@/shared/components/ui/card'
 import { Input } from '@/shared/components/ui/input'
 import { getAttendanceBreadcrumbs } from '@/features/attendance/components/attendance-breadcrumbs'
 import { AttendanceTabs } from '@/features/attendance/components/attendance-tabs'
@@ -32,7 +33,8 @@ export function AttendanceApprovalDetailPage() {
     >
       <AttendanceTabs active='approval' />
       <div className='grid gap-5 xl:grid-cols-[minmax(0,1.8fr)_minmax(300px,.85fr)]'>
-        <section className='rounded-2xl border bg-card p-5 shadow-sm'>
+        <Card>
+          <CardContent className='p-5'>
           <div className='flex items-start justify-between gap-4'>
             <h2 className='text-lg font-bold'>REQ-0241 • Forgot Clock In</h2>
             <span className='rounded-full bg-orange-50 px-3 py-1 text-xs font-semibold text-orange-600'>
@@ -63,8 +65,10 @@ export function AttendanceApprovalDetailPage() {
               </div>
             ))}
           </div>
-        </section>
-        <aside className='flex min-h-105 flex-col rounded-2xl border bg-card p-5 shadow-sm'>
+          </CardContent>
+        </Card>
+        <Card className='min-h-105'>
+          <CardContent className='flex flex-1 flex-col p-5'>
           <h2 className='font-bold'>Decision</h2>
           <label className='mt-6 text-xs font-medium text-muted-foreground' htmlFor='approval-note'>
             Decision Note
@@ -95,7 +99,8 @@ export function AttendanceApprovalDetailPage() {
               Approve
             </Button>
           </div>
-        </aside>
+          </CardContent>
+        </Card>
       </div>
     </AppMain>
   )
