@@ -1,16 +1,18 @@
 // api.ts — Master Data API via Mockstack HTTP client
 
 import { apiClient } from '@/shared/lib/axios'
+
 import type {
   Department,
   Division,
-  Position,
   Grade,
-  Shift,
   Holiday,
   LeaveType,
-  PayrollComponent,
   MasterDataStats,
+  PayrollCalculationMethod,
+  PayrollComponent,
+  Position,
+  Shift,
 } from './types'
 
 const BASE = '/api/v1/master-data'
@@ -198,10 +200,7 @@ export async function createLeaveType(data: Omit<LeaveType, 'id'>): Promise<Leav
   return res.data.data
 }
 
-export async function updateLeaveType(
-  id: string,
-  updates: Partial<LeaveType>,
-): Promise<LeaveType> {
+export async function updateLeaveType(id: string, updates: Partial<LeaveType>): Promise<LeaveType> {
   const res = await apiClient.put<{ data: LeaveType }>(`${BASE}/leave-types/${id}`, updates)
   return res.data.data
 }
@@ -212,22 +211,48 @@ export async function deleteLeaveType(id: string): Promise<void> {
 
 // --- 8. Payroll Components ---
 
+const PAYROLL_COMPONENTS_BASE = '/api/v1/payroll-components'
+
+interface PayrollComponentApiItem {
+  id: string
+  code: string
+  name: string
+  componentCategory?: string
+  calculationMethod?: PayrollCalculationMethod
+  formulaExpression?: string | null
+  isActive?: boolean
+}
+
 export async function fetchPayrollComponents(): Promise<PayrollComponent[]> {
-  const res = await apiClient.get<{ data: PayrollComponent[] }>(`${BASE}/payroll-components`)
-  return res.data.data
+  const res = await apiClient.get<{
+    data: PayrollComponentApiItem[] | { items: PayrollComponentApiItem[] }
+  }>(PAYROLL_COMPONENTS_BASE)
+  const payload = res.data.data
+  const items = Array.isArray(payload) ? payload : payload.items
+
+  return items.map((item) => ({
+    id: item.id,
+    code: item.code,
+    name: item.name,
+    type: item.componentCategory === 'DEDUCTION' ? 'deduction' : 'earning',
+    defaultValue: 0,
+    isFormula: item.calculationMethod === 'FORMULA' || item.calculationMethod === 'SYSTEM',
+    formula: item.formulaExpression ?? '',
+    calculationMethod: item.calculationMethod ?? 'MANUAL',
+    formulaExpression: item.formulaExpression ?? null,
+    status: item.isActive === false ? 'inactive' : 'active',
+  }))
 }
 
 export async function fetchPayrollComponentById(id: string): Promise<PayrollComponent> {
-  const res = await apiClient.get<{ data: PayrollComponent }>(
-    `${BASE}/payroll-components/${id}`,
-  )
+  const res = await apiClient.get<{ data: PayrollComponent }>(`${PAYROLL_COMPONENTS_BASE}/${id}`)
   return res.data.data
 }
 
 export async function createPayrollComponent(
   data: Omit<PayrollComponent, 'id'>,
 ): Promise<PayrollComponent> {
-  const res = await apiClient.post<{ data: PayrollComponent }>(`${BASE}/payroll-components`, data)
+  const res = await apiClient.post<{ data: PayrollComponent }>(PAYROLL_COMPONENTS_BASE, data)
   return res.data.data
 }
 
@@ -236,12 +261,12 @@ export async function updatePayrollComponent(
   updates: Partial<PayrollComponent>,
 ): Promise<PayrollComponent> {
   const res = await apiClient.put<{ data: PayrollComponent }>(
-    `${BASE}/payroll-components/${id}`,
+    `${PAYROLL_COMPONENTS_BASE}/${id}`,
     updates,
   )
   return res.data.data
 }
 
 export async function deletePayrollComponent(id: string): Promise<void> {
-  await apiClient.delete(`${BASE}/payroll-components/${id}`)
+  await apiClient.delete(`${PAYROLL_COMPONENTS_BASE}/${id}`)
 }

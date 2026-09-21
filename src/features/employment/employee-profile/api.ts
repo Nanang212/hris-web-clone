@@ -1,8 +1,8 @@
 import { apiClient } from '@/shared/lib/axios'
 import type { Envelope } from '@/shared/types'
 import type {
-  CreateEmployeeInformationData,
-  CreateEmployeeInformationRequest,
+  CreateEmployeeProfileInput,
+  CreateEmployeeProfileOutput,
   EmployeeBankVerificationData,
   EmployeeCreationOptionsData,
   EmployeeInformationActionData,
@@ -27,23 +27,33 @@ export async function getEmployeeCreationOptions() {
   return res.data
 }
 
-/**
- * Endpoint: `/api/v1/company/employee-information`
- * Method: `POST`
- * Request body: `multipart/form-data` with field `employee` containing the JSON payload and optional field `profilePhoto` containing a JPG, PNG, or WebP file.
- * The `employee` JSON contains `status: "Draft"` for Save Draft or `status: "Active"` for Create Employee. Reaching the review step does not call this endpoint.
- * Expected response: `{ "success": true, "code": "CREATED", "data": { "employeeId": "employee-10242", "employeeNumber": "10042", "status": "Active", "createdAt": "2026-09-01T10:30:00+07:00" }, "messages": ["Employee created successfully"] }`
- */
-export async function createEmployeeInformation(request: CreateEmployeeInformationRequest) {
-  const body = new FormData()
-  body.append('employee', JSON.stringify(request.payload))
-  if (request.profilePhoto) body.append('profilePhoto', request.profilePhoto)
-
-  const res = await apiClient.post<Envelope<CreateEmployeeInformationData>>(
-    '/api/v1/company/employee-information',
-    body,
-  )
-  return res.data
+/** Create a new EmployeeProfile: POST /v1/employee-profiles. */
+export async function createEmployeeProfile(input: CreateEmployeeProfileInput) {
+  const {
+    assignments,
+    bankAccounts,
+    bpjs,
+    contacts,
+    contracts,
+    educations,
+    employee,
+    payrollComponents,
+    projects,
+    taxProfile,
+  } = input
+  const out = await apiClient.post<Envelope<CreateEmployeeProfileOutput>>('/v1/employee-profiles', {
+    assignments,
+    bankAccounts,
+    bpjs,
+    contacts,
+    contracts,
+    educations,
+    employee,
+    payrollComponents,
+    projects,
+    taxProfile,
+  })
+  return out.data
 }
 
 /**
