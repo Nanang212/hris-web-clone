@@ -1,5 +1,6 @@
 import { useFieldArray, useFormContext, useWatch } from 'react-hook-form'
 
+import { FieldGroup } from '@/shared/components/ui/field'
 import {
   employeeCreateValues,
   emptyContact,
@@ -9,6 +10,7 @@ import {
 import {
   EmployeeBooleanField,
   EmployeeDateField,
+  EmployeeFileField,
   EmployeeSelectField,
   EmployeeTextareaField,
   EmployeeTextField,
@@ -18,7 +20,6 @@ import {
   CollectionItem,
 } from '@/features/employment/employee-profile/components/employee-create-form-ui'
 import { m } from '@/i18n/paraglide/messages'
-import { FieldGroup } from '@/shared/components/ui/field'
 
 export function EmployeeCreateContactsStep() {
   const { control } = useFormContext<EmployeeCreateFormValues>()
@@ -68,6 +69,7 @@ export function EmployeeCreateContactsStep() {
               name={`contacts.${index}.ktpNumber`}
               label={m.employee_information_create_ktp_label()}
             />
+            <EmployeeFileField name={`contacts.${index}.ktpFileId`} label='File KTP' />
             <EmployeeTextField
               name={`contacts.${index}.occupation`}
               label={m.employee_information_create_occupation_label()}

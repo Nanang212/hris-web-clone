@@ -31,9 +31,10 @@ export async function getEmployeeCreationOptions() {
 export async function createEmployeeProfile(input: CreateEmployeeProfileInput) {
   const {
     assignments,
+    bankAccounts,
+    bpjs,
     contacts,
     contracts,
-    documents,
     educations,
     employee,
     payrollComponents,
@@ -42,9 +43,10 @@ export async function createEmployeeProfile(input: CreateEmployeeProfileInput) {
   } = input
   const out = await apiClient.post<Envelope<CreateEmployeeProfileOutput>>('/v1/employee-profiles', {
     assignments,
+    bankAccounts,
+    bpjs,
     contacts,
     contracts,
-    documents,
     educations,
     employee,
     payrollComponents,

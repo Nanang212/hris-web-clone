@@ -2,14 +2,12 @@ import { IconInfoCircle } from '@tabler/icons-react'
 import { useFieldArray, useFormContext, useWatch } from 'react-hook-form'
 
 import { Alert, AlertDescription, AlertIcon, AlertTitle } from '@/shared/components/ui/alert'
-import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card'
 import { FieldGroup } from '@/shared/components/ui/field'
 import {
   dummyEmployeeCreateOptions,
   employeeCreateValues,
   emptyAssignment,
   emptyContract,
-  emptyPayrollComponent,
   emptyProject,
   toSelectOptions,
   toValueOptions,
@@ -38,15 +36,10 @@ export function EmployeeCreateEmploymentStep({ options }: EmployeeCreateEmployme
   const assignments = useFieldArray({ control, name: 'assignments' })
   const contracts = useFieldArray({ control, name: 'contracts' })
   const projects = useFieldArray({ control, name: 'projects' })
-  const payrollComponents = useFieldArray({ control, name: 'payrollComponents' })
   const assignmentValues = useWatch({ control, name: 'assignments' })
   const contractValues = useWatch({ control, name: 'contracts' })
   const projectValues = useWatch({ control, name: 'projects' })
-  const payrollComponentValues = useWatch({ control, name: 'payrollComponents' })
   const notProvided = m.employee_information_create_not_provided()
-  const payrollComponentOptions = (options.payrollComponents ?? []).filter(
-    (component) => component.calculationMethod !== 'SYSTEM' || component.code === 'BASIC_SALARY',
-  )
 
   return (
     <div className='space-y-5'>
@@ -161,6 +154,12 @@ export function EmployeeCreateEmploymentStep({ options }: EmployeeCreateEmployme
                 options={toSelectOptions(options.departments)}
               />
               <EmployeeSelectField
+                name={`assignments.${index}.employmentType`}
+                label={m.employee_information_create_employment_type_label()}
+                options={toValueOptions(employeeCreateValues.employmentTypes)}
+                required
+              />
+              <EmployeeSelectField
                 name={`assignments.${index}.divisionUnitId`}
                 label={m.employee_information_create_division_label()}
                 options={toSelectOptions(options.divisions)}
@@ -250,114 +249,6 @@ export function EmployeeCreateEmploymentStep({ options }: EmployeeCreateEmployme
           </CollectionItem>
         ))}
       </CollectionCard>
-
-      <CollectionCard
-        title='Payroll components'
-        description='Assign recurring payroll components for this employee.'
-        addLabel='Add payroll component'
-        count={payrollComponents.fields.length}
-        onAdd={() => payrollComponents.append(emptyPayrollComponent())}
-      >
-        {payrollComponents.fields.map((item, index) => {
-          const selectedComponent = options.payrollComponents?.find(
-            (component) => component.id === payrollComponentValues[index]?.componentId,
-          )
-          const calculationMethod = selectedComponent?.calculationMethod
-          const showAmount =
-            calculationMethod === 'MANUAL' ||
-            (calculationMethod === 'SYSTEM' && selectedComponent?.code === 'BASIC_SALARY')
-
-          return (
-            <CollectionItem
-              key={item.id}
-              number={index + 1}
-              title={`Payroll component ${index + 1}`}
-              description={selectedComponent?.name ?? notProvided}
-              removeLabel={m.employee_information_create_remove_item()}
-              onRemove={() => payrollComponents.remove(index)}
-            >
-              <FieldGroup className='grid gap-5 md:grid-cols-2 xl:grid-cols-3'>
-                <EmployeeSelectField
-                  name={`payrollComponents.${index}.componentId`}
-                  label='Component'
-                  options={toSelectOptions(payrollComponentOptions)}
-                  required
-                />
-                <EmployeeDateField
-                  name={`payrollComponents.${index}.effectiveStartDate`}
-                  label={m.employee_information_create_effective_start_label()}
-                  required
-                />
-                <EmployeeDateField
-                  name={`payrollComponents.${index}.effectiveEndDate`}
-                  label={m.employee_information_create_effective_end_label()}
-                />
-                {showAmount && (
-                  <EmployeeTextField
-                    name={`payrollComponents.${index}.amount`}
-                    label='Amount'
-                    type='number'
-                  />
-                )}
-                {calculationMethod === 'PERCENTAGE' && (
-                  <EmployeeTextField
-                    name={`payrollComponents.${index}.percentage`}
-                    label='Percentage'
-                    type='number'
-                  />
-                )}
-                {calculationMethod === 'FORMULA' && (
-                  <EmployeeTextField
-                    name={`payrollComponents.${index}.customFormulaExpression`}
-                    label='Formula'
-                  />
-                )}
-                <EmployeeTextField name={`payrollComponents.${index}.notes`} label='Notes' />
-              </FieldGroup>
-            </CollectionItem>
-          )
-        })}
-      </CollectionCard>
-
-      <div className='grid gap-5'>
-        <Card>
-          <CardHeader>
-            <CardTitle>Tax profile</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <FieldGroup className='grid gap-5 md:grid-cols-2'>
-              <EmployeeSelectField
-                name='taxProfile.ptkpStatus'
-                label='PTKP status'
-                required
-                options={toValueOptions([
-                  'TK/0',
-                  'TK/1',
-                  'TK/2',
-                  'TK/3',
-                  'K/0',
-                  'K/1',
-                  'K/2',
-                  'K/3',
-                  'K/I/1',
-                  'K/I/2',
-                  'K/I/3',
-                ])}
-              />
-              <EmployeeDateField
-                name='taxProfile.effectiveStartDate'
-                label='Effective start date'
-                required
-              />
-              <EmployeeTextField name='taxProfile.npwpNumber' label='NPWP number' />
-              <div className='grid gap-5 md:col-span-2 md:grid-cols-2'>
-                <EmployeeBooleanField name='taxProfile.isDtpEligible' label='DTP eligible' />
-                <EmployeeBooleanField name='taxProfile.isKtpUsedAsNpwp' label='Use KTP as NPWP' />
-              </div>
-            </FieldGroup>
-          </CardContent>
-        </Card>
-      </div>
     </div>
   )
 }

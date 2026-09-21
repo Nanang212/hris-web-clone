@@ -14,11 +14,11 @@ import {
 import { FieldGroup } from '@/shared/components/ui/field'
 import {
   employeeCreateValues,
-  toSelectOptions,
   toValueOptions,
 } from '@/features/employment/employee-profile/components/employee-create-form-config'
 import {
   EmployeeDateField,
+  EmployeeFileField,
   EmployeeSelectField,
   EmployeeTextareaField,
   EmployeeTextField,
@@ -28,7 +28,6 @@ import { m } from '@/i18n/paraglide/messages'
 
 interface EmployeeCreateEmployeeStepProps {
   options: EmployeeCreationOptionsData
-  onPhotoChange: (file: File | undefined) => void
 }
 
 function FormSection({
@@ -53,21 +52,18 @@ function FormSection({
   )
 }
 
-export function EmployeeCreateEmployeeStep({
-  options,
-  onPhotoChange,
-}: EmployeeCreateEmployeeStepProps) {
+export function EmployeeCreateEmployeeStep({ options }: EmployeeCreateEmployeeStepProps) {
   const { setValue } = useFormContext()
   const photoInputRef = useRef<HTMLInputElement>(null)
   const [photo, setPhoto] = useState<File>()
   const [photoError, setPhotoError] = useState('')
   const [isDraggingPhoto, setIsDraggingPhoto] = useState(false)
   const employeeStatus = useWatch({ name: 'employee.employeeStatus' })
+  const citizenshipStatus = useWatch({ name: 'employee.citizenshipStatus' })
   const fullName = useWatch({ name: 'employee.fullName' })
   const genderOptions = toValueOptions(
     options.genders.length ? options.genders : ['Male', 'Female'],
   )
-
   const photoPreview = useMemo(() => (photo ? URL.createObjectURL(photo) : ''), [photo])
 
   useEffect(() => {
@@ -76,7 +72,6 @@ export function EmployeeCreateEmployeeStep({
 
   const handlePhotoChange = (file?: File) => {
     if (!file) return
-
     if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
       setPhotoError(m.employee_information_create_photo_invalid())
       return
@@ -85,23 +80,14 @@ export function EmployeeCreateEmployeeStep({
       setPhotoError(m.employee_information_create_photo_too_large())
       return
     }
-
     setPhotoError('')
     setPhoto(file)
-    onPhotoChange(file)
     setValue('employee.photoFileId', '')
-  }
-
-  const handlePhotoDrop = (event: React.DragEvent<HTMLButtonElement>) => {
-    event.preventDefault()
-    setIsDraggingPhoto(false)
-    handlePhotoChange(event.dataTransfer.files?.[0])
   }
 
   const removePhoto = () => {
     setPhoto(undefined)
     setPhotoError('')
-    onPhotoChange(undefined)
     setValue('employee.photoFileId', '')
     if (photoInputRef.current) photoInputRef.current.value = ''
   }
@@ -152,7 +138,6 @@ export function EmployeeCreateEmployeeStep({
                   </Button>
                 )}
               </div>
-
               <div className='grid items-center gap-4 md:grid-cols-[auto_minmax(0,1fr)]'>
                 <div className='flex justify-center md:justify-start'>
                   <div className='rounded-full bg-background p-1.5 shadow-sm ring-1 ring-border'>
@@ -164,14 +149,9 @@ export function EmployeeCreateEmployeeStep({
                     </Avatar>
                   </div>
                 </div>
-
                 <button
                   type='button'
-                  className={`group flex min-h-32 w-full flex-col items-center justify-center rounded-xl border border-dashed px-5 py-4 text-center transition-colors ${
-                    isDraggingPhoto
-                      ? 'border-primary bg-primary/10'
-                      : 'border-border bg-background/70 hover:border-primary/60 hover:bg-background'
-                  }`}
+                  className={`group flex min-h-32 w-full flex-col items-center justify-center rounded-xl border border-dashed px-5 py-4 text-center transition-colors ${isDraggingPhoto ? 'border-primary bg-primary/10' : 'border-border bg-background/70 hover:border-primary/60 hover:bg-background'}`}
                   onClick={() => photoInputRef.current?.click()}
                   onDragEnter={(event) => {
                     event.preventDefault()
@@ -181,7 +161,11 @@ export function EmployeeCreateEmployeeStep({
                   onDragLeave={(event) => {
                     if (event.currentTarget === event.target) setIsDraggingPhoto(false)
                   }}
-                  onDrop={handlePhotoDrop}
+                  onDrop={(event) => {
+                    event.preventDefault()
+                    setIsDraggingPhoto(false)
+                    handlePhotoChange(event.dataTransfer.files?.[0])
+                  }}
                 >
                   <span className='mb-2 flex size-10 items-center justify-center rounded-full bg-primary/10 text-primary transition-transform group-hover:scale-105'>
                     <IconUpload className='size-5' />
@@ -196,7 +180,6 @@ export function EmployeeCreateEmployeeStep({
                   </span>
                 </button>
               </div>
-
               <input
                 ref={photoInputRef}
                 className='sr-only'
@@ -256,6 +239,12 @@ export function EmployeeCreateEmployeeStep({
             label={m.employee_information_create_citizenship_label()}
             options={toValueOptions(employeeCreateValues.citizenships)}
           />
+          {citizenshipStatus === 'WNA' && (
+            <EmployeeTextField
+              name='employee.workPermitNumber'
+              label={m.employee_information_create_work_permit_label()}
+            />
+          )}
           <EmployeeSelectField
             name='employee.maritalStatus'
             label={m.employee_information_create_marital_status_label()}
@@ -275,10 +264,12 @@ export function EmployeeCreateEmployeeStep({
             name='employee.ktpNumber'
             label={m.employee_information_create_ktp_label()}
           />
+          <EmployeeFileField name='employee.ktpFileId' label='File KTP' />
           <EmployeeTextField
             name='employee.kkNumber'
             label={m.employee_information_create_kk_label()}
           />
+          <EmployeeFileField name='employee.kkFileId' label='File Kartu Keluarga' />
           <EmployeeTextField
             name='employee.motherMaidenName'
             label={m.employee_information_create_mother_maiden_name_label()}
@@ -298,6 +289,39 @@ export function EmployeeCreateEmployeeStep({
             label={m.employee_information_create_weight_label()}
             type='number'
           />
+          <EmployeeTextField
+            name='employee.attendanceMachineNumber'
+            label={m.employee_information_create_attendance_number_label()}
+          />
+          <EmployeeTextField
+            name='employee.drivingLicenseNumber'
+            label={m.employee_information_create_driving_license_label()}
+          />
+          <EmployeeFileField name='employee.simFileId' label='File SIM' />
+
+          <EmployeeSelectField
+            name='employee.employeeStatus'
+            label={m.employee_information_create_employee_status_label()}
+            options={toValueOptions(employeeCreateValues.employeeStatuses)}
+          />
+
+          <EmployeeDateField
+            name='employee.hireDate'
+            label={m.employee_information_create_join_date_label()}
+            required
+          />
+          {employeeStatus === 'RESIGNED' && (
+            <>
+              <EmployeeDateField
+                name='employee.resignDate'
+                label={m.employee_information_create_resign_date_label()}
+              />
+              <EmployeeTextField
+                name='employee.terminationReason'
+                label={m.employee_information_create_termination_reason_label()}
+              />
+            </>
+          )}
         </FieldGroup>
       </FormSection>
 
@@ -357,78 +381,6 @@ export function EmployeeCreateEmployeeStep({
             name='employee.longitude'
             label={m.employee_information_create_longitude_label()}
             type='number'
-          />
-        </FieldGroup>
-      </FormSection>
-
-      <FormSection
-        title={m.employee_information_create_statutory_title()}
-        description={m.employee_information_create_statutory_description()}
-      >
-        <FieldGroup className='grid gap-5 md:grid-cols-2 xl:grid-cols-3'>
-          <EmployeeSelectField
-            name='employee.employmentType'
-            label={m.employee_information_create_employment_type_label()}
-            options={toValueOptions(employeeCreateValues.employmentTypes)}
-          />
-          <EmployeeSelectField
-            name='employee.employeeStatus'
-            label={m.employee_information_create_employee_status_label()}
-            options={toValueOptions(employeeCreateValues.employeeStatuses)}
-          />
-          <EmployeeDateField
-            name='employee.hireDate'
-            label={m.employee_information_create_join_date_label()}
-            required
-          />
-          {employeeStatus === 'RESIGNED' && (
-            <>
-              <EmployeeDateField
-                name='employee.resignDate'
-                label={m.employee_information_create_resign_date_label()}
-              />
-              <EmployeeTextField
-                name='employee.terminationReason'
-                label={m.employee_information_create_termination_reason_label()}
-              />
-            </>
-          )}
-          <EmployeeTextField
-            name='employee.attendanceMachineNumber'
-            label={m.employee_information_create_attendance_number_label()}
-          />
-          <EmployeeTextField
-            name='employee.drivingLicenseNumber'
-            label={m.employee_information_create_driving_license_label()}
-          />
-          <EmployeeTextField
-            name='employee.workPermitNumber'
-            label={m.employee_information_create_work_permit_label()}
-          />
-          <EmployeeSelectField
-            name='employee.bankId'
-            label={m.employee_information_create_bank_label()}
-            options={toSelectOptions(options.banks)}
-          />
-          <EmployeeTextField
-            name='employee.bankAccountNumber'
-            label={m.employee_information_create_bank_account_label()}
-          />
-          <EmployeeTextField
-            name='employee.bankAccountHolderName'
-            label={m.employee_information_create_bank_holder_label()}
-          />
-          <EmployeeTextField
-            name='employee.npwpNumber'
-            label={m.employee_information_create_npwp_label()}
-          />
-          <EmployeeTextField
-            name='employee.bpjsKesehatanNumber'
-            label={m.employee_information_create_bpjs_health_label()}
-          />
-          <EmployeeTextField
-            name='employee.bpjsKetenagakerjaanNumber'
-            label={m.employee_information_create_bpjs_employment_label()}
           />
         </FieldGroup>
       </FormSection>

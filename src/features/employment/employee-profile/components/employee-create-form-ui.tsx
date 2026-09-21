@@ -1,5 +1,5 @@
 import { IconCheck, IconChevronDown, IconPlus, IconTrash } from '@tabler/icons-react'
-import { useState, type ReactNode } from 'react'
+import { Fragment, useState, type ReactNode } from 'react'
 
 import { Badge } from '@/shared/components/ui/badge'
 import { Button } from '@/shared/components/ui/button'
@@ -15,6 +15,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/shared/components/ui/collapsible'
+import { ScrollArea, ScrollBar } from '@/shared/components/ui/scroll-area'
 import { cn } from '@/shared/lib/utils'
 
 interface StepItem {
@@ -34,43 +35,70 @@ export function EmployeeCreateStepper({
   onStepChange,
 }: EmployeeCreateStepperProps) {
   return (
-    <div className='grid gap-2 sm:grid-cols-2 xl:grid-cols-4'>
-      {steps.map((step, index) => {
-        const completed = index < currentStep
-        const active = index === currentStep
+    <ScrollArea className='w-full rounded-2xl border bg-muted/20 shadow-sm'>
+      <div className='px-3 py-3 sm:px-4 sm:py-4'>
+        <div className='relative grid min-w-[760px] grid-cols-5 gap-0'>
+          {steps.map((step, index) => {
+            const completed = index < currentStep
+            const active = index === currentStep
 
-        return (
-          <button
-            key={step.title}
-            type='button'
-            className={cn(
-              'flex min-w-0 items-start gap-3 rounded-2xl border bg-card p-3 text-start transition-colors',
-              active && 'border-primary bg-primary/5 ring-2 ring-primary/10',
-              completed && 'border-primary/30 hover:bg-muted/60',
-              index > currentStep && 'cursor-not-allowed opacity-55',
-            )}
-            disabled={index > currentStep}
-            onClick={() => index <= currentStep && onStepChange(index)}
-          >
-            <span
-              className={cn(
-                'flex size-7 shrink-0 items-center justify-center rounded-full border text-xs font-semibold',
-                active && 'border-primary bg-primary text-primary-foreground',
-                completed && 'border-primary bg-primary/10 text-primary',
-              )}
-            >
-              {completed ? <IconCheck className='size-4' /> : index + 1}
-            </span>
-            <span className='min-w-0'>
-              <span className='block truncate text-sm font-semibold'>{step.title}</span>
-              <span className='mt-0.5 line-clamp-2 block text-xs text-muted-foreground'>
-                {step.description}
-              </span>
-            </span>
-          </button>
-        )
-      })}
-    </div>
+            return (
+              <Fragment key={step.title}>
+                <button
+                  type='button'
+                  className={cn(
+                    'group relative z-10 flex min-w-0 flex-col items-center gap-2 rounded-xl px-2 py-1 text-center transition-colors focus-visible:ring-3 focus-visible:ring-ring/30 focus-visible:outline-none',
+                    active && 'bg-primary/5',
+                    index > currentStep && 'cursor-not-allowed opacity-55',
+                  )}
+                  aria-current={active ? 'step' : undefined}
+                  disabled={index > currentStep}
+                  onClick={() => index <= currentStep && onStepChange(index)}
+                  title={`${step.title}: ${step.description}`}
+                >
+                  <span
+                    className={cn(
+                      'relative z-10 flex size-10 shrink-0 items-center justify-center rounded-full border-2 bg-background text-sm font-semibold shadow-sm transition-colors',
+                      active &&
+                        'border-primary bg-primary text-primary-foreground shadow-primary/20',
+                      completed &&
+                        'border-primary bg-primary/10 text-primary group-hover:bg-primary/15',
+                      !active && !completed && 'border-border text-muted-foreground',
+                    )}
+                  >
+                    {completed ? <IconCheck className='size-4' /> : index + 1}
+                  </span>
+                  {index < steps.length - 1 && (
+                    <span
+                      aria-hidden='true'
+                      className={cn(
+                        'pointer-events-none absolute top-7 z-0 h-0.5',
+                        'right-[calc(-50%+20px)] left-[calc(50%+20px)]',
+                        completed ? 'bg-primary' : 'bg-border',
+                      )}
+                    />
+                  )}
+                  <span className='max-w-full min-w-0'>
+                    <span
+                      className={cn(
+                        'block truncate text-sm font-semibold',
+                        active ? 'text-primary' : 'text-foreground',
+                      )}
+                    >
+                      {step.title}
+                    </span>
+                    <span className='mt-0.5 line-clamp-2 block text-xs leading-4 text-muted-foreground'>
+                      {step.description}
+                    </span>
+                  </span>
+                </button>
+              </Fragment>
+            )
+          })}
+        </div>
+      </div>
+      <ScrollBar orientation='horizontal' />
+    </ScrollArea>
   )
 }
 

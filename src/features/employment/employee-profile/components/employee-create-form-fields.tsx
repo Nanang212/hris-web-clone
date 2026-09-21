@@ -1,11 +1,10 @@
-import { IconUpload } from '@tabler/icons-react'
 import dayjs from 'dayjs'
-import { useRef } from 'react'
 import { Controller, useFormContext, type FieldPath } from 'react-hook-form'
 
 import { Checkbox } from '@/shared/components/ui/checkbox'
 import { DatePicker } from '@/shared/components/ui/date-picker'
 import { Field, FieldError, FieldLabel } from '@/shared/components/ui/field'
+import { FileUploader } from '@/shared/components/ui/file-uploader'
 import { Input } from '@/shared/components/ui/input'
 import {
   Select,
@@ -113,33 +112,22 @@ export function EmployeeFileField({
   accept = 'application/pdf,image/jpeg,image/png',
 }: BaseFieldProps & { accept?: string }) {
   const { control } = useFormContext<EmployeeCreateFormValues>()
-  const inputRef = useRef<HTMLInputElement>(null)
 
   return (
     <Controller
       name={name}
       control={control}
       render={({ field, fieldState }) => {
-        const fileName = String(field.value ?? '')
-
         return (
           <Field data-invalid={fieldState.invalid}>
             <FormLabel>{label}</FormLabel>
-            <input
-              ref={inputRef}
-              className='sr-only'
-              type='file'
+            <FileUploader
+              mode='SINGLE'
+              value={typeof field.value === 'string' && field.value ? field.value : null}
+              onFilesChange={field.onChange}
               accept={accept}
-              onChange={(event) => field.onChange(event.target.files?.[0]?.name ?? '')}
+              placeholder={label}
             />
-            <button
-              type='button'
-              className='flex h-10 w-full min-w-0 items-center gap-2 rounded-xl border border-dashed bg-background px-3 text-left text-sm transition-colors hover:border-primary/60 hover:bg-muted/50'
-              onClick={() => inputRef.current?.click()}
-            >
-              <IconUpload className='size-4 shrink-0 text-primary' />
-              <span className='min-w-0 flex-1 truncate'>{fileName || label}</span>
-            </button>
             <FieldError errors={[fieldState.error]} />
           </Field>
         )

@@ -136,11 +136,29 @@ export interface CreateEmployeeProfileInput {
     divisionUnitId: string
     effectiveEndDate?: string | null
     effectiveStartDate: string
+    employmentType: EmployeeProfileEmploymentType
     gradeId?: string | null
     positionId: string
     sectionUnitId?: string | null
     supervisorEmployeeId?: string | null
     workLocation?: string | null
+  }>
+  bankAccounts?: Array<{
+    accountHolderName: string
+    accountNumber: string
+    bankId: string
+    effectiveStartDate: string
+    employeeId: string
+  }>
+  bpjs?: Array<{
+    documentFileId?: string | null
+    effectiveEndDate?: string | null
+    effectiveStartDate: string
+    employeeId: string
+    facilityName?: string | null
+    membershipClass?: string | null
+    participantNumber: string
+    program: 'KESEHATAN' | 'KETENAGAKERJAAN'
   }>
   contacts?: Array<{
     address?: string | null
@@ -151,6 +169,7 @@ export interface CreateEmployeeProfileInput {
     fullName: string
     isDependent?: boolean
     isEmergency?: boolean
+    ktpFileId?: string | null
     ktpNumber?: string | null
     occupation?: string | null
     phone?: string | null
@@ -166,18 +185,9 @@ export interface CreateEmployeeProfileInput {
     startDate: string
     status: EmployeeProfileContractStatus
   }>
-  documents?: Array<{
-    documentFileId: string
-    documentNumber?: string | null
-    documentTypeId: string
-    expiryDate?: string | null
-    issuedDate?: string | null
-    verificationStatus: EmployeeProfileVerificationStatus
-    verifiedAt?: string | null
-    verifiedBy?: string | null
-  }>
   educations?: Array<{
     certificateFileId?: string | null
+    employeeId: string
     educationLevel: EmployeeProfileEducationLevel
     gpa?: EmployeeProfileJsonValue
     graduationYear?: number | null
@@ -187,13 +197,7 @@ export interface CreateEmployeeProfileInput {
   employee: {
     address?: string | null
     attendanceMachineNumber?: string | null
-    bankAccountHolderName?: string | null
-    bankAccountNumber?: string | null
-    bankId?: string | null
-    bankName?: string | null
     bloodType?: string | null
-    bpjsKesehatanNumber?: string | null
-    bpjsKetenagakerjaanNumber?: string | null
     citizenshipStatus: 'WNI' | 'WNA'
     city?: string | null
     country?: string | null
@@ -203,12 +207,13 @@ export interface CreateEmployeeProfileInput {
     drivingLicenseNumber?: string | null
     employeeNumber: string
     employeeStatus?: string | null
-    employmentType: EmployeeProfileEmploymentType
     fullName: string
     gender?: string | null
     heightCm?: EmployeeProfileJsonValue
     hireDate: string
+    kkFileId?: string | null
     kkNumber?: string | null
+    ktpFileId?: string | null
     ktpNumber?: string | null
     lastEducationLevel?: string | null
     latitude?: EmployeeProfileJsonValue
@@ -224,6 +229,7 @@ export interface CreateEmployeeProfileInput {
     province?: string | null
     religion?: string | null
     resignDate?: string | null
+    simFileId?: string | null
     terminationReason?: string | null
     village?: string | null
     weightKg?: EmployeeProfileJsonValue

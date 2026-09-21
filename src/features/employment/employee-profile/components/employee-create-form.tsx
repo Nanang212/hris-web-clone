@@ -9,8 +9,9 @@ import { Card, CardContent } from '@/shared/components/ui/card'
 import { Spinner } from '@/shared/components/ui/spinner'
 import { useSchema } from '@/shared/lib/schema'
 import { snackbar } from '@/shared/lib/snackbar'
+import { EmployeeCreateBankPayrollStep } from '@/features/employment/employee-profile/components/employee-create-bank-payroll-step'
 import { EmployeeCreateContactsStep } from '@/features/employment/employee-profile/components/employee-create-contacts-step'
-import { EmployeeCreateEducationDocumentsStep } from '@/features/employment/employee-profile/components/employee-create-education-documents-step'
+import { EmployeeCreateEducationStep } from '@/features/employment/employee-profile/components/employee-create-education-step'
 import { EmployeeCreateEmployeeStep } from '@/features/employment/employee-profile/components/employee-create-employee-step'
 import { EmployeeCreateEmploymentStep } from '@/features/employment/employee-profile/components/employee-create-employment-step'
 import {
@@ -28,7 +29,6 @@ import type {
   EmployeeProfileContractType,
   EmployeeProfileEducationLevel,
   EmployeeProfileEmploymentType,
-  EmployeeProfileVerificationStatus,
 } from '@/features/employment/employee-profile/types'
 import { m } from '@/i18n/paraglide/messages'
 
@@ -38,9 +38,10 @@ interface EmployeeCreateFormProps {
 
 const stepFields = [
   ['employee'],
-  ['assignments', 'contracts', 'projects', 'payrollComponents', 'taxProfile'],
+  ['assignments', 'contracts', 'projects'],
+  ['bankAccounts', 'bpjs', 'payrollComponents', 'taxProfile'],
   ['contacts'],
-  ['educations', 'documents'],
+  ['educations'],
 ] as const
 
 function optionalNumber(value: string) {
@@ -85,8 +86,6 @@ function toPayload(
     employee: {
       ...form.employee,
       citizenshipStatus: form.employee.citizenshipStatus as 'WNI' | 'WNA',
-      employmentType: form.employee.employmentType as EmployeeProfileEmploymentType,
-      bankName: options.banks.find((bank) => bank.id === form.employee.bankId)?.name ?? '',
       dateOfBirth: optionalDate(form.employee.dateOfBirth),
       heightCm: optionalProfileValue(optionalNumber(form.employee.heightCm) ?? ''),
       latitude: optionalProfileValue(optionalNumber(form.employee.latitude) ?? ''),
@@ -96,13 +95,32 @@ function toPayload(
     },
     assignments: form.assignments.map((assignment) => ({
       ...assignment,
+      employmentType: assignment.employmentType as EmployeeProfileEmploymentType,
       effectiveEndDate: optionalDate(assignment.effectiveEndDate),
     })),
+    bankAccounts: form.bankAccounts
+      .filter((account) => account.bankId && account.accountNumber)
+      .map((account) => ({
+        ...account,
+        employeeId: form.employee.employeeNumber,
+      })),
+    bpjs: form.bpjs
+      .filter((item) => item.participantNumber)
+      .map((item) => ({
+        ...item,
+        documentFileId: item.documentFileId || null,
+        effectiveEndDate: optionalDate(item.effectiveEndDate),
+        employeeId: form.employee.employeeNumber,
+        facilityName: item.facilityName || null,
+        membershipClass: item.membershipClass || null,
+        program: item.program as 'KESEHATAN' | 'KETENAGAKERJAAN',
+      })),
     contacts: form.contacts.map((contact) => ({
       ...contact,
       contactType: contact.contactType as EmployeeProfileContactType,
       birthDate: optionalDate(contact.birthDate),
       effectiveEndDate: optionalDate(contact.effectiveEndDate),
+      ktpFileId: contact.ktpFileId || null,
     })),
     contracts: form.contracts.map((contract) => ({
       ...contract,
@@ -112,19 +130,11 @@ function toPayload(
       maxExtensionDate: optionalDate(contract.maxExtensionDate),
       probationEffectiveEndDate: optionalDate(contract.probationEffectiveEndDate),
     })),
-    documents: form.documents
-      .filter((document) => document.documentFileId && document.documentTypeId)
-      .map((document) => ({
-        ...document,
-        verificationStatus: document.verificationStatus as EmployeeProfileVerificationStatus,
-        expiryDate: optionalDate(document.expiryDate),
-        issuedDate: optionalDate(document.issuedDate),
-        verifiedAt: optionalDate(document.verifiedAt),
-      })),
     educations: form.educations
       .filter((education) => education.institutionName)
       .map((education) => ({
         ...education,
+        employeeId: form.employee.employeeNumber,
         educationLevel: education.educationLevel as EmployeeProfileEducationLevel,
         gpa: optionalProfileValue(optionalNumber(education.gpa) ?? ''),
         graduationYear: optionalNumber(education.graduationYear),
@@ -163,7 +173,6 @@ function toPayload(
 export function EmployeeCreateForm({ options }: EmployeeCreateFormProps) {
   const navigate = useNavigate()
   const [currentStep, setCurrentStep] = useState(0)
-  const [, setProfilePhoto] = useState<File>()
   const mutation = useCreateEmployeeInformation()
   const schema = useSchema((schema, messages) =>
     employeeCreateFormShape(schema, {
@@ -187,12 +196,16 @@ export function EmployeeCreateForm({ options }: EmployeeCreateFormProps) {
       description: m.employee_information_create_step_employment_setup_description(),
     },
     {
+      title: 'Bank & Payroll',
+      description: 'Rekening bank, BPJS, dan payroll karyawan.',
+    },
+    {
       title: m.employee_information_create_step_contacts(),
       description: m.employee_information_create_step_contacts_description(),
     },
     {
-      title: m.employee_information_create_step_education_documents(),
-      description: m.employee_information_create_step_education_documents_description(),
+      title: 'Education',
+      description: 'Riwayat pendidikan dan sertifikat pendukung.',
     },
   ]
 
@@ -208,16 +221,11 @@ export function EmployeeCreateForm({ options }: EmployeeCreateFormProps) {
 
   const handleInvalid: SubmitErrorHandler<EmployeeCreateFormValues> = (errors) => {
     if (errors.employee) setCurrentStep(0)
-    else if (
-      errors.assignments ||
-      errors.contracts ||
-      errors.projects ||
-      errors.payrollComponents ||
-      errors.taxProfile
-    )
-      setCurrentStep(1)
-    else if (errors.contacts) setCurrentStep(2)
-    else setCurrentStep(3)
+    else if (errors.assignments || errors.contracts || errors.projects) setCurrentStep(1)
+    else if (errors.bankAccounts || errors.bpjs || errors.payrollComponents || errors.taxProfile)
+      setCurrentStep(2)
+    else if (errors.contacts) setCurrentStep(3)
+    else setCurrentStep(4)
   }
 
   const continueStep = async () => {
@@ -238,12 +246,11 @@ export function EmployeeCreateForm({ options }: EmployeeCreateFormProps) {
           onStepChange={setCurrentStep}
         />
 
-        {currentStep === 0 && (
-          <EmployeeCreateEmployeeStep options={options} onPhotoChange={setProfilePhoto} />
-        )}
+        {currentStep === 0 && <EmployeeCreateEmployeeStep options={options} />}
         {currentStep === 1 && <EmployeeCreateEmploymentStep options={options} />}
-        {currentStep === 2 && <EmployeeCreateContactsStep />}
-        {currentStep === 3 && <EmployeeCreateEducationDocumentsStep options={options} />}
+        {currentStep === 2 && <EmployeeCreateBankPayrollStep options={options} />}
+        {currentStep === 3 && <EmployeeCreateContactsStep />}
+        {currentStep === 4 && <EmployeeCreateEducationStep />}
 
         <Card className='border-primary/15 bg-primary/5'>
           <CardContent className='flex items-start gap-2 text-sm text-primary'>
