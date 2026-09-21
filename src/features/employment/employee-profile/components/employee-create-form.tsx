@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { IconArrowLeft, IconArrowRight, IconCheck, IconInfoCircle } from '@tabler/icons-react'
 import { Link, useNavigate } from '@tanstack/react-router'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { FormProvider, useForm, type SubmitErrorHandler } from 'react-hook-form'
 
 import { Button } from '@/shared/components/ui/button'
@@ -20,20 +20,27 @@ import {
   type EmployeeCreateFormValues,
 } from '@/features/employment/employee-profile/components/employee-create-form-config'
 import { EmployeeCreateStepper } from '@/features/employment/employee-profile/components/employee-create-form-ui'
-import { useCreateEmployeeInformation } from '@/features/employment/employee-profile/hooks'
+import {
+  useCreateEmployeeInformation,
+  useUpdateEmployeeInformation,
+} from '@/features/employment/employee-profile/hooks'
 import type {
   CreateEmployeeInformationPayload,
+  EmployeeInformationDetailData,
   EmployeeCreationOptionsData,
   EmployeeProfileContactType,
   EmployeeProfileContractStatus,
   EmployeeProfileContractType,
   EmployeeProfileEducationLevel,
   EmployeeProfileEmploymentType,
+  UpdateEmployeeInformationRequest,
 } from '@/features/employment/employee-profile/types'
 import { m } from '@/i18n/paraglide/messages'
 
 interface EmployeeCreateFormProps {
   options: EmployeeCreationOptionsData
+  mode?: 'create' | 'update'
+  employee?: EmployeeInformationDetailData
 }
 
 const stepFields = [
@@ -55,6 +62,31 @@ function optionalProfileValue(value: string | number) {
 
 function optionalDate(value: string) {
   return value || null
+}
+
+function toInformationEmploymentType(value: string): EmployeeInformationDetailData['employmentType'] {
+  return {
+    PERMANENT: 'Permanent',
+    CONTRACT: 'Contract',
+    OUTSOURCING: 'Contract',
+    INTERN: 'Internship',
+    FREELANCE: 'Freelance',
+    Permanent: 'Permanent',
+    Contract: 'Contract',
+    Internship: 'Internship',
+    Freelance: 'Freelance',
+  }[value] ?? 'Permanent'
+}
+
+function toProfileEmploymentType(
+  value: EmployeeInformationDetailData['employmentType'],
+): EmployeeCreateFormValues['assignments'][number]['employmentType'] {
+  return {
+    Permanent: 'PERMANENT',
+    Contract: 'CONTRACT',
+    Internship: 'INTERN',
+    Freelance: 'FREELANCE',
+  }[value]
 }
 
 function getPayrollAssignmentValueFields(
@@ -170,10 +202,77 @@ function toPayload(
   }
 }
 
-export function EmployeeCreateForm({ options }: EmployeeCreateFormProps) {
+function toUpdatePayload(
+  form: EmployeeCreateFormValues,
+  employee: EmployeeInformationDetailData,
+): UpdateEmployeeInformationRequest['payload'] {
+  const assignment = form.assignments[0]
+  const bankAccount = form.bankAccounts[0]
+  const healthBpjs = form.bpjs.find((item) => item.program === 'KESEHATAN')
+  const employmentBpjs = form.bpjs.find((item) => item.program === 'KETENAGAKERJAAN')
+  const contact = form.contacts[0]
+
+  return {
+    status: employee.status,
+    personalInformation: {
+      fullName: form.employee.fullName,
+      email: form.employee.personalEmail,
+      phoneNumber: form.employee.phoneNumber || null,
+      birthDate: form.employee.dateOfBirth || null,
+      gender: form.employee.gender || null,
+      maritalStatus: form.employee.maritalStatus || null,
+      nationality: form.employee.citizenshipStatus || null,
+      address: form.employee.address || null,
+    },
+    employmentInformation: {
+      joinDate: form.employee.hireDate,
+      employmentType: toInformationEmploymentType(assignment.employmentType),
+      departmentId: assignment.departmentUnitId,
+      divisionId: assignment.divisionUnitId,
+      positionId: assignment.positionId,
+      gradeId: assignment.gradeId || undefined,
+      branchId: employee.employmentInformation.branchId,
+      supervisorId: assignment.supervisorEmployeeId || undefined,
+      workLocation: assignment.workLocation || '',
+    },
+    emergencyContact: {
+      name: contact.fullName || null,
+      relationship: contact.contactType || null,
+      phoneNumber: contact.phone || null,
+      address: contact.address || null,
+    },
+    financialAndCompliance: {
+      bankId: bankAccount.bankId || undefined,
+      bankAccountHolder: bankAccount.accountHolderName || undefined,
+      bankAccountNumber: bankAccount.accountNumber || undefined,
+      bankEffectiveDate: bankAccount.effectiveStartDate || undefined,
+      payrollAccount: employee.financialAndCompliance.payrollAccount ?? undefined,
+      npwpNumber: form.taxProfile.npwpNumber || undefined,
+      npwpStatus: employee.financialAndCompliance.npwpStatus || undefined,
+      npwpRegisteredName: employee.financialAndCompliance.npwpRegisteredName || undefined,
+      taxCategory: employee.financialAndCompliance.taxCategory || undefined,
+      npwpEffectiveDate: form.taxProfile.effectiveStartDate || undefined,
+      bpjsHealthNumber: healthBpjs?.participantNumber || undefined,
+      bpjsEmploymentNumber: employmentBpjs?.participantNumber || undefined,
+    },
+    medicalCheckup: {
+      status: employee.medicalCheckup.status,
+      dueDate: employee.medicalCheckup.dueDate,
+      lastCheckupDate: employee.medicalCheckup.lastCheckupDate,
+      provider: employee.medicalCheckup.provider || undefined,
+      examinationType: employee.medicalCheckup.examinationType || undefined,
+      followUpRequired: employee.medicalCheckup.followUpRequired ?? undefined,
+      administrativeNote: employee.medicalCheckup.administrativeNote || undefined,
+    },
+  }
+}
+
+export function EmployeeCreateForm({ options, mode = 'create', employee }: EmployeeCreateFormProps) {
   const navigate = useNavigate()
   const [currentStep, setCurrentStep] = useState(0)
-  const mutation = useCreateEmployeeInformation()
+  const createMutation = useCreateEmployeeInformation()
+  const updateMutation = useUpdateEmployeeInformation()
+  const mutation = mode === 'update' ? updateMutation : createMutation
   const schema = useSchema((schema, messages) =>
     employeeCreateFormShape(schema, {
       required: messages.employee_information_create_field_required(),
@@ -185,6 +284,72 @@ export function EmployeeCreateForm({ options }: EmployeeCreateFormProps) {
     defaultValues: employeeCreateDefaultValues,
     mode: 'onBlur',
   })
+
+  useEffect(() => {
+    if (!employee) return
+    const values = structuredClone(employeeCreateDefaultValues)
+    values.employee = {
+      ...values.employee,
+      employeeNumber: employee.employeeNumber,
+      fullName: employee.personalInformation.fullName,
+      personalEmail: employee.personalInformation.email,
+      phoneNumber: employee.personalInformation.phoneNumber ?? '',
+      dateOfBirth: employee.personalInformation.birthDate ?? '',
+      gender: employee.personalInformation.gender ?? '',
+      maritalStatus: employee.personalInformation.maritalStatus ?? '',
+      citizenshipStatus: (employee.personalInformation.nationality as 'WNI' | 'WNA') || 'WNI',
+      address: employee.personalInformation.address ?? '',
+      hireDate: employee.employmentInformation.joinDate,
+      employeeStatus: employee.status,
+    }
+    values.assignments = [
+      {
+        ...values.assignments[0],
+        departmentUnitId: employee.employmentInformation.departmentId,
+        divisionUnitId: employee.employmentInformation.divisionId,
+        positionId: employee.employmentInformation.positionId,
+        gradeId: employee.employmentInformation.gradeId ?? '',
+        supervisorEmployeeId: employee.employmentInformation.supervisorId ?? '',
+        effectiveStartDate: employee.employmentInformation.joinDate,
+        employmentType: toProfileEmploymentType(employee.employmentInformation.employmentType),
+        workLocation: employee.employmentInformation.workLocation,
+      },
+    ]
+    values.contacts = [
+      {
+        ...values.contacts[0],
+        fullName: employee.emergencyContact.name ?? '',
+        contactType: employee.emergencyContact.relationship ?? 'OTHER',
+        phone: employee.emergencyContact.phoneNumber ?? '',
+        address: employee.emergencyContact.address ?? '',
+      },
+    ]
+    values.bankAccounts = [
+      {
+        ...values.bankAccounts[0],
+        bankId: employee.financialAndCompliance.bankId ?? '',
+        accountHolderName: employee.financialAndCompliance.bankAccountHolder ?? '',
+        accountNumber: employee.financialAndCompliance.bankAccountNumber ?? '',
+        effectiveStartDate:
+          employee.financialAndCompliance.bankEffectiveDate ?? employee.joinDate,
+      },
+    ]
+    values.bpjs = values.bpjs.map((item) => ({
+      ...item,
+      participantNumber:
+        item.program === 'KESEHATAN'
+          ? (employee.financialAndCompliance.bpjsHealthNumber ?? '')
+          : (employee.financialAndCompliance.bpjsEmploymentNumber ?? ''),
+      effectiveStartDate: employee.joinDate,
+    }))
+    values.taxProfile = {
+      ...values.taxProfile,
+      npwpNumber: employee.financialAndCompliance.npwpNumber ?? '',
+      effectiveStartDate:
+        employee.financialAndCompliance.npwpEffectiveDate ?? employee.joinDate,
+    }
+    methods.reset(values)
+  }, [employee, methods])
 
   const steps = [
     {
@@ -210,6 +375,19 @@ export function EmployeeCreateForm({ options }: EmployeeCreateFormProps) {
   ]
 
   const submit = (form: EmployeeCreateFormValues) => {
+    if (mode === 'update' && employee) {
+      updateMutation.mutate(
+        { employeeId: employee.id, payload: toUpdatePayload(form, employee) },
+        {
+          onSuccess: () => {
+            snackbar.success(m.employee_information_edit_success())
+            void navigate({ to: '/employment/employee-profile/$employeeId', params: { employeeId: employee.id } })
+          },
+          onError: (error) => snackbar.exception(error),
+        },
+      )
+      return
+    }
     mutation.mutate(toPayload(form, options), {
       onSuccess: () => {
         snackbar.success(m.employee_information_create_success())

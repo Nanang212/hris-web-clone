@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { z } from 'zod'
 
-import { EmployeeFormPage } from '@/features/employment/employee/pages/employee-form-page'
+import { UpdateEmployeeInformationPage } from '@/features/employment/employee-profile/pages/update-employee-information-page'
 
 export const Route = createFileRoute('/(app)/employment/employee/update')({
   validateSearch: z.object({ id: z.string() }),
@@ -10,5 +10,5 @@ export const Route = createFileRoute('/(app)/employment/employee/update')({
 
 function RouteComponent() {
   const { id } = Route.useSearch()
-  return <EmployeeFormPage mode='update' employeeId={id} />
+  return <UpdateEmployeeInformationPage employeeId={id} />
 }
