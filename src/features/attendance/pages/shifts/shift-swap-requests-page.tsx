@@ -3,6 +3,7 @@ import { Link } from '@tanstack/react-router'
 import { AppMain } from '@/shared/components/app-layout/app-main'
 import { Badge } from '@/shared/components/ui/badge'
 import { Button } from '@/shared/components/ui/button'
+import { Card, CardContent } from '@/shared/components/ui/card'
 import {
   Table,
   TableBody,
@@ -34,16 +35,19 @@ export function ShiftSwapRequestsPage() {
           ['21', 'Approved', 'green'],
           ['3', 'Rejected', 'red'],
         ].map(([value, label, variant]) => (
-          <section key={label} className='rounded-2xl border bg-card p-5 shadow-sm'>
+          <Card key={label}>
+            <CardContent className='p-5'>
             <Badge className='float-right' variant={variant as 'amber' | 'green' | 'red'}>
               {label}
             </Badge>
             <p className='text-2xl font-bold'>{value}</p>
             <p className='mt-1 text-xs text-muted-foreground'>swap requests</p>
-          </section>
+            </CardContent>
+          </Card>
         ))}
       </div>
-      <section className='overflow-x-auto rounded-2xl border bg-card shadow-sm'>
+      <Card className='min-w-0 overflow-hidden py-0'>
+        <CardContent className='overflow-x-auto px-0'>
         <Table className='min-w-[840px]'>
           <TableHeader className='bg-muted/50'>
             <TableRow>
@@ -92,7 +96,8 @@ export function ShiftSwapRequestsPage() {
             ))}
           </TableBody>
         </Table>
-      </section>
+        </CardContent>
+      </Card>
     </AppMain>
   )
 }

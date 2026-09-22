@@ -684,6 +684,7 @@
   "attendance_calendar_tab_settings": "Settings",
   "attendance_shift_navigation_label": "Shift management navigation",
   "attendance_shift_tab_schedule": "Schedule",
+  "attendance_shift_tab_actual": "Shift vs Actual",
   "attendance_shift_tab_setup": "Shift Setup",
   "attendance_shift_tab_assignments": "Assignments",
   "attendance_shift_tab_swaps": "Swap Requests",

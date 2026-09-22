@@ -3,6 +3,7 @@ import { Link } from '@tanstack/react-router'
 
 import { AppMain } from '@/shared/components/app-layout/app-main'
 import { Button } from '@/shared/components/ui/button'
+import { Card, CardContent } from '@/shared/components/ui/card'
 import { Input } from '@/shared/components/ui/input'
 import { getAttendanceBreadcrumbs } from '@/features/attendance/components/attendance-breadcrumbs'
 import { AttendanceTabs } from '@/features/attendance/components/attendance-tabs'
@@ -17,13 +18,16 @@ export function RejectAttendanceRequestPage() {
       className='gap-5 bg-muted/30'
     >
       <AttendanceTabs active='approval' />
-      <section className='rounded-2xl border bg-card p-5 shadow-sm'>
+      <Card>
+        <CardContent className='p-5'>
         <h2 className='text-lg font-bold'>REQ-0241 • Forgot Clock In</h2>
         <p className='mt-2 text-xs text-muted-foreground'>
           Evidence dan approval detail tetap terlihat di belakang modal.
         </p>
-      </section>
-      <div className='mx-auto w-full max-w-xl rounded-2xl border bg-card p-6 shadow-lg'>
+        </CardContent>
+      </Card>
+      <Card className='mx-auto w-full max-w-xl shadow-lg'>
+        <CardContent className='p-6'>
         <div className='flex items-center gap-3'>
           <span className='rounded-xl bg-rose-50 p-2 text-primary'>
             <IconUser />
@@ -56,7 +60,8 @@ export function RejectAttendanceRequestPage() {
             Reject Request
           </Button>
         </div>
-      </div>
+        </CardContent>
+      </Card>
     </AppMain>
   )
 }

@@ -3,6 +3,7 @@ import { Link } from '@tanstack/react-router'
 
 import { AppMain } from '@/shared/components/app-layout/app-main'
 import { Button } from '@/shared/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card'
 import { Input } from '@/shared/components/ui/input'
 import { getAttendanceBreadcrumbs } from '@/features/attendance/components/attendance-breadcrumbs'
 import { AttendanceTabs } from '@/features/attendance/components/attendance-tabs'
@@ -28,11 +29,14 @@ export function AttendanceRequestFormPage() {
     >
       <AttendanceTabs active='requests' />
       <div className='grid gap-4 xl:grid-cols-[minmax(0,1.8fr)_320px]'>
-        <section className='rounded-2xl border border-border bg-card p-5 shadow-sm'>
-          <h3 className='text-lg font-semibold'>{m.attendance_request_form_type()}</h3>
-          <p className='mt-1 text-sm text-muted-foreground'>
-            {m.attendance_request_form_type_description()}
-          </p>
+        <Card>
+          <CardHeader>
+            <CardTitle>{m.attendance_request_form_type()}</CardTitle>
+            <p className='text-sm text-muted-foreground'>
+              {m.attendance_request_form_type_description()}
+            </p>
+          </CardHeader>
+          <CardContent>
           <div className='mt-6 grid gap-5 sm:grid-cols-2'>
             <ReadOnlyField
               label={m.attendance_history_employee()}
@@ -87,9 +91,13 @@ export function AttendanceRequestFormPage() {
             </Button>
             <Button>{m.attendance_request_form_submit()}</Button>
           </div>
-        </section>
-        <aside className='rounded-2xl border border-border bg-card p-5 shadow-sm'>
-          <h3 className='font-semibold'>{m.attendance_request_form_approval()}</h3>
+          </CardContent>
+        </Card>
+        <Card className='h-fit'>
+          <CardHeader>
+            <CardTitle>{m.attendance_request_form_approval()}</CardTitle>
+          </CardHeader>
+          <CardContent>
           <div className='mt-5 space-y-5 text-sm'>
             <div className='flex gap-3'>
               <IconCalendarEvent className='size-5 text-blue-600' />
@@ -110,7 +118,8 @@ export function AttendanceRequestFormPage() {
               <p className='mt-2 font-semibold'>{m.attendance_request_form_sla_value()}</p>
             </div>
           </div>
-        </aside>
+          </CardContent>
+        </Card>
       </div>
     </AppMain>
   )

@@ -17,6 +17,7 @@ import { Link } from '@tanstack/react-router'
 
 import { AppMain } from '@/shared/components/app-layout/app-main'
 import { Button } from '@/shared/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card'
 import {
   Table,
   TableBody,
@@ -63,7 +64,8 @@ function AttendanceStat({
   percentageClassName,
 }: Readonly<AttendanceStatProps>) {
   return (
-    <section className='rounded-2xl border border-border bg-card p-4 shadow-sm'>
+    <Card>
+      <CardContent className='p-4'>
       <div className='flex items-center gap-3'>
         <div className={cn('flex size-10 items-center justify-center rounded-xl', iconClassName)}>
           <Icon className='size-5' stroke={2} />
@@ -74,7 +76,8 @@ function AttendanceStat({
         </div>
       </div>
       <p className={cn('mt-4 text-xs font-semibold', percentageClassName)}>{percentage}</p>
-    </section>
+      </CardContent>
+    </Card>
   )
 }
 
@@ -198,7 +201,8 @@ export function AttendancePage() {
       </div>
 
       <div className='grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(430px,1fr)]'>
-        <section className='rounded-2xl border border-border bg-card p-4 shadow-sm'>
+        <Card>
+          <CardContent className='p-4'>
           <div className='flex items-center justify-between gap-3'>
             <h3 className='font-semibold'>{m.attendance_today_shift_title()}</h3>
             <Button size='sm' variant='outline' className='rounded-lg' asChild>
@@ -248,20 +252,24 @@ export function AttendancePage() {
               </Link>
             </Button>
           </div>
-        </section>
+          </CardContent>
+        </Card>
 
-        <section className='rounded-2xl border border-border bg-card p-4 shadow-sm'>
+        <Card>
+          <CardContent className='p-4'>
           <h3 className='font-semibold'>{m.attendance_quick_menu_title()}</h3>
           <div className='mt-4 grid min-w-0 grid-cols-1 gap-3 min-[420px]:grid-cols-2 sm:grid-cols-4'>
             {menuItems.map((item) => (
               <QuickMenuItem key={item.label} {...item} />
             ))}
           </div>
-        </section>
+          </CardContent>
+        </Card>
       </div>
 
       <div className='grid gap-4 xl:grid-cols-2'>
-        <section className='flex min-h-28 items-start justify-between gap-4 rounded-2xl border border-border bg-card p-4 shadow-sm'>
+        <Card>
+          <CardContent className='flex min-h-28 items-start justify-between gap-4 p-4'>
           <div className='flex gap-3'>
             <span className='flex size-9 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600'>
               <IconBell className='size-5' />
@@ -279,8 +287,10 @@ export function AttendancePage() {
               {m.attendance_view_all()}
             </Link>
           </Button>
-        </section>
-        <section className='rounded-2xl border border-border bg-card p-4 shadow-sm'>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className='p-4'>
           <div className='flex items-center justify-between'>
             <h3 className='font-semibold'>{m.attendance_today_summary_title()}</h3>
             <Button size='sm' variant='outline' className='rounded-lg' asChild>
@@ -310,20 +320,22 @@ export function AttendancePage() {
               <dd className='mt-1 font-semibold text-blue-600'>–</dd>
             </div>
           </dl>
-        </section>
+          </CardContent>
+        </Card>
       </div>
 
-      <section className='overflow-hidden rounded-2xl border border-border bg-card shadow-sm'>
-        <div className='flex items-center justify-between p-4'>
-          <h3 className='font-semibold'>{m.attendance_recent_history_title()}</h3>
+      <Card className='min-w-0 overflow-hidden py-0'>
+        <CardHeader className='flex-row items-center justify-between p-4'>
+          <CardTitle>{m.attendance_recent_history_title()}</CardTitle>
           <Button size='sm' variant='outline' className='rounded-lg' asChild>
             <Link to='/attendance/history'>
               <IconArrowRight />
               {m.attendance_view_all()}
             </Link>
           </Button>
-        </div>
-        <Table>
+        </CardHeader>
+        <CardContent className='overflow-x-auto px-0'>
+        <Table className='min-w-[640px]'>
           <TableHeader className='bg-muted/50'>
             <TableRow>
               <TableHead>{m.attendance_table_date()}</TableHead>
@@ -353,7 +365,8 @@ export function AttendancePage() {
             ))}
           </TableBody>
         </Table>
-      </section>
+        </CardContent>
+      </Card>
     </AppMain>
   )
 }

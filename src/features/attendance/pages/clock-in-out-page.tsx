@@ -4,6 +4,7 @@ import { useState } from 'react'
 
 import { AppMain } from '@/shared/components/app-layout/app-main'
 import { Button } from '@/shared/components/ui/button'
+import { Card, CardContent } from '@/shared/components/ui/card'
 import { RadioGroup, RadioGroupItem } from '@/shared/components/ui/radio-group'
 import { cn } from '@/shared/lib/utils'
 import { getAttendanceBreadcrumbs } from '@/features/attendance/components/attendance-breadcrumbs'
@@ -78,7 +79,8 @@ export function ClockInOutPage() {
     >
       <AttendanceTabs active='clock' />
 
-      <section className='rounded-2xl border border-border bg-card p-4 shadow-sm'>
+      <Card>
+        <CardContent className='p-4'>
         <div className='flex flex-wrap items-center gap-x-6 gap-y-1'>
           <h3 className='text-base font-semibold'>{m.attendance_clock_type_title()}</h3>
           <p className='text-xs text-muted-foreground'>{m.attendance_clock_type_description()}</p>
@@ -110,10 +112,12 @@ export function ClockInOutPage() {
             </label>
           ))}
         </RadioGroup>
-      </section>
+        </CardContent>
+      </Card>
 
       <div className='grid items-stretch gap-4 xl:grid-cols-[minmax(0,1.75fr)_340px]'>
-        <section className='rounded-2xl border border-border bg-card p-5 shadow-sm'>
+        <Card>
+          <CardContent className='p-5'>
           <h3 className='text-lg font-semibold'>{m.attendance_clock_face_verification_title()}</h3>
           <p className='mt-1 text-sm text-muted-foreground'>
             {m.attendance_clock_face_verification_subtitle()}
@@ -146,9 +150,11 @@ export function ClockInOutPage() {
               description={m.attendance_clock_step_record_description()}
             />
           </div>
-        </section>
+          </CardContent>
+        </Card>
 
-        <aside className='flex flex-col rounded-2xl border border-border bg-card p-5 shadow-sm'>
+        <Card>
+          <CardContent className='flex flex-1 flex-col p-5'>
           <h3 className='text-lg font-semibold'>{m.attendance_clock_requirements_title()}</h3>
           <span className='mt-3 w-fit rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-600'>
             {m.attendance_clock_requirements_complete()}
@@ -192,7 +198,8 @@ export function ClockInOutPage() {
               <Link to='/attendance/clock-out'>Already clocked in? Clock Out</Link>
             </Button>
           </div>
-        </aside>
+          </CardContent>
+        </Card>
       </div>
     </AppMain>
   )

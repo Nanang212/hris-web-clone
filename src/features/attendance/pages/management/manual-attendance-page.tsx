@@ -2,6 +2,7 @@ import { IconAlertTriangle, IconPlus } from '@tabler/icons-react'
 
 import { AppMain } from '@/shared/components/app-layout/app-main'
 import { Button } from '@/shared/components/ui/button'
+import { Card, CardContent } from '@/shared/components/ui/card'
 import { Input } from '@/shared/components/ui/input'
 import { getAttendanceBreadcrumbs } from '@/features/attendance/components/attendance-breadcrumbs'
 import { AttendanceTabs } from '@/features/attendance/components/attendance-tabs'
@@ -28,7 +29,8 @@ export function ManualAttendancePage() {
     >
       <AttendanceTabs active='management' />
       <div className='grid gap-5 xl:grid-cols-[minmax(0,1.8fr)_320px]'>
-        <section className='rounded-2xl border bg-card p-5 shadow-sm'>
+        <Card>
+          <CardContent className='p-5'>
           <div className='flex justify-between'>
             <h2 className='font-bold'>Input Manual Attendance</h2>
             <span className='rounded-full bg-violet-50 px-3 py-1 text-xs font-semibold text-violet-600'>
@@ -70,8 +72,10 @@ export function ManualAttendancePage() {
             <Button variant='outline'>Batal</Button>
             <Button>Review</Button>
           </div>
-        </section>
-        <aside className='h-fit rounded-2xl border bg-card p-5 shadow-sm'>
+          </CardContent>
+        </Card>
+        <Card className='h-fit'>
+          <CardContent className='p-5'>
           <h2 className='font-bold'>Existing Record</h2>
           <dl className='mt-6 space-y-6 text-xs'>
             <div className='flex justify-between'>
@@ -91,7 +95,8 @@ export function ManualAttendancePage() {
               <dd className='font-semibold'>Tidak ada</dd>
             </div>
           </dl>
-        </aside>
+          </CardContent>
+        </Card>
       </div>
     </AppMain>
   )

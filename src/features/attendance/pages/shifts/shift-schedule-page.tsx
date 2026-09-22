@@ -1086,18 +1086,19 @@ function PeriodSelector({
   return (
     <Popover open={disabled ? false : open} onOpenChange={disabled ? undefined : handleOpenChange}>
       <PopoverTrigger asChild>
-        <button
+        <Button
           id={id}
           type='button'
+          variant='outline'
           disabled={disabled}
           className={cn(
-            'flex h-9 w-full min-w-[140px] items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm hover:bg-accent focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
+            'w-full min-w-[140px] justify-between font-normal',
             disabled && 'cursor-not-allowed bg-muted/40 opacity-80 hover:bg-muted/40'
           )}
         >
           <span className='tabular-nums'>{mm}/{year}</span>
           <IconCalendar className='size-4 text-muted-foreground' />
-        </button>
+        </Button>
       </PopoverTrigger>
 
       <PopoverContent className='w-64 p-3' align='start' sideOffset={4}>
@@ -1105,32 +1106,38 @@ function PeriodSelector({
           <>
             {/* Month view header: < [Year] > — click year → decade view */}
             <div className='mb-3 flex items-center justify-between'>
-              <button
+              <Button
                 type='button'
+                variant='ghost'
+                size='icon'
                 onClick={() => setPickerYear((y) => y - 1)}
-                className='flex size-7 items-center justify-center rounded-md hover:bg-muted'
+                className='size-7'
               >
                 <IconChevronLeft className='size-4' />
-              </button>
-              <button
+              </Button>
+              <Button
                 type='button'
+                variant='ghost'
+                size='sm'
                 onClick={() => {
                   setDecadeStart(Math.floor(pickerYear / 10) * 10)
                   setView('decade')
                 }}
-                className='rounded-md px-2 py-0.5 text-sm font-semibold hover:bg-muted'
+                className='h-7 px-2 font-semibold'
               >
                 {pickerYear}
-              </button>
+              </Button>
               {/* Next year button — disabled if already at MAX_YEAR */}
-              <button
+              <Button
                 type='button'
+                variant='ghost'
+                size='icon'
                 disabled={pickerYear >= MAX_YEAR}
                 onClick={() => setPickerYear((y) => y + 1)}
-                className='flex size-7 items-center justify-center rounded-md hover:bg-muted disabled:cursor-not-allowed disabled:opacity-30'
+                className='size-7'
               >
                 <IconChevronRight className='size-4' />
-              </button>
+              </Button>
             </div>
 
             {/* Month grid 3 × 4 */}
@@ -1139,22 +1146,19 @@ function PeriodSelector({
                 const m = idx + 1
                 const isSelected = m === month && pickerYear === year
                 return (
-                  <button
+                  <Button
                     key={abbr}
                     type='button'
+                    variant={isSelected ? 'default' : 'ghost'}
+                    size='sm'
                     onClick={() => {
                       onChange(makePeriod(pickerYear, m))
                       setOpen(false)
                     }}
-                    className={[
-                      'rounded-md py-1.5 text-sm transition-colors',
-                      isSelected
-                        ? 'bg-primary font-semibold text-primary-foreground'
-                        : 'text-foreground hover:bg-muted',
-                    ].join(' ')}
+                    className='h-8 font-normal data-[state=active]:font-semibold'
                   >
                     {abbr}
-                  </button>
+                  </Button>
                 )
               })}
             </div>
@@ -1163,25 +1167,29 @@ function PeriodSelector({
           <>
             {/* Decade view header: < [2020–2029] > */}
             <div className='mb-3 flex items-center justify-between'>
-              <button
+              <Button
                 type='button'
+                variant='ghost'
+                size='icon'
                 onClick={() => setDecadeStart((d) => d - 10)}
-                className='flex size-7 items-center justify-center rounded-md hover:bg-muted'
+                className='size-7'
               >
                 <IconChevronLeft className='size-4' />
-              </button>
+              </Button>
               <span className='text-sm font-semibold'>
                 {decadeStart} – {decadeStart + 9}
               </span>
               {/* Next decade — disabled if all years in next decade exceed MAX_YEAR */}
-              <button
+              <Button
                 type='button'
+                variant='ghost'
+                size='icon'
                 disabled={decadeStart + 10 > MAX_YEAR}
                 onClick={() => setDecadeStart((d) => d + 10)}
-                className='flex size-7 items-center justify-center rounded-md hover:bg-muted disabled:cursor-not-allowed disabled:opacity-30'
+                className='size-7'
               >
                 <IconChevronRight className='size-4' />
-              </button>
+              </Button>
             </div>
 
             {/* Year grid 3 × 4 (12 years: decadeStart-1 … decadeStart+10) */}
@@ -1191,28 +1199,24 @@ function PeriodSelector({
                 const isSelected = y === year
                 const isFuture = y > MAX_YEAR // beyond allowed range → disabled
                 return (
-                  <button
+                  <Button
                     key={y}
                     type='button'
+                    variant={isSelected ? 'default' : 'ghost'}
+                    size='sm'
                     disabled={isFuture}
                     onClick={() => {
                       if (isFuture) return
                       setPickerYear(y)
                       setView('month')
                     }}
-                    className={[
-                      'rounded-md py-1.5 text-sm transition-colors',
-                      isFuture
-                        ? 'cursor-not-allowed text-muted-foreground/40'
-                        : isSelected
-                          ? 'bg-primary font-semibold text-primary-foreground'
-                          : inDecade
-                            ? 'text-foreground hover:bg-muted'
-                            : 'text-muted-foreground hover:bg-muted',
-                    ].join(' ')}
+                    className={cn(
+                      'h-8 font-normal',
+                      !isSelected && !inDecade && 'text-muted-foreground',
+                    )}
                   >
                     {y}
-                  </button>
+                  </Button>
                 )
               })}
             </div>

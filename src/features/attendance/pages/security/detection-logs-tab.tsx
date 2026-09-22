@@ -276,8 +276,8 @@ export function DetectionLogsTab() {
       </div>
 
       {/* ── 3. Detection Logs Table with Action Preview ───────────────────── */}
-      <div className='rounded-2xl border border-border/80 bg-card shadow-sm overflow-hidden'>
-        <Table>
+      <div className='overflow-x-auto rounded-2xl border border-border/80 bg-card shadow-sm'>
+        <Table className='min-w-[980px]'>
           <TableHeader>
             <TableRow className='bg-muted/30 hover:bg-muted/30 border-b border-border/70 text-xs'>
               <TableHead className='font-bold text-muted-foreground py-3.5 pl-6'>

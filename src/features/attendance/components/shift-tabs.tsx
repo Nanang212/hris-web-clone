@@ -5,7 +5,7 @@ import { m } from '@/i18n/paraglide/messages'
 
 const tabs = [
   ['schedule', m.attendance_shift_tab_schedule, '/attendance/management/shifts'],
-  ['actual', () => 'vs Actual', '/attendance/management/shifts/vs-actual'],
+  ['actual', m.attendance_shift_tab_actual, '/attendance/management/shifts/vs-actual'],
   ['setup', m.attendance_shift_tab_setup, '/attendance/management/shifts/setup'],
   ['assignments', m.attendance_shift_tab_assignments, '/attendance/management/shifts/assignments'],
   ['swaps', m.attendance_shift_tab_swaps, '/attendance/management/shifts/swaps'],
