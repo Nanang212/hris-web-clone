@@ -3,6 +3,8 @@ export type EmployeeInformationStatus = 'Active' | 'OnLeave' | 'Probation' | 'Re
 export type EmployeeInformationEmploymentType =
   'Permanent' | 'Contract' | 'Internship' | 'Freelance'
 
+export type EmployeeInformationWorkTimeType = 'Regular' | 'JamPenggal'
+
 export interface EmployeeInformationFilterParams {
   search?: string
   employeeIds?: string[]
@@ -417,6 +419,10 @@ export interface EmployeeInformationPersonalDetail {
   maritalStatus: string | null
   nationality: string | null
   address: string | null
+  motherMaidenName: string | null
+  religion: string | null
+  taxStatus: string | null
+  trainings: string[]
 }
 
 export interface EmployeeInformationEmploymentDetail {
@@ -435,6 +441,8 @@ export interface EmployeeInformationEmploymentDetail {
   supervisorId: string | null
   workLocation: string
   supervisorName: string | null
+  baseSalary: string | null
+  workTimeType: EmployeeInformationWorkTimeType
 }
 
 export interface EmployeeInformationEmergencyContactDetail {
@@ -542,6 +550,8 @@ export interface UpdateEmployeeInformationPayload {
     branchId: string
     supervisorId?: string
     workLocation: string
+    baseSalary?: string
+    workTimeType: EmployeeInformationWorkTimeType
   }
   emergencyContact: EmployeeInformationEmergencyContactDetail
   financialAndCompliance: {
