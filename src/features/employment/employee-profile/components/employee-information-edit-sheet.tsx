@@ -22,6 +22,7 @@ import { Input, type InputProps } from '@/shared/components/ui/input'
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
@@ -161,11 +162,13 @@ function SelectFormField({
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
         <SelectContent>
-          {options.map((option) => (
-            <SelectItem key={option.value} value={option.value}>
-              {option.label}
-            </SelectItem>
-          ))}
+          <SelectGroup>
+            {options.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectGroup>
         </SelectContent>
       </Select>
       <FieldError>{error}</FieldError>
@@ -218,6 +221,9 @@ function createDefaultValues(employee: EmployeeInformationDetailData) {
     maritalStatus: personal.maritalStatus ?? '',
     nationality: personal.nationality ?? '',
     address: personal.address ?? '',
+    motherMaidenName: personal.motherMaidenName ?? '',
+    religion: personal.religion ?? '',
+    trainings: (personal.trainings ?? []).join(', '),
     emergencyName: emergency.name ?? '',
     emergencyRelationship: emergency.relationship ?? '',
     emergencyPhone: emergency.phoneNumber ?? '',
@@ -231,6 +237,8 @@ function createDefaultValues(employee: EmployeeInformationDetailData) {
     employmentType: employment.employmentType,
     joinDate: employment.joinDate,
     workLocation: employment.workLocation,
+    baseSalary: employment.baseSalary ?? '',
+    workTimeType: employment.workTimeType ?? 'Regular',
     status: employee.status,
     statusEffectiveDate: employee.statusManagement?.effectiveDate ?? employee.joinDate,
     statusReason: employee.statusManagement?.reason ?? 'StatusCorrection',
@@ -247,7 +255,7 @@ function createDefaultValues(employee: EmployeeInformationDetailData) {
     npwpNumber: financial.npwpNumber ?? '',
     npwpStatus: financial.npwpStatus ?? '',
     npwpRegisteredName: financial.npwpRegisteredName ?? personal.fullName,
-    taxCategory: financial.taxCategory ?? '',
+    taxCategory: personal.taxStatus ?? financial.taxCategory ?? '',
     npwpEffectiveDate: financial.npwpEffectiveDate ?? employee.joinDate,
     taxOffice: financial.taxOffice ?? '',
     bpjsHealthNumber: financial.bpjsHealthNumber ?? '',
@@ -292,6 +300,9 @@ export function EmployeeInformationEditSheet({
     maritalStatus: z.string().trim().min(1, { message: m.employee_information_edit_required() }),
     nationality: z.string().trim().min(1, { message: m.employee_information_edit_required() }),
     address: z.string().trim().min(1, { message: m.employee_information_edit_required() }).max(500),
+    motherMaidenName: z.string().trim().max(120),
+    religion: z.string().trim().max(80),
+    trainings: z.string().trim().max(2000),
     emergencyName: z.string().trim().min(1, { message: m.employee_information_edit_required() }),
     emergencyRelationship: z
       .string()
@@ -312,6 +323,13 @@ export function EmployeeInformationEditSheet({
     employmentType: z.enum(['Permanent', 'Contract', 'Internship', 'Freelance']),
     joinDate: z.string().min(1, { message: m.employee_information_edit_required() }),
     workLocation: z.string().trim().min(1, { message: m.employee_information_edit_required() }),
+    baseSalary: z
+      .string()
+      .trim()
+      .refine((value) => value === '' || /^\d+(\.\d{1,2})?$/.test(value), {
+        message: m.employee_information_edit_base_salary_invalid(),
+      }),
+    workTimeType: z.enum(['Regular', 'JamPenggal']),
     status: z.enum(['Active', 'OnLeave', 'Probation', 'Resigned', 'Inactive']),
     statusEffectiveDate: z.string().min(1, { message: m.employee_information_edit_required() }),
     statusReason: z.string().min(1, { message: m.employee_information_edit_required() }),
@@ -456,6 +474,13 @@ export function EmployeeInformationEditSheet({
             maritalStatus: formValues.maritalStatus,
             nationality: formValues.nationality,
             address: formValues.address,
+            motherMaidenName: formValues.motherMaidenName || null,
+            religion: formValues.religion || null,
+            taxStatus: formValues.taxCategory || null,
+            trainings: formValues.trainings
+              .split(',')
+              .map((training) => training.trim())
+              .filter(Boolean),
           },
           employmentInformation: {
             joinDate: formValues.joinDate,
@@ -467,6 +492,8 @@ export function EmployeeInformationEditSheet({
             branchId: formValues.branchId,
             supervisorId: formValues.supervisorId || undefined,
             workLocation: formValues.workLocation,
+            baseSalary: formValues.baseSalary || undefined,
+            workTimeType: formValues.workTimeType,
           },
           emergencyContact: {
             name: formValues.emergencyName,
@@ -530,6 +557,10 @@ export function EmployeeInformationEditSheet({
   const employmentTypeOptions: SelectOption[] = (
     ['Permanent', 'Contract', 'Internship', 'Freelance'] as EmployeeInformationEmploymentType[]
   ).map((type) => ({ value: type, label: getEmploymentTypeLabel(type) }))
+  const workTimeTypeOptions: SelectOption[] = [
+    { value: 'Regular', label: m.employee_information_detail_work_time_regular() },
+    { value: 'JamPenggal', label: m.employee_information_detail_work_time_split() },
+  ]
   const yesNoOptions = [
     { value: 'Yes', label: m.employee_information_edit_yes() },
     { value: 'No', label: m.employee_information_edit_no() },
@@ -717,6 +748,26 @@ export function EmployeeInformationEditSheet({
                       error={errors.nationality?.message}
                       registration={register('nationality')}
                     />
+                    <TextFormField
+                      id='employee-edit-mother-maiden-name'
+                      label={m.employee_information_detail_field_mother_maiden_name()}
+                      error={errors.motherMaidenName?.message}
+                      registration={register('motherMaidenName')}
+                    />
+                    <TextFormField
+                      id='employee-edit-religion'
+                      label={m.employee_information_detail_field_religion()}
+                      placeholder={m.employee_information_edit_religion_placeholder()}
+                      error={errors.religion?.message}
+                      registration={register('religion')}
+                    />
+                    <TextFormField
+                      id='employee-edit-tax-status'
+                      label={m.employee_information_detail_field_tax_status()}
+                      placeholder={m.employee_information_edit_tax_status_placeholder()}
+                      error={errors.taxCategory?.message}
+                      registration={register('taxCategory')}
+                    />
                   </FieldGroup>
                   <FieldGroup className='grid sm:grid-cols-2'>
                     <Field data-invalid={!!errors.address}>
@@ -740,6 +791,18 @@ export function EmployeeInformationEditSheet({
                         {...register('emergencyAddress')}
                       />
                       <FieldError>{errors.emergencyAddress?.message}</FieldError>
+                    </Field>
+                    <Field className='sm:col-span-2' data-invalid={!!errors.trainings}>
+                      <FieldLabel htmlFor='employee-edit-trainings'>
+                        {m.employee_information_detail_field_trainings()}
+                      </FieldLabel>
+                      <Textarea
+                        id='employee-edit-trainings'
+                        placeholder={m.employee_information_edit_trainings_placeholder()}
+                        aria-invalid={!!errors.trainings}
+                        {...register('trainings')}
+                      />
+                      <FieldError>{errors.trainings?.message}</FieldError>
                     </Field>
                   </FieldGroup>
                 </FieldGroup>
@@ -866,6 +929,29 @@ export function EmployeeInformationEditSheet({
                         value={field.value}
                         onChange={field.onChange}
                         error={errors.joinDate?.message}
+                      />
+                    )}
+                  />
+                  <TextFormField
+                    id='employee-edit-base-salary'
+                    inputMode='decimal'
+                    label={m.employee_information_detail_field_base_salary()}
+                    placeholder={m.employee_information_edit_base_salary_placeholder()}
+                    error={errors.baseSalary?.message}
+                    registration={register('baseSalary')}
+                  />
+                  <Controller
+                    name='workTimeType'
+                    control={control}
+                    render={({ field }) => (
+                      <SelectFormField
+                        id='employee-edit-work-time-type'
+                        label={m.employee_information_detail_field_work_time_type()}
+                        placeholder={m.employee_information_edit_work_time_type_placeholder()}
+                        value={field.value}
+                        onValueChange={field.onChange}
+                        options={workTimeTypeOptions}
+                        error={errors.workTimeType?.message}
                       />
                     )}
                   />
@@ -1305,12 +1391,6 @@ export function EmployeeInformationEditSheet({
                           error={errors.npwpStatus?.message}
                         />
                       )}
-                    />
-                    <TextFormField
-                      id='employee-edit-npwp-tax-category'
-                      label={m.employee_information_edit_npwp_tax_category()}
-                      error={errors.taxCategory?.message}
-                      registration={register('taxCategory')}
                     />
                     <Controller
                       name='npwpEffectiveDate'

@@ -1,6 +1,7 @@
 import {
   IconBriefcase,
   IconBuilding,
+  IconChevronDown,
   IconChevronLeft,
   IconDots,
   IconDownload,
@@ -32,6 +33,11 @@ import {
   CardTitle,
 } from '@/shared/components/ui/card'
 import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/shared/components/ui/collapsible'
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -40,6 +46,7 @@ import {
 import { Spinner } from '@/shared/components/ui/spinner'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs'
 import { snackbar } from '@/shared/lib/snackbar'
+import { cn } from '@/shared/lib/utils'
 import { EmployeeBpjsTab } from '@/features/employment/employee-profile/components/employee-bpjs-tab'
 import { EmployeeInformationEditSheet } from '@/features/employment/employee-profile/components/employee-information-edit-sheet'
 import { EmployeeMcuTab } from '@/features/employment/employee-profile/components/employee-mcu-tab'
@@ -51,6 +58,7 @@ import type {
   EmployeeInformationDocumentDetail,
   EmployeeInformationEmploymentType,
   EmployeeInformationStatus,
+  EmployeeInformationWorkTimeType,
 } from '@/features/employment/employee-profile/types'
 import { m } from '@/i18n/paraglide/messages'
 
@@ -102,6 +110,24 @@ function getEmploymentTypeLabel(type: EmployeeInformationEmploymentType) {
   }[type]
 }
 
+function getWorkTimeTypeLabel(type: EmployeeInformationWorkTimeType) {
+  return type === 'Regular'
+    ? m.employee_information_detail_work_time_regular()
+    : m.employee_information_detail_work_time_split()
+}
+
+function formatSalary(value?: string | null, currency = 'IDR') {
+  if (!value) return null
+  const amount = Number(value)
+  if (!Number.isFinite(amount)) return value
+
+  return new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency,
+    maximumFractionDigits: 2,
+  }).format(amount)
+}
+
 function formatDate(value?: string | null) {
   return value ? dayjs(value).format('DD MMM YYYY') : null
 }
@@ -141,6 +167,27 @@ function DetailRow({ label, value }: Readonly<DetailRowProps>) {
         {value || m.employee_information_detail_not_available()}
       </dd>
     </div>
+  )
+}
+
+function ExpandableDetailRows({ children }: Readonly<{ children: React.ReactNode }>) {
+  const [open, setOpen] = useState(false)
+
+  return (
+    <Collapsible open={open} onOpenChange={setOpen} className='flex flex-col gap-3'>
+      <CollapsibleContent className='flex flex-col gap-3'>{children}</CollapsibleContent>
+      <CollapsibleTrigger asChild>
+        <Button type='button' variant='ghost' size='sm' className='w-fit'>
+          {open
+            ? m.employee_information_detail_view_less()
+            : m.employee_information_detail_view_more()}
+          <IconChevronDown
+            data-icon='inline-end'
+            className={cn('transition-transform', open && 'rotate-180')}
+          />
+        </Button>
+      </CollapsibleTrigger>
+    </Collapsible>
   )
 }
 
@@ -418,6 +465,24 @@ export function EmployeeInformationDetailPage({
                 label={m.employee_information_detail_field_address()}
                 value={personal.address}
               />
+              <ExpandableDetailRows>
+                <DetailRow
+                  label={m.employee_information_detail_field_mother_maiden_name()}
+                  value={personal.motherMaidenName}
+                />
+                <DetailRow
+                  label={m.employee_information_detail_field_religion()}
+                  value={personal.religion}
+                />
+                <DetailRow
+                  label={m.employee_information_detail_field_tax_status()}
+                  value={personal.taxStatus}
+                />
+                <DetailRow
+                  label={m.employee_information_detail_field_trainings()}
+                  value={(personal.trainings ?? []).join(', ')}
+                />
+              </ExpandableDetailRows>
             </DetailCard>
 
             <DetailCard
@@ -452,14 +517,24 @@ export function EmployeeInformationDetailPage({
                 label={m.employee_information_detail_field_grade()}
                 value={employment.gradeName}
               />
-              <DetailRow
-                label={m.employee_information_detail_field_work_location()}
-                value={employment.workLocation}
-              />
-              <DetailRow
-                label={m.employee_information_detail_field_supervisor()}
-                value={employment.supervisorName}
-              />
+              <ExpandableDetailRows>
+                <DetailRow
+                  label={m.employee_information_detail_field_work_location()}
+                  value={employment.workLocation}
+                />
+                <DetailRow
+                  label={m.employee_information_detail_field_supervisor()}
+                  value={employment.supervisorName}
+                />
+                <DetailRow
+                  label={m.employee_information_detail_field_base_salary()}
+                  value={formatSalary(employment.baseSalary, financial.currency ?? 'IDR')}
+                />
+                <DetailRow
+                  label={m.employee_information_detail_field_work_time_type()}
+                  value={getWorkTimeTypeLabel(employment.workTimeType ?? 'Regular')}
+                />
+              </ExpandableDetailRows>
             </DetailCard>
 
             <DetailCard title={m.employee_information_detail_emergency_title()} icon={IconPhone}>
@@ -547,14 +622,24 @@ export function EmployeeInformationDetailPage({
               label={m.employee_information_detail_field_grade()}
               value={employment.gradeName}
             />
-            <DetailRow
-              label={m.employee_information_detail_field_work_location()}
-              value={employment.workLocation}
-            />
-            <DetailRow
-              label={m.employee_information_detail_field_supervisor()}
-              value={employment.supervisorName}
-            />
+            <ExpandableDetailRows>
+              <DetailRow
+                label={m.employee_information_detail_field_work_location()}
+                value={employment.workLocation}
+              />
+              <DetailRow
+                label={m.employee_information_detail_field_supervisor()}
+                value={employment.supervisorName}
+              />
+              <DetailRow
+                label={m.employee_information_detail_field_base_salary()}
+                value={formatSalary(employment.baseSalary, financial.currency ?? 'IDR')}
+              />
+              <DetailRow
+                label={m.employee_information_detail_field_work_time_type()}
+                value={getWorkTimeTypeLabel(employment.workTimeType ?? 'Regular')}
+              />
+            </ExpandableDetailRows>
           </DetailCard>
         </TabsContent>
 
