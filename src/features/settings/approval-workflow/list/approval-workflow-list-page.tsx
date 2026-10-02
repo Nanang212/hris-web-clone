@@ -18,6 +18,8 @@ import { useState } from 'react'
 
 import { AppMain } from '@/shared/components/app-layout/app-main'
 import { Button } from '@/shared/components/ui/button'
+import { TableActionButton } from '@/shared/components/ui/table-action-button'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/components/ui/tooltip'
 import { cn } from '@/shared/lib/utils'
 
 import { moduleColors, moduleLabels } from '../data'
@@ -120,37 +122,50 @@ function WorkflowRow({ workflow }: { workflow: Workflow }) {
       </td>
       <td className='py-3.5 pr-5 pl-3'>
         <div className='flex items-center justify-end gap-1'>
-          <Link
-            to='/settings/approval-workflow/$id'
-            params={{ id: workflow.id }}
-            className='flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground'
-            title='Edit'
-          >
-            <IconEdit size={15} />
-          </Link>
-          <Link
-            to='/settings/approval-workflow/$id/levels'
-            params={{ id: workflow.id }}
-            className='flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground'
-            title='Configure Levels'
-          >
-            <IconSettings2 size={15} />
-          </Link>
-          <Link
-            to='/settings/approval-workflow/$id/test'
-            params={{ id: workflow.id }}
-            className='flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground'
-            title='Test Workflow'
-          >
-            <IconBolt size={15} />
-          </Link>
-          <button
-            type='button'
-            className='flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20'
-            title='Delete'
-          >
-            <IconTrash size={15} />
-          </button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Link
+                to='/settings/approval-workflow/$id'
+                params={{ id: workflow.id }}
+                className='flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground'
+                aria-label='Edit'
+              >
+                <IconEdit size={15} />
+              </Link>
+            </TooltipTrigger>
+            <TooltipContent side='top'><p>Edit</p></TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Link
+                to='/settings/approval-workflow/$id/levels'
+                params={{ id: workflow.id }}
+                className='flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground'
+                aria-label='Configure Levels'
+              >
+                <IconSettings2 size={15} />
+              </Link>
+            </TooltipTrigger>
+            <TooltipContent side='top'><p>Configure Levels</p></TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Link
+                to='/settings/approval-workflow/$id/test'
+                params={{ id: workflow.id }}
+                className='flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground'
+                aria-label='Test Workflow'
+              >
+                <IconBolt size={15} />
+              </Link>
+            </TooltipTrigger>
+            <TooltipContent side='top'><p>Test Workflow</p></TooltipContent>
+          </Tooltip>
+          <TableActionButton
+            tooltip='Hapus'
+            intent='danger'
+            icon={<IconTrash size={15} />}
+          />
         </div>
       </td>
     </tr>

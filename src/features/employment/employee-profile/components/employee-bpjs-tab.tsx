@@ -14,6 +14,7 @@ import { useState } from 'react'
 import { Badge } from '@/shared/components/ui/badge'
 import { Button } from '@/shared/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card'
+import { TableActionButton } from '@/shared/components/ui/table-action-button'
 import {
   Dialog,
   DialogContent,
@@ -431,22 +432,18 @@ export function EmployeeBpjsTab({
                         </TableCell>
                         <TableCell className='py-3 text-right'>
                           <div className='inline-flex items-center gap-1'>
-                            <button
-                              type='button'
+                            <TableActionButton
+                              tooltip='Edit'
+                              intent='default'
+                              icon={<IconEdit size={14} />}
                               onClick={() => handleOpenEditDep(dep)}
-                              className='rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground'
-                              title='Edit'
-                            >
-                              <IconEdit size={14} />
-                            </button>
-                            <button
-                              type='button'
+                            />
+                            <TableActionButton
+                              tooltip='Remove'
+                              intent='danger'
+                              icon={<IconTrash size={14} />}
                               onClick={() => handleDeleteDep(dep.id, dep.name)}
-                              className='rounded p-1 text-muted-foreground hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/40'
-                              title='Remove'
-                            >
-                              <IconTrash size={14} />
-                            </button>
+                            />
                           </div>
                         </TableCell>
                       </TableRow>

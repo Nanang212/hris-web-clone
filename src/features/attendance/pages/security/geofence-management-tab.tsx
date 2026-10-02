@@ -1,7 +1,7 @@
-import { IconBuildingCommunity, IconMapPin } from '@tabler/icons-react'
+import { IconBuildingCommunity, IconEdit, IconMapPin } from '@tabler/icons-react'
 
 import { Badge } from '@/shared/components/ui/badge'
-import { Button } from '@/shared/components/ui/button'
+import { TableActionButton } from '@/shared/components/ui/table-action-button'
 import {
   Card,
   CardContent,
@@ -82,9 +82,12 @@ export function GeofenceManagementTab({ geofences, onEdit }: GeofenceManagementT
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <Button type='button' variant='ghost' size='sm' onClick={() => onEdit(item)}>
-                        Edit
-                      </Button>
+                      <TableActionButton
+                        tooltip='Edit'
+                        intent='default'
+                        icon={<IconEdit size={14} />}
+                        onClick={() => onEdit(item)}
+                      />
                     </TableCell>
                   </TableRow>
                 ))}

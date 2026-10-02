@@ -20,6 +20,7 @@ import {
   moduleColors,
 } from '@/features/settings/approval-workflow/data'
 import { AppMain } from '@/shared/components/app-layout/app-main'
+import { TableActionButton } from '@/shared/components/ui/table-action-button'
 import { TablePagination } from '@/shared/components/ui/table-pagination'
 import { snackbar } from '@/shared/lib/snackbar'
 import { cn } from '@/shared/lib/utils'
@@ -425,38 +426,32 @@ export function ApprovalPage() {
 
                       {/* Actions */}
                       <td className='py-4 pr-6 pl-3 text-center whitespace-nowrap'>
-                        <div className='flex items-center justify-center gap-1.5'>
+                        <div className='flex items-center justify-center gap-1'>
                           {/* Details */}
-                          <button
-                            type='button'
+                          <TableActionButton
+                            tooltip={m.approval_action_detail()}
+                            intent='default'
+                            icon={<IconEye size={14} />}
                             onClick={() => setSelectedRequest(req)}
-                            className='flex h-8 w-8 items-center justify-center rounded-lg border border-border text-muted-foreground transition-colors hover:bg-muted hover:text-foreground'
-                            title={m.approval_action_detail()}
-                          >
-                            <IconEye size={14} />
-                          </button>
+                          />
 
                           {req.status === 'pending' && (
                             <>
                               {/* Quick Approve */}
-                              <button
-                                type='button'
+                              <TableActionButton
+                                tooltip={m.approval_action_approve()}
+                                intent='success'
+                                icon={<IconCheck size={14} stroke={2.5} />}
                                 onClick={() => handleOpenDialog(req, 'approve')}
-                                className='flex h-8 w-8 items-center justify-center rounded-lg border border-emerald-100 bg-emerald-50 text-emerald-600 transition-colors hover:bg-emerald-100'
-                                title={m.approval_action_approve()}
-                              >
-                                <IconCheck size={14} stroke={2.5} />
-                              </button>
+                              />
 
                               {/* Quick Reject */}
-                              <button
-                                type='button'
+                              <TableActionButton
+                                tooltip={m.approval_action_reject()}
+                                intent='danger'
+                                icon={<IconX size={14} stroke={2.5} />}
                                 onClick={() => handleOpenDialog(req, 'reject')}
-                                className='flex h-8 w-8 items-center justify-center rounded-lg border border-red-100 bg-red-50 text-red-600 transition-colors hover:bg-red-100'
-                                title={m.approval_action_reject()}
-                              >
-                                <IconX size={14} stroke={2.5} />
-                              </button>
+                              />
                             </>
                           )}
                         </div>

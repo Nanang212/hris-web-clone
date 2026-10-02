@@ -107,10 +107,57 @@ export interface EmployeePayrollDetail {
   bpjsKesEmployee: number
   bpjsKesEmployer: number
   pph21Tax: number
+  thrTaxInstallment?: number // Cicilan PPh 21 THR bulan ini
+  thrTaxInstallmentInfo?: {
+    installmentId: string
+    tenorMonths: number
+    currentInstallmentMonth: number
+    totalTaxAmount: number
+    remainingBalance: number
+  }
+  manualAdjustments?: ManualAdjustmentItem[]
   totalDeductions: number
   // Final Net
   netTakeHomePay: number
   status: 'calculated' | 'verified' | 'paid'
+}
+
+export interface ManualAdjustmentItem {
+  id: string
+  name: string
+  amount: number
+  type: 'allowance' | 'deduction'
+  note?: string
+}
+
+export interface ThrTaxInstallment {
+  id: string
+  employeeId: string
+  employeeName: string
+  employeeCode: string
+  department: string
+  totalThrAmount: number
+  totalTaxAmount: number // Total PPh 21 yang dihitung dari THR
+  tenorMonths: number // 1, 2, 3, 4, 6 bulan
+  installmentPerMonth: number // Nominal cicilan per bulan
+  startPeriod: string // e.g. "April 2026"
+  endPeriod: string // e.g. "Juni 2026"
+  paidInstallments: number // Jumlah bulan cicilan yang sudah dibayar
+  remainingBalance: number // Sisa saldo pajak yang belum dipotong
+  currentStatus: 'active' | 'completed' | 'paused'
+  paymentResponsibility: 'employee_deduction' | 'company_loan'
+  notes?: string
+}
+
+export interface ThrPolicyConfig {
+  minTenureMonths: number
+  paymentTimingDays: number
+  taxDeductionScheme: 'combined' | 'separate'
+  taxInstallmentEnabled: boolean
+  defaultTenorMonths: number
+  minTaxForInstallment: number
+  autoDeductInPayroll: boolean
+  allowManualOverride: boolean
 }
 
 export interface PayslipRecord {

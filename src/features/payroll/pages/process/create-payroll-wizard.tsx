@@ -61,6 +61,7 @@ export function CreatePayrollWizard({ onCancel, onSuccess }: CreatePayrollWizard
   // Step 3: Attendance & Overtime Sync
   const [syncAttendance, setSyncAttendance] = useState(true)
   const [syncOvertime, setSyncOvertime] = useState(true)
+  const [syncThrTaxInstallment, setSyncThrTaxInstallment] = useState(true)
 
   // Confirmation Modal
   const [confirmModalOpen, setConfirmModalOpen] = useState(false)
@@ -419,6 +420,26 @@ export function CreatePayrollWizard({ onCancel, onSuccess }: CreatePayrollWizard
                   type='checkbox'
                   checked={syncOvertime}
                   onChange={(e) => setSyncOvertime(e.target.checked)}
+                  className='size-4 accent-primary rounded'
+                />
+              </label>
+
+              <label className='p-4 rounded-2xl border border-primary/20 bg-primary/5 flex items-center justify-between cursor-pointer hover:bg-primary/10 transition-colors'>
+                <div>
+                  <div className='flex items-center gap-2'>
+                    <h5 className='text-xs font-bold text-foreground'>Sertakan Cicilan PPh 21 THR Otomatis</h5>
+                    <span className='px-1.5 py-0.2 rounded text-[9px] font-bold bg-primary/10 text-primary border border-primary/20'>
+                      Rekomendasi
+                    </span>
+                  </div>
+                  <p className='text-[11px] text-muted-foreground mt-0.5'>
+                    Tarik otomatis potongan angsuran pajak THR yang masih aktif berjalan ke dalam slip gaji karyawan
+                  </p>
+                </div>
+                <input
+                  type='checkbox'
+                  checked={syncThrTaxInstallment}
+                  onChange={(e) => setSyncThrTaxInstallment(e.target.checked)}
                   className='size-4 accent-primary rounded'
                 />
               </label>

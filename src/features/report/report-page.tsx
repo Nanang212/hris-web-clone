@@ -1,5 +1,4 @@
 import {
-  IconArrowLeft,
   IconCalendarCheck,
   IconCalendarWeek,
   IconClockHour4,
@@ -79,18 +78,6 @@ export function ReportPage() {
       <div className='flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-border/80 pb-5'>
         <div>
           <div className='flex items-center gap-2.5'>
-            {activeTab !== 'hub' && (
-              <Button
-                type='button'
-                variant='outline'
-                size='icon'
-                onClick={() => setActiveTab('hub')}
-                className='size-9 rounded-xl text-muted-foreground hover:text-foreground shrink-0'
-                title='Kembali ke Report Center'
-              >
-                <IconArrowLeft size={16} />
-              </Button>
-            )}
             <div className='flex size-10 items-center justify-center rounded-2xl bg-primary/10 text-primary shrink-0'>
               <IconReportAnalytics size={22} />
             </div>

@@ -1,4 +1,4 @@
-// src/features/payroll/pages/process/payroll-process-detail.tsx — Screen 11: Payroll Run Detail per employee
+// src/features/payroll/pages/process/payroll-process-detail.tsx — Screen 11: Payroll Run Detail per employee & Manual Adjustments
 import {
   IconDownload,
   IconSearch,
@@ -7,6 +7,9 @@ import {
   IconUsers,
   IconReportMoney,
   IconBuildingBank,
+  IconAdjustments,
+  IconCoins,
+  IconInfoCircle,
 } from '@tabler/icons-react'
 import { useState } from 'react'
 import { PayrollStatusBadge } from '../../components/payroll-status-badge'
@@ -18,7 +21,17 @@ import {
 import type { PayrollRun, EmployeePayrollDetail } from '../../types'
 import { Badge } from '@/shared/components/ui/badge'
 import { Button } from '@/shared/components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/shared/components/ui/dialog'
 import { Input } from '@/shared/components/ui/input'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/components/ui/select'
+import { TableActionButton } from '@/shared/components/ui/table-action-button'
 import {
   Table,
   TableBody,
@@ -41,7 +54,16 @@ export function PayrollProcessDetail({
   onSubmitForApproval,
 }: PayrollProcessDetailProps) {
   const [search, setSearch] = useState('')
-  const [details] = useState<EmployeePayrollDetail[]>(initialEmployeePayrollDetails)
+  const [details, setDetails] = useState<EmployeePayrollDetail[]>(initialEmployeePayrollDetails)
+
+  // Manual Adjustment Modal State
+  const [adjustModalOpen, setAdjustModalOpen] = useState(false)
+  const [selectedEmp, setSelectedEmp] = useState<EmployeePayrollDetail | null>(null)
+  const [adjustedThrTax, setAdjustedThrTax] = useState<number>(0)
+  const [manualAdjName, setManualAdjName] = useState<string>('')
+  const [manualAdjAmount, setManualAdjAmount] = useState<number>(0)
+  const [manualAdjType, setManualAdjType] = useState<'allowance' | 'deduction'>('deduction')
+  const [manualAdjNote, setManualAdjNote] = useState<string>('')
 
   const filtered = details.filter(
     (d) =>
@@ -50,8 +72,77 @@ export function PayrollProcessDetail({
       d.department.toLowerCase().includes(search.toLowerCase()),
   )
 
+  // Compute live KPI summaries based on current state of details
+  const totalEmployees = details.length
+  const totalGrossSum = details.reduce((acc, curr) => acc + curr.totalGross, 0)
+  const totalDeductionsSum = details.reduce((acc, curr) => acc + curr.totalDeductions, 0)
+  const totalNetDisbursementSum = details.reduce((acc, curr) => acc + curr.netTakeHomePay, 0)
+
   const handleExport = () => {
     snackbar.success(`Exporting payroll breakdown for ${run.period} to Excel...`)
+  }
+
+  const handleOpenAdjustment = (emp: EmployeePayrollDetail) => {
+    setSelectedEmp(emp)
+    setAdjustedThrTax(emp.thrTaxInstallment || 0)
+    setManualAdjName('')
+    setManualAdjAmount(0)
+    setManualAdjType('deduction')
+    setManualAdjNote('')
+    setAdjustModalOpen(true)
+  }
+
+  const handleSaveAdjustment = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!selectedEmp) return
+
+    setDetails((prev) =>
+      prev.map((item) => {
+        if (item.id === selectedEmp.id) {
+          const prevThrTax = item.thrTaxInstallment || 0
+          const thrDiff = adjustedThrTax - prevThrTax
+
+          let extraAdjGross = 0
+          let extraAdjDeduction = 0
+          if (manualAdjAmount > 0) {
+            if (manualAdjType === 'allowance') {
+              extraAdjGross = manualAdjAmount
+            } else {
+              extraAdjDeduction = manualAdjAmount
+            }
+          }
+
+          const newTotalGross = item.totalGross + extraAdjGross
+          const newTotalDeductions = item.totalDeductions + thrDiff + extraAdjDeduction
+          const newNetPay = newTotalGross - newTotalDeductions
+
+          return {
+            ...item,
+            thrTaxInstallment: adjustedThrTax,
+            totalGross: newTotalGross,
+            totalDeductions: newTotalDeductions,
+            netTakeHomePay: newNetPay,
+            manualAdjustments:
+              manualAdjAmount > 0
+                ? [
+                    ...(item.manualAdjustments || []),
+                    {
+                      id: `adj-${Date.now()}`,
+                      name: manualAdjName || 'Penyesuaian Manual',
+                      amount: manualAdjAmount,
+                      type: manualAdjType,
+                      note: manualAdjNote,
+                    },
+                  ]
+                : item.manualAdjustments,
+          }
+        }
+        return item
+      }),
+    )
+
+    snackbar.success(`Penyesuaian payroll untuk ${selectedEmp.employeeName} berhasil disimpan!`)
+    setAdjustModalOpen(false)
   }
 
   return (
@@ -75,7 +166,8 @@ export function PayrollProcessDetail({
               <PayrollStatusBadge status={run.status} />
             </div>
             <p className='text-xs text-muted-foreground mt-0.5'>
-              Batch Code: <span className='font-mono font-medium'>{run.code}</span> · Cut-off: {run.cutoffStartDate} – {run.cutoffEndDate}
+              Batch Code: <span className='font-mono font-medium'>{run.code}</span> · Cut-off:{' '}
+              {run.cutoffStartDate} – {run.cutoffEndDate}
             </p>
           </div>
         </div>
@@ -113,7 +205,7 @@ export function PayrollProcessDetail({
             </span>
             <div>
               <p className='text-[11px] font-semibold text-muted-foreground'>Employees Count</p>
-              <b className='text-base font-bold text-foreground'>{run.totalEmployees} Karyawan</b>
+              <b className='text-base font-bold text-foreground'>{totalEmployees} Karyawan</b>
             </div>
           </div>
         </div>
@@ -125,7 +217,7 @@ export function PayrollProcessDetail({
             </span>
             <div>
               <p className='text-[11px] font-semibold text-muted-foreground'>Total Gross Salary</p>
-              <b className='text-base font-bold text-foreground'>{formatCompactIDR(run.totalGrossPay)}</b>
+              <b className='text-base font-bold text-foreground'>{formatCompactIDR(totalGrossSum)}</b>
             </div>
           </div>
         </div>
@@ -137,7 +229,9 @@ export function PayrollProcessDetail({
             </span>
             <div>
               <p className='text-[11px] font-semibold text-muted-foreground'>Tax & Deductions</p>
-              <b className='text-base font-bold text-amber-600 dark:text-amber-400'>{formatCompactIDR(run.totalDeductions)}</b>
+              <b className='text-base font-bold text-amber-600 dark:text-amber-400'>
+                {formatCompactIDR(totalDeductionsSum)}
+              </b>
             </div>
           </div>
         </div>
@@ -149,7 +243,9 @@ export function PayrollProcessDetail({
             </span>
             <div>
               <p className='text-[11px] font-semibold text-muted-foreground'>Net Take Home Pay</p>
-              <b className='text-base font-bold text-emerald-600 dark:text-emerald-400'>{formatCompactIDR(run.totalNetDisbursement)}</b>
+              <b className='text-base font-bold text-emerald-600 dark:text-emerald-400'>
+                {formatCompactIDR(totalNetDisbursementSum)}
+              </b>
             </div>
           </div>
         </div>
@@ -168,9 +264,14 @@ export function PayrollProcessDetail({
             />
           </div>
 
-          <span className='text-xs font-bold text-muted-foreground'>
-            Showing {filtered.length} of {details.length} Records
-          </span>
+          <div className='flex items-center gap-2'>
+            <Badge variant='outline' className='text-[11px] font-medium'>
+              Cicilan PPh 21 THR Aktif & Penyesuaian Manual Tersedia
+            </Badge>
+            <span className='text-xs font-bold text-muted-foreground'>
+              Showing {filtered.length} of {details.length} Records
+            </span>
+          </div>
         </div>
 
         <div className='overflow-x-auto'>
@@ -180,13 +281,13 @@ export function PayrollProcessDetail({
                 <TableHead className='font-bold text-muted-foreground py-3.5 pl-6'>Employee</TableHead>
                 <TableHead className='font-bold text-muted-foreground py-3.5'>Position / PTKP</TableHead>
                 <TableHead className='font-bold text-muted-foreground py-3.5'>Base Salary</TableHead>
-                <TableHead className='font-bold text-muted-foreground py-3.5'>Allowances</TableHead>
-                <TableHead className='font-bold text-muted-foreground py-3.5'>Overtime Pay</TableHead>
                 <TableHead className='font-bold text-muted-foreground py-3.5'>Gross Pay</TableHead>
                 <TableHead className='font-bold text-muted-foreground py-3.5'>BPJS TK + Kes</TableHead>
-                <TableHead className='font-bold text-muted-foreground py-3.5'>PPh 21</TableHead>
-                <TableHead className='font-bold text-muted-foreground py-3.5'>Deductions</TableHead>
-                <TableHead className='font-bold text-muted-foreground py-3.5 pr-6 text-right'>Net Pay</TableHead>
+                <TableHead className='font-bold text-muted-foreground py-3.5'>PPh 21 Reguler</TableHead>
+                <TableHead className='font-bold text-muted-foreground py-3.5'>Cicilan PPh 21 THR</TableHead>
+                <TableHead className='font-bold text-muted-foreground py-3.5'>Total Potongan</TableHead>
+                <TableHead className='font-bold text-muted-foreground py-3.5'>Net Pay</TableHead>
+                <TableHead className='font-bold text-muted-foreground py-3.5 pr-6 text-right'>Aksi</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -194,30 +295,57 @@ export function PayrollProcessDetail({
                 <TableRow key={item.id} className='text-xs hover:bg-muted/20 border-b border-border/40 whitespace-nowrap'>
                   <TableCell className='py-3.5 pl-6'>
                     <p className='font-bold text-foreground'>{item.employeeName}</p>
-                    <p className='text-[10px] text-muted-foreground font-mono mt-0.5'>{item.employeeCode} · {item.department}</p>
+                    <p className='text-[10px] text-muted-foreground font-mono mt-0.5'>
+                      {item.employeeCode} · {item.department}
+                    </p>
                   </TableCell>
                   <TableCell className='py-3.5'>
                     <p className='text-foreground font-medium'>{item.position}</p>
-                    <Badge variant='blue' className='text-[9px] px-1.5 py-0 mt-0.5'>{item.ptkpStatus}</Badge>
+                    <Badge variant='blue' className='text-[9px] px-1.5 py-0 mt-0.5'>
+                      {item.ptkpStatus}
+                    </Badge>
                   </TableCell>
-                  <TableCell className='py-3.5 font-semibold text-foreground'>{formatIDR(item.baseSalary)}</TableCell>
-                  <TableCell className='py-3.5 text-foreground'>{formatIDR(item.fixedAllowances + item.variableAllowances)}</TableCell>
-                  <TableCell className='py-3.5 text-foreground'>
-                    <p className='font-semibold'>{formatIDR(item.overtimePay)}</p>
-                    <span className='text-[10px] text-muted-foreground'>({item.overtimeHours} jam)</span>
+                  <TableCell className='py-3.5 font-semibold text-foreground'>
+                    {formatIDR(item.baseSalary)}
                   </TableCell>
-                  <TableCell className='py-3.5 font-bold text-foreground'>{formatIDR(item.totalGross)}</TableCell>
+                  <TableCell className='py-3.5 font-bold text-foreground'>
+                    {formatIDR(item.totalGross)}
+                  </TableCell>
                   <TableCell className='py-3.5 text-amber-600 dark:text-amber-400 font-medium'>
                     -{formatIDR(item.bpjsTkEmployee + item.bpjsKesEmployee)}
                   </TableCell>
                   <TableCell className='py-3.5 text-amber-600 dark:text-amber-400 font-medium'>
                     -{formatIDR(item.pph21Tax)}
                   </TableCell>
+                  <TableCell className='py-3.5'>
+                    {item.thrTaxInstallment && item.thrTaxInstallment > 0 ? (
+                      <div className='space-y-0.5'>
+                        <span className='font-bold text-rose-600 dark:text-rose-400'>
+                          -{formatIDR(item.thrTaxInstallment)}
+                        </span>
+                        <div className='flex items-center gap-1 text-[9px] text-muted-foreground font-mono'>
+                          <span className='px-1 py-0 rounded bg-muted'>
+                            Bulan {item.thrTaxInstallmentInfo?.currentInstallmentMonth || 1}/{item.thrTaxInstallmentInfo?.tenorMonths || 3}
+                          </span>
+                        </div>
+                      </div>
+                    ) : (
+                      <span className='text-muted-foreground/60'>-</span>
+                    )}
+                  </TableCell>
                   <TableCell className='py-3.5 text-rose-600 dark:text-rose-400 font-semibold'>
                     -{formatIDR(item.totalDeductions)}
                   </TableCell>
-                  <TableCell className='py-3.5 pr-6 text-right font-bold text-emerald-600 dark:text-emerald-400'>
+                  <TableCell className='py-3.5 font-bold text-emerald-600 dark:text-emerald-400'>
                     {formatIDR(item.netTakeHomePay)}
+                  </TableCell>
+                  <TableCell className='py-3.5 pr-6 text-right'>
+                    <TableActionButton
+                      tooltip='Penyesuaian Manual & Cicilan Pajak THR'
+                      icon={<IconAdjustments size={16} />}
+                      onClick={() => handleOpenAdjustment(item)}
+                      intent='primary'
+                    />
                   </TableCell>
                 </TableRow>
               ))}
@@ -225,6 +353,159 @@ export function PayrollProcessDetail({
           </Table>
         </div>
       </div>
+
+      {/* ── Dialog Modal: Penyesuaian Manual & Cicilan PPh 21 THR ───────── */}
+      <Dialog open={adjustModalOpen} onOpenChange={setAdjustModalOpen}>
+        <DialogContent className='sm:max-w-lg'>
+          <DialogHeader>
+            <DialogTitle className='text-base font-bold flex items-center gap-2'>
+              <IconAdjustments className='size-5 text-primary' />
+              Penyesuaian Manual & Cicilan Pajak THR
+            </DialogTitle>
+            <DialogDescription className='text-xs text-muted-foreground'>
+              Sesuaikan potongan cicilan pajak THR atau tambahkan penyesuaian gaji manual untuk{' '}
+              <span className='font-bold text-foreground'>{selectedEmp?.employeeName}</span> ({selectedEmp?.employeeCode}).
+            </DialogDescription>
+          </DialogHeader>
+
+          {selectedEmp && (
+            <form onSubmit={handleSaveAdjustment} className='space-y-4 py-2 text-xs'>
+              {/* Box 1: Cicilan PPh 21 THR Section */}
+              <div className='p-3.5 rounded-xl border border-primary/20 bg-primary/5 space-y-3'>
+                <div className='flex items-center justify-between'>
+                  <div className='flex items-center gap-2'>
+                    <IconCoins className='size-4 text-primary' />
+                    <span className='font-bold text-foreground'>Cicilan Pajak PPh 21 THR Bulan Ini</span>
+                  </div>
+                  {selectedEmp.thrTaxInstallmentInfo && (
+                    <Badge variant='outline' className='text-[10px] bg-background'>
+                      Bulan {selectedEmp.thrTaxInstallmentInfo.currentInstallmentMonth} dari {selectedEmp.thrTaxInstallmentInfo.tenorMonths}
+                    </Badge>
+                  )}
+                </div>
+
+                <div className='space-y-1.5'>
+                  <label className='font-semibold text-muted-foreground'>
+                    Nominal Potongan Cicilan THR (Rp)
+                  </label>
+                  <Input
+                    type='number'
+                    step={25000}
+                    value={adjustedThrTax}
+                    onChange={(e) => setAdjustedThrTax(parseInt(e.target.value, 10) || 0)}
+                    className='h-9 text-xs bg-background rounded-xl'
+                  />
+                  <div className='flex justify-between items-center text-[10px] text-muted-foreground'>
+                    <span>Sisa saldo sebelum periode ini: {formatIDR(selectedEmp.thrTaxInstallmentInfo?.remainingBalance || 0)}</span>
+                    <button
+                      type='button'
+                      onClick={() => setAdjustedThrTax(0)}
+                      className='text-primary hover:underline font-semibold cursor-pointer'
+                    >
+                      Set 0 (Tunda Cicilan)
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Box 2: Penyesuaian Tambahan Lainnya (Manual Adjustment) */}
+              <div className='p-3.5 rounded-xl border border-border/80 bg-muted/20 space-y-3'>
+                <p className='font-bold text-foreground flex items-center gap-1.5'>
+                  <IconInfoCircle className='size-4 text-muted-foreground' />
+                  Penyesuaian Manual Tambahan (Koreksi / Insentif)
+                </p>
+
+                <div className='grid grid-cols-2 gap-2.5'>
+                  <div className='space-y-1'>
+                    <label className='font-semibold text-muted-foreground'>Tipe Penyesuaian</label>
+                    <Select
+                      value={manualAdjType}
+                      onValueChange={(val: 'allowance' | 'deduction') => setManualAdjType(val)}
+                    >
+                      <SelectTrigger className='h-8.5 text-xs bg-background rounded-xl'>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value='deduction'>Potongan (-) [Pengurangan Gaji]</SelectItem>
+                        <SelectItem value='allowance'>Tunjangan / Bonus (+) [Penambahan]</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className='space-y-1'>
+                    <label className='font-semibold text-muted-foreground'>Nominal Penyesuaian (Rp)</label>
+                    <Input
+                      type='number'
+                      step={50000}
+                      value={manualAdjAmount}
+                      onChange={(e) => setManualAdjAmount(parseInt(e.target.value, 10) || 0)}
+                      className='h-8.5 text-xs bg-background rounded-xl'
+                      placeholder='0'
+                    />
+                  </div>
+                </div>
+
+                <div className='space-y-1'>
+                  <label className='font-semibold text-muted-foreground'>Keterangan / Alasan Penyesuaian</label>
+                  <Input
+                    value={manualAdjName}
+                    onChange={(e) => setManualAdjName(e.target.value)}
+                    placeholder='e.g. Koreksi kelebihan potong pajak, bonus prestasi...'
+                    className='h-8.5 text-xs bg-background rounded-xl'
+                  />
+                </div>
+              </div>
+
+              {/* Box 3: Live Impact Calculation Preview */}
+              {(() => {
+                const prevThr = selectedEmp.thrTaxInstallment || 0
+                const thrDelta = adjustedThrTax - prevThr
+                let extraGross = 0
+                let extraDeduction = 0
+                if (manualAdjAmount > 0) {
+                  if (manualAdjType === 'allowance') extraGross = manualAdjAmount
+                  else extraDeduction = manualAdjAmount
+                }
+                const previewNet =
+                  selectedEmp.totalGross +
+                  extraGross -
+                  (selectedEmp.totalDeductions + thrDelta + extraDeduction)
+
+                return (
+                  <div className='p-3 rounded-xl border border-emerald-500/20 bg-emerald-50/50 dark:bg-emerald-950/20 space-y-1.5'>
+                    <div className='flex justify-between items-center text-xs'>
+                      <span className='font-semibold text-foreground'>Estimasi Take-Home Pay Baru:</span>
+                      <span className='text-sm font-bold text-emerald-600 dark:text-emerald-400'>
+                        {formatIDR(previewNet)}
+                      </span>
+                    </div>
+                    <div className='flex justify-between items-center text-[10px] text-muted-foreground'>
+                      <span>Take-Home Pay Sebelumnya: {formatIDR(selectedEmp.netTakeHomePay)}</span>
+                      <span className='font-medium font-mono'>
+                        Selisih: {formatIDR(previewNet - selectedEmp.netTakeHomePay)}
+                      </span>
+                    </div>
+                  </div>
+                )
+              })()}
+
+              <DialogFooter className='pt-2'>
+                <Button
+                  type='button'
+                  variant='outline'
+                  onClick={() => setAdjustModalOpen(false)}
+                  className='h-9 text-xs rounded-xl'
+                >
+                  Batal
+                </Button>
+                <Button type='submit' className='h-9 text-xs font-semibold rounded-xl'>
+                  Terapkan Penyesuaian
+                </Button>
+              </DialogFooter>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

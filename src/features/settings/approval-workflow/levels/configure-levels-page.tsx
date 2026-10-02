@@ -12,6 +12,7 @@ import { useState } from 'react'
 
 import { AppMain } from '@/shared/components/app-layout/app-main'
 import { Button } from '@/shared/components/ui/button'
+import { TableActionButton } from '@/shared/components/ui/table-action-button'
 import { cn } from '@/shared/lib/utils'
 
 import { useSaveWorkflowLevels, useWorkflow, useWorkflowLevels } from '../hooks'
@@ -210,36 +211,32 @@ function ConfigureLevelsForm({
                   <div className='flex items-center justify-between gap-2'>
                     <p className='text-sm font-semibold'>{level.name}</p>
                     <div className='flex items-center gap-1'>
-                      <button
-                        type='button'
+                      <TableActionButton
+                        tooltip='Edit Level'
+                        intent='default'
+                        icon={<IconEdit size={14} />}
                         onClick={() => openEdit(level)}
-                        className='flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground'
-                      >
-                        <IconEdit size={14} />
-                      </button>
-                      <button
-                        type='button'
-                        onClick={() => moveLevelUp(idx)}
+                      />
+                      <TableActionButton
+                        tooltip='Pindah ke atas'
+                        intent='default'
+                        icon={<IconChevronUp size={14} />}
                         disabled={idx === 0}
-                        className='flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-30'
-                      >
-                        <IconChevronUp size={14} />
-                      </button>
-                      <button
-                        type='button'
-                        onClick={() => moveLevelDown(idx)}
+                        onClick={() => moveLevelUp(idx)}
+                      />
+                      <TableActionButton
+                        tooltip='Pindah ke bawah'
+                        intent='default'
+                        icon={<IconChevronDown size={14} />}
                         disabled={idx === localLevels.length - 1}
-                        className='flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-30'
-                      >
-                        <IconChevronDown size={14} />
-                      </button>
-                      <button
-                        type='button'
+                        onClick={() => moveLevelDown(idx)}
+                      />
+                      <TableActionButton
+                        tooltip='Hapus Level'
+                        intent='danger'
+                        icon={<IconTrash size={14} />}
                         onClick={() => deleteLevel(level.id)}
-                        className='flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20'
-                      >
-                        <IconTrash size={14} />
-                      </button>
+                      />
                     </div>
                   </div>
 

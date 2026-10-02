@@ -11,7 +11,6 @@ import {
   IconPlane,
   IconPlaneDeparture,
   IconTrain,
-  IconUser,
   IconX,
 } from '@tabler/icons-react'
 import type { BusinessTripRecord } from '../../types'
@@ -65,54 +64,50 @@ export function TripDetailModal({
       <DialogContent className='sm:max-w-[760px] p-0 overflow-hidden rounded-2xl'>
         {/* Modal Header */}
         <DialogHeader className='p-6 pb-4 border-b border-border/80 bg-linear-to-r from-blue-500/10 via-primary/5 to-purple-500/10'>
-          <div className='flex items-center justify-between'>
-            <div className='flex items-center gap-3'>
-              <div className='flex size-11 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-xs'>
-                <IconPlaneDeparture size={24} />
-              </div>
-              <div>
-                <div className='flex items-center gap-2'>
-                  <DialogTitle className='text-base font-bold text-foreground'>
-                    {trip.title}
-                  </DialogTitle>
-                  <Badge
-                    variant='outline'
-                    className={`text-[10px] font-bold ${
-                      trip.status === 'completed'
-                        ? 'border-emerald-500/30 text-emerald-600 bg-emerald-50/50 dark:bg-emerald-950/20'
-                        : trip.status === 'on_trip'
+          <div className='flex items-start gap-3 pr-8'>
+            <div className='flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-xs'>
+              <IconPlaneDeparture size={24} />
+            </div>
+            <div className='min-w-0 flex-1'>
+              <div className='flex flex-wrap items-center gap-2'>
+                <DialogTitle className='text-base font-bold text-foreground'>
+                  {trip.title}
+                </DialogTitle>
+                <Badge
+                  variant='outline'
+                  className={`text-[10px] font-bold ${trip.status === 'completed'
+                      ? 'border-emerald-500/30 text-emerald-600 bg-emerald-50/50 dark:bg-emerald-950/20'
+                      : trip.status === 'on_trip'
                         ? 'border-blue-500/30 text-blue-600 bg-blue-50/50 dark:bg-blue-950/20'
                         : trip.status === 'approved'
-                        ? 'border-purple-500/30 text-purple-600 bg-purple-50/50 dark:bg-purple-950/20'
-                        : trip.status === 'pending'
-                        ? 'border-amber-500/30 text-amber-600 bg-amber-50/50 dark:bg-amber-950/20'
-                        : 'border-rose-500/30 text-rose-600 bg-rose-50/50 dark:bg-rose-950/20'
+                          ? 'border-purple-500/30 text-purple-600 bg-purple-50/50 dark:bg-purple-950/20'
+                          : trip.status === 'pending'
+                            ? 'border-amber-500/30 text-amber-600 bg-amber-50/50 dark:bg-amber-950/20'
+                            : 'border-rose-500/30 text-rose-600 bg-rose-50/50 dark:bg-rose-950/20'
                     }`}
-                  >
-                    {trip.status === 'completed'
-                      ? 'Selesai (Completed)'
-                      : trip.status === 'on_trip'
+                >
+                  {trip.status === 'completed'
+                    ? 'Selesai (Completed)'
+                    : trip.status === 'on_trip'
                       ? 'Sedang Dinas (On Trip)'
                       : trip.status === 'approved'
-                      ? 'Disetujui (Approved)'
-                      : trip.status === 'pending'
-                      ? 'Menunggu Persetujuan'
-                      : 'Dibatalkan / Ditolak'}
-                  </Badge>
-                </div>
-                <DialogDescription className='text-xs font-mono text-muted-foreground mt-0.5'>
-                  {trip.tripNumber} • {trip.originCity} ➔ {trip.destinationCity} ({trip.totalDays} Hari)
-                </DialogDescription>
+                        ? 'Disetujui (Approved)'
+                        : trip.status === 'pending'
+                          ? 'Menunggu Persetujuan'
+                          : 'Dibatalkan / Ditolak'}
+                </Badge>
               </div>
-            </div>
-
-            <div className='text-right hidden sm:block'>
-              <p className='text-[10px] text-muted-foreground font-semibold uppercase tracking-wider'>
-                Estimasi Anggaran
-              </p>
-              <p className='text-lg font-bold text-primary font-mono'>
-                {formatIdr(trip.estimatedBudget.total)}
-              </p>
+              <DialogDescription className='text-xs font-mono text-muted-foreground mt-0.5'>
+                {trip.tripNumber} • {trip.originCity} ➔ {trip.destinationCity} ({trip.totalDays} Hari)
+              </DialogDescription>
+              <div className='mt-2 flex items-baseline gap-1.5'>
+                <span className='text-[10px] text-muted-foreground font-semibold uppercase tracking-wider'>
+                  Estimasi Anggaran:
+                </span>
+                <span className='text-sm font-bold text-primary font-mono'>
+                  {formatIdr(trip.estimatedBudget.total)}
+                </span>
+              </div>
             </div>
           </div>
         </DialogHeader>
@@ -288,13 +283,12 @@ export function TripDetailModal({
               {trip.approvalFlow.map((step, idx) => (
                 <div
                   key={idx}
-                  className={`p-3 rounded-xl border text-xs relative ${
-                    step.status === 'approved'
+                  className={`p-3 rounded-xl border text-xs relative ${step.status === 'approved'
                       ? 'border-emerald-500/30 bg-emerald-50/40 dark:bg-emerald-950/20'
                       : step.status === 'pending'
-                      ? 'border-amber-500/30 bg-amber-50/40 dark:bg-amber-950/20'
-                      : 'border-rose-500/30 bg-rose-50/40 dark:bg-rose-950/20'
-                  }`}
+                        ? 'border-amber-500/30 bg-amber-50/40 dark:bg-amber-950/20'
+                        : 'border-rose-500/30 bg-rose-50/40 dark:bg-rose-950/20'
+                    }`}
                 >
                   <div className='flex items-center justify-between mb-1.5'>
                     <span className='text-[10px] font-bold uppercase text-muted-foreground'>
@@ -302,13 +296,12 @@ export function TripDetailModal({
                     </span>
                     <Badge
                       variant='outline'
-                      className={`text-[8px] font-bold px-1.5 py-0 ${
-                        step.status === 'approved'
+                      className={`text-[8px] font-bold px-1.5 py-0 ${step.status === 'approved'
                           ? 'border-emerald-500/30 text-emerald-600'
                           : step.status === 'pending'
-                          ? 'border-amber-500/30 text-amber-600'
-                          : 'border-rose-500/30 text-rose-600'
-                      }`}
+                            ? 'border-amber-500/30 text-amber-600'
+                            : 'border-rose-500/30 text-rose-600'
+                        }`}
                     >
                       {step.status}
                     </Badge>

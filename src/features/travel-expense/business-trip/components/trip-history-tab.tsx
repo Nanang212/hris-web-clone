@@ -1,7 +1,7 @@
 // src/features/travel-expense/business-trip/components/trip-history-tab.tsx
 import {
   IconCheck,
-  IconDownload,
+  IconEye,
   IconFileSpreadsheet,
   IconHistory,
   IconMapPin,
@@ -13,6 +13,7 @@ import type { BusinessTripRecord } from '../../types'
 import { Badge } from '@/shared/components/ui/badge'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
+import { TableActionButton } from '@/shared/components/ui/table-action-button'
 import {
   Select,
   SelectContent,
@@ -20,7 +21,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/shared/components/ui/select'
-import { TablePagination } from '@/shared/components/ui/table-pagination'
 import { snackbar } from '@/shared/lib/snackbar'
 
 interface TripHistoryTabProps {
@@ -32,7 +32,7 @@ export function TripHistoryTab({ trips, onViewDetail }: TripHistoryTabProps) {
   const [search, setSearch] = useState('')
   const [destinationFilter, setDestinationFilter] = useState('all')
   const [currentPage, setCurrentPage] = useState(1)
-  const [pageSize, setPageSize] = useState(5)
+  const [pageSize] = useState(5)
 
   const formatIdr = (num: number) => {
     return new Intl.NumberFormat('id-ID', {
@@ -236,30 +236,28 @@ export function TripHistoryTab({ trips, onViewDetail }: TripHistoryTabProps) {
                     <td className='py-3.5 px-4 text-center'>
                       <Badge
                         variant='outline'
-                        className={`text-[9px] font-bold ${
-                          trip.status === 'completed'
-                            ? 'border-emerald-500/30 text-emerald-600 bg-emerald-50/50 dark:bg-emerald-950/20'
-                            : trip.status === 'on_trip'
+                        className={`text-[9px] font-bold ${trip.status === 'completed'
+                          ? 'border-emerald-500/30 text-emerald-600 bg-emerald-50/50 dark:bg-emerald-950/20'
+                          : trip.status === 'on_trip'
                             ? 'border-blue-500/30 text-blue-600 bg-blue-50/50 dark:bg-blue-950/20'
                             : trip.status === 'approved'
-                            ? 'border-purple-500/30 text-purple-600 bg-purple-50/50 dark:bg-purple-950/20'
-                            : trip.status === 'pending'
-                            ? 'border-amber-500/30 text-amber-600 bg-amber-50/50 dark:bg-amber-950/20'
-                            : 'border-rose-500/30 text-rose-600 bg-rose-50/50 dark:bg-rose-950/20'
-                        }`}
+                              ? 'border-purple-500/30 text-purple-600 bg-purple-50/50 dark:bg-purple-950/20'
+                              : trip.status === 'pending'
+                                ? 'border-amber-500/30 text-amber-600 bg-amber-50/50 dark:bg-amber-950/20'
+                                : 'border-rose-500/30 text-rose-600 bg-rose-50/50 dark:bg-rose-950/20'
+                          }`}
                       >
                         {trip.status}
                       </Badge>
                     </td>
 
-                    <td className='py-3.5 px-4 text-right'>
-                      <Button
-                        variant='ghost'
-                        size='sm'
-                        className='h-7 text-xs text-primary hover:bg-primary/10 rounded-lg'
-                      >
-                        Lihat
-                      </Button>
+                    <td className='py-3.5 px-4 text-right' onClick={(e) => e.stopPropagation()}>
+                      <TableActionButton
+                        tooltip='Lihat Detail'
+                        intent='primary'
+                        icon={<IconEye size={14} />}
+                        onClick={() => onViewDetail(trip)}
+                      />
                     </td>
                   </tr>
                 ))

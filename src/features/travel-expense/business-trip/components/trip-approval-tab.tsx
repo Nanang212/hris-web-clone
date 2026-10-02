@@ -10,8 +10,8 @@ import {
 } from '@tabler/icons-react'
 import { useState, useMemo } from 'react'
 import type { BusinessTripRecord } from '../../types'
-import { Badge } from '@/shared/components/ui/badge'
 import { Button } from '@/shared/components/ui/button'
+import { TableActionButton } from '@/shared/components/ui/table-action-button'
 import { TablePagination } from '@/shared/components/ui/table-pagination'
 import { snackbar } from '@/shared/lib/snackbar'
 
@@ -28,6 +28,7 @@ export function TripApprovalTab({
   onViewDetail,
   onApprove,
   onReject,
+  onBatchApprove,
 }: TripApprovalTabProps) {
   const [selectedIds, setSelectedIds] = useState<string[]>([])
   const [currentPage, setCurrentPage] = useState(1)
@@ -187,9 +188,8 @@ export function TripApprovalTab({
                   return (
                     <tr
                       key={trip.id}
-                      className={`hover:bg-muted/20 transition-colors ${
-                        isSelected ? 'bg-primary/5' : ''
-                      }`}
+                      className={`hover:bg-muted/20 transition-colors ${isSelected ? 'bg-primary/5' : ''
+                        }`}
                     >
                       <td className='py-3.5 px-4 text-center' onClick={(e) => e.stopPropagation()}>
                         <input
@@ -253,30 +253,25 @@ export function TripApprovalTab({
                       </td>
 
                       <td className='py-3.5 px-4 text-right'>
-                        <div className='flex items-center justify-end gap-1.5'>
-                          <Button
-                            variant='outline'
-                            size='sm'
+                        <div className='flex items-center justify-end gap-1'>
+                          <TableActionButton
+                            tooltip='Review Detail'
+                            intent='primary'
+                            icon={<IconEye size={14} />}
                             onClick={() => onViewDetail(trip)}
-                            className='rounded-lg h-7 px-2.5 text-xs text-primary border-primary/30 hover:bg-primary/10'
-                          >
-                            <IconEye size={13} className='mr-1' /> Review
-                          </Button>
-                          <Button
-                            variant='outline'
-                            size='sm'
+                          />
+                          <TableActionButton
+                            tooltip='Tolak'
+                            intent='danger'
+                            icon={<IconX size={14} />}
                             onClick={() => onReject(trip)}
-                            className='rounded-lg h-7 px-2.5 text-xs text-rose-600 border-rose-200 hover:bg-rose-50'
-                          >
-                            <IconX size={13} />
-                          </Button>
-                          <Button
-                            size='sm'
+                          />
+                          <TableActionButton
+                            tooltip='Setujui'
+                            intent='success'
+                            icon={<IconCheck size={14} />}
                             onClick={() => onApprove(trip)}
-                            className='rounded-lg h-7 px-2.5 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white'
-                          >
-                            <IconCheck size={13} className='mr-1' /> Setujui
-                          </Button>
+                          />
                         </div>
                       </td>
                     </tr>
