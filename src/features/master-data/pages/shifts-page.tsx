@@ -1,6 +1,7 @@
 // shifts-page.tsx
 import { useState } from 'react'
 import { IconPlus, IconSearch, IconEdit, IconTrash } from '@tabler/icons-react'
+import { TableActionButton } from '@/shared/components/ui/table-action-button'
 import { AppMain } from '@/shared/components/app-layout/app-main'
 import { snackbar } from '@/shared/lib/snackbar'
 import { cn } from '@/shared/lib/utils'
@@ -145,26 +146,22 @@ export function ShiftsPage() {
                       </span>
                     </td>
                     <td className='py-4 pr-6 pl-3 text-center'>
-                      <div className='flex items-center justify-center gap-1.5'>
-                        <button
-                          type='button'
+                      <div className='flex items-center justify-center gap-1'>
+                        <TableActionButton
+                          tooltip='Ubah'
+                          intent='default'
+                          icon={<IconEdit size={14} />}
                           onClick={() => {
                             setSelectedItem(item)
                             setShowModal(true)
                           }}
-                          className='flex h-8 w-8 items-center justify-center rounded-lg border border-border text-muted-foreground transition-colors hover:bg-muted hover:text-foreground'
-                          title='Ubah'
-                        >
-                          <IconEdit size={14} />
-                        </button>
-                        <button
-                          type='button'
+                        />
+                        <TableActionButton
+                          tooltip='Hapus'
+                          intent='danger'
+                          icon={<IconTrash size={14} />}
                           onClick={() => handleDelete(item)}
-                          className='flex h-8 w-8 items-center justify-center rounded-lg border border-border text-red-600 transition-colors hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-900/20'
-                          title='Hapus'
-                        >
-                          <IconTrash size={14} />
-                        </button>
+                        />
                       </div>
                     </td>
                   </tr>

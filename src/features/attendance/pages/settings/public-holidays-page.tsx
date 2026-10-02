@@ -2,9 +2,11 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import {
   IconCalendarEvent,
   IconCalendarStats,
+  IconEdit,
   IconMapPin,
   IconPlus,
   IconSearch,
+  IconTrash,
 } from '@tabler/icons-react'
 import dayjs from 'dayjs'
 import { useMemo, useState } from 'react'
@@ -24,6 +26,7 @@ import {
 } from '@/shared/components/ui/alert-dialog'
 import { Badge } from '@/shared/components/ui/badge'
 import { Button } from '@/shared/components/ui/button'
+import { TableActionButton } from '@/shared/components/ui/table-action-button'
 import {
   Card,
   CardContent,
@@ -356,17 +359,18 @@ export function PublicHolidaysPage() {
                     </TableCell>
                     <TableCell>
                       <div className='flex gap-1'>
-                        <Button size='sm' variant='ghost' onClick={() => openEditor(holiday)}>
-                          Edit
-                        </Button>
-                        <Button
-                          size='sm'
-                          variant='ghost'
-                          className='text-destructive hover:text-destructive'
+                        <TableActionButton
+                          tooltip='Edit'
+                          intent='default'
+                          icon={<IconEdit size={14} />}
+                          onClick={() => openEditor(holiday)}
+                        />
+                        <TableActionButton
+                          tooltip='Delete'
+                          intent='danger'
+                          icon={<IconTrash size={14} />}
                           onClick={() => setDeleteTarget(holiday)}
-                        >
-                          Delete
-                        </Button>
+                        />
                       </div>
                     </TableCell>
                   </TableRow>

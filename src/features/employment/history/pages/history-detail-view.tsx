@@ -110,7 +110,7 @@ export function HistoryDetailView({ history, onExport }: HistoryDetailViewProps)
             {/* Vertical timeline line */}
             <div className='absolute top-3 bottom-3 left-[21px] w-0.5 bg-border/80' />
 
-            {history.timeline.map((item, idx) => {
+            {[...history.timeline].reverse().map((item, idx) => {
               const dotStyle = DOT_COLOR_MAP[item.color] ?? 'bg-purple-600 border-purple-200'
               return (
                 <div key={item.id || idx} className='group relative flex items-start gap-4'>

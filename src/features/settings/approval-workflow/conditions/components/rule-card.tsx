@@ -7,6 +7,7 @@ import {
 } from '@tabler/icons-react'
 import { useState } from 'react'
 
+import { TableActionButton } from '@/shared/components/ui/table-action-button'
 import { cn } from '@/shared/lib/utils'
 
 import type { ConditionOperator, ConditionRule, RoutingRule } from '../../types'
@@ -98,29 +99,26 @@ export function RuleCard({ rule, idx, total }: RuleCardProps) {
           </p>
         </div>
         <div className='flex items-center gap-1'>
-          <button
-            type='button'
+          <TableActionButton
+            tooltip='Pindah ke atas'
+            intent='default'
+            icon={<IconChevronUp size={14} />}
             disabled={idx === 0}
-            className='flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted disabled:opacity-30'
             onClick={(e) => e.stopPropagation()}
-          >
-            <IconChevronUp size={14} />
-          </button>
-          <button
-            type='button'
+          />
+          <TableActionButton
+            tooltip='Pindah ke bawah'
+            intent='default'
+            icon={<IconChevronDown size={14} />}
             disabled={idx === total - 1}
-            className='flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted disabled:opacity-30'
             onClick={(e) => e.stopPropagation()}
-          >
-            <IconChevronDown size={14} />
-          </button>
-          <button
-            type='button'
-            className='flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20'
+          />
+          <TableActionButton
+            tooltip='Hapus Rule'
+            intent='danger'
+            icon={<IconTrash size={14} />}
             onClick={(e) => e.stopPropagation()}
-          >
-            <IconTrash size={14} />
-          </button>
+          />
           {expanded ? (
             <IconChevronUp size={16} className='text-muted-foreground' />
           ) : (
