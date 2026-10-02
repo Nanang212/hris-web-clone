@@ -70,7 +70,7 @@ export function EmployeeTable({
       </div>
       {/* Table Header Info */}
       <div className='border-b border-border/60 p-5'>
-        <h3 className='text-sm font-bold text-foreground'>Employee Employment Data</h3>
+        <h3 className='text-sm font-bold text-foreground'>Employee Career & Movement Data</h3>
         <p className='mt-0.5 text-xs text-muted-foreground'>
           Select an employee to view the current employment snapshot and available actions.
         </p>

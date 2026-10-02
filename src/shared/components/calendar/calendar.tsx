@@ -8,7 +8,7 @@ export function Calendar() {
   return (
     <CalendarProvider events={CALENDAR_ITEMS_MOCK} users={USERS_MOCK} view='month'>
       <DndProvider>
-        <div className='w-full overflow-hidden rounded-xl border bg-card'>
+        <div className='w-full overflow-hidden bg-card'>
           <CalendarHeader />
           <CalendarBody />
         </div>

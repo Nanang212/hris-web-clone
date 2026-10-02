@@ -1,5 +1,7 @@
 import {
+  IconArrowsTransferUpDown,
   IconBuildingCommunity,
+  IconCalendarMonth,
   IconCircleCheck,
   IconClockHour4,
   IconLayoutDashboard,
@@ -60,6 +62,7 @@ export const dashboardMenu: Menu[] = [
 ]
 
 export const mainMenu: Menu[] = [
+  // ─── Company ──────────────────────────────────────────────────────────
   {
     key: 'company',
     to: '/company',
@@ -88,116 +91,120 @@ export const mainMenu: Menu[] = [
       },
     ],
   },
+
+  // ─── Employee Data (split from Employment) ────────────────────────────
   {
-    key: 'employment',
-    to: '/employment',
+    key: 'employee-data',
+    to: '/employment/employee-profile',
     icon: IconUsers,
-    title: m.app_layout_nav_employment,
+    title: () => 'Employee Data',
     items: [
       {
-        key: 'employee-profile',
-        title: m.app_layout_nav_employee_information,
+        key: 'employee-directory',
+        title: () => 'Employee Information',
         to: '/employment/employee-profile',
       },
       {
-        key: 'employment-overview',
-        title: m.app_layout_nav_employment_overview,
-        to: '/employment',
-        exact: true,
-      },
-      {
-        key: 'employment-contract',
-        title: m.app_layout_nav_employment_contract,
-        to: '/employment/contract',
-      },
-      {
-        key: 'employment-movement',
-        title: m.app_layout_nav_employment_movement,
-        to: '/employment/rotation',
-        items: [
-          {
-            key: 'employment-rotation',
-            title: m.app_layout_nav_employment_rotation,
-            to: '/employment/rotation',
-          },
-          {
-            key: 'employment-demotion',
-            title: m.app_layout_nav_employment_demotion,
-            to: '/employment/demotion',
-          },
-          {
-            key: 'employment-promotion',
-            title: m.app_layout_nav_employment_promotion,
-            to: '/employment/promotion',
-          },
-        ],
-      },
-      {
-        key: 'employment-resignation',
-        title: m.app_layout_nav_employment_resignation,
-        to: '/employment/resignation',
-      },
-      {
-        key: 'employment-history',
-        title: m.app_layout_nav_employment_history,
-        to: '/employment/history',
-      },
-      {
-        key: 'employment-document',
-        title: m.app_layout_nav_document,
+        key: 'employee-documents',
+        title: () => 'Documents',
         to: '/employment/document',
       },
       {
-        key: 'employment-mcu',
-        title: () => 'MCU Management',
+        key: 'employee-mcu',
+        title: () => 'MCU',
         to: '/employment/mcu',
       },
     ],
   },
 
+  // ─── Career & Movement (promoted to top-level) ────────────────────────
   {
-    key: 'time-management',
-    to: '.',
-    icon: IconClockHour4,
-    title: m.app_layout_nav_time_management,
+    key: 'career-movement',
+    to: '/employment',
+    icon: IconArrowsTransferUpDown,
+    title: () => 'Career & Movement',
     items: [
       {
-        key: 'attendance',
-        to: '/attendance',
-        title: m.app_layout_nav_attendance,
-        items: [
-          {
-            key: 'attendance-overview',
-            to: '/attendance',
-            title: m.app_layout_nav_attendance_overview,
-          },
-          {
-            key: 'attendance-settings',
-            to: '/attendance/settings',
-            title: m.app_layout_nav_attendance_settings,
-          },
-          {
-            key: 'shift-management',
-            to: '/attendance/management/shifts',
-            title: m.app_layout_nav_shift_management,
-          },
-          {
-            key: 'working-calendar',
-            to: '/attendance/calendar',
-            title: m.app_layout_nav_working_calendar,
-          },
-          {
-            key: 'face-recognition',
-            to: '/attendance/face-recognition',
-            title: m.app_layout_nav_face_recognition,
-          },
-          {
-            key: 'gps-security',
-            to: '/attendance/gps-security',
-            title: m.app_layout_nav_gps_security,
-          },
-        ],
+        key: 'career-overview',
+        title: () => 'Overview',
+        to: '/employment',
+        exact: true,
       },
+      {
+        key: 'career-contract',
+        title: m.app_layout_nav_employment_contract,
+        to: '/employment/contract',
+      },
+      {
+        key: 'career-rotation',
+        title: m.app_layout_nav_employment_rotation,
+        to: '/employment/rotation',
+      },
+      {
+        key: 'career-promotion',
+        title: m.app_layout_nav_employment_promotion,
+        to: '/employment/promotion',
+      },
+      {
+        key: 'career-demotion',
+        title: m.app_layout_nav_employment_demotion,
+        to: '/employment/demotion',
+      },
+      {
+        key: 'career-resignation',
+        title: m.app_layout_nav_employment_resignation,
+        to: '/employment/resignation',
+      },
+      {
+        key: 'career-history',
+        title: m.app_layout_nav_employment_history,
+        to: '/employment/history',
+      },
+    ],
+  },
+
+  // ─── Attendance (split from Time Management) ──────────────────────────
+  {
+    key: 'attendance',
+    to: '/attendance',
+    icon: IconClockHour4,
+    title: m.app_layout_nav_attendance,
+    items: [
+      {
+        key: 'attendance-overview',
+        to: '/attendance',
+        title: m.app_layout_nav_attendance_overview,
+      },
+      {
+        key: 'shift-management',
+        to: '/attendance/management/shifts',
+        title: m.app_layout_nav_shift_management,
+      },
+      {
+        key: 'working-calendar',
+        to: '/attendance/calendar',
+        title: m.app_layout_nav_working_calendar,
+      },
+      {
+        key: 'face-recognition',
+        to: '/attendance/face-recognition',
+        title: m.app_layout_nav_face_recognition,
+      },
+      {
+        key: 'gps-security',
+        to: '/attendance/gps-security',
+        title: m.app_layout_nav_gps_security,
+      },
+    ],
+  },
+
+  // ─── Leave & Overtime ─────────────────────────────────────────────────
+  {
+    key: 'leave-overtime',
+    to: '/leave',
+    icon: IconCalendarMonth,
+    title: () => 'Leave & Overtime',
+    items: [
       {
         key: 'leave',
         to: '/leave',
@@ -210,6 +217,8 @@ export const mainMenu: Menu[] = [
       },
     ],
   },
+
+  // ─── Travel & Expense ─────────────────────────────────────────────────
   {
     key: 'travel-expense',
     to: '.',
@@ -228,24 +237,32 @@ export const mainMenu: Menu[] = [
       },
     ],
   },
+
+  // ─── Payroll ──────────────────────────────────────────────────────────
   {
     key: 'payroll',
     to: '/payroll',
     icon: IconReportMoney,
     title: m.app_layout_nav_payroll,
   },
+
+  // ─── Report ───────────────────────────────────────────────────────────
   {
     key: 'report',
     to: '/report',
     icon: IconReportAnalytics,
     title: m.app_layout_nav_report,
   },
+
+  // ─── Approval ─────────────────────────────────────────────────────────
   {
     key: 'approval',
     to: '/approval',
     icon: IconCircleCheck,
     title: m.app_layout_nav_approval,
   },
+
+  // ─── Settings (+ Attendance Settings moved here) ──────────────────────
   {
     key: 'settings',
     to: '.',
@@ -253,37 +270,42 @@ export const mainMenu: Menu[] = [
     title: m.app_layout_nav_settings,
     items: [
       {
-        key: 'company',
+        key: 'settings-company',
         title: m.app_layout_nav_company,
         to: '/settings/company',
       },
       {
-        key: 'role-access',
+        key: 'settings-role-access',
         title: m.app_layout_nav_role_access,
         to: '/settings/role-access',
       },
       {
-        key: 'master-data',
+        key: 'settings-master-data',
         title: m.app_layout_nav_master_data,
         to: '/settings/master-data',
       },
       {
-        key: 'scheduler',
+        key: 'settings-scheduler',
         title: () => 'Work Schedule',
         to: '/settings/scheduler',
       },
       {
-        key: 'approval-workflow',
+        key: 'settings-attendance',
+        title: m.app_layout_nav_attendance_settings,
+        to: '/attendance/settings',
+      },
+      {
+        key: 'settings-approval-workflow',
         title: m.app_layout_nav_approval_workflow,
         to: '/settings/approval-workflow',
       },
       {
-        key: 'notification',
+        key: 'settings-notification',
         title: m.app_layout_nav_notification,
         to: '/settings/notification',
       },
       {
-        key: 'security',
+        key: 'settings-security',
         title: m.app_layout_nav_security,
         to: '/settings/security',
       },

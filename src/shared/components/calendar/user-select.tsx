@@ -14,7 +14,7 @@ export function UserSelect() {
 
   return (
     <Select value={selectedUserId!} onValueChange={filterEventsBySelectedUser}>
-      <SelectTrigger className="w-full">
+      <SelectTrigger className="w-auto min-w-[140px]">
         <SelectValue placeholder="Select a user" />
       </SelectTrigger>
       <SelectContent align="end">
