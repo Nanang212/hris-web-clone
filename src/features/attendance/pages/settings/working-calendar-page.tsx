@@ -18,8 +18,8 @@ export function WorkingCalendarPage() {
     >
       <CalendarTabs active='overview' />
       <div className='grid gap-5 xl:grid-cols-[minmax(0,1.8fr)_320px]'>
-        <Card className='min-w-0'>
-          <CardContent className='p-3'>
+        <Card className='min-w-0 overflow-hidden'>
+          <CardContent className='p-0'>
             <Calendar />
           </CardContent>
         </Card>

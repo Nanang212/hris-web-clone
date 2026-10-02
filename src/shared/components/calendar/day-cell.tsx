@@ -1,7 +1,7 @@
 "use client";
 
 import { cva } from "class-variance-authority";
-import { isToday, startOfDay, isSunday, isSameMonth } from "date-fns";
+import { isToday, startOfDay, isSunday, isSaturday, isSameMonth } from "date-fns";
 import { motion } from "framer-motion";
 import { useMemo, useCallback } from "react";
 
@@ -110,69 +110,91 @@ export function DayCell({ cell, events, eventPositions }: IProps) {
     () => (
       <motion.div
         className={cn(
-          "flex h-full lg:min-h-40 flex-col gap-1 border-s border-t",
-          isSunday(date) && "border-s-0",
+          "group relative flex h-full lg:min-h-40 flex-col gap-1 border-b border-border transition-colors",
+          !isSaturday(date) && "border-r border-border",
+          !currentMonth
+            ? "bg-muted/25 text-muted-foreground/50"
+            : (isSaturday(date) || isSunday(date))
+              ? "bg-muted/15"
+              : isToday(date)
+                ? "bg-primary/[0.03]"
+                : "bg-card",
+          "hover:bg-muted/20",
         )}
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={transition}
       >
-        <DroppableArea date={date} className="w-full h-full py-2">
-          <motion.span
-            className={cn(
-              "h-6 px-1 text-xs font-semibold lg:px-2",
-              !currentMonth && "opacity-20",
-              isToday(date) &&
-                "flex w-6 translate-x-1 rtl:-translate-x-1 items-center justify-center rounded-full bg-primary px-0 font-bold text-primary-foreground",
-            )}
-          >
-            {day}
-          </motion.span>
-
-          <motion.div
-            className={cn(
-              "flex h-fit gap-1 px-2 mt-1 lg:h-[94px] lg:flex-col lg:gap-2 lg:px-0",
-              !currentMonth && "opacity-50",
-            )}
-          >
-            {cellEvents.length === 0 && !isMobile ? (
-              <div className="w-full h-full flex justify-center items-center group">
-                <AddEditEventDialog startDate={date}>
-                  <Button
-                    variant="ghost"
-                    className="border opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                  >
-                    <Plus className="h-4 w-4" />
-                    <span className="max-sm:hidden">Add Event</span>
-                  </Button>
-                </AddEditEventDialog>
-              </div>
-            ) : (
-              [0, 1, 2].map(renderEventAtPosition)
-            )}
-          </motion.div>
-
-          {showMobileMore && (
-            <div className="flex justify-end items-end mx-2">
-              <span className="text-[0.6rem] font-semibold text-accent-foreground">
-                +{showMoreCount}
+        <DroppableArea date={date} className="w-full h-full p-1.5 flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between px-1 mb-1">
+              <span
+                className={cn(
+                  "flex h-6 w-6 items-center justify-center rounded-full text-xs transition-colors",
+                  isToday(date)
+                    ? "bg-primary font-bold text-primary-foreground shadow-xs"
+                    : currentMonth
+                      ? "font-semibold text-foreground"
+                      : "text-muted-foreground/40 font-normal",
+                )}
+              >
+                {day}
               </span>
+              {isToday(date) && (
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-primary max-sm:hidden">
+                  Today
+                </span>
+              )}
             </div>
-          )}
 
-          {showDesktopMore && (
             <motion.div
               className={cn(
-                "h-4.5 px-1.5 my-2 text-end text-xs font-semibold text-muted-foreground",
+                "flex h-fit gap-1 lg:h-[94px] lg:flex-col lg:gap-1.5",
                 !currentMonth && "opacity-50",
               )}
-              initial={{ opacity: 0, y: 5 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, ...transition }}
             >
-              <EventListDialog date={date} events={cellEvents} />
+              {cellEvents.length === 0 && !isMobile ? (
+                <div className="w-full h-full flex justify-center items-center">
+                  <AddEditEventDialog startDate={date}>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-7 gap-1 px-2.5 text-xs text-muted-foreground/70 border border-dashed border-border/80 opacity-0 group-hover:opacity-100 transition-all hover:bg-background hover:text-foreground hover:border-primary/50"
+                    >
+                      <Plus className="h-3.5 w-3.5" />
+                      <span className="max-sm:hidden">Add Event</span>
+                    </Button>
+                  </AddEditEventDialog>
+                </div>
+              ) : (
+                [0, 1, 2].map(renderEventAtPosition)
+              )}
             </motion.div>
-          )}
+          </div>
+
+          <div>
+            {showMobileMore && (
+              <div className="flex justify-end items-end mx-1">
+                <span className="text-[0.6rem] font-semibold text-accent-foreground">
+                  +{showMoreCount}
+                </span>
+              </div>
+            )}
+
+            {showDesktopMore && (
+              <motion.div
+                className={cn(
+                  "h-4.5 px-1 mt-1 text-end text-xs font-semibold text-muted-foreground",
+                  !currentMonth && "opacity-50",
+                )}
+                initial={{ opacity: 0, y: 5 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3, ...transition }}
+              >
+                <EventListDialog date={date} events={cellEvents} />
+              </motion.div>
+            )}
+          </div>
         </DroppableArea>
       </motion.div>
     ),

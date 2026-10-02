@@ -12,6 +12,7 @@ import {
   IconPlus,
   IconUpload,
 } from '@tabler/icons-react'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/components/ui/tooltip'
 import { Link } from '@tanstack/react-router'
 import { useMemo, useState } from 'react'
 import { toast } from 'sonner'
@@ -251,14 +252,22 @@ export function ShiftSchedulePage() {
             </Label>
             <Input id='schedule-search' placeholder='Search name / ID' />
           </div>
-          <Button variant='outline' onClick={() => setShowTemplateConfirm(true)}>
-            <IconFileSpreadsheet />
-            Upload Excel
-          </Button>
-          <Button onClick={() => setModal('add')}>
-            <IconPlus />
-            Add Schedule
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant='outline' size='icon' onClick={() => setShowTemplateConfirm(true)} aria-label='Upload Excel'>
+                <IconFileSpreadsheet className='size-4' />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Upload Excel</TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button size='icon' onClick={() => setModal('add')} aria-label='Add Schedule'>
+                <IconPlus className='size-4' />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Add Schedule</TooltipContent>
+          </Tooltip>
         </CardContent>
       </Card>
       <div className='flex items-start gap-3 rounded-xl border border-primary/15 bg-primary/10 px-4 py-3 text-xs text-primary'>
@@ -373,30 +382,40 @@ export function ShiftSchedulePage() {
                       ))}
                       <td className='px-2 py-2 text-center'>
                         <div className='flex items-center justify-center gap-1'>
-                          <Button
-                            variant='ghost'
-                            size='icon'
-                            title='View Detail'
-                            onClick={() => {
-                              setEditingEmpNik(emp.nik)
-                              setModal('detail')
-                            }}
-                            className='size-8 text-muted-foreground hover:text-primary'
-                          >
-                            <IconEye className='size-4' />
-                          </Button>
-                          <Button
-                            variant='ghost'
-                            size='icon'
-                            title='Edit Row'
-                            onClick={() => {
-                              setEditingEmpNik(emp.nik)
-                              setModal('edit')
-                            }}
-                            className='size-8 text-muted-foreground hover:text-primary'
-                          >
-                            <IconPencil className='size-4' />
-                          </Button>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant='ghost'
+                                size='icon'
+                                onClick={() => {
+                                  setEditingEmpNik(emp.nik)
+                                  setModal('detail')
+                                }}
+                                className='size-8 text-muted-foreground hover:text-primary'
+                                aria-label='View Detail'
+                              >
+                                <IconEye className='size-4' />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>View Detail</TooltipContent>
+                          </Tooltip>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant='ghost'
+                                size='icon'
+                                onClick={() => {
+                                  setEditingEmpNik(emp.nik)
+                                  setModal('edit')
+                                }}
+                                className='size-8 text-muted-foreground hover:text-primary'
+                                aria-label='Edit Row'
+                              >
+                                <IconPencil className='size-4' />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Edit Row</TooltipContent>
+                          </Tooltip>
                         </div>
                       </td>
                     </tr>

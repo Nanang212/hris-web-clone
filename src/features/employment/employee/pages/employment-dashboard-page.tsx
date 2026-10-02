@@ -104,9 +104,9 @@ export function EmploymentDashboardPage() {
       retry={refetch}
       breadcrumbs={[
         { to: '/', label: 'Company' },
-        { to: '.', label: 'Employment' },
+        { to: '.', label: 'Career & Movement' },
       ]}
-      title='Employment'
+      title='Career & Movement'
       subtitle='View employee employment data first, then continue to contract, rotation, demotion, promotion, resignation, or employment history.'
     >
       {/* Stats Cards */}
