@@ -64,6 +64,13 @@ function optionalDate(value: string) {
   return value || null
 }
 
+function parseTrainings(value: string) {
+  return value
+    .split(',')
+    .map((training) => training.trim())
+    .filter(Boolean)
+}
+
 function toInformationEmploymentType(value: string): EmployeeInformationDetailData['employmentType'] {
   return {
     PERMANENT: 'Permanent',
@@ -123,12 +130,14 @@ function toPayload(
       latitude: optionalProfileValue(optionalNumber(form.employee.latitude) ?? ''),
       longitude: optionalProfileValue(optionalNumber(form.employee.longitude) ?? ''),
       resignDate: optionalDate(form.employee.resignDate),
+      trainings: parseTrainings(form.employee.trainings),
       weightKg: optionalProfileValue(optionalNumber(form.employee.weightKg) ?? ''),
     },
     assignments: form.assignments.map((assignment) => ({
       ...assignment,
       employmentType: assignment.employmentType as EmployeeProfileEmploymentType,
       effectiveEndDate: optionalDate(assignment.effectiveEndDate),
+      baseSalary: assignment.baseSalary || null,
     })),
     bankAccounts: form.bankAccounts
       .filter((account) => account.bankId && account.accountNumber)
@@ -223,6 +232,10 @@ function toUpdatePayload(
       maritalStatus: form.employee.maritalStatus || null,
       nationality: form.employee.citizenshipStatus || null,
       address: form.employee.address || null,
+      motherMaidenName: form.employee.motherMaidenName || null,
+      religion: form.employee.religion || null,
+      taxStatus: form.taxProfile.ptkpStatus || null,
+      trainings: parseTrainings(form.employee.trainings),
     },
     employmentInformation: {
       joinDate: form.employee.hireDate,
@@ -234,6 +247,8 @@ function toUpdatePayload(
       branchId: employee.employmentInformation.branchId,
       supervisorId: assignment.supervisorEmployeeId || undefined,
       workLocation: assignment.workLocation || '',
+      baseSalary: assignment.baseSalary || undefined,
+      workTimeType: assignment.workTimeType,
     },
     emergencyContact: {
       name: contact.fullName || null,
@@ -277,6 +292,7 @@ export function EmployeeCreateForm({ options, mode = 'create', employee }: Emplo
     employeeCreateFormShape(schema, {
       required: messages.employee_information_create_field_required(),
       email: messages.employee_information_create_email_invalid(),
+      baseSalary: messages.employee_information_edit_base_salary_invalid(),
     }),
   )
   const methods = useForm<EmployeeCreateFormValues>({
@@ -299,6 +315,9 @@ export function EmployeeCreateForm({ options, mode = 'create', employee }: Emplo
       maritalStatus: employee.personalInformation.maritalStatus ?? '',
       citizenshipStatus: (employee.personalInformation.nationality as 'WNI' | 'WNA') || 'WNI',
       address: employee.personalInformation.address ?? '',
+      motherMaidenName: employee.personalInformation.motherMaidenName ?? '',
+      religion: employee.personalInformation.religion ?? '',
+      trainings: employee.personalInformation.trainings.join(', '),
       hireDate: employee.employmentInformation.joinDate,
       employeeStatus: employee.status,
     }
@@ -312,6 +331,8 @@ export function EmployeeCreateForm({ options, mode = 'create', employee }: Emplo
         supervisorEmployeeId: employee.employmentInformation.supervisorId ?? '',
         effectiveStartDate: employee.employmentInformation.joinDate,
         employmentType: toProfileEmploymentType(employee.employmentInformation.employmentType),
+        baseSalary: employee.employmentInformation.baseSalary ?? '',
+        workTimeType: employee.employmentInformation.workTimeType,
         workLocation: employee.employmentInformation.workLocation,
       },
     ]
@@ -345,6 +366,10 @@ export function EmployeeCreateForm({ options, mode = 'create', employee }: Emplo
     values.taxProfile = {
       ...values.taxProfile,
       npwpNumber: employee.financialAndCompliance.npwpNumber ?? '',
+      ptkpStatus:
+        employee.personalInformation.taxStatus ??
+        employee.financialAndCompliance.taxCategory ??
+        'TK/0',
       effectiveStartDate:
         employee.financialAndCompliance.npwpEffectiveDate ?? employee.joinDate,
     }
@@ -361,16 +386,16 @@ export function EmployeeCreateForm({ options, mode = 'create', employee }: Emplo
       description: m.employee_information_create_step_employment_setup_description(),
     },
     {
-      title: 'Bank & Payroll',
-      description: 'Rekening bank, BPJS, dan payroll karyawan.',
+      title: m.employee_information_create_step_bank_payroll(),
+      description: m.employee_information_create_step_bank_payroll_description(),
     },
     {
       title: m.employee_information_create_step_contacts(),
       description: m.employee_information_create_step_contacts_description(),
     },
     {
-      title: 'Education',
-      description: 'Riwayat pendidikan dan sertifikat pendukung.',
+      title: m.employee_information_create_step_education(),
+      description: m.employee_information_create_step_education_description(),
     },
   ]
 
@@ -453,12 +478,12 @@ export function EmployeeCreateForm({ options, mode = 'create', employee }: Emplo
               </Button>
             )}
             {currentStep < steps.length - 1 ? (
-              <Button type='button' onClick={() => void continueStep()}>
+              <Button key='continue-step' type='button' onClick={() => void continueStep()}>
                 {m.employee_information_create_continue()}
                 <IconArrowRight />
               </Button>
             ) : (
-              <Button type='submit' disabled={mutation.isPending}>
+              <Button key='submit-employee' type='submit' disabled={mutation.isPending}>
                 {mutation.isPending ? <Spinner /> : <IconCheck />}
                 {m.employee_information_create_submit()}
               </Button>

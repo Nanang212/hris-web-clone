@@ -1,5 +1,7 @@
 import { z } from 'zod'
 
+import { m } from '@/i18n/paraglide/messages'
+
 export interface SelectOption {
   value: string
   label: string
@@ -68,6 +70,7 @@ export const examplePayrollComponents = [
 interface EmployeeCreateValidationMessages {
   required?: string
   email?: string
+  baseSalary?: string
 }
 
 export function employeeCreateFormShape(
@@ -111,6 +114,7 @@ export function employeeCreateFormShape(
       resignDate: schema.string(),
       simFileId: schema.string(),
       terminationReason: schema.string(),
+      trainings: schema.string().trim().max(2000),
       village: schema.string(),
       weightKg: schema.string(),
       whatsappNumber: schema.string(),
@@ -118,6 +122,12 @@ export function employeeCreateFormShape(
     }),
     assignments: schema.array(
       schema.object({
+        baseSalary: schema
+          .string()
+          .trim()
+          .refine((value) => value === '' || /^\d+(\.\d{1,2})?$/.test(value), {
+            message: messages.baseSalary,
+          }),
         changeReason: schema.string(),
         departmentUnitId: schema.string(),
         divisionUnitId: schema.string().min(1, { message: messages.required }),
@@ -128,6 +138,7 @@ export function employeeCreateFormShape(
         positionId: schema.string().min(1, { message: messages.required }),
         sectionUnitId: schema.string(),
         supervisorEmployeeId: schema.string(),
+        workTimeType: schema.enum(['Regular', 'JamPenggal']),
         workLocation: schema.string(),
       }),
     ),
@@ -226,6 +237,7 @@ type EmployeeCreateFormSchema = z.ZodObject<ReturnType<typeof employeeCreateForm
 export type EmployeeCreateFormValues = z.infer<EmployeeCreateFormSchema>
 
 export const emptyAssignment = (): EmployeeCreateFormValues['assignments'][number] => ({
+  baseSalary: '',
   changeReason: '',
   departmentUnitId: '',
   divisionUnitId: '',
@@ -236,6 +248,7 @@ export const emptyAssignment = (): EmployeeCreateFormValues['assignments'][numbe
   positionId: '',
   sectionUnitId: '',
   supervisorEmployeeId: '',
+  workTimeType: 'Regular',
   workLocation: '',
 })
 
@@ -352,6 +365,7 @@ export const employeeCreateDefaultValues: EmployeeCreateFormValues = {
     resignDate: '',
     simFileId: '',
     terminationReason: '',
+    trainings: '',
     village: '',
     weightKg: '',
     whatsappNumber: '',
@@ -379,46 +393,45 @@ export function toSelectOptions(items: Array<{ id: string; name: string }>): Sel
 }
 
 export function toValueOptions(items: readonly string[]): SelectOption[] {
-  const labels: Record<string, string> = {
-    Male: 'Male',
-    Female: 'Female',
-    WNI: 'WNI',
-    WNA: 'WNA',
-    SINGLE: 'Single',
-    MARRIED: 'Married',
-    DIVORCED: 'Divorced',
-    WIDOWED: 'Widowed',
-    ISLAM: 'Islam',
-    PROTESTANT: 'Protestant',
-    CATHOLIC: 'Catholic',
-    HINDU: 'Hindu',
-    BUDDHIST: 'Buddhist',
-    CONFUCIAN: 'Confucian',
-    SPOUSE: 'Spouse',
-    CHILD: 'Child',
-    PARENT: 'Parent',
-    SIBLING: 'Sibling',
-    OTHER: 'Other',
-    ACTIVE: 'Active',
-    INACTIVE: 'Inactive',
-    RESIGNED: 'Resigned',
-    EXPIRED: 'Expired',
-    TERMINATED: 'Terminated',
-    PENDING: 'Pending',
-    VERIFIED: 'Verified',
-    REJECTED: 'Rejected',
-    PERMANENT: 'Permanent',
-    CONTRACT: 'Contract',
-    INTERNSHIP: 'Internship',
-    FREELANCE: 'Freelance',
-    OUTSOURCING: 'Outsourcing',
-    INTERN: 'Intern',
-    NON_EMPLOYMENT: 'Non-employment',
-    RENEWED: 'Renewed',
-    BACHELOR: 'Bachelor',
-    MASTER: 'Master',
-    DOCTOR: 'Doctor',
+  const labels: Record<string, () => string> = {
+    Male: m.employee_information_create_gender_male,
+    Female: m.employee_information_create_gender_female,
+    SINGLE: m.employee_information_create_option_single,
+    MARRIED: m.employee_information_create_option_married,
+    DIVORCED: m.employee_information_create_option_divorced,
+    WIDOWED: m.employee_information_create_option_widowed,
+    ISLAM: m.employee_information_create_option_islam,
+    PROTESTANT: m.employee_information_create_option_protestant,
+    CATHOLIC: m.employee_information_create_option_catholic,
+    HINDU: m.employee_information_create_option_hindu,
+    BUDDHIST: m.employee_information_create_option_buddhist,
+    CONFUCIAN: m.employee_information_create_option_confucian,
+    SPOUSE: m.employee_information_create_option_spouse,
+    CHILD: m.employee_information_create_option_child,
+    PARENT: m.employee_information_create_option_parent,
+    SIBLING: m.employee_information_create_option_sibling,
+    OTHER: m.employee_information_create_option_other,
+    ACTIVE: m.employee_information_status_active,
+    INACTIVE: m.employee_information_status_inactive,
+    RESIGNED: m.employee_information_status_resigned,
+    EXPIRED: m.employee_information_create_option_expired,
+    TERMINATED: m.employee_information_create_option_terminated,
+    PERMANENT: m.employee_information_type_permanent,
+    CONTRACT: m.employee_information_type_contract,
+    INTERNSHIP: m.employee_information_type_internship,
+    FREELANCE: m.employee_information_type_freelance,
+    OUTSOURCING: m.employee_information_create_option_outsourcing,
+    INTERN: m.employee_information_type_internship,
+    NON_EMPLOYMENT: m.employee_information_create_option_non_employment,
+    RENEWED: m.employee_information_create_option_renewed,
+    SD: m.employee_information_create_option_primary_school,
+    SMP: m.employee_information_create_option_junior_high_school,
+    SMA: m.employee_information_create_option_senior_high_school,
+    DIPLOMA: m.employee_information_create_option_diploma,
+    BACHELOR: m.employee_information_create_option_bachelor,
+    MASTER: m.employee_information_create_option_master,
+    DOCTOR: m.employee_information_create_option_doctor,
   }
 
-  return items.map((item) => ({ label: labels[item] ?? item, value: item }))
+  return items.map((item) => ({ label: labels[item]?.() ?? item, value: item }))
 }
