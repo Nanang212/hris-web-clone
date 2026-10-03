@@ -133,6 +133,7 @@ export type EmployeeProfileEmploymentType =
 
 export interface CreateEmployeeProfileInput {
   assignments?: Array<{
+    baseSalary?: string | null
     changeReason?: string | null
     departmentUnitId?: string | null
     divisionUnitId: string
@@ -143,6 +144,7 @@ export interface CreateEmployeeProfileInput {
     positionId: string
     sectionUnitId?: string | null
     supervisorEmployeeId?: string | null
+    workTimeType: EmployeeInformationWorkTimeType
     workLocation?: string | null
   }>
   bankAccounts?: Array<{
@@ -233,6 +235,7 @@ export interface CreateEmployeeProfileInput {
     resignDate?: string | null
     simFileId?: string | null
     terminationReason?: string | null
+    trainings?: string[] | null
     village?: string | null
     weightKg?: EmployeeProfileJsonValue
     whatsappNumber?: string | null

@@ -59,14 +59,15 @@ export function EmployeeTextareaField({
   label,
   required,
   className,
-}: BaseFieldProps & { className?: string }) {
+  placeholder,
+}: BaseFieldProps & { className?: string; placeholder?: string }) {
   const { register, getFieldState, formState } = useFormContext<EmployeeCreateFormValues>()
   const error = getFieldState(name, formState).error
 
   return (
     <Field className={className} data-invalid={Boolean(error)}>
       <FormLabel required={required}>{label}</FormLabel>
-      <Textarea aria-invalid={Boolean(error)} {...register(name)} />
+      <Textarea aria-invalid={Boolean(error)} placeholder={placeholder} {...register(name)} />
       <FieldError errors={[error]} />
     </Field>
   )

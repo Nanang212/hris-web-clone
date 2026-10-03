@@ -198,6 +198,26 @@ export function EmployeeCreateEmploymentStep({ options }: EmployeeCreateEmployme
                 label={m.employee_information_create_work_location_label()}
               />
               <EmployeeTextField
+                name={`assignments.${index}.baseSalary`}
+                label={m.employee_information_detail_field_base_salary()}
+                type='number'
+              />
+              <EmployeeSelectField
+                name={`assignments.${index}.workTimeType`}
+                label={m.employee_information_detail_field_work_time_type()}
+                options={[
+                  {
+                    label: m.employee_information_detail_work_time_regular(),
+                    value: 'Regular',
+                  },
+                  {
+                    label: m.employee_information_detail_work_time_split(),
+                    value: 'JamPenggal',
+                  },
+                ]}
+                required
+              />
+              <EmployeeTextField
                 name={`assignments.${index}.changeReason`}
                 label={m.employee_information_create_change_reason_label()}
               />

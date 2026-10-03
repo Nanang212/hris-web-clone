@@ -142,7 +142,10 @@ export function EmployeeCreateEmployeeStep({ options }: EmployeeCreateEmployeeSt
                 <div className='flex justify-center md:justify-start'>
                   <div className='rounded-full bg-background p-1.5 shadow-sm ring-1 ring-border'>
                     <Avatar className='size-28 sm:size-32'>
-                      <AvatarImage src={photoPreview} alt={fullName || 'Employee profile photo'} />
+                      <AvatarImage
+                        src={photoPreview}
+                        alt={fullName || m.employee_information_create_photo_alt()}
+                      />
                       <AvatarFallback className='bg-primary/10 text-2xl font-bold text-primary'>
                         {initials}
                       </AvatarFallback>
@@ -264,15 +267,27 @@ export function EmployeeCreateEmployeeStep({ options }: EmployeeCreateEmployeeSt
             name='employee.ktpNumber'
             label={m.employee_information_create_ktp_label()}
           />
-          <EmployeeFileField name='employee.ktpFileId' label='File KTP' />
+          <EmployeeFileField
+            name='employee.ktpFileId'
+            label={m.employee_information_create_ktp_file_label()}
+          />
           <EmployeeTextField
             name='employee.kkNumber'
             label={m.employee_information_create_kk_label()}
           />
-          <EmployeeFileField name='employee.kkFileId' label='File Kartu Keluarga' />
+          <EmployeeFileField
+            name='employee.kkFileId'
+            label={m.employee_information_create_family_card_file_label()}
+          />
           <EmployeeTextField
             name='employee.motherMaidenName'
             label={m.employee_information_create_mother_maiden_name_label()}
+          />
+          <EmployeeTextareaField
+            className='md:col-span-2 xl:col-span-4'
+            name='employee.trainings'
+            label={m.employee_information_detail_field_trainings()}
+            placeholder={m.employee_information_edit_trainings_placeholder()}
           />
           <EmployeeSelectField
             name='employee.lastEducationLevel'
@@ -297,7 +312,10 @@ export function EmployeeCreateEmployeeStep({ options }: EmployeeCreateEmployeeSt
             name='employee.drivingLicenseNumber'
             label={m.employee_information_create_driving_license_label()}
           />
-          <EmployeeFileField name='employee.simFileId' label='File SIM' />
+          <EmployeeFileField
+            name='employee.simFileId'
+            label={m.employee_information_create_driving_license_file_label()}
+          />
 
           <EmployeeSelectField
             name='employee.employeeStatus'
