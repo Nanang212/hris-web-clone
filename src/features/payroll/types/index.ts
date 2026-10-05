@@ -120,6 +120,25 @@ export interface EmployeePayrollDetail {
   // Final Net
   netTakeHomePay: number
   status: 'calculated' | 'verified' | 'paid'
+  // ── Rincian hasil engine calculatePayroll (opsional agar data mock lama tetap valid) ──
+  project?: string
+  workLocation?: string
+  bpjsKesSource?: 'billing' | 'missing' // asal nominal BPJS Kes: dari upload tagihan / belum ada tagihan
+  bpjsKesFamilyExtra?: number // iuran keluarga tambahan (bagian dari bpjsKesEmployee)
+  bpjsTkJhtEmployee?: number
+  bpjsTkJpEmployee?: number
+  // Porsi perusahaan BPJS TK per komponen (tidak mengurangi THP)
+  bpjsTkJkk?: number
+  bpjsTkJkm?: number
+  bpjsTkJhtEmployer?: number
+  bpjsTkJpEmployer?: number
+  taxableIncome?: number // penghasilan bruto kena pajak bulan ini
+  totalFixedEarnings?: number
+  totalVariableEarnings?: number
+  totalFixedDeductions?: number
+  totalVariableDeductions?: number
+  lines?: PayrollLine[]
+  warnings?: string[]
 }
 
 export interface ManualAdjustmentItem {
@@ -128,6 +147,133 @@ export interface ManualAdjustmentItem {
   amount: number
   type: 'allowance' | 'deduction'
   note?: string
+}
+
+// ── Engine calculatePayroll: input, tagihan BPJS Kes, dan output ─────────────────────
+
+/** Satu baris komponen payroll (pendapatan/potongan) yang menjadi masukan engine. */
+export interface PayrollInputLine {
+  code: string
+  name: string
+  type: 'allowance' | 'deduction'
+  amount: number
+  isTaxable: boolean
+}
+
+/** Baris komponen setelah dihitung: menyimpan asalnya agar rincian bisa diperiksa. */
+export interface PayrollLine extends PayrollInputLine {
+  source: 'fixed' | 'variable' | 'attendance'
+}
+
+export interface PayrollEmployeeInput {
+  employeeId: string
+  nopeg: string // nomor pegawai / kode karyawan (bisa dobel karena human error)
+  nik: string // NIK KTP
+  name: string
+  department: string
+  position: string
+  projectId: string // relasi ke master project (features/company/project)
+  project: string // nama project (tampilan)
+  workLocation: string
+  employmentType: 'Permanent' | 'Contract' | 'Probation'
+  ptkpStatus: string
+  bankName: string
+  bankAccountNumber: string
+  bankAccountHolder: string
+  // Master upah (langkah 3): diubah manual per karyawan, tidak ikut berubah saat pindah lokasi
+  baseSalary: number
+  fixedComponents: PayrollInputLine[]
+  // Kepesertaan BPJS: Kes nominalnya dari upload tagihan; program TK mengikuti setting project.
+  bpjs: {
+    kesParticipantNumber: string // No BPJS Kesehatan
+    kesActive: boolean
+  }
+  // Komponen variabel periode berjalan (langkah 4)
+  variableComponents: PayrollInputLine[]
+  attendance: {
+    workingDays: number
+    actualPresent: number
+    lateCount: number
+    absentCount: number
+    overtimeHours: number
+  }
+  thrTaxInstallment?: {
+    installmentId: string
+    tenorMonths: number
+    currentInstallmentMonth: number
+    totalTaxAmount: number
+    remainingBalance: number
+    amount: number
+  }
+}
+
+/**
+ * Satu baris tagihan BPJS Kesehatan hasil upload.
+ * Identitas: Nopeg | NIK KTP | No BPJS Kesehatan (Nopeg bisa dobel, jadi bukan satu-satunya kunci).
+ * Nominal potongan dihitung sistem dari Upah BPJS memakai persentase di master BPJS Kesehatan.
+ */
+export interface BpjsKesBillingRecord {
+  nopeg: string
+  nik: string
+  bpjsNumber: string
+  name: string
+  bpjsWage: number // Upah BPJS (dasar 1% & 4%)
+  familyExtra: number // Pot. keluarga tambahan (kurangi THP, tidak masuk pajak)
+}
+
+/** Setting program BPJS TK yang menempel ke project (relasi ke master project via projectId). */
+export interface BpjsTkProjectSetting {
+  id: string
+  projectId: string
+  /** Mulai berlaku, format "YYYY-MM". Payroll memakai setting terbaru yang <= periode. */
+  effectiveFrom: string
+  jkkRatePercent: number // 0.24 / 0.54 / 0.89 / 1.24 / 1.74
+  jhtActive: boolean
+  jpActive: boolean
+}
+
+/** Batas maksimal dasar upah (cap) dengan tanggal berlaku. */
+export interface WageCapRule {
+  id: string
+  effectiveFrom: string // "YYYY-MM"
+  kesMaxWageCap: number
+  jpMaxWageCap: number
+}
+
+export interface BpjsKesBillingUpload {
+  periodKey: string // e.g. "2026-07"
+  fileName: string
+  uploadedAt: string
+  records: BpjsKesBillingRecord[]
+}
+
+export interface PayrollCalculationSummary {
+  employeeCount: number
+  totalGross: number
+  totalAllowances: number
+  totalDeductions: number
+  totalTaxPPh21: number
+  totalBpjsTK: number
+  totalBpjsKes: number
+  totalNet: number
+  warningCount: number
+}
+
+export interface PayrollCalculationOutput {
+  details: EmployeePayrollDetail[]
+  summary: PayrollCalculationSummary
+  /** Baris tagihan yang tidak cocok dengan karyawan mana pun (perlu diperiksa). */
+  unmatchedBilling: BpjsKesBillingRecord[]
+}
+
+export interface ThrEmployeeOption {
+  id: string
+  code: string
+  name: string
+  department: string
+  position: string
+  baseSalary: number
+  estimatedThrTax: number
 }
 
 export interface ThrTaxInstallment {

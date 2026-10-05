@@ -1,7 +1,7 @@
-// src/features/payroll/pages/configuration/thr-config-view.tsx — THR Policy, Tax Installment Scheme & Schedules
 import {
   IconCalculator,
   IconCheck,
+  IconChevronDown,
   IconCoins,
   IconEdit,
   IconInfoCircle,
@@ -10,14 +10,16 @@ import {
   IconPlus,
   IconSearch,
   IconSparkles,
+  IconX,
 } from '@tabler/icons-react'
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import {
   initialThrPolicyConfig,
   initialThrTaxInstallments,
+  initialThrEmployeeOptions,
   formatIDR,
 } from '../../data/mock-payroll-data'
-import type { ThrPolicyConfig, ThrTaxInstallment } from '../../types'
+import type { ThrPolicyConfig, ThrTaxInstallment, ThrEmployeeOption } from '../../types'
 import { Badge } from '@/shared/components/ui/badge'
 import { Button } from '@/shared/components/ui/button'
 import {
@@ -29,6 +31,12 @@ import {
   DialogTitle,
 } from '@/shared/components/ui/dialog'
 import { Input } from '@/shared/components/ui/input'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/shared/components/ui/popover'
+import { ScrollArea } from '@/shared/components/ui/scroll-area'
 import { Progress } from '@/shared/components/ui/progress'
 import {
   Select,
@@ -48,6 +56,7 @@ import {
   TableRow,
 } from '@/shared/components/ui/table'
 import { snackbar } from '@/shared/lib/snackbar'
+import { cn } from '@/shared/lib/utils'
 
 export function ThrConfigView() {
   // General Policy State
@@ -85,6 +94,46 @@ export function ThrConfigView() {
     startPeriod: 'Juni 2026',
     notes: '',
   })
+
+  // Memoized employee options (ensures any custom/editing employee code is always available)
+  const allEmployeeOptions = useMemo<ThrEmployeeOption[]>(() => {
+    const list = [...initialThrEmployeeOptions]
+    if (editingItem && !list.some((e) => e.code === editingItem.employeeCode)) {
+      list.unshift({
+        id: editingItem.employeeId,
+        code: editingItem.employeeCode,
+        name: editingItem.employeeName,
+        department: editingItem.department,
+        position: 'Staff',
+        baseSalary: editingItem.totalThrAmount,
+        estimatedThrTax: editingItem.totalTaxAmount,
+      })
+    }
+    return list
+  }, [editingItem])
+
+  const selectedEmployee = useMemo(() => {
+    return (
+      allEmployeeOptions.find((e) => e.code === modalForm.employeeCode) || null
+    )
+  }, [allEmployeeOptions, modalForm.employeeCode])
+
+  // Searchable Employee Picker State in Modal
+  const [employeeSearch, setEmployeeSearch] = useState('')
+  const [isEmployeePickerOpen, setIsEmployeePickerOpen] = useState(false)
+
+  // Filtered employee options based on search query
+  const filteredEmployeeOptions = useMemo(() => {
+    if (!employeeSearch.trim()) return allEmployeeOptions
+    const q = employeeSearch.toLowerCase().trim()
+    return allEmployeeOptions.filter(
+      (emp) =>
+        emp.name.toLowerCase().includes(q) ||
+        emp.code.toLowerCase().includes(q) ||
+        emp.department.toLowerCase().includes(q) ||
+        emp.position.toLowerCase().includes(q),
+    )
+  }, [allEmployeeOptions, employeeSearch])
 
   // Save General Policy
   const handleSavePolicy = (e: React.FormEvent) => {
@@ -147,12 +196,14 @@ export function ThrConfigView() {
 
   const handleOpenAdd = () => {
     setEditingItem(null)
+    setEmployeeSearch('')
+    setIsEmployeePickerOpen(false)
     setModalForm({
       employeeName: '',
       employeeCode: '',
-      department: 'IT & Engineering',
-      totalThrAmount: 15000000,
-      totalTaxAmount: 1200000,
+      department: '',
+      totalThrAmount: 0,
+      totalTaxAmount: 0,
       tenorMonths: config.defaultTenorMonths || 3,
       startPeriod: 'Juni 2026',
       notes: 'Penyesuaian cicilan pajak THR manual',
@@ -162,6 +213,8 @@ export function ThrConfigView() {
 
   const handleOpenEdit = (item: ThrTaxInstallment) => {
     setEditingItem(item)
+    setEmployeeSearch('')
+    setIsEmployeePickerOpen(false)
     setModalForm({
       employeeName: item.employeeName,
       employeeCode: item.employeeCode,
@@ -178,7 +231,7 @@ export function ThrConfigView() {
   const handleSaveModal = (e: React.FormEvent) => {
     e.preventDefault()
     if (!modalForm.employeeName.trim() || !modalForm.employeeCode.trim()) {
-      snackbar.error('Nama dan NIK karyawan wajib diisi.')
+      snackbar.error('Silakan pilih karyawan terlebih dahulu.')
       return
     }
 
@@ -648,11 +701,10 @@ export function ThrConfigView() {
                   key={filter.id}
                   type='button'
                   onClick={() => setStatusFilter(filter.id)}
-                  className={`px-2.5 py-1 text-[11px] font-semibold rounded-lg transition-colors cursor-pointer ${
-                    statusFilter === filter.id
+                  className={`px-2.5 py-1 text-[11px] font-semibold rounded-lg transition-colors cursor-pointer ${statusFilter === filter.id
                       ? 'bg-primary text-white shadow-2xs'
                       : 'text-muted-foreground hover:text-foreground'
-                  }`}
+                    }`}
                 >
                   {filter.label}
                 </button>
@@ -789,38 +841,190 @@ export function ThrConfigView() {
           </DialogHeader>
 
           <form onSubmit={handleSaveModal} className='space-y-4 py-2 text-xs'>
-            <div className='grid grid-cols-2 gap-3'>
-              <div className='space-y-1.5'>
-                <label className='font-semibold text-foreground'>Nama Karyawan</label>
-                <Input
-                  value={modalForm.employeeName}
-                  onChange={(e) => setModalForm((p) => ({ ...p, employeeName: e.target.value }))}
-                  placeholder='e.g. Rian Wijaya'
-                  className='h-9 text-xs rounded-xl'
-                  required
-                />
-              </div>
+            {/* Unified Searchable Employee Selector */}
+            <div className='space-y-2'>
+              <label className='font-semibold text-foreground flex items-center justify-between'>
+                <span>Pilih Karyawan</span>
+                <span className='text-[10px] text-muted-foreground font-normal'>
+                  Cari berdasarkan nama, NIK, atau departemen
+                </span>
+              </label>
 
-              <div className='space-y-1.5'>
-                <label className='font-semibold text-foreground'>NIK / Kode Karyawan</label>
-                <Input
-                  value={modalForm.employeeCode}
-                  onChange={(e) => setModalForm((p) => ({ ...p, employeeCode: e.target.value }))}
-                  placeholder='e.g. EMP001'
-                  className='h-9 text-xs rounded-xl'
-                  required
-                />
-              </div>
-            </div>
+              <Popover modal={true} open={isEmployeePickerOpen} onOpenChange={setIsEmployeePickerOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    type='button'
+                    variant='outline'
+                    role='combobox'
+                    aria-expanded={isEmployeePickerOpen}
+                    className='w-full justify-between h-10 text-xs rounded-xl font-normal px-3 bg-background hover:bg-muted/40 border-border/80'
+                  >
+                    {selectedEmployee ? (
+                      <div className='flex items-center gap-2 truncate'>
+                        <span className='font-semibold text-foreground truncate'>
+                          {selectedEmployee.name}
+                        </span>
+                        <span className='text-muted-foreground font-mono text-[11px]'>
+                          ({selectedEmployee.code})
+                        </span>
+                        <span className='text-muted-foreground/60 text-[11px] truncate'>
+                          · {selectedEmployee.department}
+                        </span>
+                      </div>
+                    ) : (
+                      <div className='flex items-center gap-2 text-muted-foreground'>
+                        <IconSearch size={14} className='opacity-60' />
+                        <span>Pilih atau cari karyawan...</span>
+                      </div>
+                    )}
+                    <IconChevronDown size={14} className='ml-2 shrink-0 opacity-50' />
+                  </Button>
+                </PopoverTrigger>
 
-            <div className='space-y-1.5'>
-              <label className='font-semibold text-foreground'>Departemen</label>
-              <Input
-                value={modalForm.department}
-                onChange={(e) => setModalForm((p) => ({ ...p, department: e.target.value }))}
-                placeholder='e.g. IT & Engineering'
-                className='h-9 text-xs rounded-xl'
-              />
+                <PopoverContent
+                  className='w-(--radix-popover-trigger-width) p-2 rounded-2xl gap-2 shadow-xl border border-border/80 bg-popover z-60'
+                  align='start'
+                  data-radix-scroll-lock-ignore
+                  onWheel={(e) => e.stopPropagation()}
+                >
+                  {/* Search Input Field */}
+                  <div className='relative'>
+                    <IconSearch className='absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none' />
+                    <Input
+                      value={employeeSearch}
+                      onChange={(e) => setEmployeeSearch(e.target.value)}
+                      placeholder='Cari nama, NIK, atau departemen...'
+                      className='h-8.5 pl-8 pr-7 text-xs rounded-xl bg-muted/40 focus-visible:bg-background'
+                      autoFocus
+                    />
+                    {employeeSearch && (
+                      <button
+                        type='button'
+                        onClick={() => setEmployeeSearch('')}
+                        className='absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground'
+                      >
+                        <IconX size={12} />
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Employee Options List with ScrollArea and Scroll Lock Ignore */}
+                  <ScrollArea
+                    className='h-60 pr-1.5'
+                    data-radix-scroll-lock-ignore
+                    onWheel={(e) => e.stopPropagation()}
+                  >
+                    <div className='space-y-1 py-0.5'>
+                      {filteredEmployeeOptions.length === 0 ? (
+                        <div className='py-6 text-center text-xs text-muted-foreground'>
+                          Tidak ada karyawan yang cocok dengan &quot;{employeeSearch}&quot;
+                        </div>
+                      ) : (
+                        filteredEmployeeOptions.map((emp) => {
+                          const isSelected = modalForm.employeeCode === emp.code
+                          return (
+                            <button
+                              key={emp.code}
+                              type='button'
+                              onClick={() => {
+                                setModalForm((p) => ({
+                                  ...p,
+                                  employeeCode: emp.code,
+                                  employeeName: emp.name,
+                                  department: emp.department,
+                                  ...(!editingItem
+                                    ? {
+                                      totalThrAmount: emp.baseSalary,
+                                      totalTaxAmount: emp.estimatedThrTax,
+                                    }
+                                    : {}),
+                                }))
+                                setIsEmployeePickerOpen(false)
+                                setEmployeeSearch('')
+                              }}
+                              className={cn(
+                                'w-full flex items-center justify-between p-2 rounded-xl text-left transition-colors cursor-pointer',
+                                isSelected
+                                  ? 'bg-primary/10 text-primary font-medium'
+                                  : 'hover:bg-muted/60 text-foreground',
+                              )}
+                            >
+                              <div className='flex items-center gap-2.5 min-w-0'>
+                                <div
+                                  className={cn(
+                                    'flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-xs font-bold',
+                                    isSelected
+                                      ? 'bg-primary text-primary-foreground'
+                                      : 'bg-muted text-muted-foreground',
+                                  )}
+                                >
+                                  {emp.name.charAt(0)}
+                                </div>
+                                <div className='min-w-0 flex-1 truncate'>
+                                  <p className='text-xs font-semibold leading-tight truncate'>
+                                    {emp.name}
+                                  </p>
+                                  <p className='text-[11px] text-muted-foreground leading-tight truncate'>
+                                    <span className='font-mono font-medium'>{emp.code}</span> · {emp.department}
+                                  </p>
+                                </div>
+                              </div>
+                              {isSelected && (
+                                <IconCheck size={16} className='text-primary shrink-0 ml-2' />
+                              )}
+                            </button>
+                          )
+                        })
+                      )}
+                    </div>
+                  </ScrollArea>
+                </PopoverContent>
+              </Popover>
+
+              {/* Auto-populated Employee Details Card */}
+              {selectedEmployee && (
+                <div className='flex items-center justify-between rounded-xl border border-border/80 bg-muted/40 p-2.5 transition-all'>
+                  <div className='flex items-center gap-2.5'>
+                    <div className='flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary font-bold text-xs'>
+                      {selectedEmployee.name.charAt(0)}
+                    </div>
+                    <div>
+                      <p className='font-semibold text-foreground text-xs leading-tight'>
+                        {selectedEmployee.name}
+                      </p>
+                      <p className='text-[11px] text-muted-foreground'>
+                        NIK: <span className='font-mono font-medium'>{selectedEmployee.code}</span> · {selectedEmployee.position}
+                      </p>
+                    </div>
+                  </div>
+                  <div className='flex items-center gap-2'>
+                    <Badge variant='outline' className='text-[10px] bg-background font-medium'>
+                      {selectedEmployee.department}
+                    </Badge>
+                    <button
+                      type='button'
+                      onClick={() => {
+                        setModalForm((p) => ({
+                          ...p,
+                          employeeCode: '',
+                          employeeName: '',
+                          department: '',
+                          ...(!editingItem
+                            ? {
+                              totalThrAmount: 0,
+                              totalTaxAmount: 0,
+                            }
+                            : {}),
+                        }))
+                      }}
+                      className='p-1 text-muted-foreground hover:text-destructive transition-colors rounded-md'
+                      title='Hapus pilihan karyawan'
+                    >
+                      <IconX size={14} />
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className='grid grid-cols-2 gap-3'>

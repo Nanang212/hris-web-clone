@@ -2,7 +2,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { initialBpjsKesConfig, initialBpjsTkConfig } from '../data/mock-payroll-data'
-import type { BpjsKesConfig, BpjsTkConfig } from '../types'
+import type { BpjsKesConfig, BpjsTkConfig, BpjsTkProjectSetting, WageCapRule } from '../types'
 
 export interface BpjsDependent {
   id: string
@@ -36,12 +36,24 @@ export interface EmployeeBpjsRecord {
 interface PayrollBpjsStoreState {
   bpjsTkConfig: BpjsTkConfig
   bpjsKesConfig: BpjsKesConfig
+  /** Program BPJS TK per project (relasi ke master project lewat projectId) dengan tanggal berlaku. */
+  tkProjectSettings: BpjsTkProjectSetting[]
+  tkProjectLastSavedAt?: string
+  /** Cap upah BPJS Kes & JP dengan tanggal berlaku. */
+  wageCapRules: WageCapRule[]
+  wageCapLastSavedAt?: string
+  wageCapKesLastSavedAt?: string
+  wageCapTkLastSavedAt?: string
   lastSyncGlobal: string
   recordsByEmployee: Record<string, EmployeeBpjsRecord>
 
   // Actions
   setBpjsTkConfig: (config: BpjsTkConfig) => void
   setBpjsKesConfig: (config: BpjsKesConfig) => void
+  upsertTkProjectSetting: (setting: BpjsTkProjectSetting) => void
+  removeTkProjectSetting: (id: string) => void
+  setTkProjectSettings: (settings: BpjsTkProjectSetting[], savedAt?: string) => void
+  setWageCapRules: (rules: WageCapRule[], savedAt?: string, scope?: 'all' | 'kes' | 'tk') => void
   getEmployeeBpjsRecord: (employeeId: string, defaultHealthNo?: string, defaultEmpNo?: string) => EmployeeBpjsRecord
   updateEmployeeHealthData: (
     employeeId: string,
@@ -104,13 +116,100 @@ const defaultRecord: EmployeeBpjsRecord = {
   lastSync: '10 Aug 2025, 02:40 PM',
 }
 
+const initialWageCapRules: WageCapRule[] = [
+  { id: 'cap-initial', effectiveFrom: '2025-01', kesMaxWageCap: 12_000_000, jpMaxWageCap: 10_042_300 },
+]
+
+// Contoh awal: JKK per project berbeda; JHT/JP aktif sesuai project.
+const initialTkProjectSettings: BpjsTkProjectSetting[] = [
+  { id: 'tk-1', projectId: 'project-retail-hris-rollout', effectiveFrom: '2025-01', jkkRatePercent: 0.24, jhtActive: true, jpActive: true },
+  { id: 'tk-2', projectId: 'project-headquarter-attendance', effectiveFrom: '2025-01', jkkRatePercent: 0.24, jhtActive: true, jpActive: true },
+  { id: 'tk-3', projectId: 'project-retail-field-services', effectiveFrom: '2025-01', jkkRatePercent: 0.54, jhtActive: true, jpActive: true },
+  { id: 'tk-4', projectId: 'project-logistics-shift-ops', effectiveFrom: '2025-01', jkkRatePercent: 0.89, jhtActive: true, jpActive: false },
+]
+
 export const usePayrollBpjsStore = create<PayrollBpjsStoreState>()(
   persist(
     (set, get) => ({
       bpjsTkConfig: initialBpjsTkConfig,
       bpjsKesConfig: initialBpjsKesConfig,
+      tkProjectSettings: initialTkProjectSettings,
+      wageCapRules: initialWageCapRules,
       lastSyncGlobal: '10 Aug 2025, 02:40 PM',
       recordsByEmployee: {},
+
+      upsertTkProjectSetting: (setting) =>
+        set((state) => ({
+          tkProjectSettings: state.tkProjectSettings.some((item) => item.id === setting.id)
+            ? state.tkProjectSettings.map((item) => (item.id === setting.id ? setting : item))
+            : [...state.tkProjectSettings, setting],
+        })),
+      removeTkProjectSetting: (id) =>
+        set((state) => ({ tkProjectSettings: state.tkProjectSettings.filter((item) => item.id !== id) })),
+      setTkProjectSettings: (settings, savedAt) =>
+        set({
+          tkProjectSettings: settings,
+          tkProjectLastSavedAt:
+            savedAt ??
+            new Date().toLocaleDateString('id-ID', {
+              day: 'numeric',
+              month: 'long',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+            }),
+        }),
+      setWageCapRules: (newRules, savedAt, scope = 'all') => {
+        set((state) => {
+          // Merge per scope agar perubahan di BPJS Kesehatan tidak menimpa BPJS TK dan sebaliknya
+          let mergedRules = newRules
+          if (scope === 'kes') {
+            const currentMap = new Map(state.wageCapRules.map((r) => [r.id, r]))
+            mergedRules = newRules.map((nr) => {
+              const existing = currentMap.get(nr.id)
+              return {
+                ...nr,
+                jpMaxWageCap: existing ? existing.jpMaxWageCap : nr.jpMaxWageCap,
+              }
+            })
+          } else if (scope === 'tk') {
+            const currentMap = new Map(state.wageCapRules.map((r) => [r.id, r]))
+            mergedRules = newRules.map((nr) => {
+              const existing = currentMap.get(nr.id)
+              return {
+                ...nr,
+                kesMaxWageCap: existing ? existing.kesMaxWageCap : nr.kesMaxWageCap,
+              }
+            })
+          }
+
+          const latest = [...mergedRules].sort((a, b) => b.effectiveFrom.localeCompare(a.effectiveFrom))[0]
+          const defaultTimestamp =
+            savedAt ??
+            new Date().toLocaleDateString('id-ID', {
+              day: 'numeric',
+              month: 'long',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+            })
+
+          return {
+            wageCapRules: mergedRules,
+            wageCapLastSavedAt: defaultTimestamp,
+            wageCapKesLastSavedAt:
+              scope === 'kes' || scope === 'all' ? defaultTimestamp : state.wageCapKesLastSavedAt,
+            wageCapTkLastSavedAt:
+              scope === 'tk' || scope === 'all' ? defaultTimestamp : state.wageCapTkLastSavedAt,
+            bpjsKesConfig: latest
+              ? { ...state.bpjsKesConfig, maxWageCap: latest.kesMaxWageCap }
+              : state.bpjsKesConfig,
+            bpjsTkConfig: latest
+              ? { ...state.bpjsTkConfig, jpMaxWageCap: latest.jpMaxWageCap }
+              : state.bpjsTkConfig,
+          }
+        })
+      },
 
       setBpjsTkConfig: (config) => {
         const now = new Date().toLocaleDateString('en-GB', {

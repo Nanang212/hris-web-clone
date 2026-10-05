@@ -27,6 +27,7 @@ import {
   CollectionItem,
 } from '@/features/employment/employee-profile/components/employee-create-form-ui'
 import type { EmployeeCreationOptionsData } from '@/features/employment/employee-profile/types'
+import { m } from '@/i18n/paraglide/messages'
 
 interface EmployeeCreateBankPayrollStepProps {
   options: EmployeeCreationOptionsData
@@ -47,9 +48,9 @@ export function EmployeeCreateBankPayrollStep({ options }: EmployeeCreateBankPay
   return (
     <div className='grid items-start gap-5'>
       <CollectionCard
-        title='Bank Accounts'
-        description='Tambahkan rekening yang digunakan untuk payroll karyawan.'
-        addLabel='Tambah rekening'
+        title={m.employee_information_create_bank_accounts_title()}
+        description={m.employee_information_create_bank_accounts_description()}
+        addLabel={m.employee_information_create_add_bank_account()}
         count={bankAccounts.fields.length}
         onAdd={() => bankAccounts.append(emptyBankAccount())}
       >
@@ -57,31 +58,34 @@ export function EmployeeCreateBankPayrollStep({ options }: EmployeeCreateBankPay
           <CollectionItem
             key={item.id}
             number={index + 1}
-            title={`Rekening ${index + 1}`}
-            description={bankAccountValues[index]?.accountNumber || 'Belum diisi'}
-            removeLabel='Hapus'
+            title={m.employee_information_create_bank_account_item({ number: index + 1 })}
+            description={
+              bankAccountValues[index]?.accountNumber ||
+              m.employee_information_create_not_provided()
+            }
+            removeLabel={m.employee_information_create_remove_item()}
             onRemove={bankAccounts.fields.length > 1 ? () => bankAccounts.remove(index) : undefined}
           >
             <FieldGroup className='grid gap-5 md:grid-cols-2'>
               <EmployeeSelectField
                 name={`bankAccounts.${index}.bankId`}
-                label='Bank'
+                label={m.employee_information_create_bank_label()}
                 options={toSelectOptions(options.banks)}
                 required
               />
               <EmployeeTextField
                 name={`bankAccounts.${index}.accountNumber`}
-                label='Nomor rekening'
+                label={m.employee_information_create_bank_account_label()}
                 required
               />
               <EmployeeTextField
                 name={`bankAccounts.${index}.accountHolderName`}
-                label='Nama pemilik rekening'
+                label={m.employee_information_create_bank_holder_label()}
                 required
               />
               <EmployeeDateField
                 name={`bankAccounts.${index}.effectiveStartDate`}
-                label='Mulai berlaku'
+                label={m.employee_information_create_effective_start_label()}
                 required
               />
             </FieldGroup>
@@ -90,9 +94,9 @@ export function EmployeeCreateBankPayrollStep({ options }: EmployeeCreateBankPay
       </CollectionCard>
 
       <CollectionCard
-        title='BPJS'
-        description='Lengkapi kepesertaan BPJS dan dokumen pendukungnya.'
-        addLabel='Tambah kepesertaan BPJS'
+        title={m.employee_information_create_bpjs_title()}
+        description={m.employee_information_create_bpjs_description()}
+        addLabel={m.employee_information_create_add_bpjs()}
         count={bpjs.fields.length}
         onAdd={() => bpjs.append(emptyBpjs('KESEHATAN'))}
       >
@@ -102,38 +106,58 @@ export function EmployeeCreateBankPayrollStep({ options }: EmployeeCreateBankPay
             number={index + 1}
             title={
               bpjsValues[index]?.program === 'KETENAGAKERJAAN'
-                ? 'BPJS Ketenagakerjaan'
-                : 'BPJS Kesehatan'
+                ? m.employee_information_create_bpjs_employment_label()
+                : m.employee_information_create_bpjs_health_label()
             }
-            description={bpjsValues[index]?.participantNumber || 'Belum diisi'}
-            removeLabel='Hapus'
+            description={
+              bpjsValues[index]?.participantNumber || m.employee_information_create_not_provided()
+            }
+            removeLabel={m.employee_information_create_remove_item()}
             onRemove={bpjs.fields.length > 1 ? () => bpjs.remove(index) : undefined}
           >
             <FieldGroup className='grid gap-5 md:grid-cols-2'>
               <EmployeeSelectField
                 name={`bpjs.${index}.program`}
-                label='Program'
+                label={m.employee_information_create_bpjs_program_label()}
                 options={[
-                  { value: 'KESEHATAN', label: 'BPJS Kesehatan' },
-                  { value: 'KETENAGAKERJAAN', label: 'BPJS Ketenagakerjaan' },
+                  {
+                    value: 'KESEHATAN',
+                    label: m.employee_information_create_bpjs_health_label(),
+                  },
+                  {
+                    value: 'KETENAGAKERJAAN',
+                    label: m.employee_information_create_bpjs_employment_label(),
+                  },
                 ]}
                 required
               />
               <EmployeeTextField
                 name={`bpjs.${index}.participantNumber`}
-                label='Nomor peserta'
+                label={m.employee_information_create_bpjs_participant_number_label()}
                 required
               />
-              <EmployeeTextField name={`bpjs.${index}.facilityName`} label='Nama fasilitas' />
-              <EmployeeTextField name={`bpjs.${index}.membershipClass`} label='Kelas kepesertaan' />
+              <EmployeeTextField
+                name={`bpjs.${index}.facilityName`}
+                label={m.employee_information_create_bpjs_facility_label()}
+              />
+              <EmployeeTextField
+                name={`bpjs.${index}.membershipClass`}
+                label={m.employee_information_create_bpjs_membership_class_label()}
+              />
               <EmployeeDateField
                 name={`bpjs.${index}.effectiveStartDate`}
-                label='Mulai berlaku'
+                label={m.employee_information_create_effective_start_label()}
                 required
               />
-              <EmployeeDateField name={`bpjs.${index}.effectiveEndDate`} label='Berakhir berlaku' />
+              <EmployeeDateField
+                name={`bpjs.${index}.effectiveEndDate`}
+                label={m.employee_information_create_effective_end_label()}
+              />
               <div className='md:col-span-2'>
-                <EmployeeFileField name={`bpjs.${index}.documentFileId`} label='Dokumen BPJS' />
+                <EmployeeFileField
+                  name={`bpjs.${index}.documentFileId`}
+                  label={m.employee_information_create_bpjs_document_label()}
+                />
               </div>
             </FieldGroup>
           </CollectionItem>
@@ -141,9 +165,9 @@ export function EmployeeCreateBankPayrollStep({ options }: EmployeeCreateBankPay
       </CollectionCard>
 
       <CollectionCard
-        title='Payroll components'
-        description='Assign recurring payroll components for this employee.'
-        addLabel='Add payroll component'
+        title={m.employee_information_create_payroll_components_title()}
+        description={m.employee_information_create_payroll_components_description()}
+        addLabel={m.employee_information_create_add_payroll_component()}
         count={payrollComponents.fields.length}
         onAdd={() => payrollComponents.append(emptyPayrollComponent())}
       >
@@ -160,48 +184,51 @@ export function EmployeeCreateBankPayrollStep({ options }: EmployeeCreateBankPay
             <CollectionItem
               key={item.id}
               number={index + 1}
-              title={`Payroll component ${index + 1}`}
-              description={selectedComponent?.name ?? 'Belum diisi'}
-              removeLabel='Hapus'
+              title={m.employee_information_create_payroll_component_item({ number: index + 1 })}
+              description={selectedComponent?.name ?? m.employee_information_create_not_provided()}
+              removeLabel={m.employee_information_create_remove_item()}
               onRemove={() => payrollComponents.remove(index)}
             >
               <FieldGroup className='grid gap-5 md:grid-cols-2 xl:grid-cols-3'>
                 <EmployeeSelectField
                   name={`payrollComponents.${index}.componentId`}
-                  label='Component'
+                  label={m.employee_information_create_payroll_component_label()}
                   options={toSelectOptions(payrollComponentOptions)}
                   required
                 />
                 <EmployeeDateField
                   name={`payrollComponents.${index}.effectiveStartDate`}
-                  label='Mulai berlaku'
+                  label={m.employee_information_create_effective_start_label()}
                   required
                 />
                 <EmployeeDateField
                   name={`payrollComponents.${index}.effectiveEndDate`}
-                  label='Berakhir berlaku'
+                  label={m.employee_information_create_effective_end_label()}
                 />
                 {showAmount && (
                   <EmployeeTextField
                     name={`payrollComponents.${index}.amount`}
-                    label='Amount'
+                    label={m.employee_information_create_payroll_amount_label()}
                     type='number'
                   />
                 )}
                 {calculationMethod === 'PERCENTAGE' && (
                   <EmployeeTextField
                     name={`payrollComponents.${index}.percentage`}
-                    label='Percentage'
+                    label={m.employee_information_create_payroll_percentage_label()}
                     type='number'
                   />
                 )}
                 {calculationMethod === 'FORMULA' && (
                   <EmployeeTextField
                     name={`payrollComponents.${index}.customFormulaExpression`}
-                    label='Formula'
+                    label={m.employee_information_create_payroll_formula_label()}
                   />
                 )}
-                <EmployeeTextField name={`payrollComponents.${index}.notes`} label='Notes' />
+                <EmployeeTextField
+                  name={`payrollComponents.${index}.notes`}
+                  label={m.employee_information_create_notes_label()}
+                />
               </FieldGroup>
             </CollectionItem>
           )
@@ -210,14 +237,16 @@ export function EmployeeCreateBankPayrollStep({ options }: EmployeeCreateBankPay
 
       <Card>
         <CardHeader>
-          <CardTitle>Tax profile</CardTitle>
-          <CardDescription>Informasi pajak dan status PTKP karyawan.</CardDescription>
+          <CardTitle>{m.employee_information_create_tax_profile_title()}</CardTitle>
+          <CardDescription>
+            {m.employee_information_create_tax_profile_description()}
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <FieldGroup className='grid gap-5 md:grid-cols-2'>
             <EmployeeSelectField
               name='taxProfile.ptkpStatus'
-              label='PTKP status'
+              label={m.employee_information_create_ptkp_status_label()}
               required
               options={toSelectOptions([
                 { id: 'TK/0', name: 'TK/0' },
@@ -235,13 +264,22 @@ export function EmployeeCreateBankPayrollStep({ options }: EmployeeCreateBankPay
             />
             <EmployeeDateField
               name='taxProfile.effectiveStartDate'
-              label='Effective start date'
+              label={m.employee_information_create_effective_start_label()}
               required
             />
-            <EmployeeTextField name='taxProfile.npwpNumber' label='NPWP number' />
+            <EmployeeTextField
+              name='taxProfile.npwpNumber'
+              label={m.employee_information_create_npwp_label()}
+            />
             <div className='grid gap-5 md:col-span-2 md:grid-cols-2'>
-              <EmployeeBooleanField name='taxProfile.isDtpEligible' label='DTP eligible' />
-              <EmployeeBooleanField name='taxProfile.isKtpUsedAsNpwp' label='Use KTP as NPWP' />
+              <EmployeeBooleanField
+                name='taxProfile.isDtpEligible'
+                label={m.employee_information_create_dtp_eligible_label()}
+              />
+              <EmployeeBooleanField
+                name='taxProfile.isKtpUsedAsNpwp'
+                label={m.employee_information_create_use_ktp_as_npwp_label()}
+              />
             </div>
           </FieldGroup>
         </CardContent>

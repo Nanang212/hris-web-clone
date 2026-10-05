@@ -13,8 +13,10 @@ import {
 import { useState, useMemo } from 'react'
 import { PayslipDetailView } from './payslip-detail-view'
 import { PayrollStatusBadge } from '../../components/payroll-status-badge'
-import { formatIDR, initialPayslips } from '../../data/mock-payroll-data'
+import { formatIDR, initialPayslips, initialEmployeePayrollDetails } from '../../data/mock-payroll-data'
 import { downloadPayslipPdf, exportPayslipsBulkZip } from '../../lib/payroll-download-helper'
+import { detailToPayslip } from '../../lib/payroll-payslip-helper'
+import { usePayrollRunStore } from '../../store/payroll-run-store'
 import type { PayslipRecord, PayslipStatus } from '../../types'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
@@ -41,15 +43,37 @@ import {
 import { snackbar } from '@/shared/lib/snackbar'
 
 export function PayslipManagementTab() {
-  const [payslips, setPayslips] = useState<PayslipRecord[]>(initialPayslips)
+  const storedRuns = usePayrollRunStore((s) => s.resultsByRunId)
+
+  const defaultPayslips = useMemo(() => {
+    // Generate June 2026 payslips directly from employee payroll details
+    const juneDetails = storedRuns['pay-run-2026-06']?.details || initialEmployeePayrollDetails
+    const junePayslips = juneDetails.map((d) =>
+      detailToPayslip(d, 'pay-run-2026-06', 'June 2026', '25 Jun 2026'),
+    )
+
+    // Additional runs from store
+    const additionalPayslips: PayslipRecord[] = []
+    Object.entries(storedRuns).forEach(([runId, res]) => {
+      if (runId !== 'pay-run-2026-06') {
+        res.details.forEach((d) => {
+          additionalPayslips.push(detailToPayslip(d, runId, 'Custom Period'))
+        })
+      }
+    })
+
+    return [...junePayslips, ...initialPayslips, ...additionalPayslips]
+  }, [storedRuns])
+
+  const [payslips, setPayslips] = useState<PayslipRecord[]>(defaultPayslips)
   const [search, setSearch] = useState('')
-  const [periodFilter, setPeriodFilter] = useState('May 2026')
+  const [periodFilter, setPeriodFilter] = useState('June 2026')
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [selectedPayslip, setSelectedPayslip] = useState<PayslipRecord | null>(null)
   const [isExporting, setIsExporting] = useState(false)
 
   const availablePeriods = useMemo(() => {
-    const set = new Set(['May 2026', 'April 2026', 'June 2026', ...payslips.map((p) => p.period)])
+    const set = new Set(['June 2026', 'May 2026', 'April 2026', ...payslips.map((p) => p.period)])
     return Array.from(set)
   }, [payslips])
 

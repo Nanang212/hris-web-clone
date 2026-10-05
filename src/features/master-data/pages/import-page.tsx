@@ -1,5 +1,6 @@
 // import-page.tsx
 import { useState, useRef } from 'react'
+import * as XLSX from 'xlsx'
 import { IconCloudUpload, IconFileSpreadsheet, IconX, IconCheck, IconLoader2 } from '@tabler/icons-react'
 import { AppMain } from '@/shared/components/app-layout/app-main'
 import { snackbar } from '@/shared/lib/snackbar'
@@ -55,6 +56,21 @@ export function ImportPage() {
     setSelectedFile(null)
     setImportSuccess(false)
     setImportProgress(0)
+  }
+
+  const handleDownloadTemplate = () => {
+    try {
+      const wb = XLSX.utils.book_new()
+      const headers = ['Kode Master', 'Nama Data', 'Kategori', 'Deskripsi', 'Status']
+      const sample = ['MST-001', 'Contoh Master', 'Departemen', 'Keterangan tambahan', 'active']
+      const ws = XLSX.utils.aoa_to_sheet([headers, sample])
+      ws['!cols'] = [{ wch: 15 }, { wch: 25 }, { wch: 20 }, { wch: 30 }, { wch: 12 }]
+      XLSX.utils.book_append_sheet(wb, ws, 'Master_Template')
+      XLSX.writeFile(wb, 'template-master-data.xlsx')
+      snackbar.success('Template Master Data berhasil diunduh.')
+    } catch {
+      snackbar.error('Gagal mengunduh template Master Data.')
+    }
   }
 
   const handleImport = async () => {
@@ -226,7 +242,7 @@ export function ImportPage() {
             </p>
             <button
               type='button'
-              onClick={() => snackbar.info('Sedang mengunduh file template...')}
+              onClick={handleDownloadTemplate}
               className='mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-border py-2.5 text-xs font-semibold text-foreground transition-colors hover:bg-muted'
             >
               <IconFileSpreadsheet size={16} className='text-emerald-600' />

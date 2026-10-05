@@ -194,6 +194,10 @@ export function PayrollPage({
                 setActiveTab('approval')
                 setProcessView('list')
               }}
+              onNavigateToApproval={() => {
+                setActiveTab('approval')
+                setProcessView('list')
+              }}
             />
           )}
         </>
@@ -201,7 +205,9 @@ export function PayrollPage({
 
       {activeTab === 'attendance' && <AttendancePayrollTab />}
 
-      {activeTab === 'approval' && <PayrollApprovalTab />}
+      {activeTab === 'approval' && (
+        <PayrollApprovalTab runs={runs} onUpdateRuns={setRuns} />
+      )}
 
       {activeTab === 'payslip' && <PayslipManagementTab />}
     </AppMain>

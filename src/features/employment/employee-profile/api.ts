@@ -27,7 +27,12 @@ export async function getEmployeeCreationOptions() {
   return res.data
 }
 
-/** Create a new EmployeeProfile: POST /v1/employee-profiles. */
+/**
+ * Endpoint: `/v1/employee-profiles`
+ * Method: `POST`
+ * Request example: `{ "employee": { "employeeNumber": "EMP-2026-0104", "fullName": "Nadia Putri", "motherMaidenName": "Siti Aminah", "religion": "ISLAM", "trainings": ["Induction", "Workplace Safety"] }, "assignments": [{ "divisionUnitId": "division-product", "positionId": "position-product-designer", "effectiveStartDate": "2026-10-03", "employmentType": "PERMANENT", "baseSalary": "12000000.00", "workTimeType": "Regular" }], "taxProfile": { "ptkpStatus": "TK/0" } }`
+ * Expected response: `{ "success": true, "code": "CREATED", "data": { "id": "employee-10104", "assignments": ["assignment-10104"], "contacts": [], "contracts": [], "documents": [], "educations": [], "payrollComponentAssignments": [], "projects": [], "taxProfileId": "tax-profile-10104" }, "messages": ["Employee profile created successfully"] }`
+ */
 export async function createEmployeeProfile(input: CreateEmployeeProfileInput) {
   const {
     assignments,

@@ -69,7 +69,10 @@ export function EmployeeCreateContactsStep() {
               name={`contacts.${index}.ktpNumber`}
               label={m.employee_information_create_ktp_label()}
             />
-            <EmployeeFileField name={`contacts.${index}.ktpFileId`} label='File KTP' />
+            <EmployeeFileField
+              name={`contacts.${index}.ktpFileId`}
+              label={m.employee_information_create_ktp_file_label()}
+            />
             <EmployeeTextField
               name={`contacts.${index}.occupation`}
               label={m.employee_information_create_occupation_label()}
