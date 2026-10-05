@@ -7,10 +7,18 @@ import {
   IconCheck,
   IconCalendar,
   IconInfoCircle,
+  IconFileSpreadsheet,
 } from '@tabler/icons-react'
 import dayjs from 'dayjs'
 import { useState } from 'react'
+import { BpjsKesBillingPanel } from '../../components/bpjs-kes-billing-panel'
 import { CalculationConfirmationModal } from '../../components/confirmation-modal'
+import { initialGeneralConfig, initialPph21Config } from '../../data/mock-payroll-data'
+import { HQ_LOCATION, initialPayrollEmployeeInputs } from '../../data/mock-payroll-inputs'
+import { calculatePayroll } from '../../lib/calculate-payroll'
+import { toPeriodKey, usePayrollBpjsBillingStore } from '../../store/payroll-bpjs-billing-store'
+import { usePayrollBpjsStore } from '../../store/payroll-bpjs-store'
+import { usePayrollRunStore } from '../../store/payroll-run-store'
 import type { PayrollRun } from '../../types'
 import { Button } from '@/shared/components/ui/button'
 import { DatePicker } from '@/shared/components/ui/date-picker'
@@ -45,7 +53,7 @@ const MONTH_OPTIONS = [
 ]
 
 export function CreatePayrollWizard({ onCancel, onSuccess }: CreatePayrollWizardProps) {
-  const [step, setStep] = useState<1 | 2 | 3>(1)
+  const [step, setStep] = useState<1 | 2 | 3 | 4>(1)
 
   // Step 1: Period and Dates
   const [periodMonth, setPeriodMonth] = useState('7')
@@ -66,6 +74,26 @@ export function CreatePayrollWizard({ onCancel, onSuccess }: CreatePayrollWizard
   // Confirmation Modal
   const [confirmModalOpen, setConfirmModalOpen] = useState(false)
   const [isCalculating, setIsCalculating] = useState(false)
+
+  // Data pendukung engine: tagihan BPJS Kes periode ini + master BPJS TK + cakupan karyawan
+  const periodKey = toPeriodKey(periodYear, periodMonth)
+  const billingUpload = usePayrollBpjsBillingStore((s) => s.uploads[periodKey])
+  const bpjsTkConfig = usePayrollBpjsStore((s) => s.bpjsTkConfig)
+  const bpjsKesConfig = usePayrollBpjsStore((s) => s.bpjsKesConfig)
+  const tkProjectSettings = usePayrollBpjsStore((s) => s.tkProjectSettings)
+  const wageCapRules = usePayrollBpjsStore((s) => s.wageCapRules)
+  const setRunResult = usePayrollRunStore((s) => s.setRunResult)
+
+  const hqCount = initialPayrollEmployeeInputs.filter((e) => e.workLocation === HQ_LOCATION).length
+  const allCount = initialPayrollEmployeeInputs.length
+  const branchCount = allCount - hqCount
+  const scopeEmployees = initialPayrollEmployeeInputs.filter((e) =>
+    employeeScope === 'all'
+      ? true
+      : employeeScope === 'hq'
+        ? e.workLocation === HQ_LOCATION
+        : e.workLocation !== HQ_LOCATION,
+  )
 
   const handleMonthChange = (newMonth: string) => {
     setPeriodMonth(newMonth)
@@ -103,7 +131,16 @@ export function CreatePayrollWizard({ onCancel, onSuccess }: CreatePayrollWizard
       }
       setStep(2)
     } else if (step === 2) {
+      // Gerbang: tagihan BPJS Kes harus sudah diupload sebelum payroll periode ini dihitung
+      if (!billingUpload) {
+        snackbar.error(
+          `Upload tagihan BPJS Kesehatan periode ${periodName} terlebih dahulu sebelum melanjutkan.`,
+        )
+        return
+      }
       setStep(3)
+    } else if (step === 3) {
+      setStep(4)
     } else {
       setConfirmModalOpen(true)
     }
@@ -112,6 +149,30 @@ export function CreatePayrollWizard({ onCancel, onSuccess }: CreatePayrollWizard
   const handleConfirmCalculation = () => {
     setIsCalculating(true)
     setTimeout(() => {
+      // Opsi sinkronisasi presensi/lembur menentukan komponen otomatis yang ikut dihitung
+      const employees = scopeEmployees.map((emp) => ({
+        ...emp,
+        attendance: {
+          ...emp.attendance,
+          lateCount: syncAttendance ? emp.attendance.lateCount : 0,
+          absentCount: syncAttendance ? emp.attendance.absentCount : 0,
+          overtimeHours: syncOvertime ? emp.attendance.overtimeHours : 0,
+        },
+      }))
+
+      const result = calculatePayroll({
+        employees,
+        billing: billingUpload?.records ?? [],
+        bpjsKesConfig,
+        bpjsTkConfig,
+        tkProjectSettings,
+        wageCapRules,
+        periodKey,
+        pph21Config: initialPph21Config,
+        generalConfig: initialGeneralConfig,
+        includeThrInstallment: syncThrTaxInstallment,
+      })
+
       setIsCalculating(false)
       setConfirmModalOpen(false)
 
@@ -119,8 +180,10 @@ export function CreatePayrollWizard({ onCancel, onSuccess }: CreatePayrollWizard
       const formattedCutoffStart = cutoffStart ? dayjs(cutoffStart).format('DD MMM YYYY') : '21 Jun 2026'
       const formattedCutoffEnd = cutoffEnd ? dayjs(cutoffEnd).format('DD MMM YYYY') : '20 Jul 2026'
 
+      const runId = `pay-run-${Date.now()}`
+      const { summary } = result
       const createdRun: PayrollRun = {
-        id: `pay-run-${Date.now()}`,
+        id: runId,
         code: `PR-${Date.now().toString().slice(-6)}`,
         period: periodName,
         periodMonth: parseInt(periodMonth, 10),
@@ -128,33 +191,46 @@ export function CreatePayrollWizard({ onCancel, onSuccess }: CreatePayrollWizard
         cutoffStartDate: formattedCutoffStart,
         cutoffEndDate: formattedCutoffEnd,
         paymentDate: formattedPaymentDate,
-        totalEmployees: employeeScope === 'all' ? 1152 : employeeScope === 'hq' ? 842 : 310,
-        totalGrossPay: 4310000000,
-        totalAllowances: 860000000,
-        totalDeductions: 525000000,
-        totalTaxPPh21: 224000000,
-        totalBpjsTK: 152000000,
-        totalBpjsKes: 52500000,
-        totalNetDisbursement: 3785000000,
+        totalEmployees: summary.employeeCount,
+        totalGrossPay: summary.totalGross,
+        totalAllowances: summary.totalAllowances,
+        totalDeductions: summary.totalDeductions,
+        totalTaxPPh21: summary.totalTaxPPh21,
+        totalBpjsTK: summary.totalBpjsTK,
+        totalBpjsKes: summary.totalBpjsKes,
+        totalNetDisbursement: summary.totalNet,
         status: 'draft',
         attendanceSynced: syncAttendance,
         approvalStage: 'hr_review',
         notes: `Payroll batch created for ${periodName}.`,
       }
 
+      // Simpan rincian per karyawan agar halaman detail menampilkan hasil kalkulasi yang sebenarnya
+      setRunResult(runId, {
+        details: result.details,
+        unmatchedBilling: result.unmatchedBilling,
+      })
+
       onSuccess(createdRun)
-      snackbar.success('Payroll batch calculated successfully!')
-    }, 1200)
+      if (summary.warningCount > 0 || result.unmatchedBilling.length > 0) {
+        snackbar.warning(
+          `Payroll dihitung, tetapi ada ${summary.warningCount} karyawan dan ${result.unmatchedBilling.length} baris tagihan yang perlu diperiksa.`,
+        )
+      } else {
+        snackbar.success('Payroll batch calculated successfully!')
+      }
+    }, 600)
   }
 
   return (
     <div className='max-w-4xl mx-auto space-y-8'>
       {/* ── Step Indicator ─────────────────────────────────────────────────── */}
-      <div className='grid grid-cols-3 gap-3'>
+      <div className='grid grid-cols-4 gap-3'>
         {[
           { num: 1, label: 'Period & Cut-off', icon: IconCalendarEvent },
-          { num: 2, label: 'Employee Scope', icon: IconUsers },
-          { num: 3, label: 'Attendance Sync', icon: IconClockCheck },
+          { num: 2, label: 'Tagihan BPJS Kes', icon: IconFileSpreadsheet },
+          { num: 3, label: 'Employee Scope', icon: IconUsers },
+          { num: 4, label: 'Attendance Sync', icon: IconClockCheck },
         ].map((s) => (
           <div
             key={s.num}
@@ -330,8 +406,22 @@ export function CreatePayrollWizard({ onCancel, onSuccess }: CreatePayrollWizard
           </div>
         )}
 
-        {/* ── STEP 2: Employee Scope ── */}
+        {/* ── STEP 2: Tagihan BPJS Kesehatan (gerbang sebelum kalkulasi) ── */}
         {step === 2 && (
+          <div className='space-y-5'>
+            <div>
+              <h3 className='text-sm font-bold text-foreground'>Tagihan BPJS Kesehatan</h3>
+              <p className='text-xs text-muted-foreground mt-0.5'>
+                Tagihan periode {periodName} menjadi dasar potongan BPJS Kesehatan karyawan. Wajib
+                diupload sebelum payroll dihitung.
+              </p>
+            </div>
+            <BpjsKesBillingPanel periodKey={periodKey} periodLabel={periodName} />
+          </div>
+        )}
+
+        {/* ── STEP 3: Employee Scope ── */}
+        {step === 3 && (
           <div className='space-y-6'>
             <div>
               <h3 className='text-sm font-bold text-foreground'>Employee Scope Selection</h3>
@@ -344,17 +434,17 @@ export function CreatePayrollWizard({ onCancel, onSuccess }: CreatePayrollWizard
               {[
                 {
                   id: 'all',
-                  title: 'All Active Employees (1,152 Karyawan)',
+                  title: `All Active Employees (${allCount} Karyawan)`,
                   desc: 'Seluruh karyawan tetap, kontrak, dan probation di semua divisi & kantor cabang',
                 },
                 {
                   id: 'hq',
-                  title: 'Jakarta HQ Only (842 Karyawan)',
-                  desc: 'Khusus karyawan dengan lokasi penempatan kantor pusat Jakarta SCBD',
+                  title: `${HQ_LOCATION} Only (${hqCount} Karyawan)`,
+                  desc: 'Khusus karyawan dengan lokasi penempatan kantor pusat Jakarta',
                 },
                 {
                   id: 'branches',
-                  title: 'Branch Offices (Bandung & Surabaya: 310 Karyawan)',
+                  title: `Branch Offices (Bandung & Surabaya: ${branchCount} Karyawan)`,
                   desc: 'Khusus karyawan operasional kantor cabang non-pusat',
                 },
               ].map((opt) => (
@@ -383,8 +473,8 @@ export function CreatePayrollWizard({ onCancel, onSuccess }: CreatePayrollWizard
           </div>
         )}
 
-        {/* ── STEP 3: Attendance Sync ── */}
-        {step === 3 && (
+        {/* ── STEP 4: Attendance Sync ── */}
+        {step === 4 && (
           <div className='space-y-6'>
             <div>
               <h3 className='text-sm font-bold text-foreground'>Attendance & Overtime Sync</h3>
@@ -451,7 +541,7 @@ export function CreatePayrollWizard({ onCancel, onSuccess }: CreatePayrollWizard
                 Siap Melakukan Kalkulasi Otomatis
               </p>
               <p className='mt-1 text-[11px] opacity-90 leading-relaxed'>
-                Setelah mengklik tombol di bawah, sistem HRIS akan menghitung otomatis Gaji Pokok, Tunjangan, BPJS TK, BPJS Kes, dan PPh 21 skema tarif efektif (TER) untuk seluruh karyawan yang dipilih.
+                Setelah mengklik tombol di bawah, sistem menghitung payroll per karyawan: menjumlahkan pendapatan tetap + variabel, mengambil potongan BPJS Kesehatan dari tagihan yang diupload, menghitung BPJS TK (JHT/JP) dari master, lalu PPh 21 dan gaji bersih.
               </p>
             </div>
           </div>
@@ -462,7 +552,7 @@ export function CreatePayrollWizard({ onCancel, onSuccess }: CreatePayrollWizard
           <Button
             type='button'
             variant='outline'
-            onClick={step === 1 ? onCancel : () => setStep((prev) => (prev - 1) as 1 | 2)}
+            onClick={step === 1 ? onCancel : () => setStep((prev) => (prev - 1) as 1 | 2 | 3)}
             className='h-9.5 px-5 text-xs font-semibold rounded-xl'
           >
             {step === 1 ? 'Cancel' : 'Previous Step'}
@@ -473,7 +563,7 @@ export function CreatePayrollWizard({ onCancel, onSuccess }: CreatePayrollWizard
             onClick={handleNextStep}
             className='h-9.5 px-6 text-xs font-semibold rounded-xl shadow-xs'
           >
-            {step === 3 ? 'Run Calculation' : 'Next Step'}
+            {step === 4 ? 'Run Calculation' : 'Next Step'}
           </Button>
         </div>
       </div>
@@ -483,7 +573,7 @@ export function CreatePayrollWizard({ onCancel, onSuccess }: CreatePayrollWizard
         open={confirmModalOpen}
         onOpenChange={setConfirmModalOpen}
         periodName={periodName}
-        employeeCount={employeeScope === 'all' ? 1152 : employeeScope === 'hq' ? 842 : 310}
+        employeeCount={scopeEmployees.length}
         onConfirm={handleConfirmCalculation}
         isProcessing={isCalculating}
       />

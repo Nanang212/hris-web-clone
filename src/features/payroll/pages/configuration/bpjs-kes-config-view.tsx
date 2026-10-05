@@ -1,18 +1,51 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
+import { BpjsKesBillingPanel } from '../../components/bpjs-kes-billing-panel'
+import { WageCapRulesCard } from '../../components/wage-cap-rules-card'
 import { formatIDR } from '../../data/mock-payroll-data'
+import { toPeriodKey } from '../../store/payroll-bpjs-billing-store'
 import { usePayrollBpjsStore } from '../../store/payroll-bpjs-store'
 import type { BpjsKesConfig } from '../../types'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/shared/components/ui/select'
 import { snackbar } from '@/shared/lib/snackbar'
+
+const MONTH_LABELS = [
+  'Januari',
+  'Februari',
+  'Maret',
+  'April',
+  'Mei',
+  'Juni',
+  'Juli',
+  'Agustus',
+  'September',
+  'Oktober',
+  'November',
+  'Desember',
+]
 
 export function BpjsKesConfigView() {
   const { bpjsKesConfig, setBpjsKesConfig } = usePayrollBpjsStore()
   const [config, setConfig] = useState<BpjsKesConfig>(bpjsKesConfig)
+  const [periodMonth, setPeriodMonth] = useState('7')
+  const [periodYear, setPeriodYear] = useState('2026')
 
-  useEffect(() => {
+  const periodKey = toPeriodKey(periodYear, periodMonth)
+  const periodLabel = `${MONTH_LABELS[Number(periodMonth) - 1]} ${periodYear}`
+
+  // Sinkronkan form saat config di store berubah (tanpa effect)
+  const [syncedConfig, setSyncedConfig] = useState(bpjsKesConfig)
+  if (syncedConfig !== bpjsKesConfig) {
+    setSyncedConfig(bpjsKesConfig)
     setConfig(bpjsKesConfig)
-  }, [bpjsKesConfig])
+  }
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault()
@@ -21,12 +54,56 @@ export function BpjsKesConfigView() {
   }
 
   return (
-    <form onSubmit={handleSave} className='space-y-6'>
+    <div className='flex flex-col gap-6'>
+      {/* ── Upload tagihan per periode: sumber potongan BPJS Kes di payroll (tampil di bawah pengaturan persentase) ── */}
+      <div className='space-y-3 order-3'>
+        <div className='flex flex-wrap items-center justify-between gap-3'>
+          <div>
+            <h3 className='text-sm font-bold text-foreground'>Tagihan BPJS Kesehatan per Periode</h3>
+            <p className='text-xs text-muted-foreground mt-0.5'>
+              Upload Upah BPJS bulanan — menjadi dasar potongan BPJS Kesehatan di calculate payroll.
+            </p>
+          </div>
+          <div className='flex items-center gap-2'>
+            <Select value={periodMonth} onValueChange={setPeriodMonth}>
+              <SelectTrigger className='h-9 w-36 text-xs rounded-xl'>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {MONTH_LABELS.map((label, index) => (
+                  <SelectItem key={label} value={String(index + 1)}>
+                    {label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={periodYear} onValueChange={setPeriodYear}>
+              <SelectTrigger className='h-9 w-24 text-xs rounded-xl'>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {['2025', '2026', '2027', '2028'].map((year) => (
+                  <SelectItem key={year} value={year}>
+                    {year}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+        <BpjsKesBillingPanel periodKey={periodKey} periodLabel={periodLabel} />
+      </div>
+
+      <form onSubmit={handleSave} className='space-y-6 order-1'>
       <div className='rounded-2xl border border-border/80 bg-card p-6 shadow-xs space-y-6'>
         <div>
           <h3 className='text-sm font-bold text-foreground'>BPJS Kesehatan Contribution Scheme</h3>
           <p className='text-xs text-muted-foreground mt-0.5'>
-            Tarif iuran wajib jaminan kesehatan sesuai Perpres No. 64/2020 (Total 5% dari upah)
+            Tarif iuran wajib jaminan kesehatan sesuai Perpres No. 64/2020 (Total 5% dari upah).{' '}
+            <span className='font-semibold text-foreground'>
+              Persentase dan batas upah di sini dipakai untuk menghitung tagihan dari Upah BPJS yang
+              diupload.
+            </span>
           </p>
         </div>
 
@@ -67,15 +144,12 @@ export function BpjsKesConfigView() {
             <label className='text-xs font-semibold text-foreground'>
               Batas Upah Maksimal (Wage Cap)
             </label>
-            <Input
-              type='number'
-              value={config.maxWageCap}
-              onChange={(e) =>
-                setConfig((prev) => ({ ...prev, maxWageCap: parseFloat(e.target.value) || 0 }))
-              }
-              className='h-10 text-xs bg-background border border-input rounded-xl shadow-xs'
-            />
-            <p className='text-[10px] text-muted-foreground'>Maksimal: {formatIDR(config.maxWageCap)}</p>
+            <div className='h-10 flex items-center px-3 text-xs rounded-xl border border-input bg-muted/30 font-semibold'>
+              {formatIDR(config.maxWageCap)}
+            </div>
+            <p className='text-[10px] text-muted-foreground'>
+              Diatur di kartu &quot;Batas Upah Maksimal&quot; di bawah (dengan tanggal berlaku).
+            </p>
           </div>
         </div>
 
@@ -100,6 +174,11 @@ export function BpjsKesConfigView() {
           Save BPJS Kesehatan Config
         </Button>
       </div>
-    </form>
+      </form>
+
+      <div className='order-2'>
+        <WageCapRulesCard scope='kes' />
+      </div>
+    </div>
   )
 }

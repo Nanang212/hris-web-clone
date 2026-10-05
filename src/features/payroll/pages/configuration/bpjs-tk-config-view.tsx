@@ -1,4 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
+import { BpjsTkProjectCard } from '../../components/bpjs-tk-project-card'
+import { WageCapRulesCard } from '../../components/wage-cap-rules-card'
 import { formatIDR } from '../../data/mock-payroll-data'
 import { usePayrollBpjsStore } from '../../store/payroll-bpjs-store'
 import type { BpjsTkConfig } from '../../types'
@@ -18,9 +20,12 @@ export function BpjsTkConfigView() {
   const { bpjsTkConfig, setBpjsTkConfig } = usePayrollBpjsStore()
   const [config, setConfig] = useState<BpjsTkConfig>(bpjsTkConfig)
 
-  useEffect(() => {
+  // Sinkronkan form saat config di store berubah (tanpa effect)
+  const [syncedConfig, setSyncedConfig] = useState(bpjsTkConfig)
+  if (syncedConfig !== bpjsTkConfig) {
+    setSyncedConfig(bpjsTkConfig)
     setConfig(bpjsTkConfig)
-  }, [bpjsTkConfig])
+  }
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault()
@@ -29,6 +34,7 @@ export function BpjsTkConfigView() {
   }
 
   return (
+    <div className='space-y-6'>
     <form onSubmit={handleSave} className='space-y-6'>
       <div className='rounded-2xl border border-border/80 bg-card shadow-xs overflow-hidden'>
         <div className='p-6 pb-4 border-b border-border/60'>
@@ -64,7 +70,7 @@ export function BpjsTkConfigView() {
               </TableCell>
               <TableCell className='py-3.5 text-muted-foreground'>0.00% (Ditanggung Perusahaan)</TableCell>
               <TableCell className='py-3.5 font-bold text-foreground'>{config.jkkRatePercent}%</TableCell>
-              <TableCell className='py-3.5 pr-6 text-muted-foreground text-[11px]'>Tingkat risiko kerja standar</TableCell>
+              <TableCell className='py-3.5 pr-6 text-muted-foreground text-[11px]'>Default untuk project baru — tarif aktual per project di kartu bawah</TableCell>
             </TableRow>
 
             <TableRow className='text-xs border-b border-border/40'>
@@ -148,12 +154,10 @@ export function BpjsTkConfigView() {
         <div className='p-6 bg-muted/10 border-t border-border/60 flex flex-wrap items-center justify-between gap-4'>
           <div className='space-y-1'>
             <label className='text-xs font-semibold text-foreground'>Batas Upah Maksimal Jaminan Pensiun (JP Cap)</label>
-            <Input
-              type='number'
-              value={config.jpMaxWageCap}
-              onChange={(e) => setConfig((prev) => ({ ...prev, jpMaxWageCap: parseFloat(e.target.value) || 0 }))}
-              className='h-9.5 text-xs w-64 bg-background'
-            />
+            <p className='text-xs font-bold text-foreground'>{formatIDR(config.jpMaxWageCap)}</p>
+            <p className='text-[10px] text-muted-foreground'>
+              Diatur di kartu &quot;Batas Upah Maksimal&quot; di bawah (dengan tanggal berlaku).
+            </p>
           </div>
           <Button type='submit' className='h-9.5 px-6 text-xs font-semibold rounded-xl shadow-xs'>
             Save BPJS TK Rates
@@ -161,5 +165,9 @@ export function BpjsTkConfigView() {
         </div>
       </div>
     </form>
+
+    <BpjsTkProjectCard />
+    <WageCapRulesCard scope='tk' />
+    </div>
   )
 }

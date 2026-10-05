@@ -16,6 +16,13 @@ import { formatIDR, formatCompactIDR, initialPayrollRuns } from '../../data/mock
 import type { PayrollRun } from '../../types'
 import { Button } from '@/shared/components/ui/button'
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/shared/components/ui/select'
+import {
   Table,
   TableBody,
   TableCell,
@@ -24,9 +31,23 @@ import {
   TableRow,
 } from '@/shared/components/ui/table'
 
-export function PayrollApprovalTab() {
-  const [runs, setRuns] = useState<PayrollRun[]>(initialPayrollRuns)
-  const [selectedRun, setSelectedRun] = useState<PayrollRun>(() => initialPayrollRuns[2] || initialPayrollRuns[0])
+interface PayrollApprovalTabProps {
+  runs?: PayrollRun[]
+  onUpdateRuns?: React.Dispatch<React.SetStateAction<PayrollRun[]>>
+}
+
+export function PayrollApprovalTab({ runs: propRuns, onUpdateRuns }: PayrollApprovalTabProps = {}) {
+  const [internalRuns, setInternalRuns] = useState<PayrollRun[]>(initialPayrollRuns)
+  const runs = propRuns ?? internalRuns
+  const setRuns = onUpdateRuns ?? setInternalRuns
+
+  const [selectedRunId, setSelectedRunId] = useState<string>(() => {
+    const list = propRuns ?? initialPayrollRuns
+    const inReview = list.find((r) => r.status === 'in_review')
+    return inReview?.id ?? list[2]?.id ?? list[0]?.id ?? ''
+  })
+
+  const selectedRun = runs.find((r) => r.id === selectedRunId) || runs[0]
   const [approvalView, setApprovalView] = useState<'variance' | 'finance_approval' | 'disbursement'>('variance')
 
   const handleApprove = (runId: string) => {
@@ -38,16 +59,11 @@ export function PayrollApprovalTab() {
               status: 'approved',
               approvalStage: 'completed',
               approvedBy: 'Director of Finance',
-              approvedAt: 'Just now',
+              approvedAt: 'Baru saja',
             }
           : r,
       ),
     )
-    setSelectedRun((prev) => ({
-      ...prev,
-      status: 'approved',
-      approvalStage: 'completed',
-    }))
     setApprovalView('disbursement')
   }
 
@@ -58,15 +74,11 @@ export function PayrollApprovalTab() {
           ? {
               ...r,
               status: 'disbursed',
-              disbursedAt: 'Just now',
+              disbursedAt: 'Baru saja',
             }
           : r,
       ),
     )
-    setSelectedRun((prev) => ({
-      ...prev,
-      status: 'disbursed',
-    }))
   }
 
   return (
@@ -102,10 +114,35 @@ export function PayrollApprovalTab() {
           </Button>
         </div>
 
-        <div className='flex items-center gap-2 text-xs'>
-          <span className='text-muted-foreground'>Active Batch:</span>
-          <b className='text-foreground'>{selectedRun.period}</b>
-          <PayrollStatusBadge status={selectedRun.status} />
+        <div className='flex items-center gap-2.5 text-xs flex-wrap'>
+          <span className='text-muted-foreground font-medium'>Batch:</span>
+          <Select
+            value={selectedRun?.id}
+            onValueChange={(val) => {
+              setSelectedRunId(val)
+              const match = runs.find((r) => r.id === val)
+              if (match?.status === 'disbursed') {
+                setApprovalView('disbursement')
+              } else if (match?.status === 'approved') {
+                setApprovalView('disbursement')
+              } else {
+                setApprovalView('variance')
+              }
+            }}
+          >
+            <SelectTrigger className='h-8 text-xs font-semibold bg-background rounded-xl min-w-[190px]'>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {runs.map((r) => (
+                <SelectItem key={r.id} value={r.id} className='text-xs'>
+                  {r.period} ({r.code})
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          {selectedRun && <PayrollStatusBadge status={selectedRun.status} />}
         </div>
       </div>
 
