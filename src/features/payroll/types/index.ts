@@ -123,7 +123,7 @@ export interface EmployeePayrollDetail {
   // ── Rincian hasil engine calculatePayroll (opsional agar data mock lama tetap valid) ──
   project?: string
   workLocation?: string
-  bpjsKesSource?: 'billing' | 'missing' // asal nominal BPJS Kes: dari upload tagihan / belum ada tagihan
+  bpjsKesSource?: 'billing' | 'missing' | 'calculated' // asal nominal BPJS Kes: dari upload tagihan / kalkulasi otomatis master / belum ada tagihan
   bpjsKesFamilyExtra?: number // iuran keluarga tambahan (bagian dari bpjsKesEmployee)
   bpjsTkJhtEmployee?: number
   bpjsTkJpEmployee?: number

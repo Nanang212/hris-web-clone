@@ -63,7 +63,13 @@ export function AttendanceManagementPage() {
       breadcrumbs={getAttendanceBreadcrumbs(m.attendance_management_title())}
       className='gap-5 bg-muted/30'
       actions={
-        <div className='flex gap-2'>
+        <div className='flex flex-wrap gap-2'>
+          <Button variant='outline' asChild>
+            <Link to='/attendance/work-patterns'>Pola Kerja</Link>
+          </Button>
+          <Button variant='outline' asChild>
+            <Link to='/attendance/locations'>Lokasi Kehadiran</Link>
+          </Button>
           <Button variant='outline' asChild>
             <Link to='/attendance/management/live'>Live Attendance</Link>
           </Button>

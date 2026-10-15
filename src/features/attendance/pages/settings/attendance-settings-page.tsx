@@ -508,6 +508,18 @@ function AttendanceSettingsForm({ settings }: Readonly<{ settings: AttendanceSet
                           <IconInfoCircle className='mt-0.5 size-4 shrink-0' aria-hidden />
                           {m.attendance_settings_regular_help()}
                         </FieldDescription>
+                        <Button
+                          type='button'
+                          variant='outline'
+                          size='sm'
+                          className='w-full text-xs gap-1.5'
+                          asChild
+                        >
+                          <Link to='/attendance/work-patterns'>
+                            <IconCalendarTime className='size-3.5' />
+                            Kelola Pola Kerja Personalia (5-2, 6-1)
+                          </Link>
+                        </Button>
                       </FieldGroup>
                     </CardContent>
                   </Card>

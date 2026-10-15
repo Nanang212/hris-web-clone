@@ -145,7 +145,7 @@ export function calculatePayroll(params: CalculatePayrollParams): PayrollCalcula
     // "Potongan lainnya" = potongan tetap + variabel selain presensi (satu kolom di rincian)
     const otherDeductions = totalFixedDeductions + otherVariableDeductions
 
-    // ── Langkah 6: BPJS Kesehatan dari tagihan upload ─────────────────────────────
+    // ── Langkah 6: BPJS Kesehatan (Upload tagihan atau hitung otomatis dari master) ──
     let bpjsKesEmployee = 0
     let bpjsKesFamilyExtra = 0
     let bpjsKesEmployer = 0
@@ -161,8 +161,12 @@ export function calculatePayroll(params: CalculatePayrollParams): PayrollCalcula
         bpjsKesEmployer = amounts.employerShare
         bpjsKesSource = 'billing'
       } else {
-        bpjsKesSource = 'missing'
-        warnings.push('Tagihan BPJS Kesehatan belum tersedia untuk karyawan ini — periksa upload.')
+        // Otomatis dihitung dari upah master karyawan
+        const cappedWage = Math.min(emp.baseSalary, bpjsKesConfig.maxWageCap)
+        bpjsKesFamilyExtra = 0
+        bpjsKesEmployee = rp((cappedWage * bpjsKesConfig.employeeRatePercent) / 100)
+        bpjsKesEmployer = rp((cappedWage * bpjsKesConfig.companyRatePercent) / 100)
+        bpjsKesSource = 'calculated'
       }
     }
     // ── Langkah 7: BPJS TK per project (JKK & JKM wajib; JHT & JP sesuai setting project) ──
