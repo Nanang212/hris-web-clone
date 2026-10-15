@@ -49,12 +49,14 @@ import { Route as appAttendanceCalendarIndexRouteImport } from './../../routes/(
 import { Route as appAttendanceCalendarHolidaysRouteImport } from './../../routes/(app)/attendance/calendar/holidays'
 import { Route as appAttendanceCalendarSettingsRouteImport } from './../../routes/(app)/attendance/calendar/settings'
 import { Route as appAttendanceFaceEnrollmentEmployeeIdRouteImport } from './../../routes/(app)/attendance/face-enrollment/$employeeId'
+import { Route as appAttendanceLocationsIndexRouteImport } from './../../routes/(app)/attendance/locations/index'
 import { Route as appAttendanceManagementIndexRouteImport } from './../../routes/(app)/attendance/management/index'
 import { Route as appAttendanceManagementLiveRouteImport } from './../../routes/(app)/attendance/management/live'
 import { Route as appAttendanceManagementManualRouteImport } from './../../routes/(app)/attendance/management/manual'
 import { Route as appAttendanceRequestsIndexRouteImport } from './../../routes/(app)/attendance/requests/index'
 import { Route as appAttendanceRequestsRequestIdRouteImport } from './../../routes/(app)/attendance/requests/$requestId'
 import { Route as appAttendanceRequestsNewRouteImport } from './../../routes/(app)/attendance/requests/new'
+import { Route as appAttendanceWorkPatternsIndexRouteImport } from './../../routes/(app)/attendance/work-patterns/index'
 import { Route as appCompanyClientIndexRouteImport } from './../../routes/(app)/company/client/index'
 import { Route as appCompanyClientIdRouteImport } from './../../routes/(app)/company/client/$id'
 import { Route as appCompanyClientNewRouteImport } from './../../routes/(app)/company/client/new'
@@ -366,6 +368,12 @@ const appAttendanceFaceEnrollmentEmployeeIdRoute =
     path: '/attendance/face-enrollment/$employeeId',
     getParentRoute: () => appRouteRoute,
   } as any)
+const appAttendanceLocationsIndexRoute =
+  appAttendanceLocationsIndexRouteImport.update({
+    id: '/attendance/locations/',
+    path: '/attendance/locations/',
+    getParentRoute: () => appRouteRoute,
+  } as any)
 const appAttendanceManagementIndexRoute =
   appAttendanceManagementIndexRouteImport.update({
     id: '/attendance/management/',
@@ -400,6 +408,12 @@ const appAttendanceRequestsNewRoute =
   appAttendanceRequestsNewRouteImport.update({
     id: '/attendance/requests/new',
     path: '/attendance/requests/new',
+    getParentRoute: () => appRouteRoute,
+  } as any)
+const appAttendanceWorkPatternsIndexRoute =
+  appAttendanceWorkPatternsIndexRouteImport.update({
+    id: '/attendance/work-patterns/',
+    path: '/attendance/work-patterns/',
     getParentRoute: () => appRouteRoute,
   } as any)
 const appCompanyClientIndexRoute = appCompanyClientIndexRouteImport.update({
@@ -1050,8 +1064,10 @@ export interface FileRoutesByFullPath {
   '/settings/security/session': typeof appSettingsSecuritySessionRoute
   '/attendance/approval/': typeof appAttendanceApprovalIndexRoute
   '/attendance/calendar/': typeof appAttendanceCalendarIndexRoute
+  '/attendance/locations/': typeof appAttendanceLocationsIndexRoute
   '/attendance/management/': typeof appAttendanceManagementIndexRoute
   '/attendance/requests/': typeof appAttendanceRequestsIndexRoute
+  '/attendance/work-patterns/': typeof appAttendanceWorkPatternsIndexRoute
   '/company/client/': typeof appCompanyClientIndexRoute
   '/company/organization/': typeof appCompanyOrganizationIndexRoute
   '/company/position/': typeof appCompanyPositionIndexRoute
@@ -1191,8 +1207,10 @@ export interface FileRoutesByTo {
   '/settings/security/session': typeof appSettingsSecuritySessionRoute
   '/attendance/approval': typeof appAttendanceApprovalIndexRoute
   '/attendance/calendar': typeof appAttendanceCalendarIndexRoute
+  '/attendance/locations': typeof appAttendanceLocationsIndexRoute
   '/attendance/management': typeof appAttendanceManagementIndexRoute
   '/attendance/requests': typeof appAttendanceRequestsIndexRoute
+  '/attendance/work-patterns': typeof appAttendanceWorkPatternsIndexRoute
   '/company/client': typeof appCompanyClientIndexRoute
   '/company/organization': typeof appCompanyOrganizationIndexRoute
   '/company/position': typeof appCompanyPositionIndexRoute
@@ -1336,8 +1354,10 @@ export interface FileRoutesById {
   '/(app)/settings/security/session': typeof appSettingsSecuritySessionRoute
   '/(app)/attendance/approval/': typeof appAttendanceApprovalIndexRoute
   '/(app)/attendance/calendar/': typeof appAttendanceCalendarIndexRoute
+  '/(app)/attendance/locations/': typeof appAttendanceLocationsIndexRoute
   '/(app)/attendance/management/': typeof appAttendanceManagementIndexRoute
   '/(app)/attendance/requests/': typeof appAttendanceRequestsIndexRoute
+  '/(app)/attendance/work-patterns/': typeof appAttendanceWorkPatternsIndexRoute
   '/(app)/company/client/': typeof appCompanyClientIndexRoute
   '/(app)/company/organization/': typeof appCompanyOrganizationIndexRoute
   '/(app)/company/position/': typeof appCompanyPositionIndexRoute
@@ -1481,8 +1501,10 @@ export interface FileRouteTypes {
     | '/settings/security/session'
     | '/attendance/approval/'
     | '/attendance/calendar/'
+    | '/attendance/locations/'
     | '/attendance/management/'
     | '/attendance/requests/'
+    | '/attendance/work-patterns/'
     | '/company/client/'
     | '/company/organization/'
     | '/company/position/'
@@ -1622,8 +1644,10 @@ export interface FileRouteTypes {
     | '/settings/security/session'
     | '/attendance/approval'
     | '/attendance/calendar'
+    | '/attendance/locations'
     | '/attendance/management'
     | '/attendance/requests'
+    | '/attendance/work-patterns'
     | '/company/client'
     | '/company/organization'
     | '/company/position'
@@ -1766,8 +1790,10 @@ export interface FileRouteTypes {
     | '/(app)/settings/security/session'
     | '/(app)/attendance/approval/'
     | '/(app)/attendance/calendar/'
+    | '/(app)/attendance/locations/'
     | '/(app)/attendance/management/'
     | '/(app)/attendance/requests/'
+    | '/(app)/attendance/work-patterns/'
     | '/(app)/company/client/'
     | '/(app)/company/organization/'
     | '/(app)/company/position/'
@@ -2114,6 +2140,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof appAttendanceFaceEnrollmentEmployeeIdRouteImport
       parentRoute: typeof appRouteRoute
     }
+    '/(app)/attendance/locations/': {
+      id: '/(app)/attendance/locations/'
+      path: '/attendance/locations'
+      fullPath: '/attendance/locations/'
+      preLoaderRoute: typeof appAttendanceLocationsIndexRouteImport
+      parentRoute: typeof appRouteRoute
+    }
     '/(app)/attendance/management/': {
       id: '/(app)/attendance/management/'
       path: '/attendance/management'
@@ -2154,6 +2187,13 @@ declare module '@tanstack/react-router' {
       path: '/attendance/requests/new'
       fullPath: '/attendance/requests/new'
       preLoaderRoute: typeof appAttendanceRequestsNewRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/attendance/work-patterns/': {
+      id: '/(app)/attendance/work-patterns/'
+      path: '/attendance/work-patterns'
+      fullPath: '/attendance/work-patterns/'
+      preLoaderRoute: typeof appAttendanceWorkPatternsIndexRouteImport
       parentRoute: typeof appRouteRoute
     }
     '/(app)/company/client/': {
@@ -3004,8 +3044,10 @@ interface appRouteRouteChildren {
   appSettingsSecuritySessionRoute: typeof appSettingsSecuritySessionRoute
   appAttendanceApprovalIndexRoute: typeof appAttendanceApprovalIndexRoute
   appAttendanceCalendarIndexRoute: typeof appAttendanceCalendarIndexRoute
+  appAttendanceLocationsIndexRoute: typeof appAttendanceLocationsIndexRoute
   appAttendanceManagementIndexRoute: typeof appAttendanceManagementIndexRoute
   appAttendanceRequestsIndexRoute: typeof appAttendanceRequestsIndexRoute
+  appAttendanceWorkPatternsIndexRoute: typeof appAttendanceWorkPatternsIndexRoute
   appCompanyClientIndexRoute: typeof appCompanyClientIndexRoute
   appCompanyOrganizationIndexRoute: typeof appCompanyOrganizationIndexRoute
   appCompanyPositionIndexRoute: typeof appCompanyPositionIndexRoute
@@ -3143,8 +3185,10 @@ const appRouteRouteChildren: appRouteRouteChildren = {
   appSettingsSecuritySessionRoute: appSettingsSecuritySessionRoute,
   appAttendanceApprovalIndexRoute: appAttendanceApprovalIndexRoute,
   appAttendanceCalendarIndexRoute: appAttendanceCalendarIndexRoute,
+  appAttendanceLocationsIndexRoute: appAttendanceLocationsIndexRoute,
   appAttendanceManagementIndexRoute: appAttendanceManagementIndexRoute,
   appAttendanceRequestsIndexRoute: appAttendanceRequestsIndexRoute,
+  appAttendanceWorkPatternsIndexRoute: appAttendanceWorkPatternsIndexRoute,
   appCompanyClientIndexRoute: appCompanyClientIndexRoute,
   appCompanyOrganizationIndexRoute: appCompanyOrganizationIndexRoute,
   appCompanyPositionIndexRoute: appCompanyPositionIndexRoute,

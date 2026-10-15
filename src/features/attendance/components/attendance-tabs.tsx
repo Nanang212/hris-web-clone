@@ -11,6 +11,8 @@ interface AttendanceTabsProps {
     | 'requests'
     | 'approval'
     | 'management'
+    | 'work-patterns'
+    | 'locations'
     | 'settings'
     | 'all-menu'
 }
@@ -18,6 +20,8 @@ interface AttendanceTabsProps {
 export function AttendanceTabs({ active }: Readonly<AttendanceTabsProps>) {
   const tabs = [
     { key: 'overview', label: m.attendance_tab_overview(), to: '/attendance' as const },
+    { key: 'work-patterns', label: 'Pola Kerja', to: '/attendance/work-patterns' as const },
+    { key: 'locations', label: 'Lokasi Kehadiran', to: '/attendance/locations' as const },
     { key: 'clock', label: m.attendance_tab_clock(), to: '/attendance/clock-in-out' as const },
     { key: 'history', label: m.attendance_tab_history(), to: '/attendance/history' as const },
     { key: 'requests', label: m.attendance_tab_requests(), to: '/attendance/requests' as const },

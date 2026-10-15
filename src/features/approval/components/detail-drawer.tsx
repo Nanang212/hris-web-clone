@@ -2,7 +2,6 @@ import {
   IconCalendar,
   IconCheck,
   IconDownload,
-  IconEye,
   IconFileText,
   IconLoader2,
   IconX,
@@ -31,7 +30,6 @@ export function ApprovalDetailDrawer({ request, onClose, onAction }: ApprovalDet
   })
   const [submitting, setSubmitting] = useState<'approve' | 'reject' | null>(null)
   const [showPreview, setShowPreview] = useState(false)
-  const isEn = getLocale() === 'en'
 
   const isPendingApproval = request.status === 'pending'
 
@@ -422,6 +420,7 @@ interface DocumentPreviewModalProps {
 }
 
 function DocumentPreviewModal({ request, onClose, onDownload }: DocumentPreviewModalProps) {
+  const isEn = getLocale() === 'en'
   const isTrip = request.requestType === 'business_trip'
   const isClaim = request.requestType === 'claim' || request.requestType === 'reimbursement'
   const isLeave = request.requestType === 'leave'
