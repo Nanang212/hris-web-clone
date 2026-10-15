@@ -25,6 +25,7 @@ import {
   DialogTitle,
 } from '@/shared/components/ui/dialog'
 import { ScrollArea } from '@/shared/components/ui/scroll-area'
+import { m } from '@/i18n/paraglide/messages'
 
 interface EmployeePayrollBreakdownModalProps {
   open: boolean
@@ -40,9 +41,22 @@ export function EmployeePayrollBreakdownModal({
   if (!detail) return null
 
   const bpjsKes1Percent = Math.max(0, detail.bpjsKesEmployee - (detail.bpjsKesFamilyExtra ?? 0))
-  const fixedLines = detail.lines?.filter((l) => l.source === 'fixed') ?? []
+  const fixedLines =
+    detail.lines?.filter(
+      (line) => line.type === 'allowance' && line.cashImpact !== false && line.source === 'fixed',
+    ) ?? []
   const variableLines =
-    detail.lines?.filter((l) => l.source === 'variable' || l.source === 'attendance') ?? []
+    detail.lines?.filter(
+      (line) =>
+        line.type === 'allowance' &&
+        line.cashImpact !== false &&
+        (line.source === 'variable' || line.source === 'attendance'),
+    ) ?? []
+  const employeeDeductionLines = detail.lines?.filter((line) => line.type === 'deduction') ?? []
+  const taxableBenefitLines =
+    detail.lines?.filter(
+      (line) => line.type === 'allowance' && line.isTaxable && line.cashImpact === false,
+    ) ?? []
 
   // Inisial nama untuk avatar
   const initials = detail.employeeName
@@ -88,15 +102,15 @@ export function EmployeePayrollBreakdownModal({
                 </div>
                 <DialogDescription className='text-xs text-muted-foreground flex flex-wrap items-center gap-x-3 gap-y-0.5'>
                   <span>
-                    <b>Jabatan:</b> {detail.position}
+                    <b>{m.payroll_breakdown_position()}</b> {detail.position}
                   </span>
                   <span>·</span>
                   <span>
-                    <b>Dept:</b> {detail.department}
+                    <b>{m.payroll_breakdown_department()}</b> {detail.department}
                   </span>
                   <span>·</span>
                   <span>
-                    <b>Project:</b> {detail.project || 'Headquarter'}
+                    <b>{m.payroll_breakdown_project()}</b> {detail.project || m.payroll_breakdown_headquarters()}
                   </span>
                 </DialogDescription>
               </div>
@@ -105,7 +119,7 @@ export function EmployeePayrollBreakdownModal({
             {/* Highlighted Take Home Pay Hero Card */}
             <div className='p-3.5 px-5 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 dark:bg-emerald-950/40 text-right min-w-[220px] shadow-xs'>
               <span className='text-[10px] font-bold text-emerald-800 dark:text-emerald-300 uppercase tracking-wider block'>
-                Take Home Pay (Gaji Bersih)
+                {m.payroll_breakdown_take_home_pay()}
               </span>
               <p className='text-xl font-extrabold text-emerald-600 dark:text-emerald-400 mt-0.5 tracking-tight font-mono'>
                 {formatIDR(detail.netTakeHomePay)}
@@ -128,7 +142,7 @@ export function EmployeePayrollBreakdownModal({
               <div className='p-3.5 rounded-xl border border-amber-300/80 bg-amber-50/90 dark:bg-amber-950/30 text-xs text-amber-900 dark:text-amber-200 space-y-1.5 shadow-2xs'>
                 <div className='flex items-center gap-1.5 font-bold'>
                   <IconAlertTriangle size={16} className='text-amber-600 dark:text-amber-400 shrink-0' />
-                  <span>Catatan & Warning Terdeteksi Pada Karyawan Ini:</span>
+                  <span>{m.payroll_breakdown_warnings()}</span>
                 </div>
                 <ul className='list-disc pl-5 space-y-0.5 text-[11px]'>
                   {detail.warnings.map((w, idx) => (
@@ -147,7 +161,7 @@ export function EmployeePayrollBreakdownModal({
                   <span className='p-1 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'>
                     <IconCash size={16} />
                   </span>
-                  <span className='text-xs font-bold text-foreground'>1. Pendapatan (Gross)</span>
+                  <span className='text-xs font-bold text-foreground'>{m.payroll_breakdown_earnings_title()}</span>
                 </div>
                 <b className='text-xs font-bold text-foreground font-mono'>
                   {formatIDR(detail.totalGross)}
@@ -158,8 +172,8 @@ export function EmployeePayrollBreakdownModal({
                 {/* Gaji Pokok */}
                 <div className='flex justify-between items-center pt-1'>
                   <div>
-                    <p className='font-semibold text-foreground'>Gaji Pokok</p>
-                    <span className='text-[10px] text-muted-foreground'>Master upah bulanan</span>
+                    <p className='font-semibold text-foreground'>{m.payroll_breakdown_base_salary()}</p>
+                    <span className='text-[10px] text-muted-foreground'>{m.payroll_breakdown_monthly_master()}</span>
                   </div>
                   <span className='font-bold text-foreground font-mono'>
                     {formatIDR(detail.baseSalary)}
@@ -172,7 +186,7 @@ export function EmployeePayrollBreakdownModal({
                     <div>
                       <p className='font-medium text-foreground'>{line.name}</p>
                       <Badge variant='outline' className='text-[9px] px-1 py-0 mt-0.5'>
-                        Tunjangan Tetap
+                        {m.payroll_breakdown_fixed_allowance()}
                       </Badge>
                     </div>
                     <span className='font-semibold text-foreground font-mono'>
@@ -187,7 +201,7 @@ export function EmployeePayrollBreakdownModal({
                     <div>
                       <p className='font-medium text-foreground'>{line.name}</p>
                       <Badge variant='blue' className='text-[9px] px-1 py-0 mt-0.5'>
-                        Variabel
+                        {m.payroll_breakdown_variable()}
                       </Badge>
                     </div>
                     <span className='font-semibold text-foreground font-mono'>
@@ -201,9 +215,9 @@ export function EmployeePayrollBreakdownModal({
                   <div className='flex justify-between items-center pt-2'>
                     <div>
                       <p className='font-medium text-foreground'>
-                        Upah Lembur ({detail.overtimeHours} Jam)
+                        {m.payroll_breakdown_overtime({ hours: detail.overtimeHours })}
                       </p>
-                      <span className='text-[10px] text-muted-foreground'>Otomatis dari presensi</span>
+                      <span className='text-[10px] text-muted-foreground'>{m.payroll_breakdown_from_attendance()}</span>
                     </div>
                     <span className='font-semibold text-foreground font-mono'>
                       {formatIDR(detail.overtimePay)}
@@ -213,7 +227,7 @@ export function EmployeePayrollBreakdownModal({
               </div>
 
               <div className='p-3 bg-muted/20 border-t border-border/60 flex justify-between items-center text-xs'>
-                <span className='font-semibold text-muted-foreground'>Total Pendapatan Kotor</span>
+                <span className='font-semibold text-muted-foreground'>{m.payroll_breakdown_total_gross()}</span>
                 <span className='font-bold text-foreground font-mono'>
                   {formatIDR(detail.totalGross)}
                 </span>
@@ -227,7 +241,7 @@ export function EmployeePayrollBreakdownModal({
                   <span className='p-1 rounded-lg bg-rose-500/10 text-rose-600 dark:text-rose-400'>
                     <IconReceipt size={16} />
                   </span>
-                  <span className='text-xs font-bold text-foreground'>2. Potongan dari Gaji</span>
+                  <span className='text-xs font-bold text-foreground'>{m.payroll_breakdown_deductions_title()}</span>
                 </div>
                 <b className='text-xs font-bold text-rose-600 dark:text-rose-400 font-mono'>
                   -{formatIDR(detail.totalDeductions)}
@@ -238,7 +252,7 @@ export function EmployeePayrollBreakdownModal({
                 {/* 2.1 BPJS Kesehatan Karyawan */}
                 <div className='space-y-1.5 pt-1'>
                   <div className='flex items-center justify-between'>
-                    <span className='font-bold text-foreground'>BPJS Kesehatan Karyawan</span>
+                    <span className='font-bold text-foreground'>{m.payroll_breakdown_health_employee()}</span>
                     <Badge
                       variant={
                         detail.bpjsKesSource === 'billing'
@@ -250,21 +264,21 @@ export function EmployeePayrollBreakdownModal({
                       className='text-[9px] px-1.5 py-0'
                     >
                       {detail.bpjsKesSource === 'billing'
-                        ? 'Tagihan Upload'
+                        ? m.payroll_breakdown_uploaded_bill()
                         : detail.bpjsKesSource === 'calculated'
-                          ? 'Otomatis (Master Upah)'
-                          : 'Belum Ada Tagihan'}
+                          ? m.payroll_breakdown_calculated_salary()
+                          : m.payroll_breakdown_no_bill()}
                     </Badge>
                   </div>
                   <div className='flex justify-between items-center text-muted-foreground pl-2'>
-                    <span>• Iuran Karyawan (1% Upah BPJS)</span>
+                    <span>{m.payroll_breakdown_health_employee_rate()}</span>
                     <span className='font-semibold text-rose-600 dark:text-rose-400 font-mono'>
                       -{formatIDR(bpjsKes1Percent)}
                     </span>
                   </div>
                   {detail.bpjsKesFamilyExtra ? (
                     <div className='flex justify-between items-center text-muted-foreground pl-2'>
-                      <span>• Potongan Anggota Keluarga Tambahan</span>
+                      <span>{m.payroll_breakdown_extra_family()}</span>
                       <span className='font-semibold text-rose-600 dark:text-rose-400 font-mono'>
                         -{formatIDR(detail.bpjsKesFamilyExtra)}
                       </span>
@@ -274,15 +288,15 @@ export function EmployeePayrollBreakdownModal({
 
                 {/* 2.2 BPJS Ketenagakerjaan Karyawan */}
                 <div className='space-y-1.5 pt-2.5'>
-                  <span className='font-bold text-foreground block'>BPJS Ketenagakerjaan Karyawan</span>
+                  <span className='font-bold text-foreground block'>{m.payroll_breakdown_employment_employee()}</span>
                   <div className='flex justify-between items-center text-muted-foreground pl-2'>
-                    <span>• JHT Karyawan (2%)</span>
+                    <span>{m.payroll_breakdown_jht_employee()}</span>
                     <span className='font-semibold text-rose-600 dark:text-rose-400 font-mono'>
                       -{formatIDR(detail.bpjsTkJhtEmployee ?? 0)}
                     </span>
                   </div>
                   <div className='flex justify-between items-center text-muted-foreground pl-2'>
-                    <span>• JP Karyawan (1%, dasar plafon cap)</span>
+                    <span>{m.payroll_breakdown_jp_employee()}</span>
                     <span className='font-semibold text-rose-600 dark:text-rose-400 font-mono'>
                       -{formatIDR(detail.bpjsTkJpEmployee ?? 0)}
                     </span>
@@ -293,20 +307,40 @@ export function EmployeePayrollBreakdownModal({
                 <div className='space-y-1.5 pt-2.5'>
                   <div className='flex items-center justify-between'>
                     <div>
-                      <span className='font-bold text-foreground'>PPh 21 Bulanan</span>
+                      <span className='font-bold text-foreground'>{m.payroll_breakdown_monthly_tax()}</span>
                       <span className='text-[10px] text-muted-foreground block'>
-                        TER PMK 168/2023 · Bruto Pajak {formatIDR(detail.taxableIncome ?? 0)}
+                        {m.payroll_breakdown_taxable_gross({ amount: formatIDR(detail.taxableIncome ?? 0) })}
                       </span>
                     </div>
                     <span className='font-bold text-rose-600 dark:text-rose-400 font-mono'>
-                      -{formatIDR(detail.pph21Tax)}
+                      {detail.pph21Tax < 0 ? '+' : '-'}{formatIDR(Math.abs(detail.pph21Tax))}
                     </span>
                   </div>
+
+                  {detail.finalTaxReconciliation && (
+                    <div className='flex flex-col gap-1 rounded-md border p-2 text-[10px] text-muted-foreground'>
+                      <div className='flex justify-between gap-3'>
+                        <span>{m.payroll_breakdown_cumulative_gross()}</span>
+                        <span>{formatIDR(detail.finalTaxReconciliation.cumulativeTaxableGross)}</span>
+                      </div>
+                      <div className='flex justify-between gap-3'>
+                        <span>{m.payroll_breakdown_annual_pkp()}</span>
+                        <span>{formatIDR(detail.finalTaxReconciliation.taxableIncomePkp)}</span>
+                      </div>
+                      <div className='flex justify-between gap-3'>
+                        <span>{m.payroll_breakdown_annual_tax_minus_paid()}</span>
+                        <span>
+                          {formatIDR(detail.finalTaxReconciliation.annualPph21)} −{' '}
+                          {formatIDR(detail.finalTaxReconciliation.priorPph21Paid)}
+                        </span>
+                      </div>
+                    </div>
+                  )}
 
                   {detail.thrTaxInstallment && detail.thrTaxInstallment > 0 ? (
                     <div className='flex justify-between items-center text-muted-foreground pl-2'>
                       <span>
-                        • Cicilan PPh 21 THR (Bln {detail.thrTaxInstallmentInfo?.currentInstallmentMonth || 1}/{detail.thrTaxInstallmentInfo?.tenorMonths || 3})
+                        {m.payroll_breakdown_thr_installment({ current: detail.thrTaxInstallmentInfo?.currentInstallmentMonth || 1, total: detail.thrTaxInstallmentInfo?.tenorMonths || 3 })}
                       </span>
                       <span className='font-semibold text-rose-600 dark:text-rose-400 font-mono'>
                         -{formatIDR(detail.thrTaxInstallment)}
@@ -316,41 +350,23 @@ export function EmployeePayrollBreakdownModal({
                 </div>
 
                 {/* 2.4 Potongan Presensi & Lainnya */}
-                {(detail.unpaidLeaveDeduction > 0 ||
-                  detail.lateDeduction > 0 ||
-                  detail.loanDeduction > 0) && (
+                {employeeDeductionLines.length > 0 && (
                   <div className='space-y-1.5 pt-2.5'>
-                    <span className='font-bold text-foreground block'>Presensi & Pinjaman</span>
-                    {detail.unpaidLeaveDeduction > 0 && (
-                      <div className='flex justify-between items-center text-muted-foreground pl-2'>
-                        <span>• Potongan Unpaid Leave ({detail.absentCount} hari)</span>
+                    <span className='font-bold text-foreground block'>{m.payroll_breakdown_dynamic_deductions()}</span>
+                    {employeeDeductionLines.map((line) => (
+                      <div key={`${line.code}-${line.source}`} className='flex justify-between items-center text-muted-foreground pl-2'>
+                        <span>• {line.name}</span>
                         <span className='font-semibold text-rose-600 dark:text-rose-400 font-mono'>
-                          -{formatIDR(detail.unpaidLeaveDeduction)}
+                          -{formatIDR(line.amount)}
                         </span>
                       </div>
-                    )}
-                    {detail.lateDeduction > 0 && (
-                      <div className='flex justify-between items-center text-muted-foreground pl-2'>
-                        <span>• Denda Keterlambatan ({detail.lateCount}x)</span>
-                        <span className='font-semibold text-rose-600 dark:text-rose-400 font-mono'>
-                          -{formatIDR(detail.lateDeduction)}
-                        </span>
-                      </div>
-                    )}
-                    {detail.loanDeduction > 0 && (
-                      <div className='flex justify-between items-center text-muted-foreground pl-2'>
-                        <span>• Cicilan Pinjaman / Potongan Lain</span>
-                        <span className='font-semibold text-rose-600 dark:text-rose-400 font-mono'>
-                          -{formatIDR(detail.loanDeduction)}
-                        </span>
-                      </div>
-                    )}
+                    ))}
                   </div>
                 )}
               </div>
 
               <div className='p-3 bg-muted/20 border-t border-border/60 flex justify-between items-center text-xs'>
-                <span className='font-semibold text-muted-foreground'>Total Seluruh Potongan</span>
+                <span className='font-semibold text-muted-foreground'>{m.payroll_breakdown_total_deductions()}</span>
                 <span className='font-bold text-rose-600 dark:text-rose-400 font-mono'>
                   -{formatIDR(detail.totalDeductions)}
                 </span>
@@ -367,15 +383,15 @@ export function EmployeePayrollBreakdownModal({
                 </span>
                 <div>
                   <h4 className='text-xs font-bold text-foreground'>
-                    3. Tanggungan Perusahaan (Benefit Non-THP)
+                    {m.payroll_breakdown_company_benefits_title()}
                   </h4>
                   <p className='text-[10px] text-muted-foreground'>
-                    Ditanggung sepenuhnya oleh perusahaan — <b>TIDAK memotong gaji bersih</b>, sebagian menjadi dasar penambah bruto pajak.
+                    {m.payroll_breakdown_company_benefits_hint()}
                   </p>
                 </div>
               </div>
               <Badge variant='outline' className='text-[10px] font-mono bg-background'>
-                Total Benefit: {formatIDR(detail.bpjsKesEmployer + companyTkTotal)}
+                {m.payroll_breakdown_total_benefits({ amount: formatIDR(detail.bpjsKesEmployer + companyTkTotal + (detail.taxableBenefits ?? 0)) })}
               </Badge>
             </div>
 
@@ -383,20 +399,20 @@ export function EmployeePayrollBreakdownModal({
               {/* BPJS Kesehatan Perusahaan */}
               <div className='p-3 rounded-xl bg-background/80 border border-border/60 space-y-1.5'>
                 <div className='flex items-center justify-between'>
-                  <span className='font-semibold text-foreground'>BPJS Kesehatan (4%)</span>
+                  <span className='font-semibold text-foreground'>{m.payroll_breakdown_health_employer()}</span>
                   <span className='font-bold text-indigo-600 dark:text-indigo-400 font-mono'>
                     +{formatIDR(detail.bpjsKesEmployer)}
                   </span>
                 </div>
                 <p className='text-[10px] text-muted-foreground'>
-                  Dasar iuran upah maks cap. Masuk ke penambah penghasilan bruto kena pajak PPh 21.
+                  {m.payroll_breakdown_health_employer_hint()}
                 </p>
               </div>
 
               {/* BPJS TK Perusahaan */}
               <div className='p-3 rounded-xl bg-background/80 border border-border/60 space-y-1.5'>
                 <div className='flex items-center justify-between'>
-                  <span className='font-semibold text-foreground'>BPJS TK Total Perusahaan</span>
+                  <span className='font-semibold text-foreground'>{m.payroll_breakdown_employment_employer()}</span>
                   <span className='font-bold text-indigo-600 dark:text-indigo-400 font-mono'>
                     +{formatIDR(companyTkTotal)}
                   </span>
@@ -408,6 +424,19 @@ export function EmployeePayrollBreakdownModal({
                   <div>• JP (2%): {formatIDR(detail.bpjsTkJpEmployer ?? 0)}</div>
                 </div>
               </div>
+              {taxableBenefitLines.map((line) => (
+                <div key={line.code} className='p-3 rounded-xl bg-background/80 border border-border/60 space-y-1.5'>
+                  <div className='flex items-center justify-between gap-3'>
+                    <span className='font-semibold text-foreground'>{line.name}</span>
+                    <span className='font-bold text-indigo-600 dark:text-indigo-400 font-mono'>
+                      +{formatIDR(line.amount)}
+                    </span>
+                  </div>
+                  <p className='text-[10px] text-muted-foreground'>
+                    {m.payroll_breakdown_noncash_benefit_hint()}
+                  </p>
+                </div>
+              ))}
             </div>
           </div>
 
@@ -420,16 +449,16 @@ export function EmployeePayrollBreakdownModal({
                 </span>
                 <div>
                   <h4 className='text-xs font-bold text-foreground'>
-                    4. Total Perhitungan Akhir (Take Home Pay)
+                    {m.payroll_breakdown_final_title()}
                   </h4>
                   <p className='text-[10px] text-muted-foreground'>
-                    Rumus: Total Pendapatan Kotor (Gross) dikurangi Total Seluruh Potongan Gaji.
+                    {m.payroll_breakdown_final_formula()}
                   </p>
                 </div>
               </div>
 
               <Badge variant='emerald' className='text-[10px] font-semibold px-2 py-0.5'>
-                Net Disbursed
+                {m.payroll_breakdown_net_disbursed()}
               </Badge>
             </div>
 
@@ -438,35 +467,35 @@ export function EmployeePayrollBreakdownModal({
               {/* 1. Gross */}
               <div className='p-3.5 rounded-xl bg-background/90 border border-border/70 space-y-1 shadow-2xs'>
                 <div className='flex items-center justify-between text-muted-foreground'>
-                  <span className='text-[11px] font-medium'>1. Total Pendapatan</span>
-                  <span className='text-[10px] font-semibold text-emerald-600 dark:text-emerald-400'>Gross</span>
+                  <span className='text-[11px] font-medium'>{m.payroll_breakdown_total_income()}</span>
+                  <span className='text-[10px] font-semibold text-emerald-600 dark:text-emerald-400'>{m.payroll_breakdown_gross()}</span>
                 </div>
                 <p className='text-base font-bold text-foreground font-mono'>
                   {formatIDR(detail.totalGross)}
                 </p>
                 <p className='text-[10px] text-muted-foreground'>
-                  Gaji pokok + tunjangan + lembur
+                  {m.payroll_breakdown_income_formula()}
                 </p>
               </div>
 
               {/* 2. Deductions */}
               <div className='p-3.5 rounded-xl bg-background/90 border border-border/70 space-y-1 shadow-2xs'>
                 <div className='flex items-center justify-between text-muted-foreground'>
-                  <span className='text-[11px] font-medium'>2. Total Potongan</span>
-                  <span className='text-[10px] font-semibold text-rose-600 dark:text-rose-400'>Deductions</span>
+                  <span className='text-[11px] font-medium'>{m.payroll_breakdown_total_deductions_short()}</span>
+                  <span className='text-[10px] font-semibold text-rose-600 dark:text-rose-400'>{m.payroll_breakdown_deductions()}</span>
                 </div>
                 <p className='text-base font-bold text-rose-600 dark:text-rose-400 font-mono'>
                   -{formatIDR(detail.totalDeductions)}
                 </p>
                 <p className='text-[10px] text-muted-foreground'>
-                  BPJS 1% & TK + PPh 21 + presensi
+                  {m.payroll_breakdown_deductions_formula()}
                 </p>
               </div>
 
               {/* 3. Take Home Pay Result */}
               <div className='p-3.5 rounded-xl bg-emerald-500/15 dark:bg-emerald-950/50 border border-emerald-500/40 space-y-1 ring-1 ring-emerald-500/20 shadow-2xs'>
                 <div className='flex items-center justify-between text-emerald-900 dark:text-emerald-200'>
-                  <span className='text-[11px] font-bold'>Gaji Bersih Diterima</span>
+                  <span className='text-[11px] font-bold'>{m.payroll_breakdown_net_received()}</span>
                   <span className='text-[10px] font-bold text-emerald-600 dark:text-emerald-400 font-mono'>
                     THP
                   </span>
@@ -487,7 +516,7 @@ export function EmployeePayrollBreakdownModal({
         {/* ── Footer Modal: Tombol Tutup di Pojok Kanan ────────────────────── */}
         <DialogFooter className='shrink-0 p-4 px-6 border-t border-border/70 bg-muted/20 flex items-center justify-between gap-3'>
           <div className='text-[11px] text-muted-foreground hidden sm:block'>
-            Rincian kalkulasi payroll karyawan · Periode berjalan
+            {m.payroll_breakdown_footer()}
           </div>
 
           <Button
@@ -497,7 +526,7 @@ export function EmployeePayrollBreakdownModal({
             onClick={() => onOpenChange(false)}
             className='h-9 px-6 text-xs font-semibold rounded-xl cursor-pointer hover:bg-muted ml-auto'
           >
-            Tutup
+            {m.payroll_breakdown_close()}
           </Button>
         </DialogFooter>
       </DialogContent>

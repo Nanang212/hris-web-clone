@@ -16,6 +16,9 @@ import {
   IconUpload,
 } from '@tabler/icons-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
+import dayjs from 'dayjs'
+import 'dayjs/locale/en'
+import 'dayjs/locale/id'
 import { initialPayrollEmployeeInputs } from '../data/mock-payroll-inputs'
 import { formatIDR } from '../data/mock-payroll-data'
 import { downloadBillingTemplate, parseBillingFile } from '../lib/bpjs-kes-billing-excel'
@@ -27,9 +30,11 @@ import { usePayrollBpjsStore } from '../store/payroll-bpjs-store'
 import type { BpjsKesBillingRecord } from '../types'
 import { Badge } from '@/shared/components/ui/badge'
 import { Button } from '@/shared/components/ui/button'
+import { Input } from '@/shared/components/ui/input'
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
@@ -45,27 +50,11 @@ import {
 import { TableActionButton } from '@/shared/components/ui/table-action-button'
 import { TablePagination } from '@/shared/components/ui/table-pagination'
 import { snackbar } from '@/shared/lib/snackbar'
-
-const MONTHS = [
-  'Januari',
-  'Februari',
-  'Maret',
-  'April',
-  'Mei',
-  'Juni',
-  'Juli',
-  'Agustus',
-  'September',
-  'Oktober',
-  'November',
-  'Desember',
-]
+import { m } from '@/i18n/paraglide/messages'
+import { getLocale } from '@/i18n/paraglide/runtime'
 
 /** "2026-07" -> "Juli 2026" */
-const labelFromPeriodKey = (key: string) => {
-  const [year, month] = key.split('-')
-  return `${MONTHS[Number(month) - 1] ?? month} ${year}`
-}
+const labelFromPeriodKey = (key: string) => dayjs(`${key}-01`).locale(getLocale()).format('MMMM YYYY')
 
 const ALL_PROJECTS = '__all__'
 
@@ -164,8 +153,8 @@ export function BpjsKesBillingPanel({
       }))
       setUpload({
         periodKey,
-        fileName: `Otomatis-Sistem-${periodKey}.xlsx`,
-        uploadedAt: new Date().toLocaleString('id-ID'),
+        fileName: m.payroll_billing_auto_filename({ period: periodKey }),
+        uploadedAt: dayjs().locale(getLocale()).format('DD MMM YYYY HH:mm'),
         records,
       })
     }
@@ -212,19 +201,19 @@ export function BpjsKesBillingPanel({
       const { records, errors } = await parseBillingFile(file)
       setParseErrors(errors)
       if (records.length === 0) {
-        snackbar.error('Tidak ada data tagihan yang valid pada file ini.')
+        snackbar.error(m.payroll_billing_no_valid_rows())
         return
       }
       setUpload({
         periodKey: targetKey,
         fileName: file.name,
-        uploadedAt: new Date().toLocaleString('id-ID'),
+        uploadedAt: dayjs().locale(getLocale()).format('DD MMM YYYY HH:mm'),
         records,
       })
       setMode('upload')
-      snackbar.success(`${records.length} baris tagihan BPJS Kesehatan ${targetLabel} berhasil diupload.`)
+      snackbar.success(m.payroll_billing_uploaded({ count: records.length, period: targetLabel }))
     } catch {
-      snackbar.error('Gagal membaca file. Pastikan formatnya Excel (.xlsx / .xls).')
+      snackbar.error(m.payroll_billing_read_error())
     } finally {
       setIsParsing(false)
     }
@@ -233,15 +222,15 @@ export function BpjsKesBillingPanel({
   const handleRemove = (targetKey: string) => {
     removeUpload(targetKey)
     if (targetKey === periodKey) setParseErrors([])
-    snackbar.info(`Tagihan BPJS Kesehatan ${labelFromPeriodKey(targetKey)} dihapus.`)
+    snackbar.info(m.payroll_billing_removed({ period: labelFromPeriodKey(targetKey) }))
   }
 
   const handleDownloadTemplate = () => {
     try {
       downloadBillingTemplate(periodLabel, bpjsKesConfig)
-      snackbar.success('Template tagihan BPJS Kesehatan berhasil didownload.')
+      snackbar.success(m.payroll_billing_template_downloaded())
     } catch {
-      snackbar.error('Gagal mendownload template Excel.')
+      snackbar.error(m.payroll_billing_template_error())
     }
   }
 
@@ -257,11 +246,11 @@ export function BpjsKesBillingPanel({
     }))
     setUpload({
       periodKey,
-      fileName: `Otomatis-Sistem-${periodKey}.xlsx`,
-      uploadedAt: new Date().toLocaleString('id-ID'),
+      fileName: m.payroll_billing_auto_filename({ period: periodKey }),
+      uploadedAt: dayjs().locale(getLocale()).format('DD MMM YYYY HH:mm'),
       records,
     })
-    snackbar.success(`Data BPJS Kesehatan periode ${periodLabel} (${records.length} karyawan) berhasil disimpan ke sistem!`)
+    snackbar.success(m.payroll_billing_saved({ period: periodLabel, count: records.length }))
   }
 
   return (
@@ -271,22 +260,19 @@ export function BpjsKesBillingPanel({
         <div>
           <div className='flex items-center gap-2'>
             <h3 className='text-sm font-bold text-foreground'>
-              Kalkulasi Otomatis BPJS Kesehatan
+              {m.payroll_billing_title()}
             </h3>
-            <Badge variant='emerald'>Otomatis dari Master Upah</Badge>
+            <Badge variant='emerald'>{m.payroll_billing_from_salary_master()}</Badge>
           </div>
           <p className='text-xs text-muted-foreground mt-0.5 max-w-xl'>
-            Periode <span className='font-semibold text-foreground'>{periodLabel}</span>. Potongan karyawan{' '}
-            <b>{bpjsKesConfig.employeeRatePercent}%</b> dan bagian perusahaan{' '}
-            <b>{bpjsKesConfig.companyRatePercent}%</b> dihitung otomatis dari Upah BPJS (maks.{' '}
-            {formatIDR(bpjsKesConfig.maxWageCap)}).
+            {m.payroll_billing_description({ period: periodLabel, employeeRate: bpjsKesConfig.employeeRatePercent, employerRate: bpjsKesConfig.companyRatePercent, cap: formatIDR(bpjsKesConfig.maxWageCap) })}
           </p>
         </div>
 
         {/* Di wizard: tidak menampilkan toggle upload/e-Dabu agar alur bersih & otomatis */}
         {!isWizard && (
           <div className='flex items-center gap-1 p-1 rounded-xl bg-muted/60 border border-border/60'>
-            <button
+            <Button
               type='button'
               onClick={() => setMode('auto')}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
@@ -296,12 +282,12 @@ export function BpjsKesBillingPanel({
               }`}
             >
               <IconSparkles size={14} className={mode === 'auto' ? 'text-emerald-600' : ''} />
-              <span>Kalkulasi Otomatis</span>
+              <span>{m.payroll_billing_auto_mode()}</span>
               <span className='px-1.5 py-0.2 text-[9px] rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 font-semibold'>
-                Default
+                {m.payroll_billing_default()}
               </span>
-            </button>
-            <button
+            </Button>
+            <Button
               type='button'
               onClick={() => setMode('upload')}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
@@ -311,13 +297,13 @@ export function BpjsKesBillingPanel({
               }`}
             >
               <IconFileSpreadsheet size={14} className={mode === 'upload' ? 'text-primary' : ''} />
-              <span>Upload File (e-Dabu)</span>
+              <span>{m.payroll_billing_upload_mode()}</span>
               {upload && (
                 <span className='px-1.5 py-0.2 text-[9px] rounded-full bg-blue-500/15 text-blue-700 dark:text-blue-300 font-semibold'>
                   {upload.records.length}
                 </span>
               )}
-            </button>
+            </Button>
           </div>
         )}
       </div>
@@ -325,7 +311,7 @@ export function BpjsKesBillingPanel({
       {/* ── Sub Header Filter & Action Bar ── */}
       <div className='px-5 py-3 bg-muted/20 border-b border-border/60 flex flex-wrap items-center justify-between gap-3'>
         <div className='flex items-center gap-2'>
-          <span className='text-xs font-semibold text-muted-foreground'>Filter Project:</span>
+          <span className='text-xs font-semibold text-muted-foreground'>{m.payroll_billing_project_filter()}</span>
           <Select
             value={project}
             onValueChange={(val) => {
@@ -337,12 +323,14 @@ export function BpjsKesBillingPanel({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {ALL_PROJECTS && <SelectItem value={ALL_PROJECTS}>Semua project</SelectItem>}
+              <SelectGroup>
+              <SelectItem value={ALL_PROJECTS}>{m.payroll_billing_all_projects()}</SelectItem>
               {projects.map((name) => (
                 <SelectItem key={name} value={name}>
                   {name}
                 </SelectItem>
               ))}
+              </SelectGroup>
             </SelectContent>
           </Select>
         </div>
@@ -354,7 +342,7 @@ export function BpjsKesBillingPanel({
             <div className='flex items-center gap-2'>
               <span className='inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-500/30 text-xs font-semibold'>
                 <IconCircleCheck size={16} className='text-emerald-600 dark:text-emerald-400' />
-                <span>Otomatis Tersimpan di Sistem</span>
+                <span>{m.payroll_billing_auto_saved()}</span>
               </span>
             </div>
           ) : mode === 'auto' ? (
@@ -368,7 +356,7 @@ export function BpjsKesBillingPanel({
                 onClick={handleDownloadTemplate}
               >
                 <IconDownload size={14} />
-                Unduh template
+                {m.payroll_billing_download_template()}
               </Button>
               <Button
                 type='button'
@@ -377,7 +365,7 @@ export function BpjsKesBillingPanel({
                 onClick={handleSaveData}
               >
                 <IconDeviceFloppy size={14} />
-                Simpan Data
+                {m.payroll_billing_save_data()}
               </Button>
             </div>
           ) : (
@@ -390,7 +378,7 @@ export function BpjsKesBillingPanel({
                 onClick={handleDownloadTemplate}
               >
                 <IconDownload size={14} />
-                Unduh template
+                {m.payroll_billing_download_template()}
               </Button>
               <Button
                 type='button'
@@ -400,9 +388,9 @@ export function BpjsKesBillingPanel({
                 onClick={() => openPicker(periodKey)}
               >
                 <IconUpload size={14} />
-                {upload ? 'Ganti File Excel' : 'Upload tagihan Excel'}
+                {upload ? m.payroll_billing_replace_excel() : m.payroll_billing_upload_excel()}
               </Button>
-              <input
+              <Input
                 ref={fileInputRef}
                 type='file'
                 accept='.xlsx,.xls'
@@ -425,14 +413,12 @@ export function BpjsKesBillingPanel({
             <div className='space-y-1 min-w-0'>
               <div className='flex items-center gap-2'>
                 <p className='font-bold text-foreground'>
-                  Perhitungan Iuran BPJS Kesehatan Otomatis Aktif
+                  {m.payroll_billing_auto_active()}
                 </p>
-                <Badge variant='emerald'>Siap Diproses</Badge>
+                <Badge variant='emerald'>{m.payroll_billing_ready()}</Badge>
               </div>
               <p className='text-[11px] text-muted-foreground leading-relaxed'>
-                Sistem menghitung otomatis iuran BPJS Kesehatan dari data <strong>Master Upah</strong> karyawan aktif
-                (Upah Pokok dibatasi batas maksimal Rp 12.000.000). Iuran karyawan <strong>1%</strong> dipotong dari Take Home Pay (THP),
-                dan bagian perusahaan <strong>4%</strong> ditanggung perusahaan. Data langsung tersimpan di sistem tanpa perlu upload manual.
+                {m.payroll_billing_auto_description({ cap: formatIDR(bpjsKesConfig.maxWageCap), employeeRate: bpjsKesConfig.employeeRatePercent, employerRate: bpjsKesConfig.companyRatePercent })}
               </p>
             </div>
           </div>
@@ -440,37 +426,37 @@ export function BpjsKesBillingPanel({
           {/* Quick Stat Cards */}
           <div className='grid grid-cols-2 sm:grid-cols-5 gap-3'>
             <div className='p-3.5 rounded-xl border border-border/70 bg-card space-y-1'>
-              <p className='text-[10px] uppercase font-bold text-muted-foreground'>Peserta Aktif</p>
-              <p className='text-base font-bold text-foreground'>{autoSummary.count} Karyawan</p>
-              <p className='text-[10px] text-muted-foreground'>Terdaftar BPJS Kes</p>
+              <p className='text-[10px] uppercase font-bold text-muted-foreground'>{m.payroll_billing_active_participants()}</p>
+              <p className='text-base font-bold text-foreground'>{m.payroll_run_detail_employee_count({ count: autoSummary.count })}</p>
+              <p className='text-[10px] text-muted-foreground'>{m.payroll_billing_registered()}</p>
             </div>
             <div className='p-3.5 rounded-xl border border-border/70 bg-card space-y-1'>
-              <p className='text-[10px] uppercase font-bold text-muted-foreground'>Dasar Upah Terdaftar</p>
+              <p className='text-[10px] uppercase font-bold text-muted-foreground'>{m.payroll_billing_wage_base()}</p>
               <p className='text-base font-bold text-foreground'>{formatIDR(autoSummary.totalWage)}</p>
-              <p className='text-[10px] text-muted-foreground'>Setelah Cap Rp 12M</p>
+              <p className='text-[10px] text-muted-foreground'>{m.payroll_billing_after_cap({ cap: formatIDR(bpjsKesConfig.maxWageCap) })}</p>
             </div>
             <div className='p-3.5 rounded-xl border border-rose-500/20 bg-rose-50/30 dark:bg-rose-950/10 space-y-1'>
               <p className='text-[10px] uppercase font-bold text-rose-600 dark:text-rose-400'>
-                Iuran Karyawan (1%)
+                {m.payroll_billing_employee_contribution({ rate: bpjsKesConfig.employeeRatePercent })}
               </p>
               <p className='text-base font-bold text-rose-600 dark:text-rose-400'>
                 {formatIDR(autoSummary.totalEmployee)}
               </p>
-              <p className='text-[10px] text-muted-foreground'>Dipotong dari gaji THP</p>
+              <p className='text-[10px] text-muted-foreground'>{m.payroll_billing_deducted_from_pay()}</p>
             </div>
             <div className='p-3.5 rounded-xl border border-border/70 bg-card space-y-1'>
               <p className='text-[10px] uppercase font-bold text-muted-foreground'>
-                Iuran Perusahaan (4%)
+                {m.payroll_billing_employer_contribution({ rate: bpjsKesConfig.companyRatePercent })}
               </p>
               <p className='text-base font-bold text-foreground'>
                 {formatIDR(autoSummary.totalEmployer)}
               </p>
-              <p className='text-[10px] text-muted-foreground'>Ditanggung Perusahaan</p>
+              <p className='text-[10px] text-muted-foreground'>{m.payroll_billing_paid_by_company()}</p>
             </div>
             <div className='p-3.5 rounded-xl border border-primary/20 bg-primary/5 space-y-1'>
-              <p className='text-[10px] uppercase font-bold text-primary'>Total Iuran (5%)</p>
+              <p className='text-[10px] uppercase font-bold text-primary'>{m.payroll_billing_total_contribution({ rate: bpjsKesConfig.employeeRatePercent + bpjsKesConfig.companyRatePercent })}</p>
               <p className='text-base font-bold text-primary'>{formatIDR(autoSummary.totalGrand)}</p>
-              <p className='text-[10px] text-muted-foreground'>Disetor ke BPJS Kes</p>
+              <p className='text-[10px] text-muted-foreground'>{m.payroll_billing_remitted()}</p>
             </div>
           </div>
 
@@ -479,25 +465,25 @@ export function BpjsKesBillingPanel({
             <Table>
               <TableHeader>
                 <TableRow className='bg-muted/30 text-xs whitespace-nowrap'>
-                  <TableHead className='font-bold text-muted-foreground pl-4'>Karyawan</TableHead>
-                  <TableHead className='font-bold text-muted-foreground'>Project</TableHead>
-                  <TableHead className='font-bold text-muted-foreground text-right'>Upah Pokok Master</TableHead>
+                  <TableHead className='font-bold text-muted-foreground pl-4'>{m.payroll_billing_col_employee()}</TableHead>
+                  <TableHead className='font-bold text-muted-foreground'>{m.payroll_billing_col_project()}</TableHead>
+                  <TableHead className='font-bold text-muted-foreground text-right'>{m.payroll_billing_col_base_salary()}</TableHead>
                   <TableHead className='font-bold text-muted-foreground text-right'>
-                    Dasar Upah (Maks. {formatIDR(bpjsKesConfig.maxWageCap)})
+                    {m.payroll_billing_col_capped_wage({ cap: formatIDR(bpjsKesConfig.maxWageCap) })}
                   </TableHead>
                   <TableHead className='font-bold text-muted-foreground text-right'>
-                    Karyawan (1%)
+                    {m.payroll_billing_employee_contribution({ rate: bpjsKesConfig.employeeRatePercent })}
                   </TableHead>
                   <TableHead className='font-bold text-muted-foreground text-right'>
-                    Perusahaan (4%)
+                    {m.payroll_billing_employer_contribution({ rate: bpjsKesConfig.companyRatePercent })}
                   </TableHead>
                   <TableHead className='font-bold text-muted-foreground text-right'>
-                    Total Tagihan (5%)
+                    {m.payroll_billing_col_total_bill({ rate: bpjsKesConfig.employeeRatePercent + bpjsKesConfig.companyRatePercent })}
                   </TableHead>
                   <TableHead className='font-bold text-muted-foreground text-right'>
-                    Dipotong dari THP
+                    {m.payroll_billing_col_deducted()}
                   </TableHead>
-                  <TableHead className='font-bold text-muted-foreground pr-4'>Status</TableHead>
+                  <TableHead className='font-bold text-muted-foreground pr-4'>{m.payroll_billing_col_status()}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -519,9 +505,7 @@ export function BpjsKesBillingPanel({
                     <TableCell className='text-right font-bold text-foreground'>{formatIDR(total)}</TableCell>
                     <TableCell className='text-right font-bold text-primary'>{formatIDR(employeeShare)}</TableCell>
                     <TableCell className='pr-4'>
-                      <span className='inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-semibold'>
-                        <IconCircleCheck size={14} /> Otomatis dari Master
-                      </span>
+                      <Badge variant='emerald' className='gap-1 font-semibold'><IconCircleCheck size={14} /> {m.payroll_billing_from_master()}</Badge>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -529,7 +513,7 @@ export function BpjsKesBillingPanel({
             </Table>
 
             <TablePagination
-              itemLabel='karyawan'
+              itemLabel={m.payroll_billing_employee_item()}
               totalItems={visibleAutoRows.length}
               currentPage={currentPage}
               pageSize={pageSize}
@@ -551,10 +535,10 @@ export function BpjsKesBillingPanel({
               </span>
               <div className='space-y-1 max-w-md'>
                 <p className='text-sm font-bold text-foreground'>
-                  File Tagihan Resmi e-Dabu Belum Diupload
+                  {m.payroll_billing_no_file_title()}
                 </p>
                 <p className='text-xs text-muted-foreground leading-relaxed'>
-                  Upload tagihan resmi e-Dabu jika perusahaan ingin mencocokkan data tagihan BPJS Kesehatan atau memotong iuran anggota keluarga tambahan. Jika tidak diupload, perhitungan akan otomatis memakai data Master Upah.
+                  {m.payroll_billing_no_file_description()}
                 </p>
               </div>
               <div className='flex flex-wrap items-center gap-2 pt-2'>
@@ -566,7 +550,7 @@ export function BpjsKesBillingPanel({
                   onClick={() => openPicker(periodKey)}
                 >
                   <IconUpload size={15} />
-                  Pilih & Upload Excel
+                  {m.payroll_billing_choose_upload()}
                 </Button>
                 <Button
                   type='button'
@@ -576,7 +560,7 @@ export function BpjsKesBillingPanel({
                   onClick={() => setMode('auto')}
                 >
                   <IconCheck size={15} />
-                  Gunakan Kalkulasi Otomatis Saja
+                  {m.payroll_billing_use_auto()}
                 </Button>
               </div>
             </div>
@@ -591,65 +575,63 @@ export function BpjsKesBillingPanel({
                   <div className='min-w-0'>
                     <p className='text-xs font-bold text-foreground truncate'>{upload.fileName}</p>
                     <p className='text-[11px] text-muted-foreground'>
-                      {upload.records.length} baris · diupload {upload.uploadedAt}
+                      {m.payroll_billing_uploaded_at({ count: upload.records.length, date: upload.uploadedAt })}
                     </p>
                   </div>
                 </div>
                 <div className='flex items-center gap-2'>
-                  <Badge variant='emerald'>{match.rows.length - match.missing.length} cocok</Badge>
+                  <Badge variant='emerald'>{m.payroll_billing_matched({ count: match.rows.length - match.missing.length })}</Badge>
                   {match.missing.length > 0 && (
-                    <Badge variant='amber'>{match.missing.length} belum ada tagihan</Badge>
+                    <Badge variant='amber'>{m.payroll_billing_missing({ count: match.missing.length })}</Badge>
                   )}
                   {match.issueCount > 0 && (
-                    <Badge variant='amber'>{match.issueCount} identitas bermasalah</Badge>
+                    <Badge variant='amber'>{m.payroll_billing_identity_issues({ count: match.issueCount })}</Badge>
                   )}
                   {match.unmatched.length > 0 && (
-                    <Badge variant='red'>{match.unmatched.length} tidak cocok</Badge>
+                    <Badge variant='red'>{m.payroll_billing_unmatched({ count: match.unmatched.length })}</Badge>
                   )}
                 </div>
               </div>
 
               {parseErrors.length > 0 && (
                 <div className='p-3 rounded-xl border border-amber-300/60 bg-amber-50/60 dark:bg-amber-950/20 text-[11px] text-amber-900 dark:text-amber-300 space-y-0.5'>
-                  <p className='font-bold'>{parseErrors.length} baris dilewati:</p>
+                  <p className='font-bold'>{m.payroll_billing_skipped_rows({ count: parseErrors.length })}</p>
                   {parseErrors.slice(0, 5).map((err) => (
                     <p key={err}>• {err}</p>
                   ))}
-                  {parseErrors.length > 5 && <p>… dan {parseErrors.length - 5} lainnya</p>}
+                  {parseErrors.length > 5 && <p>{m.payroll_billing_more_errors({ count: parseErrors.length - 5 })}</p>}
                 </div>
               )}
 
               <p className='text-[11px] text-muted-foreground'>
-                <b>Nilai Tagihan</b> = Karyawan + Perusahaan + Keluarga Tambahan (total yang ditagih BPJS).{' '}
-                <b>Dipotong dari Gaji</b> = Karyawan + Keluarga Tambahan; porsi Perusahaan ditanggung
-                perusahaan dan tidak mengurangi gaji bersih.
+                {m.payroll_billing_amount_explanation()}
               </p>
 
               <div className='rounded-xl border border-border/70 overflow-x-auto'>
                 <Table>
                   <TableHeader>
                     <TableRow className='bg-muted/30 text-xs whitespace-nowrap'>
-                      <TableHead className='font-bold text-muted-foreground pl-4'>Karyawan</TableHead>
-                      <TableHead className='font-bold text-muted-foreground'>Project</TableHead>
+                      <TableHead className='font-bold text-muted-foreground pl-4'>{m.payroll_billing_col_employee()}</TableHead>
+                      <TableHead className='font-bold text-muted-foreground'>{m.payroll_billing_col_project()}</TableHead>
                       <TableHead className='font-bold text-muted-foreground text-right'>
-                        Upah BPJS
+                        {m.payroll_billing_col_bpjs_wage()}
                       </TableHead>
                       <TableHead className='font-bold text-muted-foreground text-right'>
-                        Karyawan ({bpjsKesConfig.employeeRatePercent}%)
+                        {m.payroll_billing_employee_contribution({ rate: bpjsKesConfig.employeeRatePercent })}
                       </TableHead>
                       <TableHead className='font-bold text-muted-foreground text-right'>
-                        Perusahaan ({bpjsKesConfig.companyRatePercent}%)
+                        {m.payroll_billing_employer_contribution({ rate: bpjsKesConfig.companyRatePercent })}
                       </TableHead>
                       <TableHead className='font-bold text-muted-foreground text-right'>
-                        Keluarga Tambahan
+                        {m.payroll_billing_col_extra_family()}
                       </TableHead>
                       <TableHead className='font-bold text-muted-foreground text-right'>
-                        Nilai Tagihan
+                        {m.payroll_billing_col_bill_amount()}
                       </TableHead>
                       <TableHead className='font-bold text-muted-foreground text-right'>
-                        Dipotong dari Gaji
+                        {m.payroll_billing_col_deducted()}
                       </TableHead>
-                      <TableHead className='font-bold text-muted-foreground pr-4'>Status</TableHead>
+                      <TableHead className='font-bold text-muted-foreground pr-4'>{m.payroll_billing_col_status()}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -682,20 +664,17 @@ export function BpjsKesBillingPanel({
                           </TableCell>
                           <TableCell className='pr-4'>
                             {record && issues.length > 0 ? (
-                              <span
+                              <Badge
+                                variant='amber'
                                 title={issues.join(' ')}
-                                className='inline-flex items-center gap-1 text-amber-600 dark:text-amber-400 font-semibold'
+                                className='gap-1 font-semibold'
                               >
-                                <IconAlertTriangle size={14} /> Periksa identitas
-                              </span>
+                                <IconAlertTriangle size={14} /> {m.payroll_billing_check_identity()}
+                              </Badge>
                             ) : record ? (
-                              <span className='inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-semibold'>
-                                <IconCircleCheck size={14} /> Cocok
-                              </span>
+                              <Badge variant='emerald' className='gap-1 font-semibold'><IconCircleCheck size={14} /> {m.payroll_billing_match()}</Badge>
                             ) : (
-                              <span className='inline-flex items-center gap-1 text-amber-600 dark:text-amber-400 font-semibold'>
-                                <IconAlertTriangle size={14} /> Belum ada tagihan — fallback otomatis
-                              </span>
+                              <Badge variant='amber' className='gap-1 font-semibold'><IconAlertTriangle size={14} /> {m.payroll_billing_fallback()}</Badge>
                             )}
                           </TableCell>
                         </TableRow>
@@ -710,7 +689,7 @@ export function BpjsKesBillingPanel({
                             className='text-xs whitespace-nowrap bg-red-50/40 dark:bg-red-950/10'
                           >
                             <TableCell className='pl-4'>
-                              <p className='font-bold text-foreground'>{record.name || '(tanpa nama)'}</p>
+                              <p className='font-bold text-foreground'>{record.name || m.payroll_billing_unnamed()}</p>
                               <p className='text-[10px] text-muted-foreground font-mono'>
                                 {record.nopeg || record.nik || record.bpjsNumber}
                               </p>
@@ -727,9 +706,7 @@ export function BpjsKesBillingPanel({
                               {formatIDR(amounts.employeeShare + amounts.familyExtra)}
                             </TableCell>
                             <TableCell className='pr-4'>
-                              <span className='inline-flex items-center gap-1 text-red-600 dark:text-red-400 font-semibold'>
-                                <IconAlertTriangle size={14} /> Identitas tidak ditemukan
-                              </span>
+                              <Badge variant='red' className='gap-1 font-semibold'><IconAlertTriangle size={14} /> {m.payroll_billing_identity_not_found()}</Badge>
                             </TableCell>
                           </TableRow>
                         )
@@ -745,18 +722,18 @@ export function BpjsKesBillingPanel({
       {/* ── History upload bulanan (Hanya ditampilkan di Setting, tidak di wizard) ── */}
       {!isWizard && history.length > 0 && (
         <div className='p-5 border-t border-border/60 space-y-3'>
-          <h4 className='text-xs font-bold text-foreground'>History upload tagihan bulanan</h4>
+          <h4 className='text-xs font-bold text-foreground'>{m.payroll_billing_history_title()}</h4>
           <div className='rounded-xl border border-border/70 overflow-x-auto'>
             <Table>
               <TableHeader>
                 <TableRow className='bg-muted/30 text-xs whitespace-nowrap'>
-                  <TableHead className='font-bold text-muted-foreground pl-4'>Bulan – Tahun</TableHead>
-                  <TableHead className='font-bold text-muted-foreground'>File</TableHead>
-                  <TableHead className='font-bold text-muted-foreground text-right'>Karyawan</TableHead>
+                  <TableHead className='font-bold text-muted-foreground pl-4'>{m.payroll_billing_col_month_year()}</TableHead>
+                  <TableHead className='font-bold text-muted-foreground'>{m.payroll_billing_col_file()}</TableHead>
+                  <TableHead className='font-bold text-muted-foreground text-right'>{m.payroll_billing_col_employee()}</TableHead>
                   <TableHead className='font-bold text-muted-foreground text-right'>
-                    Nilai Tagihan
+                    {m.payroll_billing_col_bill_amount()}
                   </TableHead>
-                  <TableHead className='font-bold text-muted-foreground pr-4 text-right'>Aksi</TableHead>
+                  <TableHead className='font-bold text-muted-foreground pr-4 text-right'>{m.payroll_billing_col_actions()}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -773,13 +750,13 @@ export function BpjsKesBillingPanel({
                     <TableCell className='pr-4'>
                       <div className='flex items-center justify-end gap-1'>
                         <TableActionButton
-                          tooltip='Revisi tagihan'
+                          tooltip={m.payroll_billing_edit_bill()}
                           icon={<IconRefresh size={15} />}
                           intent='primary'
                           onClick={() => openPicker(item.periodKey)}
                         />
                         <TableActionButton
-                          tooltip='Hapus tagihan'
+                          tooltip={m.payroll_billing_delete_bill()}
                           icon={<IconTrash size={15} />}
                           intent='danger'
                           onClick={() => handleRemove(item.periodKey)}

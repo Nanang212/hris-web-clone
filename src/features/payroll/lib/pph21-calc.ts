@@ -2,7 +2,7 @@
 // Engine perhitungan PPh 21 sesuai PMK 168/2023 (TER Bulanan Kategori A, B, C)
 // dan opsi metode Progresif Tahunan Pasal 17 UU HPP / Gross Up / Nett.
 
-import type { Pph21Config } from '../types'
+import type { FinalTaxReconciliation, Pph21Config, TaxYearToDateInput } from '../types'
 
 export type TerCategory = 'A' | 'B' | 'C'
 
@@ -27,36 +27,38 @@ const TER_A_BRACKETS: TerBracket[] = [
   { upTo: 10_050_000, ratePercent: 2.0 },
   { upTo: 10_350_000, ratePercent: 2.25 },
   { upTo: 10_700_000, ratePercent: 2.5 },
-  { upTo: 12_500_000, ratePercent: 3.0 },
-  { upTo: 13_750_000, ratePercent: 4.0 },
-  { upTo: 15_100_000, ratePercent: 5.0 },
-  { upTo: 16_950_000, ratePercent: 6.0 },
-  { upTo: 19_750_000, ratePercent: 7.0 },
-  { upTo: 24_100_000, ratePercent: 8.0 },
-  { upTo: 26_450_000, ratePercent: 9.0 },
-  { upTo: 28_000_000, ratePercent: 10.0 },
-  { upTo: 30_050_000, ratePercent: 11.0 },
-  { upTo: 32_400_000, ratePercent: 12.0 },
-  { upTo: 35_400_000, ratePercent: 13.0 },
-  { upTo: 39_100_000, ratePercent: 14.0 },
-  { upTo: 43_850_000, ratePercent: 15.0 },
-  { upTo: 47_800_000, ratePercent: 16.0 },
-  { upTo: 51_400_000, ratePercent: 17.0 },
-  { upTo: 56_300_000, ratePercent: 18.0 },
-  { upTo: 62_200_000, ratePercent: 19.0 },
-  { upTo: 68_600_000, ratePercent: 20.0 },
-  { upTo: 77_500_000, ratePercent: 21.0 },
-  { upTo: 89_000_000, ratePercent: 22.0 },
-  { upTo: 101_900_000, ratePercent: 23.0 },
-  { upTo: 120_200_000, ratePercent: 24.0 },
-  { upTo: 147_700_000, ratePercent: 25.0 },
-  { upTo: 188_700_000, ratePercent: 26.0 },
-  { upTo: 250_300_000, ratePercent: 27.0 },
-  { upTo: 356_500_000, ratePercent: 28.0 },
-  { upTo: 496_200_000, ratePercent: 29.0 },
-  { upTo: 678_800_000, ratePercent: 30.0 },
-  { upTo: 950_400_000, ratePercent: 31.0 },
-  { upTo: 1_400_000_000, ratePercent: 32.0 },
+  { upTo: 11_050_000, ratePercent: 3.0 },
+  { upTo: 11_600_000, ratePercent: 3.5 },
+  { upTo: 12_500_000, ratePercent: 4.0 },
+  { upTo: 13_750_000, ratePercent: 5.0 },
+  { upTo: 15_100_000, ratePercent: 6.0 },
+  { upTo: 16_950_000, ratePercent: 7.0 },
+  { upTo: 19_750_000, ratePercent: 8.0 },
+  { upTo: 24_150_000, ratePercent: 9.0 },
+  { upTo: 26_450_000, ratePercent: 10.0 },
+  { upTo: 28_000_000, ratePercent: 11.0 },
+  { upTo: 30_050_000, ratePercent: 12.0 },
+  { upTo: 32_400_000, ratePercent: 13.0 },
+  { upTo: 35_400_000, ratePercent: 14.0 },
+  { upTo: 39_100_000, ratePercent: 15.0 },
+  { upTo: 43_850_000, ratePercent: 16.0 },
+  { upTo: 47_800_000, ratePercent: 17.0 },
+  { upTo: 51_400_000, ratePercent: 18.0 },
+  { upTo: 56_300_000, ratePercent: 19.0 },
+  { upTo: 62_200_000, ratePercent: 20.0 },
+  { upTo: 68_600_000, ratePercent: 21.0 },
+  { upTo: 77_500_000, ratePercent: 22.0 },
+  { upTo: 89_000_000, ratePercent: 23.0 },
+  { upTo: 103_000_000, ratePercent: 24.0 },
+  { upTo: 125_000_000, ratePercent: 25.0 },
+  { upTo: 157_000_000, ratePercent: 26.0 },
+  { upTo: 206_000_000, ratePercent: 27.0 },
+  { upTo: 337_000_000, ratePercent: 28.0 },
+  { upTo: 454_000_000, ratePercent: 29.0 },
+  { upTo: 550_000_000, ratePercent: 30.0 },
+  { upTo: 695_000_000, ratePercent: 31.0 },
+  { upTo: 910_000_000, ratePercent: 32.0 },
+  { upTo: 1_400_000_000, ratePercent: 33.0 },
   { upTo: Number.POSITIVE_INFINITY, ratePercent: 34.0 },
 ]
 
@@ -98,11 +100,11 @@ const TER_B_BRACKETS: TerBracket[] = [
   { upTo: 129_000_000, ratePercent: 25.0 },
   { upTo: 163_000_000, ratePercent: 26.0 },
   { upTo: 211_000_000, ratePercent: 27.0 },
-  { upTo: 274_000_000, ratePercent: 28.0 },
-  { upTo: 382_000_000, ratePercent: 29.0 },
-  { upTo: 524_000_000, ratePercent: 30.0 },
-  { upTo: 715_000_000, ratePercent: 31.0 },
-  { upTo: 1_000_000_000, ratePercent: 32.0 },
+  { upTo: 374_000_000, ratePercent: 28.0 },
+  { upTo: 459_000_000, ratePercent: 29.0 },
+  { upTo: 555_000_000, ratePercent: 30.0 },
+  { upTo: 704_000_000, ratePercent: 31.0 },
+  { upTo: 957_000_000, ratePercent: 32.0 },
   { upTo: 1_405_000_000, ratePercent: 33.0 },
   { upTo: Number.POSITIVE_INFINITY, ratePercent: 34.0 },
 ]
@@ -144,13 +146,13 @@ const TER_C_BRACKETS: TerBracket[] = [
   { upTo: 95_600_000, ratePercent: 23.0 },
   { upTo: 110_000_000, ratePercent: 24.0 },
   { upTo: 134_000_000, ratePercent: 25.0 },
-  { upTo: 169_500_000, ratePercent: 26.0 },
+  { upTo: 169_000_000, ratePercent: 26.0 },
   { upTo: 221_000_000, ratePercent: 27.0 },
-  { upTo: 290_000_000, ratePercent: 28.0 },
-  { upTo: 400_000_000, ratePercent: 29.0 },
-  { upTo: 546_000_000, ratePercent: 30.0 },
-  { upTo: 745_000_000, ratePercent: 31.0 },
-  { upTo: 1_050_000_000, ratePercent: 32.0 },
+  { upTo: 390_000_000, ratePercent: 28.0 },
+  { upTo: 463_000_000, ratePercent: 29.0 },
+  { upTo: 561_000_000, ratePercent: 30.0 },
+  { upTo: 709_000_000, ratePercent: 31.0 },
+  { upTo: 965_000_000, ratePercent: 32.0 },
   { upTo: 1_419_000_000, ratePercent: 33.0 },
   { upTo: Number.POSITIVE_INFINITY, ratePercent: 34.0 },
 ]
@@ -242,6 +244,54 @@ function progressiveTax(pkp: number): number {
   return tax
 }
 
+export function calculateFinalPeriodPph21(params: {
+  currentTaxableGross: number
+  currentEmployeePensionContributions: number
+  currentQualifiedZakat: number
+  ptkpStatus: string
+  yearToDate: TaxYearToDateInput
+  cfg: Pph21Config
+}): FinalTaxReconciliation {
+  const {
+    currentTaxableGross,
+    currentEmployeePensionContributions,
+    currentQualifiedZakat,
+    ptkpStatus,
+    yearToDate,
+    cfg,
+  } = params
+  const cumulativeTaxableGross = yearToDate.priorTaxableGross + currentTaxableGross
+  const monthsWorked = Math.min(12, Math.max(1, yearToDate.monthsWorked))
+  const jobCost = Math.min(
+    cumulativeTaxableGross * JOB_COST_RATE,
+    monthsWorked * JOB_COST_MAX_MONTHLY,
+  )
+  const employeePensionContributions =
+    yearToDate.priorEmployeePensionContributions + currentEmployeePensionContributions
+  const qualifiedZakat = yearToDate.priorQualifiedZakat + currentQualifiedZakat
+  const cumulativeNetIncome = Math.max(
+    0,
+    cumulativeTaxableGross - jobCost - employeePensionContributions - qualifiedZakat,
+  )
+  const annualPtkp = getPtkpAnnualAmount(ptkpStatus, cfg)
+  const taxableIncomePkp = Math.floor(Math.max(0, cumulativeNetIncome - annualPtkp) / 1000) * 1000
+  const annualPph21 = Math.floor(progressiveTax(taxableIncomePkp))
+  const currentPeriodPph21 = annualPph21 - yearToDate.priorPph21Paid
+
+  return {
+    cumulativeTaxableGross,
+    jobCost,
+    employeePensionContributions,
+    qualifiedZakat,
+    cumulativeNetIncome,
+    annualPtkp,
+    taxableIncomePkp,
+    annualPph21,
+    priorPph21Paid: yearToDate.priorPph21Paid,
+    currentPeriodPph21,
+  }
+}
+
 /**
  * Menghitung PPh 21 bulanan secara komprehensif:
  * - Jika `useTERScheme` = true: menggunakan tarif TER Bulanan PMK 168/2023.
@@ -279,7 +329,7 @@ export function calculateMonthlyPph21(params: {
 
   if (cfg.useTERScheme) {
     const ratePercent = getTerRatePercent(category, taxableGrossMonthly)
-    let taxAmount = Math.round((taxableGrossMonthly * ratePercent) / 100)
+    let taxAmount = Math.floor((taxableGrossMonthly * ratePercent) / 100)
     let taxAllowance = 0
 
     if (cfg.taxMethod === 'gross_up') {

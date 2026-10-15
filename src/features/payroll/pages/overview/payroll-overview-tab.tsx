@@ -16,7 +16,10 @@ import {
   initialPayrollRuns,
 } from '../../data/mock-payroll-data'
 import type { PayrollRun } from '../../types'
+import { m } from '@/i18n/paraglide/messages'
+import { Badge } from '@/shared/components/ui/badge'
 import { Button } from '@/shared/components/ui/button'
+import { Progress } from '@/shared/components/ui/progress'
 import {
   Tooltip,
   TooltipContent,
@@ -43,11 +46,11 @@ export function PayrollOverviewTab({
   const activeRun = initialPayrollRuns[0]
 
   const departmentDistribution = [
-    { name: 'IT & Engineering', count: 420, amount: 1680000000, percent: 39.5 },
-    { name: 'Operations & Supply', count: 310, amount: 980000000, percent: 23.0 },
-    { name: 'Sales & Marketing', count: 210, amount: 840000000, percent: 19.8 },
-    { name: 'Finance & Accounting', count: 110, amount: 450000000, percent: 10.6 },
-    { name: 'Human Resource', count: 92, amount: 300000000, percent: 7.1 },
+    { name: m.payroll_overview_department_it(), count: 420, amount: 1680000000, percent: 39.5 },
+    { name: m.payroll_overview_department_operations(), count: 310, amount: 980000000, percent: 23.0 },
+    { name: m.payroll_overview_department_sales(), count: 210, amount: 840000000, percent: 19.8 },
+    { name: m.payroll_overview_department_finance(), count: 110, amount: 450000000, percent: 10.6 },
+    { name: m.payroll_overview_department_hr(), count: 92, amount: 300000000, percent: 7.1 },
   ]
 
   return (
@@ -60,12 +63,10 @@ export function PayrollOverviewTab({
             <div className='flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary'>
               <IconCalendarTime size={22} />
             </div>
-            <span className='rounded-full bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400 px-2.5 py-0.5 text-[10px] font-bold'>
-              Disbursed
-            </span>
+            <Badge variant='green'>{m.payroll_overview_disbursed()}</Badge>
           </div>
           <div className='mt-3'>
-            <p className='text-[11px] font-semibold text-muted-foreground'>Active Payroll Period</p>
+            <p className='text-[11px] font-semibold text-muted-foreground'>{m.payroll_overview_active_period()}</p>
             <b className='text-xl font-bold text-foreground'>{activeRun.period}</b>
             <p className='text-[10px] text-muted-foreground mt-0.5'>
               Cut-off: {activeRun.cutoffStartDate} – {activeRun.cutoffEndDate}
@@ -84,7 +85,7 @@ export function PayrollOverviewTab({
             </span>
           </div>
           <div className='mt-3'>
-            <p className='text-[11px] font-semibold text-muted-foreground'>Total Gross Pay</p>
+            <p className='text-[11px] font-semibold text-muted-foreground'>{m.payroll_overview_gross_pay()}</p>
             <b className='text-xl font-bold text-foreground'>{formatCompactIDR(activeRun.totalGrossPay)}</b>
             <p className='text-[10px] text-muted-foreground mt-0.5'>
               Base: {formatCompactIDR(3410000000)} · OT/Allow: {formatCompactIDR(activeRun.totalAllowances)}
@@ -103,7 +104,7 @@ export function PayrollOverviewTab({
             </span>
           </div>
           <div className='mt-3'>
-            <p className='text-[11px] font-semibold text-muted-foreground'>Total Deductions & Tax</p>
+            <p className='text-[11px] font-semibold text-muted-foreground'>{m.payroll_overview_deductions_tax()}</p>
             <b className='text-xl font-bold text-amber-600 dark:text-amber-400'>{formatCompactIDR(activeRun.totalDeductions)}</b>
             <p className='text-[10px] text-muted-foreground mt-0.5'>
               Tax: {formatCompactIDR(activeRun.totalTaxPPh21)} · BPJS: {formatCompactIDR(activeRun.totalBpjsTK + activeRun.totalBpjsKes)}
@@ -117,15 +118,13 @@ export function PayrollOverviewTab({
             <div className='flex size-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400'>
               <IconCircleCheck size={22} />
             </div>
-            <span className='rounded-full bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400 px-2 py-0.5 text-[10px] font-bold'>
-              100% Paid
-            </span>
+            <Badge variant='green'>{m.payroll_overview_paid_percent()}</Badge>
           </div>
           <div className='mt-3'>
-            <p className='text-[11px] font-semibold text-muted-foreground'>Total Net Disbursement</p>
+            <p className='text-[11px] font-semibold text-muted-foreground'>{m.payroll_overview_net_disbursement()}</p>
             <b className='text-xl font-bold text-emerald-600 dark:text-emerald-400'>{formatCompactIDR(activeRun.totalNetDisbursement)}</b>
             <p className='text-[10px] text-muted-foreground mt-0.5'>
-              {activeRun.totalEmployees} employees paid via BCA MCM
+              {m.payroll_overview_employees_paid({count: activeRun.totalEmployees})}
             </p>
           </div>
         </div>
@@ -137,12 +136,12 @@ export function PayrollOverviewTab({
         <div className='rounded-2xl border border-border/80 bg-card p-6 shadow-xs'>
           <div className='flex items-center justify-between mb-4'>
             <div>
-              <h3 className='text-sm font-bold text-foreground'>Department Payroll Distribution</h3>
+              <h3 className='text-sm font-bold text-foreground'>{m.payroll_overview_distribution_title()}</h3>
               <p className='text-xs text-muted-foreground mt-0.5'>
-                Distribusi total pengeluaran gaji bersih berdasarkan unit kerja
+                {m.payroll_overview_distribution_description()}
               </p>
             </div>
-            <span className='text-xs font-bold text-foreground'>1,148 Karyawan</span>
+            <span className='text-xs font-bold text-foreground'>{m.payroll_overview_employee_count({count: activeRun.totalEmployees})}</span>
           </div>
 
           <div className='space-y-4 mt-5'>
@@ -154,7 +153,7 @@ export function PayrollOverviewTab({
                     {dept.name}
                   </span>
                   <div className='flex items-center gap-3'>
-                    <span className='text-muted-foreground text-[11px]'>{dept.count} emp</span>
+                    <span className='text-muted-foreground text-[11px]'>{m.payroll_overview_employee_count({count: dept.count})}</span>
                     <b className='font-semibold text-foreground'>{formatIDR(dept.amount)}</b>
                     <span className='w-10 text-right font-mono text-[11px] text-muted-foreground'>
                       {dept.percent}%
@@ -162,12 +161,7 @@ export function PayrollOverviewTab({
                   </div>
                 </div>
                 {/* Progress bar */}
-                <div className='h-2 w-full rounded-full bg-muted/60 overflow-hidden'>
-                  <div
-                    className='h-full rounded-full bg-primary transition-all duration-500'
-                    style={{ width: `${dept.percent}%` }}
-                  />
-                </div>
+                <Progress value={dept.percent} aria-label={m.payroll_overview_distribution_title()} />
               </div>
             ))}
           </div>
@@ -178,32 +172,32 @@ export function PayrollOverviewTab({
           <div>
             <div className='flex items-center justify-between'>
               <div>
-                <h3 className='text-sm font-bold text-foreground'>Statutory & Compliance Summary</h3>
+                <h3 className='text-sm font-bold text-foreground'>{m.payroll_overview_compliance_title()}</h3>
                 <p className='text-xs text-muted-foreground mt-0.5'>
-                  Kewajiban pajak PPh 21 dan jaminan sosial BPJS
+                  {m.payroll_overview_compliance_description()}
                 </p>
               </div>
-              <button
+              <Button
                 type='button'
                 onClick={onNavigateToConfig}
                 className='text-xs font-semibold text-primary hover:underline cursor-pointer'
               >
-                Configure
-              </button>
+                {m.payroll_overview_configure_button()}
+              </Button>
             </div>
 
             <div className='space-y-3.5 mt-5'>
               <div className='p-3.5 rounded-xl bg-muted/30 border border-border/60 flex items-center justify-between'>
                 <div>
-                  <p className='text-xs font-bold text-foreground'>PPh 21 TER Scheme</p>
-                  <p className='text-[10px] text-muted-foreground'>Kategori A, B, C Aktif</p>
+                  <p className='text-xs font-bold text-foreground'>{m.payroll_overview_ter_scheme()}</p>
+                  <p className='text-[10px] text-muted-foreground'>{m.payroll_overview_ter_categories()}</p>
                 </div>
                 <b className='text-xs font-bold text-foreground'>{formatIDR(activeRun.totalTaxPPh21)}</b>
               </div>
 
               <div className='p-3.5 rounded-xl bg-muted/30 border border-border/60 flex items-center justify-between'>
                 <div>
-                  <p className='text-xs font-bold text-foreground'>BPJS Ketenagakerjaan</p>
+                  <p className='text-xs font-bold text-foreground'>{m.payroll_config_tab_bpjs_tk()}</p>
                   <p className='text-[10px] text-muted-foreground'>JKK, JKM, JHT, JP</p>
                 </div>
                 <b className='text-xs font-bold text-foreground'>{formatIDR(activeRun.totalBpjsTK)}</b>
@@ -211,8 +205,8 @@ export function PayrollOverviewTab({
 
               <div className='p-3.5 rounded-xl bg-muted/30 border border-border/60 flex items-center justify-between'>
                 <div>
-                  <p className='text-xs font-bold text-foreground'>BPJS Kesehatan</p>
-                  <p className='text-[10px] text-muted-foreground'>Perusahaan 4% + Karyawan 1%</p>
+                  <p className='text-xs font-bold text-foreground'>{m.payroll_config_tab_bpjs_kes()}</p>
+                  <p className='text-[10px] text-muted-foreground'>{m.payroll_overview_bpjs_share()}</p>
                 </div>
                 <b className='text-xs font-bold text-foreground'>{formatIDR(activeRun.totalBpjsKes)}</b>
               </div>
@@ -220,7 +214,7 @@ export function PayrollOverviewTab({
           </div>
 
           <div className='pt-5 border-t border-border/60 flex items-center justify-between'>
-            <span className='text-xs text-muted-foreground'>Disbursement Gateway</span>
+            <span className='text-xs text-muted-foreground'>{m.payroll_overview_gateway()}</span>
             <span className='text-xs font-bold text-foreground flex items-center gap-1.5'>
               <span className='size-2 rounded-full bg-emerald-500' />
               BCA Corporate MCM
@@ -233,9 +227,9 @@ export function PayrollOverviewTab({
       <div className='rounded-2xl border border-border/80 bg-card shadow-xs overflow-hidden'>
         <div className='p-6 pb-4 flex items-center justify-between border-b border-border/60'>
           <div>
-            <h3 className='text-sm font-bold text-foreground'>Recent Payroll Batches</h3>
+            <h3 className='text-sm font-bold text-foreground'>{m.payroll_overview_recent_title()}</h3>
             <p className='text-xs text-muted-foreground mt-0.5'>
-              Riwayat proses penggajian dan status pencairan bulanan
+              {m.payroll_overview_recent_description()}
             </p>
           </div>
           <Button
@@ -243,20 +237,20 @@ export function PayrollOverviewTab({
             onClick={() => onNavigateToProcess()}
             className='text-xs font-semibold rounded-xl h-8.5 px-4 shadow-xs'
           >
-            View All Runs
+            {m.payroll_overview_view_all()}
           </Button>
         </div>
 
         <Table>
           <TableHeader>
             <TableRow className='bg-muted/30 hover:bg-muted/30 text-xs border-b border-border/60'>
-              <TableHead className='font-bold text-muted-foreground py-3.5 pl-6'>Period / Batch</TableHead>
-              <TableHead className='font-bold text-muted-foreground py-3.5'>Employees</TableHead>
-              <TableHead className='font-bold text-muted-foreground py-3.5'>Total Gross</TableHead>
-              <TableHead className='font-bold text-muted-foreground py-3.5'>Deductions & Tax</TableHead>
-              <TableHead className='font-bold text-muted-foreground py-3.5'>Net Disbursement</TableHead>
-              <TableHead className='font-bold text-muted-foreground py-3.5'>Status</TableHead>
-              <TableHead className='font-bold text-muted-foreground py-3.5 pr-6 text-right'>Action</TableHead>
+              <TableHead className='font-bold text-muted-foreground py-3.5 pl-6'>{m.payroll_overview_col_period()}</TableHead>
+              <TableHead className='font-bold text-muted-foreground py-3.5'>{m.payroll_overview_col_employees()}</TableHead>
+              <TableHead className='font-bold text-muted-foreground py-3.5'>{m.payroll_overview_col_gross()}</TableHead>
+              <TableHead className='font-bold text-muted-foreground py-3.5'>{m.payroll_overview_deductions_tax()}</TableHead>
+              <TableHead className='font-bold text-muted-foreground py-3.5'>{m.payroll_overview_net_disbursement()}</TableHead>
+              <TableHead className='font-bold text-muted-foreground py-3.5'>{m.payroll_overview_col_status()}</TableHead>
+              <TableHead className='font-bold text-muted-foreground py-3.5 pr-6 text-right'>{m.payroll_overview_col_action()}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -288,13 +282,13 @@ export function PayrollOverviewTab({
                         size='icon'
                         onClick={() => onNavigateToProcess(run.id)}
                         className='size-8 text-muted-foreground hover:text-primary hover:bg-primary/10'
-                        aria-label='View Detail'
+                        aria-label={m.payroll_overview_view_detail()}
                       >
                         <IconEye size={16} />
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent side='left'>
-                      <p>View Detail</p>
+                      <p>{m.payroll_overview_view_detail()}</p>
                     </TooltipContent>
                   </Tooltip>
                 </TableCell>

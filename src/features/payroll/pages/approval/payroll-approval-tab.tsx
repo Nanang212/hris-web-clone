@@ -1,23 +1,18 @@
 // src/features/payroll/pages/approval/payroll-approval-tab.tsx — Screens 13, 14, 15: Approval Hub & Variance Analysis
-import {
-  IconArrowUpRight,
-  IconArrowDownRight,
-  IconClock,
-  IconFileSpreadsheet,
-  IconShieldCheck,
-  IconSend,
-  IconUsers,
-} from '@tabler/icons-react'
+import { IconArrowUpRight } from '@tabler/icons-react'
 import { useState } from 'react'
 import { DisbursementView } from './disbursement-view'
 import { FinanceApprovalView } from './finance-approval-view'
 import { PayrollStatusBadge } from '../../components/payroll-status-badge'
 import { formatIDR, formatCompactIDR, initialPayrollRuns } from '../../data/mock-payroll-data'
 import type { PayrollRun } from '../../types'
+import { m } from '@/i18n/paraglide/messages'
 import { Button } from '@/shared/components/ui/button'
+import { Tabs, TabsList, TabsTrigger } from '@/shared/components/ui/tabs'
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
@@ -58,8 +53,8 @@ export function PayrollApprovalTab({ runs: propRuns, onUpdateRuns }: PayrollAppr
               ...r,
               status: 'approved',
               approvalStage: 'completed',
-              approvedBy: 'Director of Finance',
-              approvedAt: 'Baru saja',
+              approvedBy: m.payroll_approval_finance_director(),
+              approvedAt: m.payroll_approval_just_now(),
             }
           : r,
       ),
@@ -74,7 +69,7 @@ export function PayrollApprovalTab({ runs: propRuns, onUpdateRuns }: PayrollAppr
           ? {
               ...r,
               status: 'disbursed',
-              disbursedAt: 'Baru saja',
+              disbursedAt: m.payroll_approval_just_now(),
             }
           : r,
       ),
@@ -85,37 +80,24 @@ export function PayrollApprovalTab({ runs: propRuns, onUpdateRuns }: PayrollAppr
     <div className='space-y-6'>
       {/* ── Sub-nav Pill Selector for Approval Workflow ───────────────────── */}
       <div className='flex items-center justify-between flex-wrap gap-4'>
-        <div className='flex items-center gap-2'>
-          <Button
-            size='sm'
-            variant={approvalView === 'variance' ? 'default' : 'outline'}
-            onClick={() => setApprovalView('variance')}
-            className='h-8 px-4 text-xs font-semibold rounded-xl'
-          >
-            Pre-Review & Variance
-          </Button>
+        <Tabs value={approvalView} onValueChange={(value) => setApprovalView(value as typeof approvalView)}>
+          <TabsList className='h-auto flex-wrap'>
+          <TabsTrigger value='variance'>
+            {m.payroll_approval_variance_tab()}
+          </TabsTrigger>
 
-          <Button
-            size='sm'
-            variant={approvalView === 'finance_approval' ? 'default' : 'outline'}
-            onClick={() => setApprovalView('finance_approval')}
-            className='h-8 px-4 text-xs font-semibold rounded-xl'
-          >
-            Finance Approval Checklist
-          </Button>
+          <TabsTrigger value='finance_approval'>
+            {m.payroll_approval_checklist_tab()}
+          </TabsTrigger>
 
-          <Button
-            size='sm'
-            variant={approvalView === 'disbursement' ? 'default' : 'outline'}
-            onClick={() => setApprovalView('disbursement')}
-            className='h-8 px-4 text-xs font-semibold rounded-xl'
-          >
-            Disbursement & Bank File
-          </Button>
-        </div>
+          <TabsTrigger value='disbursement'>
+            {m.payroll_approval_disbursement_tab()}
+          </TabsTrigger>
+          </TabsList>
+        </Tabs>
 
         <div className='flex items-center gap-2.5 text-xs flex-wrap'>
-          <span className='text-muted-foreground font-medium'>Batch:</span>
+          <span className='text-muted-foreground font-medium'>{m.payroll_approval_batch_label()}</span>
           <Select
             value={selectedRun?.id}
             onValueChange={(val) => {
@@ -134,11 +116,13 @@ export function PayrollApprovalTab({ runs: propRuns, onUpdateRuns }: PayrollAppr
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {runs.map((r) => (
-                <SelectItem key={r.id} value={r.id} className='text-xs'>
-                  {r.period} ({r.code})
-                </SelectItem>
-              ))}
+              <SelectGroup>
+                {runs.map((r) => (
+                  <SelectItem key={r.id} value={r.id} className='text-xs'>
+                    {r.period} ({r.code})
+                  </SelectItem>
+                ))}
+              </SelectGroup>
             </SelectContent>
           </Select>
 
@@ -152,41 +136,41 @@ export function PayrollApprovalTab({ runs: propRuns, onUpdateRuns }: PayrollAppr
           {/* Variance Comparison Cards */}
           <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-4'>
             <div className='p-5 rounded-2xl border border-border/80 bg-card shadow-xs flex flex-col justify-between'>
-              <p className='text-[11px] font-semibold text-muted-foreground'>Total Gross Salary</p>
+              <p className='text-[11px] font-semibold text-muted-foreground'>{m.payroll_approval_total_gross()}</p>
               <div className='mt-2'>
                 <b className='text-xl font-bold text-foreground'>{formatCompactIDR(selectedRun.totalGrossPay)}</b>
                 <p className='text-[11px] text-emerald-600 font-semibold flex items-center gap-1 mt-1'>
-                  <IconArrowUpRight size={14} /> +Rp 45.0M (+1.1%) vs May
+                  <IconArrowUpRight size={14} /> {m.payroll_approval_gross_comparison()}
                 </p>
               </div>
             </div>
 
             <div className='p-5 rounded-2xl border border-border/80 bg-card shadow-xs flex flex-col justify-between'>
-              <p className='text-[11px] font-semibold text-muted-foreground'>Total Overtime Pay</p>
+              <p className='text-[11px] font-semibold text-muted-foreground'>{m.payroll_approval_total_overtime()}</p>
               <div className='mt-2'>
                 <b className='text-xl font-bold text-foreground'>{formatCompactIDR(128000000)}</b>
                 <p className='text-[11px] text-emerald-600 font-semibold flex items-center gap-1 mt-1'>
-                  <IconArrowUpRight size={14} /> +Rp 8.5M (Higher project hours)
+                  <IconArrowUpRight size={14} /> {m.payroll_approval_overtime_comparison()}
                 </p>
               </div>
             </div>
 
             <div className='p-5 rounded-2xl border border-border/80 bg-card shadow-xs flex flex-col justify-between'>
-              <p className='text-[11px] font-semibold text-muted-foreground'>PPh 21 & Deductions</p>
+              <p className='text-[11px] font-semibold text-muted-foreground'>{m.payroll_approval_tax_deductions()}</p>
               <div className='mt-2'>
                 <b className='text-xl font-bold text-amber-600 dark:text-amber-400'>{formatCompactIDR(selectedRun.totalDeductions)}</b>
                 <p className='text-[11px] text-amber-600 font-semibold flex items-center gap-1 mt-1'>
-                  <IconArrowUpRight size={14} /> +Rp 7.6M (TER Bracket shift)
+                  <IconArrowUpRight size={14} /> {m.payroll_approval_tax_comparison()}
                 </p>
               </div>
             </div>
 
             <div className='p-5 rounded-2xl border border-border/80 bg-card shadow-xs flex flex-col justify-between'>
-              <p className='text-[11px] font-semibold text-muted-foreground'>Net Disbursement</p>
+              <p className='text-[11px] font-semibold text-muted-foreground'>{m.payroll_overview_net_disbursement()}</p>
               <div className='mt-2'>
                 <b className='text-xl font-bold text-emerald-600 dark:text-emerald-400'>{formatCompactIDR(selectedRun.totalNetDisbursement)}</b>
                 <p className='text-[11px] text-emerald-600 font-semibold flex items-center gap-1 mt-1'>
-                  <IconArrowUpRight size={14} /> +Rp 37.4M vs Previous Month
+                  <IconArrowUpRight size={14} /> {m.payroll_approval_net_comparison()}
                 </p>
               </div>
             </div>
@@ -196,40 +180,40 @@ export function PayrollApprovalTab({ runs: propRuns, onUpdateRuns }: PayrollAppr
           <div className='rounded-2xl border border-border/80 bg-card p-6 shadow-xs space-y-4'>
             <div className='flex items-center justify-between'>
               <div>
-                <h3 className='text-sm font-bold text-foreground'>Department Variance Breakdown (vs May 2026)</h3>
+                <h3 className='text-sm font-bold text-foreground'>{m.payroll_approval_variance_title()}</h3>
                 <p className='text-xs text-muted-foreground mt-0.5'>
-                  Perbandingan beban biaya payroll antar unit kerja dengan bulan sebelumnya
+                  {m.payroll_approval_variance_description()}
                 </p>
               </div>
               <Button
                 onClick={() => setApprovalView('finance_approval')}
                 className='h-8.5 px-4 text-xs font-semibold rounded-xl shadow-xs'
               >
-                Proceed to Finance Approval
+                {m.payroll_approval_proceed_button()}
               </Button>
             </div>
 
             <Table>
               <TableHeader>
                 <TableRow className='bg-muted/30 text-xs border-b border-border/60'>
-                  <TableHead className='font-bold text-muted-foreground py-3 pl-6'>Department</TableHead>
-                  <TableHead className='font-bold text-muted-foreground py-3'>Headcount</TableHead>
-                  <TableHead className='font-bold text-muted-foreground py-3'>Current Month (June)</TableHead>
-                  <TableHead className='font-bold text-muted-foreground py-3'>Previous Month (May)</TableHead>
-                  <TableHead className='font-bold text-muted-foreground py-3 pr-6 text-right'>Variance Delta</TableHead>
+                  <TableHead className='font-bold text-muted-foreground py-3 pl-6'>{m.payroll_approval_col_department()}</TableHead>
+                  <TableHead className='font-bold text-muted-foreground py-3'>{m.payroll_approval_col_headcount()}</TableHead>
+                  <TableHead className='font-bold text-muted-foreground py-3'>{m.payroll_approval_col_current()}</TableHead>
+                  <TableHead className='font-bold text-muted-foreground py-3'>{m.payroll_approval_col_previous()}</TableHead>
+                  <TableHead className='font-bold text-muted-foreground py-3 pr-6 text-right'>{m.payroll_approval_col_variance()}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {[
-                  { dept: 'IT & Engineering', count: 422, current: 1710000000, prev: 1680000000, delta: '+Rp 30.0M', reason: '+2 New Senior Engineers' },
-                  { dept: 'Operations & Supply', count: 312, current: 988000000, prev: 980000000, delta: '+Rp 8.0M', reason: 'Overtime in Warehouse' },
-                  { dept: 'Sales & Marketing', count: 210, current: 842000000, prev: 840000000, delta: '+Rp 2.0M', reason: 'Sales Commission' },
-                  { dept: 'Finance & Accounting', count: 110, current: 450000000, prev: 450000000, delta: 'Rp 0', reason: 'Stable' },
-                  { dept: 'Human Resource', count: 92, current: 305000000, prev: 300000000, delta: '+Rp 5.0M', reason: 'Annual Salary Adjustment' },
+                  { dept: 'IT & Engineering', count: 422, current: 1710000000, prev: 1680000000, delta: '+Rp 30.0M', reason: m.payroll_approval_reason_engineers() },
+                  { dept: 'Operations & Supply', count: 312, current: 988000000, prev: 980000000, delta: '+Rp 8.0M', reason: m.payroll_approval_reason_warehouse() },
+                  { dept: 'Sales & Marketing', count: 210, current: 842000000, prev: 840000000, delta: '+Rp 2.0M', reason: m.payroll_approval_reason_commission() },
+                  { dept: 'Finance & Accounting', count: 110, current: 450000000, prev: 450000000, delta: 'Rp 0', reason: m.payroll_approval_reason_stable() },
+                  { dept: 'Human Resource', count: 92, current: 305000000, prev: 300000000, delta: '+Rp 5.0M', reason: m.payroll_approval_reason_salary() },
                 ].map((row) => (
                   <TableRow key={row.dept} className='text-xs border-b border-border/40'>
                     <TableCell className='py-3.5 pl-6 font-bold text-foreground'>{row.dept}</TableCell>
-                    <TableCell className='py-3.5 text-muted-foreground'>{row.count} emp</TableCell>
+                    <TableCell className='py-3.5 text-muted-foreground'>{m.payroll_approval_employee_count({ count: row.count })}</TableCell>
                     <TableCell className='py-3.5 font-semibold text-foreground'>{formatIDR(row.current)}</TableCell>
                     <TableCell className='py-3.5 text-muted-foreground'>{formatIDR(row.prev)}</TableCell>
                     <TableCell className='py-3.5 pr-6 text-right'>

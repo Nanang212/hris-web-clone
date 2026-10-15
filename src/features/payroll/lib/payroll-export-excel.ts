@@ -2,8 +2,12 @@
 // Export lengkap rincian payroll, rekonsiliasi BPJS Kesehatan, dan BPJS TK per project ke format Excel .xlsx.
 
 import ExcelJS from 'exceljs'
-import type { BpjsKesReconciliationRow, BpjsKesReconciliationSummary } from './payroll-reconciliation'
+
 import type { EmployeePayrollDetail, PayrollRun } from '../types'
+import type {
+  BpjsKesReconciliationRow,
+  BpjsKesReconciliationSummary,
+} from './payroll-reconciliation'
 
 function triggerDownload(buffer: ArrayBuffer, fileName: string) {
   const blob = new Blob([buffer], {
@@ -193,6 +197,90 @@ export async function exportPayrollRunToExcel(params: {
       cell.alignment = { vertical: 'middle', horizontal: 'right' }
     } else {
       cell.alignment = { vertical: 'middle', horizontal: 'center' }
+    }
+  })
+
+  const componentSheet = workbook.addWorksheet('Komponen Payroll', {
+    views: [{ showGridLines: true, state: 'frozen', ySplit: 1 }],
+  })
+  componentSheet.addRow([
+    'Nopeg',
+    'Nama Karyawan',
+    'Kode Komponen',
+    'Nama Komponen',
+    'Tipe',
+    'Klasifikasi',
+    'Sumber',
+    'Objek PPh 21',
+    'Dampak THP',
+    'Nominal',
+  ])
+  componentSheet.getRow(1).eachCell((cell) => {
+    cell.font = { name: 'Segoe UI', size: 10, bold: true, color: { argb: 'FFFFFFFF' } }
+    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF334155' } }
+    cell.alignment = { vertical: 'middle', horizontal: 'center' }
+  })
+  details.forEach((detail) => {
+    detail.lines?.forEach((line) => {
+      const row = componentSheet.addRow([
+        detail.employeeCode,
+        detail.employeeName,
+        line.code,
+        line.name,
+        line.type,
+        line.componentKind ?? '-',
+        line.source,
+        line.isTaxable ? 'Ya' : 'Tidak',
+        line.cashImpact === false ? 'Non-THP' : 'THP',
+        line.amount,
+      ])
+      row.getCell(1).numFmt = '@'
+      row.getCell(10).numFmt = '#,##0'
+    })
+  })
+
+  const taxSheet = workbook.addWorksheet('Rekonsiliasi PPh 21', {
+    views: [{ showGridLines: true, state: 'frozen', ySplit: 1 }],
+  })
+  taxSheet.addRow([
+    'Nopeg',
+    'Nama Karyawan',
+    'PTKP',
+    'Kategori TER',
+    'Skema',
+    'Bruto Pajak Periode',
+    'Tarif',
+    'PPh 21 Periode',
+    'Bruto Kumulatif',
+    'PKP Tahunan',
+    'PPh 21 Tahunan',
+    'PPh 21 Sebelumnya',
+  ])
+  taxSheet.getRow(1).eachCell((cell) => {
+    cell.font = { name: 'Segoe UI', size: 10, bold: true, color: { argb: 'FFFFFFFF' } }
+    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF7C2D12' } }
+    cell.alignment = { vertical: 'middle', horizontal: 'center' }
+  })
+  details.forEach((detail) => {
+    const reconciliation = detail.finalTaxReconciliation
+    const row = taxSheet.addRow([
+      detail.employeeCode,
+      detail.employeeName,
+      detail.ptkpStatus,
+      detail.terCategory ?? '-',
+      detail.taxScheme ?? '-',
+      detail.taxableIncome ?? 0,
+      (detail.taxRatePercent ?? 0) / 100,
+      detail.pph21Tax,
+      reconciliation?.cumulativeTaxableGross ?? 0,
+      reconciliation?.taxableIncomePkp ?? 0,
+      reconciliation?.annualPph21 ?? 0,
+      reconciliation?.priorPph21Paid ?? 0,
+    ])
+    row.getCell(1).numFmt = '@'
+    row.getCell(7).numFmt = '0.00%'
+    for (let column = 6; column <= 12; column += 1) {
+      if (column !== 7) row.getCell(column).numFmt = '#,##0'
     }
   })
 
@@ -408,7 +496,7 @@ export async function exportPayrollRunToExcel(params: {
   })
 
   // Auto-fit kolom di semua sheet
-  ;[sheet1, sheet2, sheet3].forEach((ws) => {
+  ;[sheet1, componentSheet, taxSheet, sheet2, sheet3].forEach((ws) => {
     ws.columns.forEach((column) => {
       let maxLen = 12
       column.eachCell?.({ includeEmpty: false }, (cell) => {

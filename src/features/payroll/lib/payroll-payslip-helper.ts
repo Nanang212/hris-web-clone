@@ -10,18 +10,35 @@ export function detailToPayslip(
   const earnings: { name: string; amount: number; isTaxable: boolean }[] = [
     { name: 'Gaji Pokok', amount: detail.baseSalary, isTaxable: true },
   ]
-  if (detail.fixedAllowances > 0) {
+  const earningLines = detail.lines?.filter(
+    (line) => line.type === 'allowance' && line.cashImpact !== false,
+  )
+  const deductionLines = detail.lines?.filter((line) => line.type === 'deduction')
+
+  if (earningLines?.length) {
+    earnings.push(
+      ...earningLines.map((line) => ({
+        name: line.name,
+        amount: line.amount,
+        isTaxable: line.isTaxable,
+      })),
+    )
+  } else if (detail.fixedAllowances > 0) {
     earnings.push({ name: 'Tunjangan Tetap', amount: detail.fixedAllowances, isTaxable: true })
-  }
-  if (detail.variableAllowances > 0) {
-    earnings.push({ name: 'Tunjangan Variabel', amount: detail.variableAllowances, isTaxable: true })
-  }
-  if (detail.overtimePay > 0) {
-    earnings.push({
-      name: `Upah Lembur (${detail.overtimeHours} Jam)`,
-      amount: detail.overtimePay,
-      isTaxable: true,
-    })
+    if (detail.variableAllowances > 0) {
+      earnings.push({
+        name: 'Tunjangan Variabel',
+        amount: detail.variableAllowances,
+        isTaxable: true,
+      })
+    }
+    if (detail.overtimePay > 0) {
+      earnings.push({
+        name: `Upah Lembur (${detail.overtimeHours} Jam)`,
+        amount: detail.overtimePay,
+        isTaxable: true,
+      })
+    }
   }
 
   const deductions: { name: string; amount: number }[] = []
@@ -41,6 +58,12 @@ export function detailToPayslip(
   }
   if (detail.pph21Tax > 0) {
     deductions.push({ name: 'Pajak PPh 21 Bulanan', amount: detail.pph21Tax })
+  } else if (detail.pph21Tax < 0) {
+    earnings.push({
+      name: 'Pengembalian PPh 21',
+      amount: Math.abs(detail.pph21Tax),
+      isTaxable: false,
+    })
   }
   if (detail.thrTaxInstallment && detail.thrTaxInstallment > 0) {
     deductions.push({
@@ -48,23 +71,24 @@ export function detailToPayslip(
       amount: detail.thrTaxInstallment,
     })
   }
-  if (detail.unpaidLeaveDeduction > 0) {
-    deductions.push({
-      name: `Potongan Unpaid Leave (${detail.absentCount} hari)`,
-      amount: detail.unpaidLeaveDeduction,
-    })
-  }
-  if (detail.lateDeduction > 0) {
-    deductions.push({
-      name: `Denda Keterlambatan (${detail.lateCount}x)`,
-      amount: detail.lateDeduction,
-    })
-  }
-  if (detail.loanDeduction > 0) {
-    deductions.push({
-      name: 'Potongan Pinjaman / Lainnya',
-      amount: detail.loanDeduction,
-    })
+  if (deductionLines?.length) {
+    deductions.push(...deductionLines.map((line) => ({ name: line.name, amount: line.amount })))
+  } else {
+    if (detail.unpaidLeaveDeduction > 0) {
+      deductions.push({
+        name: `Potongan Unpaid Leave (${detail.absentCount} hari)`,
+        amount: detail.unpaidLeaveDeduction,
+      })
+    }
+    if (detail.lateDeduction > 0) {
+      deductions.push({
+        name: `Denda Keterlambatan (${detail.lateCount}x)`,
+        amount: detail.lateDeduction,
+      })
+    }
+    if (detail.loanDeduction > 0) {
+      deductions.push({ name: 'Potongan Pinjaman / Lainnya', amount: detail.loanDeduction })
+    }
   }
 
   return {
@@ -85,7 +109,7 @@ export function detailToPayslip(
     bankAccountNumber: detail.bankAccountNumber,
     earnings,
     deductions,
-    totalEarnings: detail.totalGross,
+    totalEarnings: earnings.reduce((total, item) => total + item.amount, 0),
     totalDeductions: detail.totalDeductions,
     netPay: detail.netTakeHomePay,
     status: detail.status === 'paid' ? 'sent' : 'draft',

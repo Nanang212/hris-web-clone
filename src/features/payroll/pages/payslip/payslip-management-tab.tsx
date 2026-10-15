@@ -18,6 +18,7 @@ import { downloadPayslipPdf, exportPayslipsBulkZip } from '../../lib/payroll-dow
 import { detailToPayslip } from '../../lib/payroll-payslip-helper'
 import { usePayrollRunStore } from '../../store/payroll-run-store'
 import type { PayslipRecord, PayslipStatus } from '../../types'
+import { m } from '@/i18n/paraglide/messages'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import {
@@ -28,6 +29,7 @@ import {
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
@@ -77,11 +79,11 @@ export function PayslipManagementTab() {
     return Array.from(set)
   }, [payslips])
 
-  const isFiltered = search.trim() !== '' || periodFilter !== 'May 2026' || statusFilter !== 'all'
+  const isFiltered = search.trim() !== '' || periodFilter !== 'June 2026' || statusFilter !== 'all'
 
   const handleResetFilters = () => {
     setSearch('')
-    setPeriodFilter('May 2026')
+    setPeriodFilter('June 2026')
     setStatusFilter('all')
   }
 
@@ -118,13 +120,13 @@ export function PayslipManagementTab() {
           return {
             ...p,
             status: 'sent' as PayslipStatus,
-            sentAt: 'Just now',
+            sentAt: m.payroll_approval_just_now(),
           }
         }
         return p
       }),
     )
-    snackbar.success(`Successfully sent ${countToSend} payslips to employee registered emails!`)
+    snackbar.success(m.payroll_payslip_sent_success({count: countToSend}))
   }
 
   const handleDownloadSingle = (p: PayslipRecord) => {
@@ -132,12 +134,12 @@ export function PayslipManagementTab() {
       downloadPayslipPdf(p)
       setPayslips((prev) =>
         prev.map((item) =>
-          item.id === p.id ? { ...item, status: 'downloaded' as PayslipStatus, downloadedAt: 'Just now' } : item,
+          item.id === p.id ? { ...item, status: 'downloaded' as PayslipStatus, downloadedAt: m.payroll_approval_just_now() } : item,
         ),
       )
-      snackbar.success(`Slip gaji ${p.employeeName} (${p.payslipNumber}) berhasil diunduh.`)
+      snackbar.success(m.payroll_payslip_download_success({name: p.employeeName, number: p.payslipNumber}))
     } catch {
-      snackbar.error(`Gagal mengunduh slip gaji ${p.payslipNumber}.`)
+      snackbar.error(m.payroll_payslip_download_error({number: p.payslipNumber}))
     }
   }
 
@@ -145,9 +147,9 @@ export function PayslipManagementTab() {
     try {
       setIsExporting(true)
       await exportPayslipsBulkZip(periodFilter, filtered)
-      snackbar.success(`Berhasil mengekspor ${filtered.length} slip gaji (Excel + PDF Bundle)!`)
+      snackbar.success(m.payroll_payslip_export_success({count: filtered.length}))
     } catch {
-      snackbar.error('Gagal mengekspor file bulk payslips.')
+      snackbar.error(m.payroll_payslip_export_error())
     } finally {
       setIsExporting(false)
     }
@@ -172,8 +174,8 @@ export function PayslipManagementTab() {
               <IconUsers size={20} />
             </span>
             <div>
-              <p className='text-[11px] font-semibold text-muted-foreground'>Total Payslips</p>
-              <b className='text-base font-bold text-foreground'>{periodPayslips.length} Slips</b>
+              <p className='text-[11px] font-semibold text-muted-foreground'>{m.payroll_payslip_total()}</p>
+              <b className='text-base font-bold text-foreground'>{m.payroll_payslip_slip_count({count: periodPayslips.length})}</b>
             </div>
           </div>
         </div>
@@ -184,9 +186,9 @@ export function PayslipManagementTab() {
               <IconSend size={20} />
             </span>
             <div>
-              <p className='text-[11px] font-semibold text-muted-foreground'>Sent to Employees</p>
+              <p className='text-[11px] font-semibold text-muted-foreground'>{m.payroll_payslip_sent()}</p>
               <b className='text-base font-bold text-emerald-600 dark:text-emerald-400'>
-                {periodPayslips.filter((p) => p.status === 'sent' || p.status === 'downloaded').length} Slips
+                {m.payroll_payslip_slip_count({count: periodPayslips.filter((p) => p.status === 'sent' || p.status === 'downloaded').length})}
               </b>
             </div>
           </div>
@@ -198,9 +200,9 @@ export function PayslipManagementTab() {
               <IconDownload size={20} />
             </span>
             <div>
-              <p className='text-[11px] font-semibold text-muted-foreground'>Downloaded by Staff</p>
+              <p className='text-[11px] font-semibold text-muted-foreground'>{m.payroll_payslip_downloaded()}</p>
               <b className='text-base font-bold text-blue-600 dark:text-blue-400'>
-                {periodPayslips.filter((p) => p.status === 'downloaded').length} Slips
+                {m.payroll_payslip_slip_count({count: periodPayslips.filter((p) => p.status === 'downloaded').length})}
               </b>
             </div>
           </div>
@@ -212,9 +214,9 @@ export function PayslipManagementTab() {
               <IconMail size={20} />
             </span>
             <div>
-              <p className='text-[11px] font-semibold text-muted-foreground'>Pending Delivery</p>
+              <p className='text-[11px] font-semibold text-muted-foreground'>{m.payroll_payslip_pending()}</p>
               <b className='text-base font-bold text-amber-600 dark:text-amber-400'>
-                {periodPayslips.filter((p) => p.status === 'published' || p.status === 'draft').length} Slips
+                {m.payroll_payslip_slip_count({count: periodPayslips.filter((p) => p.status === 'published' || p.status === 'draft').length})}
               </b>
             </div>
           </div>
@@ -229,44 +231,49 @@ export function PayslipManagementTab() {
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder='Search employee name, ID, or slip...'
+              placeholder={m.payroll_payslip_search_placeholder()}
               className='pl-9 pr-8 h-9.5 text-xs bg-card rounded-xl shadow-xs'
             />
             {search && (
-              <button
+              <Button
                 type='button'
                 onClick={() => setSearch('')}
-                className='absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors'
+                variant='ghost'
+                size='icon-sm'
+                aria-label={m.payroll_payslip_clear_search()}
+                className='absolute right-1 top-1/2 -translate-y-1/2'
               >
                 <IconX size={14} />
-              </button>
+              </Button>
             )}
           </div>
 
           <Select value={periodFilter} onValueChange={setPeriodFilter}>
             <SelectTrigger className='h-9.5 text-xs bg-card rounded-xl w-[150px] shadow-xs'>
-              <SelectValue placeholder='Select Period' />
+              <SelectValue placeholder={m.payroll_payslip_select_period()} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value='all'>All Periods</SelectItem>
-              {availablePeriods.map((p) => (
-                <SelectItem key={p} value={p}>
-                  {p}
-                </SelectItem>
-              ))}
+              <SelectGroup>
+                <SelectItem value='all'>{m.payroll_payslip_all_periods()}</SelectItem>
+                {availablePeriods.map((p) => (
+                  <SelectItem key={p} value={p}>{p}</SelectItem>
+                ))}
+              </SelectGroup>
             </SelectContent>
           </Select>
 
           <Select value={statusFilter} onValueChange={setStatusFilter}>
             <SelectTrigger className='h-9.5 text-xs bg-card rounded-xl w-[130px] shadow-xs'>
-              <SelectValue placeholder='All Status' />
+              <SelectValue placeholder={m.payroll_payslip_all_statuses()} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value='all'>All Status</SelectItem>
-              <SelectItem value='sent'>Sent</SelectItem>
-              <SelectItem value='downloaded'>Downloaded</SelectItem>
-              <SelectItem value='published'>Published</SelectItem>
-              <SelectItem value='draft'>Draft</SelectItem>
+              <SelectGroup>
+                <SelectItem value='all'>{m.payroll_payslip_all_statuses()}</SelectItem>
+                <SelectItem value='sent'>{m.payroll_status_sent()}</SelectItem>
+                <SelectItem value='downloaded'>{m.payroll_status_downloaded()}</SelectItem>
+                <SelectItem value='published'>{m.payroll_status_published()}</SelectItem>
+                <SelectItem value='draft'>{m.payroll_status_draft()}</SelectItem>
+              </SelectGroup>
             </SelectContent>
           </Select>
 
@@ -278,7 +285,7 @@ export function PayslipManagementTab() {
               className='h-9.5 px-2.5 text-xs text-muted-foreground hover:text-foreground gap-1'
             >
               <IconRotate size={13} />
-              Reset
+              {m.payroll_payslip_reset()}
             </Button>
           )}
         </div>
@@ -292,7 +299,7 @@ export function PayslipManagementTab() {
             className='gap-1.5 text-xs font-semibold rounded-xl h-9.5'
           >
             <IconFileSpreadsheet size={15} />
-            {isExporting ? 'Exporting...' : 'Export Bulk (ZIP/Excel)'}
+            {isExporting ? m.payroll_payslip_exporting() : m.payroll_payslip_export_button()}
           </Button>
 
           <Button
@@ -302,7 +309,7 @@ export function PayslipManagementTab() {
             className='gap-1.5 text-xs font-semibold rounded-xl h-9.5 shadow-xs'
           >
             <IconMail size={15} />
-            Send All to Email
+            {m.payroll_payslip_send_all_button()}
           </Button>
         </div>
       </div>
@@ -312,14 +319,14 @@ export function PayslipManagementTab() {
         <Table>
           <TableHeader>
             <TableRow className='bg-muted/30 text-xs border-b border-border/60'>
-              <TableHead className='font-bold text-muted-foreground py-3.5 pl-6'>Slip Number</TableHead>
-              <TableHead className='font-bold text-muted-foreground py-3.5'>Employee</TableHead>
-              <TableHead className='font-bold text-muted-foreground py-3.5'>Period</TableHead>
-              <TableHead className='font-bold text-muted-foreground py-3.5'>Gross Earnings</TableHead>
-              <TableHead className='font-bold text-muted-foreground py-3.5'>Deductions</TableHead>
-              <TableHead className='font-bold text-muted-foreground py-3.5'>Take Home Pay</TableHead>
-              <TableHead className='font-bold text-muted-foreground py-3.5'>Status</TableHead>
-              <TableHead className='font-bold text-muted-foreground py-3.5 pr-6 text-right'>Action</TableHead>
+              <TableHead className='font-bold text-muted-foreground py-3.5 pl-6'>{m.payroll_payslip_col_number()}</TableHead>
+              <TableHead className='font-bold text-muted-foreground py-3.5'>{m.payroll_overview_col_employees()}</TableHead>
+              <TableHead className='font-bold text-muted-foreground py-3.5'>{m.payroll_attendance_period()}</TableHead>
+              <TableHead className='font-bold text-muted-foreground py-3.5'>{m.payroll_payslip_col_gross()}</TableHead>
+              <TableHead className='font-bold text-muted-foreground py-3.5'>{m.payroll_payslip_col_deductions()}</TableHead>
+              <TableHead className='font-bold text-muted-foreground py-3.5'>{m.payroll_payslip_col_net()}</TableHead>
+              <TableHead className='font-bold text-muted-foreground py-3.5'>{m.payroll_overview_col_status()}</TableHead>
+              <TableHead className='font-bold text-muted-foreground py-3.5 pr-6 text-right'>{m.payroll_overview_col_action()}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -330,9 +337,9 @@ export function PayslipManagementTab() {
                     <div className='p-3 rounded-full bg-muted/60 text-muted-foreground'>
                       <IconFileSpreadsheet size={24} />
                     </div>
-                    <p className='text-sm font-semibold text-foreground'>Tidak ada data slip gaji</p>
+                    <p className='text-sm font-semibold text-foreground'>{m.payroll_payslip_empty_title()}</p>
                     <p className='text-xs text-muted-foreground max-w-sm'>
-                      Tidak ditemukan slip gaji yang sesuai dengan kriteria pencarian atau filter yang dipilih.
+                      {m.payroll_payslip_empty_description()}
                     </p>
                     {isFiltered && (
                       <Button
@@ -341,7 +348,7 @@ export function PayslipManagementTab() {
                         onClick={handleResetFilters}
                         className='mt-2 h-8 text-xs rounded-lg'
                       >
-                        Reset Filter
+                        {m.payroll_payslip_reset_filters()}
                       </Button>
                     )}
                   </div>
@@ -375,13 +382,13 @@ export function PayslipManagementTab() {
                             size='icon'
                             onClick={() => setSelectedPayslip(p)}
                             className='size-8 text-muted-foreground hover:text-primary hover:bg-primary/10'
-                            aria-label='View Detail'
+                            aria-label={m.payroll_overview_view_detail()}
                           >
                             <IconEye size={16} />
                           </Button>
                         </TooltipTrigger>
                         <TooltipContent side='left'>
-                          <p>View Detail</p>
+                          <p>{m.payroll_overview_view_detail()}</p>
                         </TooltipContent>
                       </Tooltip>
 
@@ -392,13 +399,13 @@ export function PayslipManagementTab() {
                             size='icon'
                             onClick={() => handleDownloadSingle(p)}
                             className='size-8 text-muted-foreground hover:text-primary hover:bg-primary/10'
-                            aria-label='Download PDF'
+                            aria-label={m.payroll_payslip_download_pdf()}
                           >
                             <IconDownload size={16} />
                           </Button>
                         </TooltipTrigger>
                         <TooltipContent side='left'>
-                          <p>Download PDF</p>
+                          <p>{m.payroll_payslip_download_pdf()}</p>
                         </TooltipContent>
                       </Tooltip>
                     </div>

@@ -11,89 +11,92 @@ import {
   IconMinus,
   IconUsers,
   IconFileSpreadsheet,
-  IconChevronDown,
 } from '@tabler/icons-react'
-import { useState, useMemo, useEffect } from 'react'
+import { Fragment, useState, useMemo } from 'react'
 import * as XLSX from 'xlsx'
 import { initialAttendancePayrollRecords, formatIDR } from '../../data/mock-payroll-data'
 import type { AttendancePayrollRecord, AttendanceSyncStatus } from '../../types'
+import { m } from '@/i18n/paraglide/messages'
+import { getLocale } from '@/i18n/paraglide/runtime'
+import { Badge } from '@/shared/components/ui/badge'
+import { Button } from '@/shared/components/ui/button'
+import { Input } from '@/shared/components/ui/input'
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/shared/components/ui/select'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/components/ui/table'
+import { snackbar } from '@/shared/lib/snackbar'
 
 // ── Pipeline Stage Data ─────────────────────────────────────────────────────
-const pipelineStages = [
+const getPipelineStages = () => [
   {
     step: 1,
-    title: 'Tarik Data Presensi',
-    desc: '1.000 log kehadiran mesin fingerprint & mobile app terunduh',
+    title: m.payroll_attendance_stage_pull_title(),
+    desc: m.payroll_attendance_stage_pull_description(),
     status: 'done' as const,
   },
   {
     step: 2,
-    title: 'Validasi Cuti & Sakit',
-    desc: 'Semua surat dokter & form cuti terverifikasi atasan',
+    title: m.payroll_attendance_stage_validate_title(),
+    desc: m.payroll_attendance_stage_validate_description(),
     status: 'done' as const,
   },
   {
     step: 3,
-    title: 'Kalkulasi Lembur',
-    desc: 'Perhitungan otomatis sesuai rumus Depnaker 1.5x & 2x',
+    title: m.payroll_attendance_stage_overtime_title(),
+    desc: m.payroll_attendance_stage_overtime_description(),
     status: 'done' as const,
   },
   {
     step: 4,
-    title: 'Export ke Payroll',
-    desc: 'Angka potongan & tunjangan siap diinjeksi ke payroll batch',
+    title: m.payroll_attendance_stage_export_title(),
+    desc: m.payroll_attendance_stage_export_description(),
     status: 'ready' as const,
   },
 ]
 
 // ── Helper: Status Badge ─────────────────────────────────────────────────────
 function SyncStatusBadge({ status }: { status: AttendanceSyncStatus }) {
-  const config: Record<AttendanceSyncStatus, { label: string; className: string }> = {
+  const config: Record<AttendanceSyncStatus, { label: string; variant: 'emerald' | 'blue' | 'amber' | 'red' }> = {
     synced_auto: {
-      label: 'Tersinkronisasi Otomatis',
-      className: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300',
+      label: m.payroll_attendance_status_auto(),
+      variant: 'emerald',
     },
     synced_manual: {
-      label: 'Sinkronisasi Manual',
-      className: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300',
+      label: m.payroll_attendance_status_manual(),
+      variant: 'blue',
     },
     pending: {
-      label: 'Menunggu Sinkronisasi',
-      className: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300',
+      label: m.payroll_attendance_status_pending(),
+      variant: 'amber',
     },
     needs_review: {
-      label: 'Perlu Review',
-      className: 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300',
+      label: m.payroll_attendance_status_review(),
+      variant: 'red',
     },
   }
-  const { label, className } = config[status]
-  return (
-    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${className}`}>
-      {label}
-    </span>
-  )
+  const { label, variant } = config[status]
+  return <Badge variant={variant}>{label}</Badge>
 }
 
 // ── Excel Export Helper ──────────────────────────────────────────────────────
 function exportToExcel(data: AttendancePayrollRecord[], period: string) {
   const syncLabel: Record<AttendanceSyncStatus, string> = {
-    synced_auto: 'Tersinkronisasi Otomatis',
-    synced_manual: 'Sinkronisasi Manual',
-    pending: 'Menunggu Sinkronisasi',
-    needs_review: 'Perlu Review',
+    synced_auto: m.payroll_attendance_status_auto(),
+    synced_manual: m.payroll_attendance_status_manual(),
+    pending: m.payroll_attendance_status_pending(),
+    needs_review: m.payroll_attendance_status_review(),
   }
 
   const rows = data.map((r) => ({
     NIK: r.nik,
-    'Nama Karyawan': r.employeeName,
-    Periode: r.period,
-    'Hari Kerja': r.workingDays,
-    Hadir: r.presentDays,
-    'Izin/Cuti (Hari)': r.leavePermitDays,
-    'Terlambat (x)': r.lateCount,
-    'Lembur (Jam)': r.overtimeHours,
-    'Penyesuaian Gaji (Rp)': r.salaryAdjustment,
-    'Status Data': syncLabel[r.syncStatus],
+    [m.payroll_attendance_col_employee()]: r.employeeName,
+    [m.payroll_attendance_period()]: r.period,
+    [m.payroll_attendance_col_working_days()]: r.workingDays,
+    [m.payroll_attendance_col_present()]: r.presentDays,
+    [m.payroll_attendance_col_leave()]: r.leavePermitDays,
+    [m.payroll_attendance_col_late()]: r.lateCount,
+    [m.payroll_attendance_col_overtime()]: r.overtimeHours,
+    [m.payroll_attendance_col_adjustment()]: r.salaryAdjustment,
+    [m.payroll_attendance_col_status()]: syncLabel[r.syncStatus],
   }))
 
   const ws = XLSX.utils.json_to_sheet(rows)
@@ -106,9 +109,9 @@ function exportToExcel(data: AttendancePayrollRecord[], period: string) {
   ]
 
   const wb = XLSX.utils.book_new()
-  XLSX.utils.book_append_sheet(wb, ws, 'Attendance to Payroll')
+  XLSX.utils.book_append_sheet(wb, ws, m.payroll_attendance_export_sheet())
 
-  const filename = `Rekonsiliasi_Presensi_${period.replace(' ', '_')}.xlsx`
+  const filename = m.payroll_attendance_export_filename({ period: period.replace(' ', '_') })
   XLSX.writeFile(wb, filename)
 }
 
@@ -116,7 +119,6 @@ function exportToExcel(data: AttendancePayrollRecord[], period: string) {
 export function AttendancePayrollTab() {
   const [searchQuery, setSearchQuery] = useState('')
   const [isSyncing, setIsSyncing] = useState(false)
-  const [syncSuccess, setSyncSuccess] = useState(false)
 
   const allRecords = initialAttendancePayrollRecords
 
@@ -164,18 +166,11 @@ export function AttendancePayrollTab() {
     )
   }, [periodRecords, searchQuery])
 
-  // Auto-dismiss success toast
-  useEffect(() => {
-    if (!syncSuccess) return
-    const t = setTimeout(() => setSyncSuccess(false), 3000)
-    return () => clearTimeout(t)
-  }, [syncSuccess])
-
   function handleSyncUlang() {
     setIsSyncing(true)
     setTimeout(() => {
       setIsSyncing(false)
-      setSyncSuccess(true)
+      snackbar.success(m.payroll_attendance_sync_success())
     }, 1800)
   }
 
@@ -186,47 +181,29 @@ export function AttendancePayrollTab() {
   return (
     <div className='space-y-5'>
       {/* ── Toast Notification ──────────────────────────────────────────────── */}
-      <div
-        className={`fixed right-5 top-5 z-50 flex items-center gap-3 rounded-xl border border-emerald-200 bg-white px-4 py-3 shadow-xl dark:border-emerald-800 dark:bg-zinc-900 transition-all duration-300 ${
-          syncSuccess ? 'translate-y-0 opacity-100' : '-translate-y-4 opacity-0 pointer-events-none'
-        }`}
-      >
-        <div className='flex size-8 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/40'>
-          <IconCheck size={16} className='text-emerald-600 dark:text-emerald-400' />
-        </div>
-        <div>
-          <p className='text-[13px] font-semibold text-foreground'>Sinkronisasi Berhasil</p>
-          <p className='text-[11px] text-muted-foreground'>
-            Data presensi telah diperbarui ·{' '}
-            {new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
-          </p>
-        </div>
-      </div>
 
       {/* ── Header Description ──────────────────────────────────────────────── */}
       <div className='flex items-start justify-between gap-4'>
         <div>
           <h2 className='text-sm font-bold text-foreground'>
-            Alur Pipeline Rekonsiliasi Presensi ke Penggajian
+            {m.payroll_attendance_pipeline_title()}
           </h2>
           <p className='mt-0.5 text-xs text-muted-foreground'>
-            Sistem mengambil, memvalidasi, dan menghitung data kehadiran secara otomatis sebelum
-            diinjeksi ke proses payroll.
+            {m.payroll_attendance_pipeline_description()}
           </p>
         </div>
-        <span className='flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-[11px] font-semibold text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300 whitespace-nowrap'>
+        <Badge variant='emerald' className='gap-1.5 whitespace-nowrap'>
           <span className='size-1.5 rounded-full bg-emerald-500 animate-pulse' />
-          Sinkronisasi Otomatis Aktif
-        </span>
+          {m.payroll_attendance_auto_sync_active()}
+        </Badge>
       </div>
 
       {/* ── Pipeline Steps — flex layout with arrows between cards ────────────── */}
       <div className='flex flex-col gap-3 lg:flex-row lg:items-stretch'>
-        {pipelineStages.map((stage, idx) => (
-          <>
+        {getPipelineStages().map((stage, idx) => (
+          <Fragment key={stage.step}>
             {/* Card */}
             <div
-              key={stage.step}
               className={`flex-1 rounded-xl border p-4 transition-shadow ${
                 stage.status === 'ready'
                   ? 'border-primary/50 bg-primary/5 shadow-sm shadow-primary/10 dark:bg-primary/10'
@@ -234,17 +211,17 @@ export function AttendancePayrollTab() {
               }`}
             >
               <div className='flex items-start justify-between gap-2'>
-                <div className='text-[11px] font-medium text-muted-foreground'>Tahap {stage.step}</div>
+                <div className='text-[11px] font-medium text-muted-foreground'>{m.payroll_attendance_stage_number({ number: stage.step })}</div>
                 {stage.status === 'done' ? (
-                  <span className='flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300'>
+                  <Badge variant='emerald' className='gap-1'>
                     <IconCheck size={10} />
-                    Selesai
-                  </span>
+                    {m.payroll_attendance_stage_done()}
+                  </Badge>
                 ) : (
-                  <span className='flex items-center gap-1 rounded-full bg-primary/20 px-2 py-0.5 text-[10px] font-bold text-primary'>
+                  <Badge variant='blue' className='gap-1'>
                     <IconArrowRight size={10} />
-                    Siap Transfer
-                  </span>
+                    {m.payroll_attendance_stage_ready()}
+                  </Badge>
                 )}
               </div>
               <p className='mt-2 text-[13px] font-bold leading-snug text-foreground'>{stage.title}</p>
@@ -252,12 +229,12 @@ export function AttendancePayrollTab() {
             </div>
 
             {/* Arrow separator between cards (desktop only) */}
-            {idx < pipelineStages.length - 1 && (
+            {idx < getPipelineStages().length - 1 && (
               <div className='hidden lg:flex items-center justify-center flex-shrink-0 w-6'>
                 <IconArrowRight size={18} className='text-muted-foreground/50' />
               </div>
             )}
-          </>
+          </Fragment>
         ))}
       </div>
 
@@ -265,35 +242,35 @@ export function AttendancePayrollTab() {
       <div className='grid grid-cols-2 gap-3 lg:grid-cols-4'>
         <div className='rounded-xl border border-border bg-card p-4'>
           <div className='flex items-center justify-between'>
-            <span className='text-[11px] font-medium text-muted-foreground'>Total Log Ditarik</span>
+            <span className='text-[11px] font-medium text-muted-foreground'>{m.payroll_attendance_total_logs()}</span>
             <div className='rounded-lg bg-muted p-1.5'>
               <IconUsers size={14} className='text-muted-foreground' />
             </div>
           </div>
           <p className='mt-3 text-xl font-bold text-foreground'>
-            {totalStaff.toLocaleString('id-ID')} Staf
+            {m.payroll_attendance_staff_count({ count: totalStaff.toLocaleString(getLocale()) })}
           </p>
-          <p className='mt-1 text-[11px] text-muted-foreground'>Presensi terkonfirmasi 100%</p>
+          <p className='mt-1 text-[11px] text-muted-foreground'>{m.payroll_attendance_confirmed()}</p>
         </div>
 
         <div className='rounded-xl border border-border bg-card p-4'>
           <div className='flex items-center justify-between'>
-            <span className='text-[11px] font-medium text-muted-foreground'>Akumulasi Lembur Valid</span>
+            <span className='text-[11px] font-medium text-muted-foreground'>{m.payroll_attendance_valid_overtime()}</span>
             <div className='rounded-lg bg-blue-100 p-1.5 dark:bg-blue-900/30'>
               <IconClockHour4 size={14} className='text-blue-600 dark:text-blue-400' />
             </div>
           </div>
           <p className='mt-3 text-xl font-bold text-blue-600 dark:text-blue-400'>
-            {totalOvertimeHours.toLocaleString('id-ID')} Jam
+            {m.payroll_attendance_hours_count({ count: totalOvertimeHours.toLocaleString(getLocale()) })}
           </p>
           <p className='mt-1 text-[11px] text-muted-foreground'>
-            Estimasi upah: {formatIDR(Math.round((totalOvertimeHours * 8500000) / 173))}
+            {m.payroll_attendance_estimated_wage({ amount: formatIDR(Math.round((totalOvertimeHours * 8500000) / 173)) })}
           </p>
         </div>
 
         <div className='rounded-xl border border-border bg-card p-4'>
           <div className='flex items-center justify-between'>
-            <span className='text-[11px] font-medium text-muted-foreground'>Potongan Keterlambatan</span>
+            <span className='text-[11px] font-medium text-muted-foreground'>{m.payroll_attendance_late_deductions()}</span>
             <div className='rounded-lg bg-red-100 p-1.5 dark:bg-red-900/30'>
               <IconMinus size={14} className='text-red-500 dark:text-red-400' />
             </div>
@@ -302,24 +279,24 @@ export function AttendancePayrollTab() {
             -{formatIDR(totalLateDeduction)}
           </p>
           <p className='mt-1 text-[11px] text-muted-foreground'>
-            {periodRecords.reduce((s, r) => s + r.lateCount, 0)} kejadian terlambat toleransi lewat
+            {m.payroll_attendance_late_count({ count: periodRecords.reduce((s, r) => s + r.lateCount, 0) })}
           </p>
         </div>
 
         <div className='rounded-xl border border-border bg-card p-4'>
           <div className='flex items-center justify-between'>
-            <span className='text-[11px] font-medium text-muted-foreground'>Status Sinkronisasi</span>
+            <span className='text-[11px] font-medium text-muted-foreground'>{m.payroll_attendance_sync_status()}</span>
             <div className='rounded-lg bg-emerald-100 p-1.5 dark:bg-emerald-900/30'>
               <IconCalendarStats size={14} className='text-emerald-600 dark:text-emerald-400' />
             </div>
           </div>
           <p className='mt-3 text-xl font-bold text-emerald-600 dark:text-emerald-400'>
-            {syncedPercent} Siap
+            {m.payroll_attendance_ready_percent({ percent: syncedPercent })}
           </p>
           <p className='mt-1 text-[11px] text-muted-foreground'>
             {needsReviewCount > 0
-              ? `${needsReviewCount} karyawan perlu review manual`
-              : 'Semua data presensi telah dikonfirmasi'}
+              ? m.payroll_attendance_review_count({ count: needsReviewCount })
+              : m.payroll_attendance_all_confirmed()}
           </p>
         </div>
       </div>
@@ -328,23 +305,18 @@ export function AttendancePayrollTab() {
       <div className='flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between'>
         <div className='flex items-center gap-2'>
           {/* Period filter dropdown */}
-          <div className='relative'>
-            <select
-              value={selectedPeriod}
-              onChange={(e) => setSelectedPeriod(e.target.value)}
-              className='h-9 appearance-none rounded-lg border border-border bg-background pl-3 pr-8 text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 cursor-pointer'
-            >
-              {availablePeriods.map((p) => (
-                <option key={p} value={p}>
-                  {p}
-                </option>
-              ))}
-            </select>
-            <IconChevronDown
-              size={14}
-              className='pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground'
-            />
-          </div>
+          <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
+            <SelectTrigger aria-label={m.payroll_attendance_period()} className='w-auto'>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                {availablePeriods.map((period) => (
+                  <SelectItem key={period} value={period}>{period}</SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
 
           {/* Search */}
           <div className='relative'>
@@ -352,88 +324,83 @@ export function AttendancePayrollTab() {
               size={14}
               className='absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground'
             />
-            <input
+            <Input
               type='text'
-              placeholder='Cari nama, NIK...'
+              aria-label={m.payroll_attendance_search_placeholder()}
+              placeholder={m.payroll_attendance_search_placeholder()}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className='h-9 w-48 rounded-lg border border-border bg-background pl-8 pr-3 text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30'
+              className='w-48 pl-8'
             />
           </div>
         </div>
 
         <div className='flex items-center gap-2'>
           {/* Sync button */}
-          <button
+          <Button
             type='button'
+            variant='outline'
             onClick={handleSyncUlang}
             disabled={isSyncing}
-            className='flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-2 text-xs font-medium text-foreground hover:bg-muted disabled:opacity-60 transition-colors'
           >
-            <IconRefresh
-              size={14}
-              className={isSyncing ? 'animate-spin text-primary' : 'text-muted-foreground'}
-            />
-            {isSyncing ? 'Menyinkronkan...' : 'Sinkronisasi Ulang'}
-          </button>
+            <IconRefresh data-icon='inline-start' className={isSyncing ? 'animate-spin' : undefined} />
+            {isSyncing ? m.payroll_attendance_syncing() : m.payroll_attendance_sync_button()}
+          </Button>
 
           {/* Export Excel button */}
-          <button
+          <Button
             type='button'
             onClick={handleExport}
-            className='flex items-center gap-2 rounded-lg bg-emerald-600 px-3 py-2 text-xs font-semibold text-white hover:bg-emerald-700 active:scale-95 transition-all'
           >
-            <IconFileSpreadsheet size={14} />
-            Export Excel
-          </button>
+            <IconFileSpreadsheet data-icon='inline-start' />
+            {m.payroll_attendance_export_button()}
+          </Button>
         </div>
       </div>
 
       {/* ── Data Table ───────────────────────────────────────────────────────── */}
       <div className='rounded-xl border border-border bg-card overflow-hidden'>
         <div className='overflow-x-auto'>
-          <table className='w-full text-xs'>
-            <thead>
-              <tr className='border-b border-border bg-muted/40'>
-                <th className='px-4 py-3 text-left font-semibold text-muted-foreground'>NIK</th>
-                <th className='px-4 py-3 text-left font-semibold text-muted-foreground'>Nama Karyawan</th>
-                <th className='px-4 py-3 text-center font-semibold text-muted-foreground'>Periode</th>
-                <th className='px-4 py-3 text-center font-semibold text-muted-foreground'>Hari Kerja</th>
-                <th className='px-4 py-3 text-center font-semibold text-muted-foreground'>Hadir</th>
-                <th className='px-4 py-3 text-center font-semibold text-muted-foreground'>Izin/Cuti</th>
-                <th className='px-4 py-3 text-center font-semibold text-muted-foreground'>Terlambat</th>
-                <th className='px-4 py-3 text-center font-semibold text-muted-foreground'>Lembur</th>
-                <th className='px-4 py-3 text-right font-semibold text-muted-foreground'>Penyesuaian Gaji</th>
-                <th className='px-4 py-3 text-left font-semibold text-muted-foreground'>Status Data</th>
-              </tr>
-            </thead>
-            <tbody>
+          <Table className='text-xs'>
+            <TableHeader>
+              <TableRow>
+                <TableHead>NIK</TableHead>
+                <TableHead>{m.payroll_attendance_col_employee()}</TableHead>
+                <TableHead>{m.payroll_attendance_period()}</TableHead>
+                <TableHead>{m.payroll_attendance_col_working_days()}</TableHead>
+                <TableHead>{m.payroll_attendance_col_present()}</TableHead>
+                <TableHead>{m.payroll_attendance_col_leave()}</TableHead>
+                <TableHead>{m.payroll_attendance_col_late()}</TableHead>
+                <TableHead>{m.payroll_attendance_col_overtime()}</TableHead>
+                <TableHead className='text-right'>{m.payroll_attendance_col_adjustment()}</TableHead>
+                <TableHead>{m.payroll_attendance_col_status()}</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {filtered.length === 0 ? (
-                <tr>
-                  <td colSpan={10} className='py-12 text-center text-muted-foreground'>
+                <TableRow>
+                  <TableCell colSpan={10} className='py-12 text-center text-muted-foreground'>
                     <IconUserCheck size={32} className='mx-auto mb-2 opacity-30' />
-                    <p>Tidak ada data yang cocok</p>
-                  </td>
-                </tr>
+                    <p>{m.payroll_attendance_empty()}</p>
+                  </TableCell>
+                </TableRow>
               ) : (
                 filtered.map((record, idx) => (
                   <RecordRow key={`${record.nik}-${record.period}`} record={record} isEven={idx % 2 === 0} />
                 ))
               )}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
 
         {/* Footer info */}
         <div className='border-t border-border bg-muted/30 px-4 py-2.5 flex items-center justify-between'>
           <p className='text-[11px] text-muted-foreground'>
-            Menampilkan{' '}
-            <span className='font-semibold text-foreground'>{filtered.length}</span> dari{' '}
-            <span className='font-semibold text-foreground'>{periodRecords.length}</span> karyawan
-            {searchQuery && ' (hasil pencarian)'}
+            {m.payroll_attendance_showing({ shown: filtered.length, total: periodRecords.length })}
+            {searchQuery && m.payroll_attendance_search_result()}
           </p>
           <p className='text-[11px] text-muted-foreground'>
-            Periode:{' '}
+            {m.payroll_attendance_period()}:{' '}
             <span className='font-semibold text-foreground'>{selectedPeriod}</span>
           </p>
         </div>
@@ -464,37 +431,37 @@ function RecordRow({
         : 'text-muted-foreground'
 
   return (
-    <tr
+    <TableRow
       className={`border-b border-border/60 last:border-b-0 transition-colors hover:bg-muted/30 ${isEven ? '' : 'bg-muted/10'}`}
     >
-      <td className='px-4 py-3 font-mono text-[11px] text-muted-foreground'>{record.nik}</td>
-      <td className='px-4 py-3 font-semibold text-foreground'>{record.employeeName}</td>
-      <td className='px-4 py-3 text-center'>
+      <TableCell className='font-mono text-[11px] text-muted-foreground'>{record.nik}</TableCell>
+      <TableCell className='font-semibold text-foreground'>{record.employeeName}</TableCell>
+      <TableCell className='text-center'>
         <span className='rounded-full bg-muted px-2.5 py-0.5 text-[11px] font-medium text-foreground'>
           {record.period}
         </span>
-      </td>
-      <td className='px-4 py-3 text-center text-foreground'>{record.workingDays} Hari</td>
-      <td className='px-4 py-3 text-center text-foreground'>{record.presentDays} Hari</td>
-      <td className='px-4 py-3 text-center text-foreground'>
+      </TableCell>
+      <TableCell className='text-center text-foreground'>{m.payroll_attendance_days({count: record.workingDays})}</TableCell>
+      <TableCell className='text-center text-foreground'>{m.payroll_attendance_days({count: record.presentDays})}</TableCell>
+      <TableCell className='text-center text-foreground'>
         {record.leavePermitDays > 0 ? `${record.leavePermitDays} Hari` : '0 Hari'}
-      </td>
-      <td className={`px-4 py-3 text-center ${lateColor}`}>
+      </TableCell>
+      <TableCell className={`text-center ${lateColor}`}>
         {record.lateCount > 0 ? `${record.lateCount}x` : '0x'}
-      </td>
-      <td className={`px-4 py-3 text-center ${overtimeColor}`}>
+      </TableCell>
+      <TableCell className={`text-center ${overtimeColor}`}>
         {record.overtimeHours > 0 ? `+${record.overtimeHours} Jam` : '+0 Jam'}
-      </td>
-      <td className={`px-4 py-3 text-right font-medium ${adjColor}`}>
+      </TableCell>
+      <TableCell className={`text-right font-medium ${adjColor}`}>
         {record.salaryAdjustment > 0
           ? `Rp ${record.salaryAdjustment.toLocaleString('id-ID')}`
           : record.salaryAdjustment < 0
             ? `-Rp ${Math.abs(record.salaryAdjustment).toLocaleString('id-ID')}`
             : 'Rp 0'}
-      </td>
-      <td className='px-4 py-3'>
+      </TableCell>
+      <TableCell>
         <SyncStatusBadge status={record.syncStatus} />
-      </td>
-    </tr>
+      </TableCell>
+    </TableRow>
   )
 }

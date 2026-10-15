@@ -20,9 +20,11 @@ import { PayrollProcessDetail } from './process/payroll-process-detail'
 import { PayrollProcessTab } from './process/payroll-process-tab'
 import { initialPayrollRuns } from '../data/mock-payroll-data'
 import type { PayrollTab, PayrollRun, ConfigSubTab } from '../types'
+import { m } from '@/i18n/paraglide/messages'
 import { useAppLayoutStore } from '@/shared/components/app-layout/app-layout-store'
 import { AppMain } from '@/shared/components/app-layout/app-main'
 import { Button } from '@/shared/components/ui/button'
+import { Tabs, TabsList, TabsTrigger } from '@/shared/components/ui/tabs'
 
 interface PayrollPageProps {
   initialTab?: PayrollTab
@@ -66,24 +68,24 @@ export function PayrollPage({
   }
 
   const tabs: { id: PayrollTab; label: string; icon: React.ComponentType<{ size: number }> }[] = [
-    { id: 'overview', label: 'Overview', icon: IconChartBar },
-    { id: 'attendance', label: 'Attendance to Payroll', icon: IconCalendarStats },
-    { id: 'configuration', label: 'Configuration', icon: IconSettings },
-    { id: 'process', label: 'Process', icon: IconReportMoney },
-    { id: 'approval', label: 'Approval & Disbursement', icon: IconChecklist },
-    { id: 'payslip', label: 'Payslip', icon: IconFileText },
+    { id: 'overview', label: m.payroll_tab_overview(), icon: IconChartBar },
+    { id: 'attendance', label: m.payroll_tab_attendance(), icon: IconCalendarStats },
+    { id: 'configuration', label: m.payroll_tab_configuration(), icon: IconSettings },
+    { id: 'process', label: m.payroll_tab_process(), icon: IconReportMoney },
+    { id: 'approval', label: m.payroll_tab_approval(), icon: IconChecklist },
+    { id: 'payslip', label: m.payroll_tab_payslip(), icon: IconFileText },
   ]
 
-  let pageTitle = 'Payroll Management'
-  let pageSubtitle = 'Sistem kalkulasi gaji, kepatuhan pajak PPh 21, iuran BPJS, dan distribusi slip gaji.'
+  let pageTitle = m.payroll_page_title()
+  let pageSubtitle = m.payroll_page_subtitle()
 
   if (activeTab === 'process') {
     if (processView === 'create_wizard') {
-      pageTitle = 'Create Payroll Process'
-      pageSubtitle = 'Buat proses kalkulasi penggajian baru dengan sinkronisasi presensi dan lembur.'
+      pageTitle = m.payroll_page_create_title()
+      pageSubtitle = m.payroll_page_create_subtitle()
     } else if (processView === 'detail') {
-      pageTitle = `Payroll Detail: ${selectedRun?.period || ''}`
-      pageSubtitle = `Rincian kalkulasi gaji per karyawan untuk batch ${selectedRun?.code || ''}.`
+      pageTitle = m.payroll_page_detail_title({ period: selectedRun?.period || '' })
+      pageSubtitle = m.payroll_page_detail_subtitle({ code: selectedRun?.code || '' })
     }
   }
 
@@ -113,27 +115,27 @@ export function PayrollPage({
 
       {/* ── Main Tab Navigation Bar ────────────────────────────────────────── */}
       {processView === 'list' && (
-        <div className='flex items-center gap-1.5 border-b border-border/80 pb-px overflow-x-auto'>
-          {tabs.map((tab) => {
-            const Icon = tab.icon
-            const isActive = activeTab === tab.id
-            return (
-              <button
-                key={tab.id}
-                type='button'
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-4 py-2.5 text-xs font-bold transition-all border-b-2 whitespace-nowrap cursor-pointer ${
-                  isActive
-                    ? 'border-primary text-primary font-bold'
-                    : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
-                }`}
-              >
-                <Icon size={16} />
-                <span>{tab.label}</span>
-              </button>
-            )
-          })}
-        </div>
+        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as PayrollTab)}>
+          <TabsList
+            variant='line'
+            aria-label={m.payroll_page_title()}
+            className='h-auto max-w-full justify-start overflow-x-auto border-b border-border/80 pb-px'
+          >
+            {tabs.map((tab) => {
+              const Icon = tab.icon
+              return (
+                <TabsTrigger
+                  key={tab.id}
+                  value={tab.id}
+                  className='flex-none rounded-none border-b-2 border-transparent px-4 py-2.5 text-xs font-bold after:hidden data-active:border-primary data-active:text-primary'
+                >
+                  <Icon data-icon='inline-start' />
+                  {tab.label}
+                </TabsTrigger>
+              )
+            })}
+          </TabsList>
+        </Tabs>
       )}
 
       {/* ── Tab Content Views ──────────────────────────────────────────────── */}

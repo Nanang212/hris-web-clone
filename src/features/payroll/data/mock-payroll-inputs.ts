@@ -40,6 +40,13 @@ export const initialPayrollEmployeeInputs: PayrollEmployeeInput[] = [
       remainingBalance: 1000000,
       amount: 500000,
     },
+    taxYearToDate: {
+      priorTaxableGross: 240000000,
+      priorEmployeePensionContributions: 5445000,
+      priorQualifiedZakat: 0,
+      priorPph21Paid: 20000000,
+      monthsWorked: 12,
+    },
   },
   {
     employeeId: 'EMP002',
@@ -60,7 +67,6 @@ export const initialPayrollEmployeeInputs: PayrollEmployeeInput[] = [
     fixedComponents: [
       { code: 'ALLOW_POSITION', name: 'Tunjangan Jabatan', type: 'allowance', amount: 1500000, isTaxable: true },
       { code: 'ALLOW_TRANSPORT_MEAL', name: 'Tunjangan Transport & Meal', type: 'allowance', amount: 500000, isTaxable: true },
-      { code: 'DED_LOAN', name: 'Cicilan Pinjaman Karyawan', type: 'deduction', amount: 500000, isTaxable: false },
     ],
     bpjs: { kesParticipantNumber: '0001234500002', kesActive: true },
     variableComponents: [
@@ -74,6 +80,13 @@ export const initialPayrollEmployeeInputs: PayrollEmployeeInput[] = [
       totalTaxAmount: 600000,
       remainingBalance: 400000,
       amount: 200000,
+    },
+    taxYearToDate: {
+      priorTaxableGross: 150000000,
+      priorEmployeePensionContributions: 3465000,
+      priorQualifiedZakat: 0,
+      priorPph21Paid: 5000000,
+      monthsWorked: 12,
     },
   },
   {
@@ -109,6 +122,13 @@ export const initialPayrollEmployeeInputs: PayrollEmployeeInput[] = [
       remainingBalance: 600000,
       amount: 300000,
     },
+    taxYearToDate: {
+      priorTaxableGross: 170000000,
+      priorEmployeePensionContributions: 3960000,
+      priorQualifiedZakat: 0,
+      priorPph21Paid: 8000000,
+      monthsWorked: 12,
+    },
   },
   {
     employeeId: 'EMP004',
@@ -135,6 +155,13 @@ export const initialPayrollEmployeeInputs: PayrollEmployeeInput[] = [
       { code: 'COMMISSION', name: 'Komisi Penjualan', type: 'allowance', amount: 2000000, isTaxable: true },
     ],
     attendance: { workingDays: 22, actualPresent: 22, lateCount: 0, absentCount: 0, overtimeHours: 0 },
+    taxYearToDate: {
+      priorTaxableGross: 175000000,
+      priorEmployeePensionContributions: 4290000,
+      priorQualifiedZakat: 0,
+      priorPph21Paid: 6000000,
+      monthsWorked: 12,
+    },
   },
   {
     employeeId: 'EMP005',
@@ -169,6 +196,13 @@ export const initialPayrollEmployeeInputs: PayrollEmployeeInput[] = [
       remainingBalance: 150000,
       amount: 150000,
     },
+    taxYearToDate: {
+      priorTaxableGross: 115000000,
+      priorEmployeePensionContributions: 1870000,
+      priorQualifiedZakat: 0,
+      priorPph21Paid: 3000000,
+      monthsWorked: 12,
+    },
   },
   {
     employeeId: 'EMP007',
@@ -193,5 +227,12 @@ export const initialPayrollEmployeeInputs: PayrollEmployeeInput[] = [
     bpjs: { kesParticipantNumber: '0001234500007', kesActive: true },
     variableComponents: [],
     attendance: { workingDays: 22, actualPresent: 22, lateCount: 0, absentCount: 0, overtimeHours: 0 },
+    taxYearToDate: {
+      priorTaxableGross: 250000000,
+      priorEmployeePensionContributions: 5940000,
+      priorQualifiedZakat: 0,
+      priorPph21Paid: 25000000,
+      monthsWorked: 12,
+    },
   },
 ]

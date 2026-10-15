@@ -16,6 +16,7 @@ import { Button } from '@/shared/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/shared/components/ui/dropdown-menu'
@@ -23,6 +24,7 @@ import { Input } from '@/shared/components/ui/input'
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
@@ -39,6 +41,11 @@ import {
 import { TableActionButton } from '@/shared/components/ui/table-action-button'
 import { snackbar } from '@/shared/lib/snackbar'
 import { useProjects } from '@/features/company/project/data/dummy-projects'
+import dayjs from 'dayjs'
+import 'dayjs/locale/en'
+import 'dayjs/locale/id'
+import { getLocale } from '@/i18n/paraglide/runtime'
+import { m } from '@/i18n/paraglide/messages'
 
 const JKK_RATES = [0.24, 0.54, 0.89, 1.24, 1.74]
 
@@ -63,28 +70,8 @@ export function BpjsTkProjectCard() {
     return JSON.stringify(sortedRows) !== JSON.stringify(sortedSaved)
   }, [rows, saved])
 
-  const formatSaveTimestamp = (date: Date = new Date()) => {
-    const day = String(date.getDate()).padStart(2, '0')
-    const months = [
-      'Januari',
-      'Februari',
-      'Maret',
-      'April',
-      'Mei',
-      'Juni',
-      'Juli',
-      'Agustus',
-      'September',
-      'Oktober',
-      'November',
-      'Desember',
-    ]
-    const month = months[date.getMonth()]
-    const year = date.getFullYear()
-    const hours = String(date.getHours()).padStart(2, '0')
-    const minutes = String(date.getMinutes()).padStart(2, '0')
-    return `${day} ${month} ${year} pukul ${hours}:${minutes} WIB`
-  }
+  const formatSaveTimestamp = (date: Date = new Date()) =>
+    m.payroll_tk_project_timestamp({ timestamp: dayjs(date).locale(getLocale()).format('DD MMMM YYYY HH:mm') })
 
   const update = (id: string, patch: Partial<BpjsTkProjectSetting>) =>
     setRows((prev) => prev.map((row) => (row.id === id ? { ...row, ...patch } : row)))
@@ -96,36 +83,34 @@ export function BpjsTkProjectCard() {
       {
         id: `tk-${Date.now()}`,
         projectId,
-        effectiveFrom: new Date().toISOString().slice(0, 7),
+        effectiveFrom: dayjs().format('YYYY-MM'),
         jkkRatePercent: 0.24,
         jhtActive: true,
         jpActive: true,
       },
     ])
-    snackbar.success(`Project ${proj?.name ?? projectId} ditambahkan. Klik Simpan untuk menyimpan permanen.`)
+    snackbar.success(m.payroll_tk_project_added({ project: proj?.name ?? projectId }))
   }
 
   const handleSave = () => {
     const keys = rows.map((r) => `${r.projectId}|${r.effectiveFrom}`)
     if (rows.some((r) => !r.effectiveFrom) || new Set(keys).size !== keys.length) {
-      snackbar.error('Tanggal berlaku harus diisi dan tidak boleh sama untuk project yang sama.')
+      snackbar.error(m.payroll_tk_project_date_required())
       return
     }
     const timestampStr = formatSaveTimestamp()
     setTkProjectSettings(rows, timestampStr)
     setLastSavedAt(timestampStr)
-    snackbar.success(`Data berhasil disimpan pada ${timestampStr}.`)
+    snackbar.success(m.payroll_tk_project_saved({ timestamp: timestampStr }))
   }
 
   return (
     <div className='rounded-2xl border border-border/80 bg-card shadow-xs overflow-hidden'>
       <div className='p-5 border-b border-border/60 flex flex-wrap items-start justify-between gap-3'>
         <div>
-          <h3 className='text-sm font-bold text-foreground'>Program BPJS TK per Project</h3>
+          <h3 className='text-sm font-bold text-foreground'>{m.payroll_tk_project_title()}</h3>
           <p className='text-xs text-muted-foreground mt-0.5 max-w-xl'>
-            JKK (tarif spesifik per project) dan JKM wajib untuk seluruh project. JHT dan JP
-            diaktifkan sesuai ketentuan kontrak project. Karyawan memakai setting project yang
-            berlaku di periode payroll.
+            {m.payroll_tk_project_description()}
           </p>
         </div>
         {unconfigured.length > 0 ? (
@@ -138,13 +123,14 @@ export function BpjsTkProjectCard() {
                 className='h-9 gap-1.5 text-xs font-semibold rounded-xl'
               >
                 <IconPlus size={15} />
-                Tambah Project
+                {m.payroll_tk_project_add()}
                 <span className='ml-1 rounded-md bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-bold text-amber-700 dark:text-amber-400'>
                   {unconfigured.length}
                 </span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align='end' className='w-64 rounded-2xl p-1.5'>
+              <DropdownMenuGroup>
               {unconfigured.map((project) => (
                 <DropdownMenuItem
                   key={project.id}
@@ -155,11 +141,12 @@ export function BpjsTkProjectCard() {
                   <span className='font-medium truncate'>{project.name}</span>
                 </DropdownMenuItem>
               ))}
+              </DropdownMenuGroup>
             </DropdownMenuContent>
           </DropdownMenu>
         ) : (
           <Badge variant='emerald' className='text-xs py-1 px-2.5 font-semibold'>
-            Semua Project Sudah Diatur
+            {m.payroll_tk_project_all_configured()}
           </Badge>
         )}
       </div>
@@ -175,7 +162,7 @@ export function BpjsTkProjectCard() {
               </span>
               <IconAlertTriangle size={16} className='text-amber-600 dark:text-amber-400 shrink-0' />
               <span>
-                <b className='font-semibold'>Perubahan belum disimpan.</b> Terdapat penambahan atau perubahan setting project. Klik tombol <i>"Simpan setting project"</i> di bawah untuk menyimpan.
+                <b className='font-semibold'>{m.payroll_tk_project_unsaved()}</b> {m.payroll_tk_project_unsaved_hint()}
               </span>
             </div>
             <Button
@@ -184,7 +171,7 @@ export function BpjsTkProjectCard() {
               className='h-7.5 px-3 text-xs font-semibold rounded-lg bg-amber-600 hover:bg-amber-700 text-white shrink-0 shadow-2xs cursor-pointer'
               onClick={handleSave}
             >
-              Simpan Sekarang
+              {m.payroll_tk_project_save_now()}
             </Button>
           </div>
         )}
@@ -195,15 +182,15 @@ export function BpjsTkProjectCard() {
             <div className='flex items-center gap-2 text-foreground'>
               <IconAlertTriangle size={16} className='text-amber-600 dark:text-amber-400 shrink-0' />
               <span>
-                <b className='font-semibold'>{unconfigured.length} Project belum diatur:</b>{' '}
+                <b className='font-semibold'>{m.payroll_tk_project_unconfigured({ count: unconfigured.length })}</b>{' '}
                 <span className='text-muted-foreground'>
-                  Klik nama project untuk langsung menambahkan ke tabel:
+                  {m.payroll_tk_project_unconfigured_hint()}
                 </span>
               </span>
             </div>
             <div className='flex flex-wrap items-center gap-1.5'>
               {unconfigured.map((project) => (
-                <button
+                <Button
                   key={project.id}
                   type='button'
                   onClick={() => handleAdd(project.id)}
@@ -211,7 +198,7 @@ export function BpjsTkProjectCard() {
                 >
                   <IconPlus size={12} className='text-amber-700 dark:text-amber-300' />
                   {project.name}
-                </button>
+                </Button>
               ))}
             </div>
           </div>
@@ -221,12 +208,12 @@ export function BpjsTkProjectCard() {
           <Table>
             <TableHeader className='bg-muted/40'>
               <TableRow className='hover:bg-transparent border-b border-border/70'>
-                <TableHead className='py-3 px-4 font-bold text-foreground text-xs'>Project</TableHead>
+                <TableHead className='py-3 px-4 font-bold text-foreground text-xs'>{m.payroll_tk_project_col_project()}</TableHead>
                 <TableHead className='py-3 px-4 font-bold text-foreground text-xs w-44'>
-                  Berlaku Mulai
+                  {m.payroll_tk_project_col_effective()}
                 </TableHead>
                 <TableHead className='py-3 px-4 font-bold text-foreground text-xs w-36'>
-                  Tarif JKK
+                  {m.payroll_tk_project_col_jkk()}
                 </TableHead>
                 <TableHead className='py-3 px-4 font-bold text-foreground text-xs w-32 text-center'>
                   JHT
@@ -235,7 +222,7 @@ export function BpjsTkProjectCard() {
                   JP
                 </TableHead>
                 <TableHead className='py-3 px-4 font-bold text-foreground text-xs w-16 text-end'>
-                  Aksi
+                  {m.payroll_tk_project_col_actions()}
                 </TableHead>
               </TableRow>
             </TableHeader>
@@ -246,8 +233,7 @@ export function BpjsTkProjectCard() {
                     colSpan={6}
                     className='py-8 text-center text-xs text-muted-foreground'
                   >
-                    Belum ada project yang dikonfigurasi. Klik tombol "Tambah Project" untuk
-                    menambahkan.
+                    {m.payroll_tk_project_empty()}
                   </TableCell>
                 </TableRow>
               ) : (
@@ -295,11 +281,13 @@ export function BpjsTkProjectCard() {
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
+                            <SelectGroup>
                             {JKK_RATES.map((rate) => (
                               <SelectItem key={rate} value={String(rate)} className='text-xs'>
                                 {rate}%
                               </SelectItem>
                             ))}
+                            </SelectGroup>
                           </SelectContent>
                         </Select>
                       </TableCell>
@@ -310,7 +298,7 @@ export function BpjsTkProjectCard() {
                             onCheckedChange={(checked) => update(row.id, { jhtActive: checked })}
                           />
                           <span className='text-[11px] font-semibold text-muted-foreground w-12 text-start'>
-                            {row.jhtActive ? 'Aktif' : 'Off'}
+                            {row.jhtActive ? m.payroll_tk_project_active() : m.payroll_tk_project_off()}
                           </span>
                         </div>
                       </TableCell>
@@ -321,13 +309,13 @@ export function BpjsTkProjectCard() {
                             onCheckedChange={(checked) => update(row.id, { jpActive: checked })}
                           />
                           <span className='text-[11px] font-semibold text-muted-foreground w-12 text-start'>
-                            {row.jpActive ? 'Aktif' : 'Off'}
+                            {row.jpActive ? m.payroll_tk_project_active() : m.payroll_tk_project_off()}
                           </span>
                         </div>
                       </TableCell>
                       <TableCell className='py-3 px-4 text-end'>
                         <TableActionButton
-                          tooltip='Hapus setting project'
+                          tooltip={m.payroll_tk_project_delete()}
                           icon={<IconTrash size={15} />}
                           intent='danger'
                           onClick={() => setRows((prev) => prev.filter((item) => item.id !== row.id))}
@@ -343,7 +331,7 @@ export function BpjsTkProjectCard() {
         {/* Footer dengan Count, Note Status Penyimpanan, dan Tombol Simpan */}
         <div className='flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-border/60'>
           <p className='text-xs text-muted-foreground'>
-            Total <b>{rows.length}</b> konfigurasi project BPJS Ketenagakerjaan.
+            {m.payroll_tk_project_total({ count: rows.length })}
           </p>
 
           <div className='flex flex-wrap items-center gap-3'>
@@ -354,12 +342,12 @@ export function BpjsTkProjectCard() {
                   <span className='relative inline-flex rounded-full h-2 w-2 bg-amber-500'></span>
                 </span>
                 <IconAlertTriangle size={15} className='text-amber-600 dark:text-amber-400 shrink-0' />
-                <span>Perubahan belum disimpan</span>
+                <span>{m.payroll_tk_project_unsaved()}</span>
               </div>
             ) : lastSavedAt ? (
               <div className='inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/25 text-emerald-700 dark:text-emerald-300 text-xs font-semibold animate-in fade-in duration-200'>
                 <IconCheck size={15} className='text-emerald-600 dark:text-emerald-400 shrink-0' />
-                <span>Data berhasil disimpan pada {lastSavedAt}</span>
+                <span>{m.payroll_tk_project_saved({ timestamp: lastSavedAt })}</span>
               </div>
             ) : null}
 
@@ -372,7 +360,7 @@ export function BpjsTkProjectCard() {
               }`}
               onClick={handleSave}
             >
-              Simpan setting project
+              {m.payroll_tk_project_save()}
             </Button>
           </div>
         </div>

@@ -1,12 +1,15 @@
 // src/features/payroll/pages/configuration/pph21-config-view.tsx — Screen 6: PPh 21 TER & PTKP Schemes
 import { useState } from 'react'
-import { initialPph21Config, formatIDR } from '../../data/mock-payroll-data'
+import { initialPph21Config } from '../../data/mock-payroll-data'
 import type { Pph21Config } from '../../types'
+import { m } from '@/i18n/paraglide/messages'
 import { Badge } from '@/shared/components/ui/badge'
 import { Button } from '@/shared/components/ui/button'
+import { FieldLabel } from '@/shared/components/ui/field'
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
@@ -26,36 +29,36 @@ export function Pph21ConfigView() {
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault()
-    snackbar.success('PPh 21 tax configuration saved successfully!')
+    snackbar.success(m.payroll_pph21_saved())
   }
 
   const terCategories = [
     {
-      category: 'Kategori TER A',
-      scope: 'TK/0 (Rp 54 jt), TK/1 (Rp 58.5 jt), K/0 (Rp 58.5 jt)',
-      rateSample: '0% – 34% (Lapisan penghasilan bruto bulanan)',
-      status: 'Active (PP 58/2023)',
+      category: m.payroll_pph21_category_a(),
+      scope: m.payroll_pph21_scope_a(),
+      rateSample: m.payroll_pph21_rate_sample(),
+      status: m.payroll_pph21_active_regulation(),
     },
     {
-      category: 'Kategori TER B',
-      scope: 'TK/2, TK/3, K/1, K/2 (Rp 63 jt – Rp 67.5 jt)',
-      rateSample: '0% – 34% (Lapisan penghasilan bruto bulanan)',
-      status: 'Active (PP 58/2023)',
+      category: m.payroll_pph21_category_b(),
+      scope: m.payroll_pph21_scope_b(),
+      rateSample: m.payroll_pph21_rate_sample(),
+      status: m.payroll_pph21_active_regulation(),
     },
     {
-      category: 'Kategori TER C',
-      scope: 'K/3 (Kawin + 3 Tanggungan: Rp 72 jt)',
-      rateSample: '0% – 34% (Lapisan penghasilan bruto bulanan)',
-      status: 'Active (PP 58/2023)',
+      category: m.payroll_pph21_category_c(),
+      scope: m.payroll_pph21_scope_c(),
+      rateSample: m.payroll_pph21_rate_sample(),
+      status: m.payroll_pph21_active_regulation(),
     },
   ]
 
   const progressiveBrackets = [
-    { layer: 'Lapisan I', range: 'Rp 0 – Rp 60.000.000', rate: '5%' },
-    { layer: 'Lapisan II', range: '> Rp 60.000.000 – Rp 250.000.000', rate: '15%' },
-    { layer: 'Lapisan III', range: '> Rp 250.000.000 – Rp 500.000.000', rate: '25%' },
-    { layer: 'Lapisan IV', range: '> Rp 500.000.000 – Rp 5.000.000.000', rate: '30%' },
-    { layer: 'Lapisan V', range: '> Rp 5.000.000.000', rate: '35%' },
+    { layer: m.payroll_pph21_bracket_1(), range: 'Rp 0 – Rp 60.000.000', rate: '5%' },
+    { layer: m.payroll_pph21_bracket_2(), range: '> Rp 60.000.000 – Rp 250.000.000', rate: '15%' },
+    { layer: m.payroll_pph21_bracket_3(), range: '> Rp 250.000.000 – Rp 500.000.000', rate: '25%' },
+    { layer: m.payroll_pph21_bracket_4(), range: '> Rp 500.000.000 – Rp 5.000.000.000', rate: '30%' },
+    { layer: m.payroll_pph21_bracket_5(), range: '> Rp 5.000.000.000', rate: '35%' },
   ]
 
   return (
@@ -63,15 +66,15 @@ export function Pph21ConfigView() {
       {/* ── 1. Tax Calculation Method ──────────────────────────────────────── */}
       <div className='rounded-2xl border border-border/80 bg-card p-6 shadow-xs space-y-6'>
         <div>
-          <h3 className='text-sm font-bold text-foreground'>Metode Perhitungan Pajak PPh 21</h3>
+          <h3 className='text-sm font-bold text-foreground'>{m.payroll_pph21_method_title()}</h3>
           <p className='text-xs text-muted-foreground mt-0.5'>
-            Pilih skema pemotongan pajak penghasilan karyawan
+            {m.payroll_pph21_method_description()}
           </p>
         </div>
 
         <div className='grid grid-cols-1 md:grid-cols-2 gap-5'>
           <div className='space-y-1.5'>
-            <label className='text-xs font-semibold text-foreground'>PPh 21 Method</label>
+            <FieldLabel className='text-xs font-semibold text-foreground'>{m.payroll_pph21_method_label()}</FieldLabel>
             <Select
               value={config.taxMethod}
               onValueChange={(val) =>
@@ -79,18 +82,20 @@ export function Pph21ConfigView() {
               }
             >
               <SelectTrigger className='h-10 text-xs bg-background border border-input rounded-xl shadow-xs'>
-                <SelectValue placeholder='Select tax method' />
+                <SelectValue placeholder={m.payroll_pph21_method_placeholder()} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value='gross'>Gross (Pajak ditanggung sendiri oleh karyawan)</SelectItem>
-                <SelectItem value='nett'>Nett (Pajak ditanggung penuh oleh perusahaan)</SelectItem>
-                <SelectItem value='gross_up'>Gross-Up (Diberikan tunjangan pajak setara)</SelectItem>
+                <SelectGroup>
+                  <SelectItem value='gross'>{m.payroll_pph21_method_gross()}</SelectItem>
+                  <SelectItem value='nett'>{m.payroll_pph21_method_nett()}</SelectItem>
+                  <SelectItem value='gross_up'>{m.payroll_pph21_method_gross_up()}</SelectItem>
+                </SelectGroup>
               </SelectContent>
             </Select>
           </div>
 
           <div className='space-y-1.5'>
-            <label className='text-xs font-semibold text-foreground'>Skema Pemotongan Bulanan</label>
+            <FieldLabel className='text-xs font-semibold text-foreground'>{m.payroll_pph21_scheme_label()}</FieldLabel>
             <Select
               value={config.useTERScheme ? 'ter' : 'progressive'}
               onValueChange={(val) =>
@@ -98,11 +103,13 @@ export function Pph21ConfigView() {
               }
             >
               <SelectTrigger className='h-10 text-xs bg-background border border-input rounded-xl shadow-xs'>
-                <SelectValue placeholder='Select scheme' />
+                <SelectValue placeholder={m.payroll_pph21_scheme_placeholder()} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value='ter'>Tarif Efektif Rata-Rata (TER PP 58/2023 & PMK 168)</SelectItem>
-                <SelectItem value='progressive'>Tarif Progresif Pasal 17 UU HPP</SelectItem>
+                <SelectGroup>
+                  <SelectItem value='ter'>{m.payroll_pph21_scheme_ter()}</SelectItem>
+                  <SelectItem value='progressive'>{m.payroll_pph21_scheme_progressive()}</SelectItem>
+                </SelectGroup>
               </SelectContent>
             </Select>
           </div>
@@ -112,7 +119,7 @@ export function Pph21ConfigView() {
       {/* ── 2. TER Category Reference Table ────────────────────────────────── */}
       <div className='rounded-2xl border border-border/80 bg-card shadow-xs overflow-hidden'>
         <div className='p-6 pb-4 border-b border-border/60'>
-          <h3 className='text-sm font-bold text-foreground'>Tarif Efektif Rata-Rata (TER) Categories</h3>
+          <h3 className='text-sm font-bold text-foreground'>{m.payroll_pph21_ter_title()}</h3>
           <p className='text-xs text-muted-foreground mt-0.5'>
             Klasifikasi PTKP ke dalam kategori TER bulanan (Januari – November)
           </p>
@@ -121,10 +128,10 @@ export function Pph21ConfigView() {
         <Table>
           <TableHeader>
             <TableRow className='bg-muted/30 text-xs border-b border-border/60'>
-              <TableHead className='font-bold text-muted-foreground py-3.5 pl-6'>Kategori TER</TableHead>
-              <TableHead className='font-bold text-muted-foreground py-3.5'>Status PTKP Masuk</TableHead>
-              <TableHead className='font-bold text-muted-foreground py-3.5'>Rentang Tarif</TableHead>
-              <TableHead className='font-bold text-muted-foreground py-3.5 pr-6 text-right'>Status Regulasi</TableHead>
+              <TableHead className='font-bold text-muted-foreground py-3.5 pl-6'>{m.payroll_pph21_col_ter_category()}</TableHead>
+              <TableHead className='font-bold text-muted-foreground py-3.5'>{m.payroll_pph21_col_ptkp()}</TableHead>
+              <TableHead className='font-bold text-muted-foreground py-3.5'>{m.payroll_pph21_col_rate_range()}</TableHead>
+              <TableHead className='font-bold text-muted-foreground py-3.5 pr-6 text-right'>{m.payroll_pph21_col_regulation()}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -145,18 +152,18 @@ export function Pph21ConfigView() {
       {/* ── 3. Progressive Tax Brackets ────────────────────────────────────── */}
       <div className='rounded-2xl border border-border/80 bg-card shadow-xs overflow-hidden'>
         <div className='p-6 pb-4 border-b border-border/60'>
-          <h3 className='text-sm font-bold text-foreground'>Tarif Pajak Progresif Tahunan (Pasal 17 UU HPP)</h3>
+          <h3 className='text-sm font-bold text-foreground'>{m.payroll_pph21_progressive_title()}</h3>
           <p className='text-xs text-muted-foreground mt-0.5'>
-            Digunakan untuk kalkulasi pajak masa Desember dan SPT Tahunan
+            {m.payroll_pph21_progressive_description()}
           </p>
         </div>
 
         <Table>
           <TableHeader>
             <TableRow className='bg-muted/30 text-xs border-b border-border/60'>
-              <TableHead className='font-bold text-muted-foreground py-3.5 pl-6'>Lapisan</TableHead>
-              <TableHead className='font-bold text-muted-foreground py-3.5'>Penghasilan Kena Pajak (PKP) Tahunan</TableHead>
-              <TableHead className='font-bold text-muted-foreground py-3.5 pr-6 text-right'>Tarif Pajak</TableHead>
+              <TableHead className='font-bold text-muted-foreground py-3.5 pl-6'>{m.payroll_pph21_col_layer()}</TableHead>
+              <TableHead className='font-bold text-muted-foreground py-3.5'>{m.payroll_pph21_col_annual_pkp()}</TableHead>
+              <TableHead className='font-bold text-muted-foreground py-3.5 pr-6 text-right'>{m.payroll_pph21_col_tax_rate()}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -173,7 +180,7 @@ export function Pph21ConfigView() {
 
       <div className='flex justify-end'>
         <Button type='submit' className='h-9.5 px-6 text-xs font-semibold rounded-xl shadow-xs'>
-          Save PPh 21 Scheme
+          {m.payroll_pph21_save_button()}
         </Button>
       </div>
     </form>
