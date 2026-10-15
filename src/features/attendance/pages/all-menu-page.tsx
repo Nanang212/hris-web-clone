@@ -1,8 +1,10 @@
 import {
   IconArrowRight,
   IconCalendarEvent,
+  IconCalendarTime,
   IconFileText,
   IconListDetails,
+  IconMapPin,
   IconPlane,
   IconSettings,
   IconSpeakerphone,
@@ -10,12 +12,14 @@ import {
 import { Link } from '@tanstack/react-router'
 
 import { AppMain } from '@/shared/components/app-layout/app-main'
-import { Button } from '@/shared/components/ui/button'
 import { getAttendanceBreadcrumbs } from '@/features/attendance/components/attendance-breadcrumbs'
 import { AttendanceTabs } from '@/features/attendance/components/attendance-tabs'
 import { m } from '@/i18n/paraglide/messages'
+import { getLocale } from '@/i18n/paraglide/runtime'
 
 export function AllMenuPage() {
+  const isEn = getLocale() === 'en'
+
   const menus = [
     {
       code: 'CI',
@@ -88,6 +92,20 @@ export function AllMenuPage() {
       to: '/attendance/management/shifts' as const,
     },
     {
+      code: 'WP',
+      title: isEn ? 'Work Pattern' : 'Pola Kerja',
+      description: isEn ? 'Regular schedule & cycles' : 'Jadwal reguler & penugasan',
+      icon: IconCalendarTime,
+      to: '/attendance/work-patterns' as const,
+    },
+    {
+      code: 'LOC',
+      title: isEn ? 'Attendance Location' : 'Lokasi Kehadiran',
+      description: isEn ? 'GPS points & geofence' : 'Titik GPS & geofence',
+      icon: IconMapPin,
+      to: '/attendance/locations' as const,
+    },
+    {
       code: 'ANN',
       title: m.attendance_menu_announcement_title(),
       description: m.attendance_menu_announcement_description(),
@@ -109,38 +127,30 @@ export function AllMenuPage() {
       subtitle={m.attendance_menu_subtitle()}
       breadcrumbs={getAttendanceBreadcrumbs(m.attendance_menu_title())}
       backTo='/attendance'
-      className='gap-5 bg-muted/30'
+      className='gap-6 bg-muted/20'
     >
       <AttendanceTabs active='all-menu' />
       <div className='grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'>
-        {menus.map(({ code, title, description, icon: Icon, to }) => {
-          return (
-            <Button
-              key={code}
-              asChild
-              variant='ghost'
-              className='h-auto min-h-37 w-full justify-start p-0'
-            >
-              <Link
-                to={to}
-                className='flex w-full min-w-0 flex-col justify-between rounded-2xl border border-border bg-card p-4 text-left shadow-sm transition-colors hover:bg-muted/50'
-              >
-                <div className='flex min-w-0 items-start justify-between gap-4'>
-                  <div className='flex min-w-0 flex-1 flex-col items-start gap-2'>
-                    <span className='flex size-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-xs font-bold text-blue-600'>
-                      <Icon className='size-5' />
-                    </span>
-                    <h3 className='leading-5 font-semibold break-words'>{title}</h3>
-                    <p className='text-xs leading-5 break-words text-muted-foreground'>
-                      {description}
-                    </p>
-                  </div>
-                  <IconArrowRight className='mt-1 size-4 shrink-0 text-muted-foreground' />
-                </div>
-              </Link>
-            </Button>
-          )
-        })}
+        {menus.map(({ code, title, description, icon: Icon, to }) => (
+          <Link
+            key={code}
+            to={to}
+            className='group flex min-h-36 w-full min-w-0 flex-col justify-between rounded-2xl border border-border/80 bg-card p-4.5 text-left shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:border-primary/50 hover:bg-muted/30'
+          >
+            <div className='flex items-start justify-between gap-3'>
+              <span className='flex size-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600 transition-colors group-hover:bg-primary group-hover:text-primary-foreground'>
+                <Icon className='size-5' />
+              </span>
+              <IconArrowRight className='size-4 shrink-0 text-muted-foreground/60 transition-transform duration-200 group-hover:translate-x-1 group-hover:text-primary' />
+            </div>
+            <div className='mt-3 min-w-0'>
+              <h3 className='text-sm font-bold text-foreground leading-snug truncate'>{title}</h3>
+              <p className='text-xs text-muted-foreground mt-1 line-clamp-2 leading-relaxed'>
+                {description}
+              </p>
+            </div>
+          </Link>
+        ))}
       </div>
     </AppMain>
   )
