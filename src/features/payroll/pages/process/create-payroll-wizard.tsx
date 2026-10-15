@@ -7,7 +7,7 @@ import {
   IconCheck,
   IconCalendar,
   IconInfoCircle,
-  IconFileSpreadsheet,
+  IconShieldCheck,
 } from '@tabler/icons-react'
 import dayjs from 'dayjs'
 import { useState } from 'react'
@@ -131,13 +131,7 @@ export function CreatePayrollWizard({ onCancel, onSuccess }: CreatePayrollWizard
       }
       setStep(2)
     } else if (step === 2) {
-      // Gerbang: tagihan BPJS Kes harus sudah diupload sebelum payroll periode ini dihitung
-      if (!billingUpload) {
-        snackbar.error(
-          `Upload tagihan BPJS Kesehatan periode ${periodName} terlebih dahulu sebelum melanjutkan.`,
-        )
-        return
-      }
+      // Step 2 otomatis: kalkulasi BPJS Kes dihitung otomatis dari master upah atau tagihan terupload
       setStep(3)
     } else if (step === 3) {
       setStep(4)
@@ -228,28 +222,26 @@ export function CreatePayrollWizard({ onCancel, onSuccess }: CreatePayrollWizard
       <div className='grid grid-cols-4 gap-3'>
         {[
           { num: 1, label: 'Period & Cut-off', icon: IconCalendarEvent },
-          { num: 2, label: 'Tagihan BPJS Kes', icon: IconFileSpreadsheet },
+          { num: 2, label: 'BPJS Kesehatan', icon: IconShieldCheck },
           { num: 3, label: 'Employee Scope', icon: IconUsers },
           { num: 4, label: 'Attendance Sync', icon: IconClockCheck },
         ].map((s) => (
           <div
             key={s.num}
-            className={`p-4 rounded-2xl border transition-all flex items-center gap-3.5 ${
-              step === s.num
+            className={`p-4 rounded-2xl border transition-all flex items-center gap-3.5 ${step === s.num
                 ? 'border-primary bg-primary/5 text-primary shadow-xs'
                 : step > s.num
                   ? 'border-emerald-500/50 bg-emerald-50/40 text-emerald-600 dark:bg-emerald-950/20'
                   : 'border-border/70 bg-card text-muted-foreground'
-            }`}
+              }`}
           >
             <div
-              className={`flex size-9 items-center justify-center rounded-xl font-bold text-xs ${
-                step > s.num
+              className={`flex size-9 items-center justify-center rounded-xl font-bold text-xs ${step > s.num
                   ? 'bg-emerald-600 text-white'
                   : step === s.num
                     ? 'bg-primary text-primary-foreground shadow-xs'
                     : 'bg-muted text-muted-foreground'
-              }`}
+                }`}
             >
               {step > s.num ? <IconCheck size={16} /> : s.num}
             </div>
@@ -406,17 +398,21 @@ export function CreatePayrollWizard({ onCancel, onSuccess }: CreatePayrollWizard
           </div>
         )}
 
-        {/* ── STEP 2: Tagihan BPJS Kesehatan (gerbang sebelum kalkulasi) ── */}
+        {/* ── STEP 2: BPJS Kesehatan (Otomatis dari Master Upah / Upload Tagihan) ── */}
         {step === 2 && (
           <div className='space-y-5'>
             <div>
-              <h3 className='text-sm font-bold text-foreground'>Tagihan BPJS Kesehatan</h3>
+              <div className='flex items-center gap-2'>
+                <h3 className='text-sm font-bold text-foreground'>Kalkulasi BPJS Kesehatan</h3>
+                <span className='px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-500/30'>
+                  Otomatis Aktif
+                </span>
+              </div>
               <p className='text-xs text-muted-foreground mt-0.5'>
-                Tagihan periode {periodName} menjadi dasar potongan BPJS Kesehatan karyawan. Wajib
-                diupload sebelum payroll dihitung.
+                Sistem otomatis menghitung iuran BPJS Kesehatan (1% Karyawan, 4% Perusahaan) dari Master Upah karyawan aktif dan langsung menyimpannya ke sistem.
               </p>
             </div>
-            <BpjsKesBillingPanel periodKey={periodKey} periodLabel={periodName} />
+            <BpjsKesBillingPanel periodKey={periodKey} periodLabel={periodName} isWizard />
           </div>
         )}
 
@@ -450,11 +446,10 @@ export function CreatePayrollWizard({ onCancel, onSuccess }: CreatePayrollWizard
               ].map((opt) => (
                 <label
                   key={opt.id}
-                  className={`p-4 rounded-2xl border flex items-start gap-3.5 cursor-pointer transition-all ${
-                    employeeScope === opt.id
+                  className={`p-4 rounded-2xl border flex items-start gap-3.5 cursor-pointer transition-all ${employeeScope === opt.id
                       ? 'border-primary bg-primary/5 text-foreground shadow-xs'
                       : 'border-border/70 bg-background hover:bg-muted/30 text-muted-foreground'
-                  }`}
+                    }`}
                 >
                   <input
                     type='radio'

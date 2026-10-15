@@ -240,10 +240,20 @@ export function EmployeePayrollBreakdownModal({
                   <div className='flex items-center justify-between'>
                     <span className='font-bold text-foreground'>BPJS Kesehatan Karyawan</span>
                     <Badge
-                      variant={detail.bpjsKesSource === 'billing' ? 'emerald' : 'amber'}
+                      variant={
+                        detail.bpjsKesSource === 'billing'
+                          ? 'emerald'
+                          : detail.bpjsKesSource === 'calculated'
+                            ? 'blue'
+                            : 'amber'
+                      }
                       className='text-[9px] px-1.5 py-0'
                     >
-                      {detail.bpjsKesSource === 'billing' ? 'Tagihan Upload' : 'Belum Ada Tagihan'}
+                      {detail.bpjsKesSource === 'billing'
+                        ? 'Tagihan Upload'
+                        : detail.bpjsKesSource === 'calculated'
+                          ? 'Otomatis (Master Upah)'
+                          : 'Belum Ada Tagihan'}
                     </Badge>
                   </div>
                   <div className='flex justify-between items-center text-muted-foreground pl-2'>
