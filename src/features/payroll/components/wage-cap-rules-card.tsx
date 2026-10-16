@@ -171,7 +171,7 @@ export function WageCapRulesCard({ scope = 'all' }: WageCapRulesCardProps) {
             <Button
               type='button'
               size='sm'
-              className='h-7.5 px-3 text-xs font-semibold rounded-lg bg-amber-600 hover:bg-amber-700 text-white shrink-0 shadow-2xs cursor-pointer'
+              className='shrink-0'
               onClick={handleSave}
             >
               {m.payroll_wage_cap_save_now()}
@@ -292,11 +292,7 @@ export function WageCapRulesCard({ scope = 'all' }: WageCapRulesCardProps) {
 
             <Button
               type='button'
-              className={`h-9 px-5 text-xs font-semibold rounded-xl shadow-xs transition-all cursor-pointer ${
-                isDirty
-                  ? 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-md ring-2 ring-primary/20'
-                  : 'bg-primary/85 hover:bg-primary text-primary-foreground'
-              }`}
+              size='sm'
               onClick={handleSave}
             >
               {scope === 'kes'

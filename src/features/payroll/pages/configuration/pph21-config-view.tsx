@@ -23,6 +23,7 @@ import {
   TableRow,
 } from '@/shared/components/ui/table'
 import { snackbar } from '@/shared/lib/snackbar'
+import { TaxYearToDateEditor } from './tax-year-to-date-editor'
 
 export function Pph21ConfigView() {
   const [config, setConfig] = useState<Pph21Config>(initialPph21Config)
@@ -62,6 +63,7 @@ export function Pph21ConfigView() {
   ]
 
   return (
+    <div className='flex flex-col gap-6'>
     <form onSubmit={handleSave} className='space-y-6'>
       {/* ── 1. Tax Calculation Method ──────────────────────────────────────── */}
       <div className='rounded-2xl border border-border/80 bg-card p-6 shadow-xs space-y-6'>
@@ -184,5 +186,7 @@ export function Pph21ConfigView() {
         </Button>
       </div>
     </form>
+    <TaxYearToDateEditor />
+    </div>
   )
 }

@@ -6,6 +6,7 @@ import type { SalaryComponent } from '../../types'
 import { m } from '@/i18n/paraglide/messages'
 import { Badge } from '@/shared/components/ui/badge'
 import { Button } from '@/shared/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card'
 import { Checkbox } from '@/shared/components/ui/checkbox'
 import { FieldLabel } from '@/shared/components/ui/field'
 import {
@@ -125,38 +126,36 @@ export function SalaryComponentsView() {
   }
 
   return (
-    <div className='space-y-8'>
+    <div className='space-y-6'>
       {/* Header Actions */}
-      <div className='flex items-center justify-between'>
-        <div>
+      <div className='flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between'>
+        <div className='flex flex-col gap-1'>
           <h3 className='text-sm font-bold text-foreground'>{m.payroll_salary_directory_title()}</h3>
-          <p className='text-xs text-muted-foreground mt-0.5'>
+          <p className='max-w-2xl text-xs text-muted-foreground'>
             {m.payroll_salary_directory_description()}
           </p>
         </div>
-        <Button
-          onClick={handleOpenAdd}
-          className='gap-1.5 text-xs font-semibold rounded-xl h-9 px-4 shadow-xs'
-        >
-          <IconPlus size={15} />
+        <Button type='button' size='sm' className='self-start' onClick={handleOpenAdd}>
+          <IconPlus data-icon='inline-start' />
           {m.payroll_employee_components_add_button()}
         </Button>
       </div>
 
       {/* ── Table 1: Allowances / Earnings ─────────────────────────────────── */}
-      <div className='rounded-2xl border border-border/80 bg-card shadow-xs overflow-hidden'>
-        <div className='p-5 pb-3 bg-muted/20 border-b border-border/60 flex items-center justify-between'>
+      <Card className='min-w-0 gap-0 overflow-hidden py-0'>
+        <CardHeader className='flex flex-row items-center justify-between gap-3 bg-muted/20 py-4'>
           <div className='flex items-center gap-2'>
             <IconCoins size={16} className='text-emerald-600 dark:text-emerald-400' />
-            <h4 className='text-xs font-bold text-foreground uppercase tracking-wider'>
+            <CardTitle className='text-xs font-bold uppercase tracking-wider'>
               {m.payroll_employee_components_allowance_table_title()}
-            </h4>
+            </CardTitle>
           </div>
           <Badge variant='green' className='text-[10px]'>
             {m.payroll_employee_components_count({count: allowances.length})}
           </Badge>
-        </div>
+        </CardHeader>
 
+        <CardContent className='px-0'>
         <Table>
           <TableHeader>
             <TableRow className='bg-muted/10 text-xs border-b border-border/60'>
@@ -235,22 +234,24 @@ export function SalaryComponentsView() {
             ))}
           </TableBody>
         </Table>
-      </div>
+        </CardContent>
+      </Card>
 
       {/* ── Table 2: Deductions ────────────────────────────────────────────── */}
-      <div className='rounded-2xl border border-border/80 bg-card shadow-xs overflow-hidden'>
-        <div className='p-5 pb-3 bg-muted/20 border-b border-border/60 flex items-center justify-between'>
+      <Card className='min-w-0 gap-0 overflow-hidden py-0'>
+        <CardHeader className='flex flex-row items-center justify-between gap-3 bg-muted/20 py-4'>
           <div className='flex items-center gap-2'>
             <IconCoins size={16} className='text-rose-600 dark:text-rose-400' />
-            <h4 className='text-xs font-bold text-foreground uppercase tracking-wider'>
+            <CardTitle className='text-xs font-bold uppercase tracking-wider'>
               {m.payroll_employee_components_deduction_table_title()}
-            </h4>
+            </CardTitle>
           </div>
           <Badge variant='red' className='text-[10px]'>
             {m.payroll_employee_components_count({count: deductions.length})}
           </Badge>
-        </div>
+        </CardHeader>
 
+        <CardContent className='px-0'>
         <Table>
           <TableHeader>
             <TableRow className='bg-muted/10 text-xs border-b border-border/60'>
@@ -322,7 +323,8 @@ export function SalaryComponentsView() {
             ))}
           </TableBody>
         </Table>
-      </div>
+        </CardContent>
+      </Card>
 
       {/* ── Add / Edit Component Dialog Modal ─────────────────────────────── */}
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>

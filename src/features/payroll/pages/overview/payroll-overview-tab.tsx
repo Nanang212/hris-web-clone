@@ -179,8 +179,9 @@ export function PayrollOverviewTab({
               </div>
               <Button
                 type='button'
+                variant='outline'
+                size='sm'
                 onClick={onNavigateToConfig}
-                className='text-xs font-semibold text-primary hover:underline cursor-pointer'
               >
                 {m.payroll_overview_configure_button()}
               </Button>

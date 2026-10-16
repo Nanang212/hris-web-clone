@@ -234,6 +234,7 @@ export interface PayrollEmployeeInput {
 
 export interface TaxYearToDateInput {
   isFinalTaxPeriod?: boolean
+  verified?: boolean
   priorTaxableGross: number
   priorEmployeePensionContributions: number
   priorQualifiedZakat: number
@@ -262,6 +263,8 @@ export interface EmployeePayrollComponent {
   name: string
   code: string
   type: 'allowance' | 'deduction'
+  /** Determines whether a component affects cash, taxable gross, or final-period deductions. */
+  componentKind?: PayrollComponentKind
   amount: number
   frequency: 'one_time' | 'recurring' | 'installment'
   startPeriod: string

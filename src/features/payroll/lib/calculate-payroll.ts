@@ -87,21 +87,31 @@ export function calculatePayroll(params: CalculatePayrollParams): PayrollCalcula
 
     // Komponen otomatis dari presensi (variabel)
     const { workingDays, absentCount, lateCount, overtimeHours } = emp.attendance
-    const overtimePay =
-      overtimeHours > 0
+    const manualOvertimePay = sum(
+      lines.filter((line) => line.type === 'allowance' && line.componentKind === 'overtime').map((line) => line.amount),
+    )
+    const manualAttendanceReduction = sum(
+      lines.filter((line) => line.type === 'deduction' && line.componentKind === 'attendance_reduction').map((line) => line.amount),
+    )
+    const calculatedOvertimePay =
+      manualOvertimePay === 0 && overtimeHours > 0
         ? rp((overtimeHours * emp.baseSalary) / generalConfig.overtimeHourlyRateDivider)
         : 0
+    const overtimePay = manualOvertimePay + calculatedOvertimePay
     const unpaidLeaveDeduction =
-      absentCount > 0 && workingDays > 0 ? rp((absentCount * emp.baseSalary) / workingDays) : 0
+      manualAttendanceReduction === 0 && absentCount > 0 && workingDays > 0
+        ? rp((absentCount * emp.baseSalary) / workingDays)
+        : 0
     const lateDeduction = lateCount > 0 ? rp(lateCount * latePenaltyPerOccurrence) : 0
 
-    if (overtimePay > 0) {
+    if (calculatedOvertimePay > 0) {
       lines.push({
         code: 'OVERTIME',
         name: `Upah Lembur (${overtimeHours} jam)`,
         type: 'allowance',
-        amount: overtimePay,
+        amount: calculatedOvertimePay,
         isTaxable: true,
+        componentKind: 'overtime',
         source: 'attendance',
       })
     }
@@ -112,6 +122,7 @@ export function calculatePayroll(params: CalculatePayrollParams): PayrollCalcula
         type: 'deduction',
         amount: unpaidLeaveDeduction,
         isTaxable: false,
+        componentKind: 'attendance_reduction',
         source: 'attendance',
       })
     }
@@ -131,10 +142,14 @@ export function calculatePayroll(params: CalculatePayrollParams): PayrollCalcula
     const cashEarningLines = earningLines.filter((l) => l.cashImpact !== false)
 
     const fixedAllowances = sum(
-      cashEarningLines.filter((l) => l.source === 'fixed').map((l) => l.amount),
+      cashEarningLines
+        .filter((line) => line.source === 'fixed' && line.componentKind !== 'overtime')
+        .map((line) => line.amount),
     )
     const variableAllowances = sum(
-      cashEarningLines.filter((l) => l.source === 'variable').map((l) => l.amount),
+      cashEarningLines
+        .filter((line) => line.source === 'variable' && line.componentKind !== 'overtime')
+        .map((line) => line.amount),
     )
     const totalGross = emp.baseSalary + fixedAllowances + variableAllowances + overtimePay
 
@@ -163,9 +178,15 @@ export function calculatePayroll(params: CalculatePayrollParams): PayrollCalcula
         .filter((line) => line.componentKind === 'qualified_zakat')
         .map((line) => line.amount),
     )
+    const attendanceWageReduction = sum(
+      deductionLines
+        .filter((line) => line.componentKind === 'attendance_reduction')
+        .map((line) => line.amount),
+    )
+    const manualAttendanceWageReduction = attendanceWageReduction - unpaidLeaveDeduction
     const otherPayrollDeductions = Math.max(
       0,
-      otherDeductions - loanDeduction - qualifiedPensionDeduction - qualifiedZakatDeduction,
+      otherDeductions - loanDeduction - qualifiedPensionDeduction - qualifiedZakatDeduction - manualAttendanceWageReduction,
     )
     const nonTaxablePayments = sum(
       cashEarningLines.filter((line) => !line.isTaxable).map((line) => line.amount),
@@ -233,7 +254,7 @@ export function calculatePayroll(params: CalculatePayrollParams): PayrollCalcula
       0,
       emp.baseSalary +
         taxableAllowances -
-        unpaidLeaveDeduction +
+        attendanceWageReduction +
         bpjsKesEmployer +
         bpjsTkJkk +
         bpjsTkJkm,
@@ -327,7 +348,9 @@ export function calculatePayroll(params: CalculatePayrollParams): PayrollCalcula
       fixedAllowances,
       variableAllowances,
       overtimePay,
-      bonusTHR: 0,
+      bonusTHR: sum(
+        cashEarningLines.filter((line) => line.componentKind === 'thr_bonus').map((line) => line.amount),
+      ),
       totalGross: finalTotalGross,
       unpaidLeaveDeduction,
       lateDeduction,

@@ -151,20 +151,20 @@ export function FinanceApprovalView({
         <div className='pt-5 border-t border-border/70 flex items-center justify-between'>
           <Button
             type='button'
-            variant='outline'
+            variant='destructive'
+            size='sm'
             onClick={handleRevision}
-            className='h-9.5 px-5 text-xs font-semibold text-destructive hover:bg-destructive/10 rounded-xl'
           >
             {m.payroll_finance_revision_button()}
           </Button>
 
           <Button
             type='button'
+            size='sm'
             onClick={handleApprove}
             disabled={!allChecked}
-            className='gap-1.5 h-9.5 px-6 text-xs font-semibold rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs'
           >
-            <IconShieldCheck size={16} />
+            <IconShieldCheck data-icon='inline-start' />
             {m.payroll_finance_approve_button()}
           </Button>
         </div>

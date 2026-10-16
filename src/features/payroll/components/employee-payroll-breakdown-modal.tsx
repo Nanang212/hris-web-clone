@@ -43,14 +43,18 @@ export function EmployeePayrollBreakdownModal({
   const bpjsKes1Percent = Math.max(0, detail.bpjsKesEmployee - (detail.bpjsKesFamilyExtra ?? 0))
   const fixedLines =
     detail.lines?.filter(
-      (line) => line.type === 'allowance' && line.cashImpact !== false && line.source === 'fixed',
+      (line) =>
+        line.type === 'allowance' &&
+        line.cashImpact !== false &&
+        line.source === 'fixed' &&
+        line.componentKind !== 'overtime',
     ) ?? []
   const variableLines =
     detail.lines?.filter(
       (line) =>
         line.type === 'allowance' &&
         line.cashImpact !== false &&
-        (line.source === 'variable' || line.source === 'attendance'),
+        (line.source === 'variable' || line.source === 'attendance' || line.componentKind === 'overtime'),
     ) ?? []
   const employeeDeductionLines = detail.lines?.filter((line) => line.type === 'deduction') ?? []
   const taxableBenefitLines =
@@ -211,7 +215,7 @@ export function EmployeePayrollBreakdownModal({
                 ))}
 
                 {/* Upah Lembur jika ada dan belum masuk lines */}
-                {detail.overtimePay > 0 && !variableLines.some((l) => l.code === 'OVERTIME') && (
+                {detail.overtimePay > 0 && !variableLines.some((l) => l.componentKind === 'overtime' || l.code === 'OVERTIME') && (
                   <div className='flex justify-between items-center pt-2'>
                     <div>
                       <p className='font-medium text-foreground'>

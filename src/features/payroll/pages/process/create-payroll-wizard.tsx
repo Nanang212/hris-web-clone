@@ -14,13 +14,17 @@ import { CalculationConfirmationModal } from '../../components/confirmation-moda
 import { initialGeneralConfig, initialPph21Config } from '../../data/mock-payroll-data'
 import { HQ_LOCATION, initialPayrollEmployeeInputs } from '../../data/mock-payroll-inputs'
 import { calculatePayroll } from '../../lib/calculate-payroll'
+import { isValidPtkpStatus } from '../../lib/pph21-calc'
 import { toPeriodKey, usePayrollBpjsBillingStore } from '../../store/payroll-bpjs-billing-store'
 import { usePayrollBpjsStore } from '../../store/payroll-bpjs-store'
 import {
   employeeComponentToInputLine,
+  getEmployeeComponentKind,
+  isAutomaticPayrollComponent,
   isEmployeeComponentEffective,
   usePayrollComponentStore,
 } from '../../store/payroll-component-store'
+import { usePayrollTaxInputStore } from '../../store/payroll-tax-input-store'
 import { usePayrollRunStore } from '../../store/payroll-run-store'
 import type { PayrollRun } from '../../types'
 import { Button } from '@/shared/components/ui/button'
@@ -85,6 +89,7 @@ export function CreatePayrollWizard({ onCancel, onSuccess }: CreatePayrollWizard
   const wageCapRules = usePayrollBpjsStore((s) => s.wageCapRules)
   const setRunResult = usePayrollRunStore((s) => s.setRunResult)
   const employeeComponents = usePayrollComponentStore((s) => s.employeeComponents)
+  const taxYearToDateOverrides = usePayrollTaxInputStore((s) => s.taxYearToDateOverrides)
   const applyPayrollPeriod = usePayrollComponentStore((s) => s.applyPayrollPeriod)
 
   const hqCount = initialPayrollEmployeeInputs.filter((e) => e.workLocation === HQ_LOCATION).length
@@ -144,25 +149,79 @@ export function CreatePayrollWizard({ onCancel, onSuccess }: CreatePayrollWizard
     setIsCalculating(true)
     setTimeout(() => {
       // Opsi sinkronisasi presensi/lembur menentukan komponen otomatis yang ikut dihitung
-      const employees = scopeEmployees.map((emp) => ({
-        ...emp,
-        variableComponents: [
-          ...emp.variableComponents,
-          ...employeeComponents
-            .filter(
-              (component) =>
-                component.employeeId === emp.employeeId &&
-                isEmployeeComponentEffective(component, periodKey),
-            )
-            .map(employeeComponentToInputLine),
-        ],
-        attendance: {
-          ...emp.attendance,
-          lateCount: syncAttendance ? emp.attendance.lateCount : 0,
-          absentCount: syncAttendance ? emp.attendance.absentCount : 0,
-          overtimeHours: syncOvertime ? emp.attendance.overtimeHours : 0,
-        },
-      }))
+      const automaticComponents = employeeComponents.filter(
+        (component) =>
+          scopeEmployees.some((employee) => employee.employeeId === component.employeeId) &&
+          isEmployeeComponentEffective(component, periodKey) &&
+          isAutomaticPayrollComponent(component),
+      )
+      if (automaticComponents.length > 0) {
+        snackbar.info(m.payroll_wizard_automatic_components_skipped({ count: automaticComponents.length }))
+      }
+      const employees = scopeEmployees.map((emp) => {
+        const applicableComponents = employeeComponents.filter(
+          (component) =>
+            component.employeeId === emp.employeeId &&
+            isEmployeeComponentEffective(component, periodKey) &&
+            !isAutomaticPayrollComponent(component),
+        )
+        return {
+          ...emp,
+          taxYearToDate:
+            taxYearToDateOverrides[`${periodYear}:${emp.employeeId}`] ??
+            (periodYear === '2026' ? emp.taxYearToDate : undefined),
+          fixedComponents: [
+            ...emp.fixedComponents,
+            ...applicableComponents
+              .filter((component) => getEmployeeComponentKind(component) === 'fixed_allowance')
+              .map(employeeComponentToInputLine),
+          ],
+          variableComponents: [
+            ...emp.variableComponents,
+            ...applicableComponents
+              .filter((component) => getEmployeeComponentKind(component) !== 'fixed_allowance')
+              .map(employeeComponentToInputLine),
+          ],
+          attendance: {
+            ...emp.attendance,
+            lateCount: syncAttendance ? emp.attendance.lateCount : 0,
+            absentCount: syncAttendance ? emp.attendance.absentCount : 0,
+            overtimeHours: syncOvertime ? emp.attendance.overtimeHours : 0,
+          },
+        }
+      })
+
+      const invalidPtkpCount = employees.filter(
+        (employee) => !isValidPtkpStatus(employee.ptkpStatus),
+      ).length
+      if (invalidPtkpCount > 0) {
+        setIsCalculating(false)
+        snackbar.error(m.payroll_wizard_invalid_ptkp({ count: invalidPtkpCount }))
+        return
+      }
+
+      const periodMonthNumber = Number(periodMonth)
+      const missingFinalTaxInputs = employees.filter((employee) => {
+        if (periodMonthNumber !== 12 && !employee.taxYearToDate?.isFinalTaxPeriod) return false
+        const yearToDate = employee.taxYearToDate
+        return (
+          !yearToDate ||
+          yearToDate.verified === false ||
+          yearToDate.monthsWorked < 1 ||
+          yearToDate.monthsWorked > periodMonthNumber ||
+          [
+            yearToDate.priorTaxableGross,
+            yearToDate.priorEmployeePensionContributions,
+            yearToDate.priorQualifiedZakat,
+            yearToDate.priorPph21Paid,
+          ].some((value) => !Number.isFinite(value) || value < 0)
+        )
+      })
+      if (missingFinalTaxInputs.length > 0) {
+        setIsCalculating(false)
+        snackbar.error(m.payroll_wizard_final_tax_missing({ count: missingFinalTaxInputs.length }))
+        return
+      }
 
       const result = calculatePayroll({
         employees,

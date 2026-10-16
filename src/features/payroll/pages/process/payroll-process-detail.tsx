@@ -250,9 +250,8 @@ export function PayrollProcessDetail({
             <Button
               size='sm'
               onClick={() => onSubmitForApproval(run.id)}
-              className='gap-1.5 text-xs font-semibold rounded-xl h-9 shadow-xs cursor-pointer'
             >
-              <IconSend size={15} />
+              <IconSend data-icon='inline-start' />
               {m.payroll_run_detail_submit_approval()}
             </Button>
           )}
@@ -261,9 +260,8 @@ export function PayrollProcessDetail({
             <Button
               size='sm'
               onClick={() => onNavigateToApproval?.(run.id)}
-              className='gap-1.5 text-xs font-semibold rounded-xl h-9 bg-amber-600 hover:bg-amber-700 text-white shadow-xs cursor-pointer'
             >
-              <IconChecklist size={15} />
+              <IconChecklist data-icon='inline-start' />
               {m.payroll_run_detail_open_approval()}
             </Button>
           )}
@@ -272,9 +270,8 @@ export function PayrollProcessDetail({
             <Button
               size='sm'
               onClick={() => onNavigateToApproval?.(run.id)}
-              className='gap-1.5 text-xs font-semibold rounded-xl h-9 bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs cursor-pointer'
             >
-              <IconBuildingBank size={15} />
+              <IconBuildingBank data-icon='inline-start' />
               {m.payroll_run_detail_go_disbursement()}
             </Button>
           )}
@@ -284,9 +281,8 @@ export function PayrollProcessDetail({
               variant='outline'
               size='sm'
               onClick={() => onNavigateToApproval?.(run.id)}
-              className='gap-1.5 text-xs font-semibold rounded-xl h-9 text-emerald-700 dark:text-emerald-300 border-emerald-500/30 bg-emerald-50/50 dark:bg-emerald-950/20 cursor-pointer'
             >
-              <IconChecklist size={15} />
+              <IconChecklist data-icon='inline-start' />
               {m.payroll_run_detail_view_approval()}
             </Button>
           )}

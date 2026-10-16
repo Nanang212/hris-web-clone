@@ -708,11 +708,10 @@ export function ThrConfigView() {
                 <Button
                   key={filter.id}
                   type='button'
+                  size='xs'
+                  variant={statusFilter === filter.id ? 'default' : 'ghost'}
+                  aria-pressed={statusFilter === filter.id}
                   onClick={() => setStatusFilter(filter.id)}
-                  className={`px-2.5 py-1 text-[11px] font-semibold rounded-lg transition-colors cursor-pointer ${statusFilter === filter.id
-                      ? 'bg-primary text-white shadow-2xs'
-                      : 'text-muted-foreground hover:text-foreground'
-                    }`}
                 >
                   {filter.label}
                 </Button>

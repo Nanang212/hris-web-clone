@@ -90,7 +90,7 @@ export function PayslipDetailView({ payslip, onBack }: PayslipDetailViewProps) {
         <div className='flex flex-wrap items-start justify-between gap-6 pb-6 border-b border-border/70'>
           <div className='space-y-1.5'>
             <div className='flex items-center gap-2.5'>
-              <div className='flex size-8 items-center justify-center rounded-lg bg-primary text-white'>
+              <div className='flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground'>
                 <IconBuildingCommunity size={18} />
               </div>
               <h2 className='text-lg font-bold text-foreground tracking-tight'>

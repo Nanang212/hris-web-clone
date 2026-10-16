@@ -78,21 +78,13 @@ export function PayrollApprovalTab({ runs: propRuns, onUpdateRuns }: PayrollAppr
 
   return (
     <div className='space-y-6'>
-      {/* ── Sub-nav Pill Selector for Approval Workflow ───────────────────── */}
+      {/* ── Approval Workflow Tabs ─────────────────────────────────────────── */}
       <div className='flex items-center justify-between flex-wrap gap-4'>
         <Tabs value={approvalView} onValueChange={(value) => setApprovalView(value as typeof approvalView)}>
-          <TabsList className='h-auto flex-wrap'>
-          <TabsTrigger value='variance'>
-            {m.payroll_approval_variance_tab()}
-          </TabsTrigger>
-
-          <TabsTrigger value='finance_approval'>
-            {m.payroll_approval_checklist_tab()}
-          </TabsTrigger>
-
-          <TabsTrigger value='disbursement'>
-            {m.payroll_approval_disbursement_tab()}
-          </TabsTrigger>
+          <TabsList variant='segmented' aria-label={m.payroll_tab_approval()}>
+            <TabsTrigger value='variance'>{m.payroll_approval_variance_tab()}</TabsTrigger>
+            <TabsTrigger value='finance_approval'>{m.payroll_approval_checklist_tab()}</TabsTrigger>
+            <TabsTrigger value='disbursement'>{m.payroll_approval_disbursement_tab()}</TabsTrigger>
           </TabsList>
         </Tabs>
 

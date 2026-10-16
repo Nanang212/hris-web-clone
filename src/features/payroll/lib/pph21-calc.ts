@@ -162,6 +162,12 @@ export function normalizePtkp(status: string): string {
   return status.replace(/\s+/g, '').toUpperCase()
 }
 
+export function isValidPtkpStatus(status: string): boolean {
+  return ['TK/0', 'TK/1', 'TK/2', 'TK/3', 'K/0', 'K/1', 'K/2', 'K/3'].includes(
+    normalizePtkp(status),
+  )
+}
+
 /** Menentukan Kategori TER (A, B, atau C) berdasarkan status PTKP */
 export function getTerCategory(ptkpStatus: string): TerCategory {
   const norm = normalizePtkp(ptkpStatus)
@@ -178,7 +184,7 @@ export function getTerCategory(ptkpStatus: string): TerCategory {
     case 'K/3':
       return 'C'
     default:
-      return 'A'
+      throw new Error('INVALID_PTKP_STATUS')
   }
 }
 
@@ -203,6 +209,8 @@ const JOB_COST_MAX_MONTHLY = 500_000
 export function getPtkpAnnualAmount(status: string, cfg: Pph21Config): number {
   const norm = normalizePtkp(status)
   switch (norm) {
+    case 'TK/0':
+      return cfg.ptkpTK0
     case 'TK/1':
       return cfg.ptkpTK0 + PTKP_PER_DEPENDENT
     case 'TK/2':
@@ -218,7 +226,7 @@ export function getPtkpAnnualAmount(status: string, cfg: Pph21Config): number {
     case 'K/3':
       return cfg.ptkpK3
     default:
-      return cfg.ptkpTK0
+      throw new Error('INVALID_PTKP_STATUS')
   }
 }
 

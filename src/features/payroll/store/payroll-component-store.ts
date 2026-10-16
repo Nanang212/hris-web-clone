@@ -1,11 +1,53 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
-import type { EmployeePayrollComponent, PayrollInputLine } from '../types'
+import type {
+  EmployeePayrollComponent,
+  PayrollComponentKind,
+  PayrollInputLine,
+} from '../types'
+
+export const employeeComponentKinds = {
+  allowance: [
+    'fixed_allowance',
+    'variable_allowance',
+    'thr_bonus',
+    'arrears',
+    'other_taxable_income',
+    'non_taxable_payment',
+    'taxable_benefit',
+  ],
+  deduction: [
+    'qualified_pension',
+    'qualified_zakat',
+    'loan',
+    'cash_advance',
+    'other_deduction',
+  ],
+} as const satisfies Record<EmployeePayrollComponent['type'], readonly PayrollComponentKind[]>
+
+const automaticComponentKinds: readonly PayrollComponentKind[] = [
+  'overtime',
+  'attendance_reduction',
+  'tax_allowance',
+]
+
+export function isAutomaticPayrollComponent(component: EmployeePayrollComponent): boolean {
+  return automaticComponentKinds.includes(getEmployeeComponentKind(component))
+}
+
+export function getEmployeeComponentKind(component: EmployeePayrollComponent): PayrollComponentKind {
+  if (component.componentKind) return component.componentKind
+  if (component.id === 'employee-component-loan-1') return 'loan'
+  if (component.id === 'employee-component-arrears-1') return 'arrears'
+  if (component.id === 'employee-component-zakat-1') return 'qualified_zakat'
+  return component.type === 'allowance' ? 'other_taxable_income' : 'other_deduction'
+}
 
 interface PayrollComponentStoreState {
   employeeComponents: EmployeePayrollComponent[]
   addEmployeeComponent: (component: EmployeePayrollComponent) => void
+  addImportedEmployeeComponents: (components: EmployeePayrollComponent[]) => void
   updateEmployeeComponent: (component: EmployeePayrollComponent) => void
   removeEmployeeComponent: (id: string) => void
   toggleEmployeeComponent: (id: string) => void
@@ -21,6 +63,7 @@ const initialEmployeeComponents: EmployeePayrollComponent[] = [
     name: 'Cicilan Pinjaman Karyawan',
     code: 'DED_LOAN_SITI',
     type: 'deduction',
+    componentKind: 'loan',
     amount: 500_000,
     frequency: 'installment',
     startPeriod: '2026-01',
@@ -38,6 +81,7 @@ const initialEmployeeComponents: EmployeePayrollComponent[] = [
     name: 'Rapel Koreksi Gaji',
     code: 'ARREARS_BUDI_202607',
     type: 'allowance',
+    componentKind: 'arrears',
     amount: 750_000,
     frequency: 'one_time',
     startPeriod: '2026-07',
@@ -52,6 +96,7 @@ const initialEmployeeComponents: EmployeePayrollComponent[] = [
     name: 'Zakat melalui Payroll',
     code: 'QUALIFIED_ZAKAT_ANDI',
     type: 'deduction',
+    componentKind: 'qualified_zakat',
     amount: 150_000,
     frequency: 'recurring',
     startPeriod: '2026-01',
@@ -64,15 +109,23 @@ export function isEmployeeComponentEffective(
   periodKey: string,
 ): boolean {
   if (component.status !== 'active') return false
-  if (component.startPeriod > periodKey) return false
-  if (component.endPeriod && component.endPeriod < periodKey) return false
+  if (!isEmployeeComponentInPeriod(component, periodKey)) return false
   if (component.frequency === 'installment' && (component.remainingBalance ?? 0) <= 0) return false
   return true
+}
+
+export function isEmployeeComponentInPeriod(
+  component: EmployeePayrollComponent,
+  periodKey: string,
+): boolean {
+  if (component.frequency === 'one_time') return component.startPeriod === periodKey
+  return component.startPeriod <= periodKey && (!component.endPeriod || component.endPeriod >= periodKey)
 }
 
 export function employeeComponentToInputLine(
   component: EmployeePayrollComponent,
 ): PayrollInputLine {
+  const componentKind = getEmployeeComponentKind(component)
   const amount =
     component.frequency === 'installment'
       ? Math.min(component.amount, component.remainingBalance ?? component.amount)
@@ -83,9 +136,9 @@ export function employeeComponentToInputLine(
     name: component.name,
     type: component.type,
     amount,
-    isTaxable: component.type === 'allowance',
-    componentKind: component.type === 'allowance' ? 'other_taxable_income' : 'other_deduction',
-    cashImpact: true,
+    isTaxable: component.type === 'allowance' && componentKind !== 'non_taxable_payment',
+    componentKind,
+    cashImpact: componentKind !== 'taxable_benefit',
   }
 }
 
@@ -99,6 +152,10 @@ export const usePayrollComponentStore = create<PayrollComponentStoreState>()(
             ...state.employeeComponents,
             { ...component, id: component.id || crypto.randomUUID() },
           ],
+        })),
+      addImportedEmployeeComponents: (components) =>
+        set((state) => ({
+          employeeComponents: [...state.employeeComponents, ...components],
         })),
       updateEmployeeComponent: (component) =>
         set((state) => ({
@@ -123,7 +180,8 @@ export const usePayrollComponentStore = create<PayrollComponentStoreState>()(
           employeeComponents: state.employeeComponents.map((item) => {
             if (
               !employeeIds.includes(item.employeeId) ||
-              !isEmployeeComponentEffective(item, periodKey)
+              !isEmployeeComponentEffective(item, periodKey) ||
+              isAutomaticPayrollComponent(item)
             ) {
               return item
             }

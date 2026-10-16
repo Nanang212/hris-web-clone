@@ -274,34 +274,32 @@ export function BpjsKesBillingPanel({
           <div className='flex items-center gap-1 p-1 rounded-xl bg-muted/60 border border-border/60'>
             <Button
               type='button'
+              variant={mode === 'auto' ? 'secondary' : 'ghost'}
+              size='sm'
+              aria-pressed={mode === 'auto'}
               onClick={() => setMode('auto')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                mode === 'auto'
-                  ? 'bg-background text-foreground shadow-xs'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
+              className='rounded-lg'
             >
-              <IconSparkles size={14} className={mode === 'auto' ? 'text-emerald-600' : ''} />
+              <IconSparkles data-icon='inline-start' />
               <span>{m.payroll_billing_auto_mode()}</span>
-              <span className='px-1.5 py-0.2 text-[9px] rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 font-semibold'>
+              <Badge variant='green'>
                 {m.payroll_billing_default()}
-              </span>
+              </Badge>
             </Button>
             <Button
               type='button'
+              variant={mode === 'upload' ? 'secondary' : 'ghost'}
+              size='sm'
+              aria-pressed={mode === 'upload'}
               onClick={() => setMode('upload')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                mode === 'upload'
-                  ? 'bg-background text-foreground shadow-xs'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
+              className='rounded-lg'
             >
-              <IconFileSpreadsheet size={14} className={mode === 'upload' ? 'text-primary' : ''} />
+              <IconFileSpreadsheet data-icon='inline-start' />
               <span>{m.payroll_billing_upload_mode()}</span>
               {upload && (
-                <span className='px-1.5 py-0.2 text-[9px] rounded-full bg-blue-500/15 text-blue-700 dark:text-blue-300 font-semibold'>
+                <Badge variant='blue'>
                   {upload.records.length}
-                </span>
+                </Badge>
               )}
             </Button>
           </div>

@@ -207,34 +207,31 @@ export function BpjsKesReconciliationPanel({
             <div className='flex items-center gap-1 bg-muted/40 p-1 rounded-xl border border-border/60 text-xs'>
               <Button
                 type='button'
+                size='xs'
+                variant={statusFilter === 'ALL' ? 'secondary' : 'ghost'}
+                aria-pressed={statusFilter === 'ALL'}
                 onClick={() => setStatusFilter('ALL')}
-                className={`px-2.5 py-1 rounded-lg font-semibold cursor-pointer transition-colors ${
-                  statusFilter === 'ALL'
-                    ? 'bg-background text-foreground shadow-2xs'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
+                className='rounded-lg'
               >
                 {m.payroll_recon_all({ count: rows.length })}
               </Button>
               <Button
                 type='button'
+                size='xs'
+                variant={statusFilter === 'ISSUES' ? 'secondary' : 'ghost'}
+                aria-pressed={statusFilter === 'ISSUES'}
                 onClick={() => setStatusFilter('ISSUES')}
-                className={`px-2.5 py-1 rounded-lg font-semibold cursor-pointer transition-colors ${
-                  statusFilter === 'ISSUES'
-                    ? 'bg-amber-500/20 text-amber-700 dark:text-amber-300 font-bold'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
+                className='rounded-lg'
               >
                 {m.payroll_recon_issues({ count: issueCount })}
               </Button>
               <Button
                 type='button'
+                size='xs'
+                variant={statusFilter === 'MATCH' ? 'secondary' : 'ghost'}
+                aria-pressed={statusFilter === 'MATCH'}
                 onClick={() => setStatusFilter('MATCH')}
-                className={`px-2.5 py-1 rounded-lg font-semibold cursor-pointer transition-colors ${
-                  statusFilter === 'MATCH'
-                    ? 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
+                className='rounded-lg'
               >
                 {m.payroll_recon_matched({ count: summary.matchCount })}
               </Button>
