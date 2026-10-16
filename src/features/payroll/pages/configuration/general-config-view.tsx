@@ -2,11 +2,15 @@
 import { useState } from 'react'
 import { initialGeneralConfig } from '../../data/mock-payroll-data'
 import type { GeneralPayrollConfig } from '../../types'
+import { m } from '@/i18n/paraglide/messages'
 import { Button } from '@/shared/components/ui/button'
+import { Checkbox } from '@/shared/components/ui/checkbox'
+import { FieldLabel } from '@/shared/components/ui/field'
 import { Input } from '@/shared/components/ui/input'
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
@@ -18,24 +22,24 @@ export function GeneralConfigView() {
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault()
-    snackbar.success('Payroll general configuration saved successfully!')
+    snackbar.success(m.payroll_general_saved())
   }
 
   return (
     <form onSubmit={handleSave} className='space-y-6'>
       <div className='rounded-2xl border border-border/80 bg-card p-6 shadow-xs space-y-6'>
         <div>
-          <h3 className='text-sm font-bold text-foreground'>Cut-off & Payment Cycle</h3>
+          <h3 className='text-sm font-bold text-foreground'>{m.payroll_general_cycle_title()}</h3>
           <p className='text-xs text-muted-foreground mt-0.5'>
-            Tentukan periode perhitungan absensi dan jadwal pembayaran gaji rutin
+            {m.payroll_general_cycle_description()}
           </p>
         </div>
 
         <div className='grid grid-cols-1 md:grid-cols-3 gap-5'>
           <div className='space-y-1.5'>
-            <label className='text-xs font-semibold text-foreground'>
-              Cut-off Start Day (Tanggal Mulai)
-            </label>
+            <FieldLabel className='text-xs font-semibold text-foreground'>
+              {m.payroll_general_cutoff_start()}
+            </FieldLabel>
             <Input
               type='number'
               min={1}
@@ -46,13 +50,13 @@ export function GeneralConfigView() {
               }
               className='h-10 text-xs bg-background border border-input rounded-xl shadow-xs'
             />
-            <p className='text-[10px] text-muted-foreground'>Contoh: 21 (Bulan sebelumnya)</p>
+            <p className='text-[10px] text-muted-foreground'>{m.payroll_general_cutoff_start_hint()}</p>
           </div>
 
           <div className='space-y-1.5'>
-            <label className='text-xs font-semibold text-foreground'>
-              Cut-off End Day (Tanggal Selesai)
-            </label>
+            <FieldLabel className='text-xs font-semibold text-foreground'>
+              {m.payroll_general_cutoff_end()}
+            </FieldLabel>
             <Input
               type='number'
               min={1}
@@ -63,13 +67,13 @@ export function GeneralConfigView() {
               }
               className='h-10 text-xs bg-background border border-input rounded-xl shadow-xs'
             />
-            <p className='text-[10px] text-muted-foreground'>Contoh: 20 (Bulan berjalan)</p>
+            <p className='text-[10px] text-muted-foreground'>{m.payroll_general_cutoff_end_hint()}</p>
           </div>
 
           <div className='space-y-1.5'>
-            <label className='text-xs font-semibold text-foreground'>
-              Pay Day (Tanggal Pembayaran Gaji)
-            </label>
+            <FieldLabel className='text-xs font-semibold text-foreground'>
+              {m.payroll_general_payday()}
+            </FieldLabel>
             <Input
               type='number'
               min={1}
@@ -80,24 +84,24 @@ export function GeneralConfigView() {
               }
               className='h-10 text-xs bg-background border border-input rounded-xl shadow-xs'
             />
-            <p className='text-[10px] text-muted-foreground'>Contoh: 25 (Setiap bulan)</p>
+            <p className='text-[10px] text-muted-foreground'>{m.payroll_general_payday_hint()}</p>
           </div>
         </div>
       </div>
 
       <div className='rounded-2xl border border-border/80 bg-card p-6 shadow-xs space-y-6'>
         <div>
-          <h3 className='text-sm font-bold text-foreground'>Prorate & Overtime Calculation Rules</h3>
+          <h3 className='text-sm font-bold text-foreground'>{m.payroll_general_calculation_title()}</h3>
           <p className='text-xs text-muted-foreground mt-0.5'>
-            Formula perhitungan gaji prorata karyawan baru/resign dan tarif upah lembur
+            {m.payroll_general_calculation_description()}
           </p>
         </div>
 
         <div className='grid grid-cols-1 md:grid-cols-2 gap-5'>
           <div className='space-y-1.5'>
-            <label className='text-xs font-semibold text-foreground'>
-              Metode Prorata Gaji
-            </label>
+            <FieldLabel className='text-xs font-semibold text-foreground'>
+              {m.payroll_general_prorate_method()}
+            </FieldLabel>
             <Select
               value={config.prorateMethod}
               onValueChange={(val) =>
@@ -105,22 +109,24 @@ export function GeneralConfigView() {
               }
             >
               <SelectTrigger className='h-10 text-xs bg-background border border-input rounded-xl shadow-xs'>
-                <SelectValue placeholder='Pilih metode prorata' />
+                <SelectValue placeholder={m.payroll_general_prorate_placeholder()} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value='working_days'>Hari Kerja Aktual (Working Days: e.g. 21/22 hari)</SelectItem>
-                <SelectItem value='calendar_days'>Hari Kalender (Calendar Days: e.g. 30/31 hari)</SelectItem>
+                <SelectGroup>
+                  <SelectItem value='working_days'>{m.payroll_general_prorate_working_days()}</SelectItem>
+                  <SelectItem value='calendar_days'>{m.payroll_general_prorate_calendar_days()}</SelectItem>
+                </SelectGroup>
               </SelectContent>
             </Select>
             <p className='text-[10px] text-muted-foreground'>
-              (Hari Kerja Karyawan / Total Hari Kerja Sebulan) × Gaji Pokok
+              {m.payroll_general_prorate_formula()}
             </p>
           </div>
 
           <div className='space-y-1.5'>
-            <label className='text-xs font-semibold text-foreground'>
-              Pembagi Upah Lembur Per Jam (Overtime Divider)
-            </label>
+            <FieldLabel className='text-xs font-semibold text-foreground'>
+              {m.payroll_general_overtime_divider()}
+            </FieldLabel>
             <Input
               type='number'
               value={config.overtimeHourlyRateDivider}
@@ -130,30 +136,28 @@ export function GeneralConfigView() {
               className='h-10 text-xs bg-background border border-input rounded-xl shadow-xs'
             />
             <p className='text-[10px] text-muted-foreground'>
-              Standar Depnaker RI: 1/173 × Upah Bulanan
+              {m.payroll_general_overtime_divider_hint()}
             </p>
           </div>
         </div>
 
         <div className='p-4 rounded-xl border border-blue-200/80 bg-blue-50/60 dark:border-blue-900/50 dark:bg-blue-950/20 flex items-center justify-between'>
           <div>
-            <h4 className='text-xs font-bold text-blue-950 dark:text-blue-300'>PPh 21 Ditanggung Perusahaan (Nett Method)</h4>
+            <h4 className='text-xs font-bold text-blue-950 dark:text-blue-300'>{m.payroll_general_company_tax_title()}</h4>
             <p className='text-[11px] text-blue-900/80 dark:text-blue-400/80 mt-0.5'>
-              Bila diaktifkan, perusahaan menanggung seluruh kewajiban pajak karyawan secara otomatis
+              {m.payroll_general_company_tax_description()}
             </p>
           </div>
-          <input
-            type='checkbox'
+          <Checkbox
             checked={config.taxBorneByCompany}
-            onChange={(e) => setConfig((prev) => ({ ...prev, taxBorneByCompany: e.target.checked }))}
-            className='size-4 accent-primary rounded cursor-pointer'
+            onCheckedChange={(checked) => setConfig((prev) => ({ ...prev, taxBorneByCompany: checked === true }))}
           />
         </div>
       </div>
 
       <div className='flex justify-end'>
         <Button type='submit' className='h-9.5 px-6 text-xs font-semibold rounded-xl shadow-xs'>
-          Save Configuration
+          {m.payroll_general_save_button()}
         </Button>
       </div>
     </form>

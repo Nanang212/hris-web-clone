@@ -22,6 +22,7 @@ import {
 import type { ThrPolicyConfig, ThrTaxInstallment, ThrEmployeeOption } from '../../types'
 import { Badge } from '@/shared/components/ui/badge'
 import { Button } from '@/shared/components/ui/button'
+import { FieldLabel } from '@/shared/components/ui/field'
 import {
   Dialog,
   DialogContent,
@@ -38,9 +39,11 @@ import {
 } from '@/shared/components/ui/popover'
 import { ScrollArea } from '@/shared/components/ui/scroll-area'
 import { Progress } from '@/shared/components/ui/progress'
+import { Slider } from '@/shared/components/ui/slider'
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
@@ -57,6 +60,12 @@ import {
 } from '@/shared/components/ui/table'
 import { snackbar } from '@/shared/lib/snackbar'
 import { cn } from '@/shared/lib/utils'
+import { m } from '@/i18n/paraglide/messages'
+import dayjs from 'dayjs'
+import 'dayjs/locale/en'
+import 'dayjs/locale/id'
+import { getLocale } from '@/i18n/paraglide/runtime'
+
 
 export function ThrConfigView() {
   // General Policy State
@@ -91,7 +100,7 @@ export function ThrConfigView() {
     totalThrAmount: 0,
     totalTaxAmount: 0,
     tenorMonths: 3,
-    startPeriod: 'Juni 2026',
+    startPeriod: dayjs('2026-06-01').locale(getLocale()).format('MMMM YYYY'),
     notes: '',
   })
 
@@ -138,7 +147,7 @@ export function ThrConfigView() {
   // Save General Policy
   const handleSavePolicy = (e: React.FormEvent) => {
     e.preventDefault()
-    snackbar.success('Kebijakan THR dan konfigurasi cicilan pajak PPh 21 berhasil disimpan!')
+    snackbar.success(m.payroll_thr_policy_saved())
   }
 
   // Simulation calculations
@@ -168,8 +177,7 @@ export function ThrConfigView() {
       prev.map((item) => {
         if (item.id === id) {
           const nextStatus = item.currentStatus === 'paused' ? 'active' : 'paused'
-          const label = nextStatus === 'paused' ? 'dijeda' : 'diaktifkan kembali'
-          snackbar.info(`Cicilan pajak untuk ${item.employeeName} telah ${label}.`)
+          snackbar.info(nextStatus === 'paused' ? m.payroll_thr_installment_paused({ employee: item.employeeName }) : m.payroll_thr_installment_resumed({ employee: item.employeeName }))
           return { ...item, currentStatus: nextStatus }
         }
         return item
@@ -181,7 +189,7 @@ export function ThrConfigView() {
     setSchedules((prev) =>
       prev.map((item) => {
         if (item.id === id) {
-          snackbar.success(`Cicilan pajak ${item.employeeName} berhasil dilunasi sekaligus!`)
+          snackbar.success(m.payroll_thr_installment_settled({ employee: item.employeeName }))
           return {
             ...item,
             paidInstallments: item.tenorMonths,
@@ -205,8 +213,8 @@ export function ThrConfigView() {
       totalThrAmount: 0,
       totalTaxAmount: 0,
       tenorMonths: config.defaultTenorMonths || 3,
-      startPeriod: 'Juni 2026',
-      notes: 'Penyesuaian cicilan pajak THR manual',
+      startPeriod: dayjs('2026-06-01').locale(getLocale()).format('MMMM YYYY'),
+      notes: m.payroll_thr_manual_note(),
     })
     setIsModalOpen(true)
   }
@@ -231,7 +239,7 @@ export function ThrConfigView() {
   const handleSaveModal = (e: React.FormEvent) => {
     e.preventDefault()
     if (!modalForm.employeeName.trim() || !modalForm.employeeCode.trim()) {
-      snackbar.error('Silakan pilih karyawan terlebih dahulu.')
+      snackbar.error(m.payroll_thr_employee_required())
       return
     }
 
@@ -261,7 +269,7 @@ export function ThrConfigView() {
           return item
         }),
       )
-      snackbar.success('Jadwal cicilan pajak THR berhasil diperbarui.')
+      snackbar.success(m.payroll_thr_schedule_updated())
     } else {
       const newItem: ThrTaxInstallment = {
         id: `thr-inst-${Date.now()}`,
@@ -274,7 +282,7 @@ export function ThrConfigView() {
         tenorMonths: modalForm.tenorMonths,
         installmentPerMonth: calculatedInstallment,
         startPeriod: modalForm.startPeriod,
-        endPeriod: 'Agustus 2026',
+        endPeriod: dayjs('2026-08-01').locale(getLocale()).format('MMMM YYYY'),
         paidInstallments: 0,
         remainingBalance: modalForm.totalTaxAmount,
         currentStatus: 'active',
@@ -282,7 +290,7 @@ export function ThrConfigView() {
         notes: modalForm.notes,
       }
       setSchedules((prev) => [newItem, ...prev])
-      snackbar.success(`Jadwal cicilan pajak untuk ${newItem.employeeName} berhasil ditambahkan!`)
+      snackbar.success(m.payroll_thr_schedule_added({ employee: newItem.employeeName }))
     }
 
     setIsModalOpen(false)
@@ -297,22 +305,22 @@ export function ThrConfigView() {
             <div>
               <h3 className='text-sm font-bold text-foreground flex items-center gap-2'>
                 <IconCoins className='size-4.5 text-primary' />
-                Kebijakan Pokok Tunjangan Hari Raya (THR)
+                {m.payroll_thr_policy_title()}
               </h3>
               <p className='text-xs text-muted-foreground mt-0.5'>
-                Ketentuan perhitungan dan pencairan THR Keagamaan sesuai Permenaker No. 6/2016
+                {m.payroll_thr_policy_description()}
               </p>
             </div>
             <Badge variant='outline' className='text-xs font-mono font-medium'>
-              Regulasi: Permenaker 6/2016 & PMK 168
+              {m.payroll_thr_regulation()}
             </Badge>
           </div>
 
           <div className='grid grid-cols-1 md:grid-cols-3 gap-5'>
             <div className='space-y-1.5'>
-              <label className='text-xs font-semibold text-foreground'>
-                Minimal Masa Kerja Berhak THR (Bulan)
-              </label>
+              <FieldLabel className='text-xs font-semibold text-foreground'>
+                {m.payroll_thr_min_tenure()}
+              </FieldLabel>
               <Input
                 type='number'
                 value={config.minTenureMonths}
@@ -325,14 +333,14 @@ export function ThrConfigView() {
                 className='h-9.5 text-xs bg-background rounded-xl'
               />
               <p className='text-[10px] text-muted-foreground'>
-                Karyawan dengan masa kerja ≥ 1 bulan berhak mendapatkan THR secara prorata
+                {m.payroll_thr_min_tenure_hint()}
               </p>
             </div>
 
             <div className='space-y-1.5'>
-              <label className='text-xs font-semibold text-foreground'>
-                Batas Waktu Pembayaran (H- Hari)
-              </label>
+              <FieldLabel className='text-xs font-semibold text-foreground'>
+                {m.payroll_thr_payment_deadline()}
+              </FieldLabel>
               <Input
                 type='number'
                 value={config.paymentTimingDays}
@@ -345,14 +353,14 @@ export function ThrConfigView() {
                 className='h-9.5 text-xs bg-background rounded-xl'
               />
               <p className='text-[10px] text-muted-foreground'>
-                Maksimal H-7 sebelum Hari Raya Keagamaan yang bersangkutan
+                {m.payroll_thr_payment_deadline_hint()}
               </p>
             </div>
 
             <div className='space-y-1.5'>
-              <label className='text-xs font-semibold text-foreground'>
-                Skema Pemotongan Pajak THR (Reguler)
-              </label>
+              <FieldLabel className='text-xs font-semibold text-foreground'>
+                {m.payroll_thr_tax_scheme()}
+              </FieldLabel>
               <Select
                 value={config.taxDeductionScheme}
                 onValueChange={(val: 'combined' | 'separate') =>
@@ -360,15 +368,17 @@ export function ThrConfigView() {
                 }
               >
                 <SelectTrigger className='h-9.5 text-xs bg-background rounded-xl'>
-                  <SelectValue placeholder='Pilih skema' />
+                  <SelectValue placeholder={m.payroll_thr_select_scheme()} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value='combined'>Digabung dalam Payroll Bulanan (TER Bulanan)</SelectItem>
-                  <SelectItem value='separate'>Batch Khusus Non-Reguler (TER Khusus)</SelectItem>
+                  <SelectGroup>
+                  <SelectItem value='combined'>{m.payroll_thr_scheme_combined()}</SelectItem>
+                  <SelectItem value='separate'>{m.payroll_thr_scheme_separate()}</SelectItem>
+                  </SelectGroup>
                 </SelectContent>
               </Select>
               <p className='text-[10px] text-muted-foreground'>
-                Berdasarkan pedoman PMK No. 168 Tahun 2023
+                {m.payroll_thr_tax_scheme_hint()}
               </p>
             </div>
           </div>
@@ -380,20 +390,18 @@ export function ThrConfigView() {
             <div>
               <div className='flex items-center gap-2'>
                 <h3 className='text-sm font-bold text-foreground'>
-                  Fasilitas Cicilan Pajak PPh 21 THR (Tax Installment Facility)
+                  {m.payroll_thr_installment_title()}
                 </h3>
-                <span className='px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary/10 text-primary border border-primary/20'>
-                  Internal HR Policy
-                </span>
+                <Badge variant='blue'>{m.payroll_thr_internal_policy()}</Badge>
               </div>
               <p className='text-xs text-muted-foreground mt-0.5'>
-                Solusi keringanan agar pemotongan pajak THR tidak memberatkan take-home pay karyawan di bulan berjalan.
+                {m.payroll_thr_installment_description()}
               </p>
             </div>
 
             <div className='flex items-center gap-3 bg-background/80 px-3.5 py-1.5 rounded-xl border border-border/80 shadow-2xs'>
               <span className='text-xs font-semibold text-foreground'>
-                {config.taxInstallmentEnabled ? 'Fasilitas Aktif' : 'Non-Aktif'}
+                {config.taxInstallmentEnabled ? m.payroll_thr_facility_active() : m.payroll_thr_facility_inactive()}
               </span>
               <Switch
                 checked={config.taxInstallmentEnabled}
@@ -408,9 +416,9 @@ export function ThrConfigView() {
             <div className='space-y-6'>
               <div className='grid grid-cols-1 md:grid-cols-3 gap-5'>
                 <div className='space-y-1.5'>
-                  <label className='text-xs font-semibold text-foreground'>
-                    Pilihan Tenor Cicilan Default
-                  </label>
+                  <FieldLabel className='text-xs font-semibold text-foreground'>
+                    {m.payroll_thr_default_tenor()}
+                  </FieldLabel>
                   <Select
                     value={String(config.defaultTenorMonths)}
                     onValueChange={(val) =>
@@ -421,25 +429,27 @@ export function ThrConfigView() {
                     }
                   >
                     <SelectTrigger className='h-9.5 text-xs bg-background rounded-xl'>
-                      <SelectValue placeholder='Pilih tenor' />
+                      <SelectValue placeholder={m.payroll_thr_select_tenor()} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value='1'>1 Bulan (Langsung potong penuh)</SelectItem>
-                      <SelectItem value='2'>2 Bulan (50% per bulan)</SelectItem>
-                      <SelectItem value='3'>3 Bulan (Rekomendasi - ~33.3% per bulan)</SelectItem>
-                      <SelectItem value='4'>4 Bulan (25% per bulan)</SelectItem>
-                      <SelectItem value='6'>6 Bulan (Maksimal)</SelectItem>
+                      <SelectGroup>
+                      <SelectItem value='1'>{m.payroll_thr_tenor_1()}</SelectItem>
+                      <SelectItem value='2'>{m.payroll_thr_tenor_2()}</SelectItem>
+                      <SelectItem value='3'>{m.payroll_thr_tenor_3()}</SelectItem>
+                      <SelectItem value='4'>{m.payroll_thr_tenor_4()}</SelectItem>
+                      <SelectItem value='6'>{m.payroll_thr_tenor_6()}</SelectItem>
+                      </SelectGroup>
                     </SelectContent>
                   </Select>
                   <p className='text-[10px] text-muted-foreground'>
-                    Standar tenor angsuran pajak THR yang diberikan kepada karyawan
+                    {m.payroll_thr_default_tenor_hint()}
                   </p>
                 </div>
 
                 <div className='space-y-1.5'>
-                  <label className='text-xs font-semibold text-foreground'>
-                    Ambang Batas Minimum Pajak untuk Dicicil
-                  </label>
+                  <FieldLabel className='text-xs font-semibold text-foreground'>
+                    {m.payroll_thr_min_tax()}
+                  </FieldLabel>
                   <Input
                     type='number'
                     step={50000}
@@ -453,16 +463,16 @@ export function ThrConfigView() {
                     className='h-9.5 text-xs bg-background rounded-xl'
                   />
                   <p className='text-[10px] text-muted-foreground'>
-                    Nominal pajak di bawah {formatIDR(config.minTaxForInstallment)} tidak dicicil
+                    {m.payroll_thr_min_tax_hint({ amount: formatIDR(config.minTaxForInstallment) })}
                   </p>
                 </div>
 
                 <div className='space-y-1.5'>
-                  <label className='text-xs font-semibold text-foreground'>
-                    Otomatisasi Potongan pada Payroll Bulanan
-                  </label>
+                  <FieldLabel className='text-xs font-semibold text-foreground'>
+                    {m.payroll_thr_auto_deduction()}
+                  </FieldLabel>
                   <div className='flex items-center justify-between p-2.5 rounded-xl border border-border/80 bg-background h-9.5'>
-                    <span className='text-xs text-foreground font-medium'>Auto-Apply ke Slip Gaji</span>
+                    <span className='text-xs text-foreground font-medium'>{m.payroll_thr_auto_apply()}</span>
                     <Switch
                       checked={config.autoDeductInPayroll}
                       onCheckedChange={(checked) =>
@@ -471,7 +481,7 @@ export function ThrConfigView() {
                     />
                   </div>
                   <p className='text-[10px] text-muted-foreground'>
-                    Sistem otomatis menambahkan cicilan berjalan ke potongan slip gaji bulan berikutnya
+                    {m.payroll_thr_auto_deduction_hint()}
                   </p>
                 </div>
               </div>
@@ -481,20 +491,17 @@ export function ThrConfigView() {
                 <IconInfoCircle className='size-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5' />
                 <div className='space-y-1 text-muted-foreground'>
                   <p className='font-semibold text-foreground'>
-                    Bagaimana Skema Cicilan Pajak THR Bekerja di HRIS:
+                    {m.payroll_thr_how_it_works()}
                   </p>
                   <ul className='list-disc list-inside space-y-0.5 text-[11px]'>
                     <li>
-                      Perusahaan menyetorkan PPh 21 THR secara tepat waktu ke kas negara pada bulan pencairan THR sesuai ketentuan SPT Masa.
+                      {m.payroll_thr_how_step_1()}
                     </li>
                     <li>
-                      Karyawan tidak dipotong langsung 100% dari THR-nya, melainkan dicicil melalui komponen potongan{' '}
-                      <span className='font-mono font-bold text-foreground'>Cicilan PPh 21 THR (DED_THR_TAX_INST)</span>{' '}
-                      selama {config.defaultTenorMonths} bulan ke depan.
+                      {m.payroll_thr_how_step_2({ months: config.defaultTenorMonths })}
                     </li>
                     <li>
-                      HR tetap memiliki fleksibilitas untuk melakukan{' '}
-                      <span className='font-bold text-foreground'>penyesuaian manual (override)</span> di detail batch payroll jika ada kebutuhan pelunasan dipercepat atau karyawan resign.
+                      {m.payroll_thr_how_step_3()}
                     </li>
                   </ul>
                 </div>
@@ -502,13 +509,13 @@ export function ThrConfigView() {
             </div>
           ) : (
             <div className='p-6 text-center rounded-xl border border-dashed border-border/80 bg-muted/20 text-xs text-muted-foreground'>
-              Fasilitas cicilan pajak THR sedang dinonaktifkan. Seluruh pemotongan PPh 21 atas THR akan dipotong penuh 100% pada periode pencairan THR.
+              {m.payroll_thr_facility_disabled_hint()}
             </div>
           )}
 
           <div className='flex justify-end pt-2'>
             <Button type='submit' className='h-9.5 px-6 text-xs font-semibold rounded-xl shadow-xs'>
-              Simpan Konfigurasi Kebijakan
+              {m.payroll_thr_save_policy()}
             </Button>
           </div>
         </div>
@@ -520,15 +527,15 @@ export function ThrConfigView() {
           <div>
             <h3 className='text-sm font-bold text-foreground flex items-center gap-2'>
               <IconCalculator className='size-4.5 text-primary' />
-              Simulasi Kalkulator Cicilan Pajak PPh 21 THR
+              {m.payroll_thr_simulator_title()}
             </h3>
             <p className='text-xs text-muted-foreground mt-0.5'>
-              Coba simulasi perhitungan nominal THR, estimasi pajak TER, dan pembagian cicilan bulanan
+              {m.payroll_thr_simulator_description()}
             </p>
           </div>
           <Badge variant='outline' className='text-xs bg-primary/5 text-primary border-primary/20 gap-1'>
             <IconSparkles size={13} />
-            Simulasi Real-time
+            {m.payroll_thr_realtime()}
           </Badge>
         </div>
 
@@ -536,9 +543,9 @@ export function ThrConfigView() {
           {/* Inputs */}
           <div className='lg:col-span-5 space-y-4 p-4 rounded-xl border border-border/70 bg-muted/20'>
             <div className='space-y-1.5'>
-              <label className='text-xs font-semibold text-foreground'>
-                Upah Pokok + Tunjangan Tetap (Rp)
-              </label>
+              <FieldLabel className='text-xs font-semibold text-foreground'>
+                {m.payroll_thr_base_wage()}
+              </FieldLabel>
               <Input
                 type='number'
                 step={500000}
@@ -550,27 +557,26 @@ export function ThrConfigView() {
 
             <div className='space-y-1.5'>
               <div className='flex justify-between items-center text-xs'>
-                <span className='font-semibold text-foreground'>Masa Kerja Karyawan</span>
-                <span className='font-mono font-bold text-primary'>{simTenureMonths} Bulan</span>
+                <span className='font-semibold text-foreground'>{m.payroll_thr_employee_tenure()}</span>
+                <span className='font-mono font-bold text-primary'>{m.payroll_thr_months({ count: simTenureMonths })}</span>
               </div>
-              <input
-                type='range'
+              <Slider
+                aria-label={m.payroll_thr_employee_tenure()}
                 min={1}
                 max={48}
-                value={simTenureMonths}
-                onChange={(e) => setSimTenureMonths(parseInt(e.target.value, 10))}
-                className='w-full accent-primary h-2 rounded-lg bg-muted cursor-pointer'
+                value={[simTenureMonths]}
+                onValueChange={(value) => setSimTenureMonths(value[0] ?? 1)}
               />
               <div className='flex justify-between text-[10px] text-muted-foreground'>
-                <span>1 Bulan (Prorata)</span>
-                <span>12+ Bulan (Penuh 1 Bulan Upah)</span>
+                <span>{m.payroll_thr_tenure_one_month()}</span>
+                <span>{m.payroll_thr_tenure_full()}</span>
               </div>
             </div>
 
             <div className='space-y-1.5'>
-              <label className='text-xs font-semibold text-foreground'>
-                Pilihan Tenor Cicilan
-              </label>
+              <FieldLabel className='text-xs font-semibold text-foreground'>
+                {m.payroll_thr_tenor_choice()}
+              </FieldLabel>
               <Select
                 value={String(simTenor)}
                 onValueChange={(val) => setSimTenor(parseInt(val, 10))}
@@ -579,11 +585,13 @@ export function ThrConfigView() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value='1'>1 Bulan (Langsung Lunas)</SelectItem>
-                  <SelectItem value='2'>2 Bulan</SelectItem>
-                  <SelectItem value='3'>3 Bulan</SelectItem>
-                  <SelectItem value='4'>4 Bulan</SelectItem>
-                  <SelectItem value='6'>6 Bulan</SelectItem>
+                  <SelectGroup>
+                  <SelectItem value='1'>{m.payroll_thr_tenor_1_full()}</SelectItem>
+                  <SelectItem value='2'>{m.payroll_thr_months({ count: 2 })}</SelectItem>
+                  <SelectItem value='3'>{m.payroll_thr_months({ count: 3 })}</SelectItem>
+                  <SelectItem value='4'>{m.payroll_thr_months({ count: 4 })}</SelectItem>
+                  <SelectItem value='6'>{m.payroll_thr_months({ count: 6 })}</SelectItem>
+                  </SelectGroup>
                 </SelectContent>
               </Select>
             </div>
@@ -593,34 +601,34 @@ export function ThrConfigView() {
           <div className='lg:col-span-7 flex flex-col justify-between p-5 rounded-xl border border-border/80 bg-linear-to-br from-card via-card to-primary/5'>
             <div className='grid grid-cols-2 sm:grid-cols-3 gap-4 pb-4 border-b border-border/60'>
               <div>
-                <p className='text-[11px] text-muted-foreground font-medium'>Nilai Bruto THR</p>
+                <p className='text-[11px] text-muted-foreground font-medium'>{m.payroll_thr_gross_amount()}</p>
                 <p className='text-base font-bold text-foreground mt-0.5'>{formatIDR(simThrAmount)}</p>
                 <p className='text-[10px] text-muted-foreground'>
-                  {simTenureMonths >= 12 ? '100% Upah Penuh' : `Prorata (${simTenureMonths}/12)`}
+                  {simTenureMonths >= 12 ? m.payroll_thr_full_wage() : m.payroll_thr_prorated({ months: simTenureMonths })}
                 </p>
               </div>
 
               <div>
-                <p className='text-[11px] text-muted-foreground font-medium'>Estimasi Pajak PPh 21 THR</p>
+                <p className='text-[11px] text-muted-foreground font-medium'>{m.payroll_thr_estimated_tax()}</p>
                 <p className='text-base font-bold text-amber-600 dark:text-amber-400 mt-0.5'>
                   {formatIDR(simEstimatedTax)}
                 </p>
-                <p className='text-[10px] text-muted-foreground'>Est. Tarif TER ~{(simTaxRate * 100).toFixed(1)}%</p>
+                <p className='text-[10px] text-muted-foreground'>{m.payroll_thr_estimated_ter({ rate: (simTaxRate * 100).toFixed(1) })}</p>
               </div>
 
               <div>
-                <p className='text-[11px] text-muted-foreground font-medium'>Potongan Cicilan / Bulan</p>
+                <p className='text-[11px] text-muted-foreground font-medium'>{m.payroll_thr_monthly_deduction()}</p>
                 <p className='text-base font-bold text-emerald-600 dark:text-emerald-400 mt-0.5'>
                   {formatIDR(simMonthlyInstallment)}
                 </p>
-                <p className='text-[10px] text-muted-foreground'>Selama {simTenor} Bulan</p>
+                <p className='text-[10px] text-muted-foreground'>{m.payroll_thr_over_months({ count: simTenor })}</p>
               </div>
             </div>
 
             {/* Tenor Schedule Flow Preview */}
             <div className='pt-4 space-y-2'>
               <p className='text-[11px] font-bold text-muted-foreground uppercase tracking-wider'>
-                Jadwal Alokasi Cicilan pada Slip Gaji:
+                {m.payroll_thr_allocation_schedule()}
               </p>
               <div className='grid grid-cols-1 sm:grid-cols-3 gap-2.5'>
                 {Array.from({ length: Math.min(simTenor, 3) }).map((_, idx) => (
@@ -629,7 +637,7 @@ export function ThrConfigView() {
                     className='p-2.5 rounded-lg border border-border/80 bg-background text-xs space-y-1'
                   >
                     <div className='flex justify-between items-center'>
-                      <span className='font-bold text-foreground'>Bulan ke-{idx + 1}</span>
+                      <span className='font-bold text-foreground'>{m.payroll_thr_month_number({ number: idx + 1 })}</span>
                       <Badge variant='outline' className='text-[9px] px-1.5 py-0'>
                         {idx + 1}/{simTenor}
                       </Badge>
@@ -637,13 +645,13 @@ export function ThrConfigView() {
                     <p className='text-xs font-semibold text-rose-600 dark:text-rose-400'>
                       -{formatIDR(simMonthlyInstallment)}
                     </p>
-                    <p className='text-[9px] text-muted-foreground'>Potongan slip gaji</p>
+                    <p className='text-[9px] text-muted-foreground'>{m.payroll_thr_payslip_deduction()}</p>
                   </div>
                 ))}
               </div>
               {simTenor > 3 && (
                 <p className='text-[10px] text-muted-foreground italic text-right'>
-                  + {simTenor - 3} bulan berikutnya dengan nominal yang sama
+                  {m.payroll_thr_more_months({ count: simTenor - 3 })}
                 </p>
               )}
             </div>
@@ -657,10 +665,10 @@ export function ThrConfigView() {
           <div>
             <h3 className='text-sm font-bold text-foreground flex items-center gap-2'>
               <IconCoins className='size-4.5 text-primary' />
-              Jadwal Cicilan Pajak THR Karyawan (Active Installments)
+              {m.payroll_thr_schedule_title()}
             </h3>
             <p className='text-xs text-muted-foreground mt-0.5'>
-              Pantau progres pemotongan cicilan pajak THR per karyawan dan lakukan penyesuaian manual
+              {m.payroll_thr_schedule_description()}
             </p>
           </div>
 
@@ -671,7 +679,7 @@ export function ThrConfigView() {
               className='gap-1.5 text-xs font-semibold rounded-xl h-9 shadow-xs'
             >
               <IconPlus size={15} />
-              Tambah Jadwal Cicilan Manual
+              {m.payroll_thr_add_schedule()}
             </Button>
           </div>
         </div>
@@ -683,31 +691,30 @@ export function ThrConfigView() {
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder='Cari nama karyawan, NIK...'
+              placeholder={m.payroll_thr_schedule_search()}
               className='pl-9 h-8.5 text-xs bg-background rounded-xl'
             />
           </div>
 
           <div className='flex items-center gap-2'>
-            <span className='text-xs text-muted-foreground font-medium'>Status:</span>
+            <span className='text-xs text-muted-foreground font-medium'>{m.payroll_thr_status_label()}</span>
             <div className='flex items-center gap-1 bg-background p-1 rounded-xl border border-border/80'>
               {[
-                { id: 'all', label: 'Semua' },
-                { id: 'active', label: 'Aktif' },
-                { id: 'completed', label: 'Lunas' },
-                { id: 'paused', label: 'Ditunda' },
+                { id: 'all', label: m.payroll_thr_filter_all() },
+                { id: 'active', label: m.payroll_thr_filter_active() },
+                { id: 'completed', label: m.payroll_thr_filter_completed() },
+                { id: 'paused', label: m.payroll_thr_filter_paused() },
               ].map((filter) => (
-                <button
+                <Button
                   key={filter.id}
                   type='button'
+                  size='xs'
+                  variant={statusFilter === filter.id ? 'default' : 'ghost'}
+                  aria-pressed={statusFilter === filter.id}
                   onClick={() => setStatusFilter(filter.id)}
-                  className={`px-2.5 py-1 text-[11px] font-semibold rounded-lg transition-colors cursor-pointer ${statusFilter === filter.id
-                      ? 'bg-primary text-white shadow-2xs'
-                      : 'text-muted-foreground hover:text-foreground'
-                    }`}
                 >
                   {filter.label}
-                </button>
+                </Button>
               ))}
             </div>
           </div>
@@ -718,22 +725,22 @@ export function ThrConfigView() {
           <Table>
             <TableHeader>
               <TableRow className='bg-muted/30 text-xs border-b border-border/60 whitespace-nowrap'>
-                <TableHead className='font-bold text-muted-foreground py-3.5 pl-6'>Karyawan</TableHead>
-                <TableHead className='font-bold text-muted-foreground py-3.5'>Total THR</TableHead>
-                <TableHead className='font-bold text-muted-foreground py-3.5'>Total Pajak THR</TableHead>
-                <TableHead className='font-bold text-muted-foreground py-3.5'>Tenor & Periode</TableHead>
-                <TableHead className='font-bold text-muted-foreground py-3.5'>Cicilan / Bulan</TableHead>
-                <TableHead className='font-bold text-muted-foreground py-3.5'>Progres Angsuran</TableHead>
-                <TableHead className='font-bold text-muted-foreground py-3.5'>Sisa Saldo</TableHead>
-                <TableHead className='font-bold text-muted-foreground py-3.5'>Status</TableHead>
-                <TableHead className='font-bold text-muted-foreground py-3.5 pr-6 text-right'>Aksi</TableHead>
+                <TableHead className='font-bold text-muted-foreground py-3.5 pl-6'>{m.payroll_thr_col_employee()}</TableHead>
+                <TableHead className='font-bold text-muted-foreground py-3.5'>{m.payroll_thr_col_total_thr()}</TableHead>
+                <TableHead className='font-bold text-muted-foreground py-3.5'>{m.payroll_thr_col_total_tax()}</TableHead>
+                <TableHead className='font-bold text-muted-foreground py-3.5'>{m.payroll_thr_col_tenor_period()}</TableHead>
+                <TableHead className='font-bold text-muted-foreground py-3.5'>{m.payroll_thr_col_monthly()}</TableHead>
+                <TableHead className='font-bold text-muted-foreground py-3.5'>{m.payroll_thr_col_progress()}</TableHead>
+                <TableHead className='font-bold text-muted-foreground py-3.5'>{m.payroll_thr_col_balance()}</TableHead>
+                <TableHead className='font-bold text-muted-foreground py-3.5'>{m.payroll_thr_status_label()}</TableHead>
+                <TableHead className='font-bold text-muted-foreground py-3.5 pr-6 text-right'>{m.payroll_thr_col_actions()}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredSchedules.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={9} className='text-center py-8 text-xs text-muted-foreground'>
-                    Tidak ada jadwal cicilan pajak yang sesuai filter.
+                    {m.payroll_thr_schedule_empty()}
                   </TableCell>
                 </TableRow>
               ) : (
@@ -754,7 +761,7 @@ export function ThrConfigView() {
                         {formatIDR(item.totalTaxAmount)}
                       </TableCell>
                       <TableCell className='py-3.5'>
-                        <p className='font-semibold text-foreground'>{item.tenorMonths} Bulan</p>
+                        <p className='font-semibold text-foreground'>{m.payroll_thr_months({ count: item.tenorMonths })}</p>
                         <p className='text-[10px] text-muted-foreground'>{item.startPeriod} – {item.endPeriod}</p>
                       </TableCell>
                       <TableCell className='py-3.5 font-bold text-foreground'>
@@ -764,7 +771,7 @@ export function ThrConfigView() {
                         <div className='space-y-1.5'>
                           <div className='flex justify-between items-center text-[10px]'>
                             <span className='font-semibold text-foreground'>
-                              Bulan {item.paidInstallments} dari {item.tenorMonths}
+                              {m.payroll_thr_month_of({ current: item.paidInstallments, total: item.tenorMonths })}
                             </span>
                             <span className='text-muted-foreground font-mono'>{percent}%</span>
                           </div>
@@ -777,24 +784,24 @@ export function ThrConfigView() {
                       <TableCell className='py-3.5'>
                         {item.currentStatus === 'active' && (
                           <Badge variant='blue' className='text-[10px] font-semibold'>
-                            Aktif Berjalan
+                            {m.payroll_thr_status_active()}
                           </Badge>
                         )}
                         {item.currentStatus === 'completed' && (
                           <Badge variant='outline' className='text-[10px] font-semibold text-emerald-600 border-emerald-500/30 bg-emerald-50/50 dark:bg-emerald-950/20'>
-                            Lunas
+                            {m.payroll_thr_filter_completed()}
                           </Badge>
                         )}
                         {item.currentStatus === 'paused' && (
                           <Badge variant='outline' className='text-[10px] font-semibold text-amber-600 border-amber-500/30 bg-amber-50/50 dark:bg-amber-950/20'>
-                            Ditunda
+                            {m.payroll_thr_filter_paused()}
                           </Badge>
                         )}
                       </TableCell>
                       <TableCell className='py-3.5 pr-6 text-right'>
                         <div className='flex items-center justify-end gap-1'>
                           <TableActionButton
-                            tooltip='Edit Tenor / Nominal'
+                            tooltip={m.payroll_thr_edit_tooltip()}
                             icon={<IconEdit size={15} />}
                             onClick={() => handleOpenEdit(item)}
                             intent='default'
@@ -803,14 +810,14 @@ export function ThrConfigView() {
                           {item.currentStatus !== 'completed' && (
                             <>
                               <TableActionButton
-                                tooltip={item.currentStatus === 'paused' ? 'Lanjutkan Cicilan' : 'Jeda Cicilan Sementara'}
+                                tooltip={item.currentStatus === 'paused' ? m.payroll_thr_resume_tooltip() : m.payroll_thr_pause_tooltip()}
                                 icon={item.currentStatus === 'paused' ? <IconPlayerPlay size={15} /> : <IconPlayerPause size={15} />}
                                 onClick={() => handleTogglePause(item.id)}
                                 intent={item.currentStatus === 'paused' ? 'primary' : 'warning'}
                               />
 
                               <TableActionButton
-                                tooltip='Lunasi Sekaligus'
+                                tooltip={m.payroll_thr_settle_tooltip()}
                                 icon={<IconCheck size={15} />}
                                 onClick={() => handleSettleFull(item.id)}
                                 intent='success'
@@ -833,22 +840,22 @@ export function ThrConfigView() {
         <DialogContent className='sm:max-w-lg'>
           <DialogHeader>
             <DialogTitle className='text-base font-bold'>
-              {editingItem ? 'Edit Jadwal Cicilan Pajak THR' : 'Tambah Jadwal Cicilan Pajak THR Manual'}
+              {editingItem ? m.payroll_thr_edit_dialog_title() : m.payroll_thr_add_dialog_title()}
             </DialogTitle>
             <DialogDescription className='text-xs text-muted-foreground'>
-              Tentukan parameter cicilan pemotongan PPh 21 atas penerimaan THR untuk karyawan.
+              {m.payroll_thr_dialog_description()}
             </DialogDescription>
           </DialogHeader>
 
           <form onSubmit={handleSaveModal} className='space-y-4 py-2 text-xs'>
             {/* Unified Searchable Employee Selector */}
             <div className='space-y-2'>
-              <label className='font-semibold text-foreground flex items-center justify-between'>
-                <span>Pilih Karyawan</span>
+              <FieldLabel className='font-semibold text-foreground flex items-center justify-between'>
+                <span>{m.payroll_thr_select_employee()}</span>
                 <span className='text-[10px] text-muted-foreground font-normal'>
-                  Cari berdasarkan nama, NIK, atau departemen
+                  {m.payroll_thr_select_employee_hint()}
                 </span>
-              </label>
+              </FieldLabel>
 
               <Popover modal={true} open={isEmployeePickerOpen} onOpenChange={setIsEmployeePickerOpen}>
                 <PopoverTrigger asChild>
@@ -874,7 +881,7 @@ export function ThrConfigView() {
                     ) : (
                       <div className='flex items-center gap-2 text-muted-foreground'>
                         <IconSearch size={14} className='opacity-60' />
-                        <span>Pilih atau cari karyawan...</span>
+                        <span>{m.payroll_thr_select_employee_placeholder()}</span>
                       </div>
                     )}
                     <IconChevronDown size={14} className='ml-2 shrink-0 opacity-50' />
@@ -893,18 +900,18 @@ export function ThrConfigView() {
                     <Input
                       value={employeeSearch}
                       onChange={(e) => setEmployeeSearch(e.target.value)}
-                      placeholder='Cari nama, NIK, atau departemen...'
+                      placeholder={m.payroll_thr_employee_search_placeholder()}
                       className='h-8.5 pl-8 pr-7 text-xs rounded-xl bg-muted/40 focus-visible:bg-background'
                       autoFocus
                     />
                     {employeeSearch && (
-                      <button
+                      <Button
                         type='button'
                         onClick={() => setEmployeeSearch('')}
                         className='absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground'
                       >
                         <IconX size={12} />
-                      </button>
+                      </Button>
                     )}
                   </div>
 
@@ -917,13 +924,13 @@ export function ThrConfigView() {
                     <div className='space-y-1 py-0.5'>
                       {filteredEmployeeOptions.length === 0 ? (
                         <div className='py-6 text-center text-xs text-muted-foreground'>
-                          Tidak ada karyawan yang cocok dengan &quot;{employeeSearch}&quot;
+                          {m.payroll_thr_employee_not_found({ search: employeeSearch })}
                         </div>
                       ) : (
                         filteredEmployeeOptions.map((emp) => {
                           const isSelected = modalForm.employeeCode === emp.code
                           return (
-                            <button
+                            <Button
                               key={emp.code}
                               type='button'
                               onClick={() => {
@@ -972,7 +979,7 @@ export function ThrConfigView() {
                               {isSelected && (
                                 <IconCheck size={16} className='text-primary shrink-0 ml-2' />
                               )}
-                            </button>
+                            </Button>
                           )
                         })
                       )}
@@ -1001,7 +1008,7 @@ export function ThrConfigView() {
                     <Badge variant='outline' className='text-[10px] bg-background font-medium'>
                       {selectedEmployee.department}
                     </Badge>
-                    <button
+                    <Button
                       type='button'
                       onClick={() => {
                         setModalForm((p) => ({
@@ -1018,10 +1025,10 @@ export function ThrConfigView() {
                         }))
                       }}
                       className='p-1 text-muted-foreground hover:text-destructive transition-colors rounded-md'
-                      title='Hapus pilihan karyawan'
+                      title={m.payroll_thr_clear_employee()}
                     >
                       <IconX size={14} />
-                    </button>
+                    </Button>
                   </div>
                 </div>
               )}
@@ -1029,7 +1036,7 @@ export function ThrConfigView() {
 
             <div className='grid grid-cols-2 gap-3'>
               <div className='space-y-1.5'>
-                <label className='font-semibold text-foreground'>Nominal Bruto THR (Rp)</label>
+                <FieldLabel className='font-semibold text-foreground'>{m.payroll_thr_gross_field()}</FieldLabel>
                 <Input
                   type='number'
                   step={500000}
@@ -1046,7 +1053,7 @@ export function ThrConfigView() {
               </div>
 
               <div className='space-y-1.5'>
-                <label className='font-semibold text-foreground'>Total Pajak PPh 21 THR (Rp)</label>
+                <FieldLabel className='font-semibold text-foreground'>{m.payroll_thr_tax_field()}</FieldLabel>
                 <Input
                   type='number'
                   step={50000}
@@ -1065,7 +1072,7 @@ export function ThrConfigView() {
 
             <div className='grid grid-cols-2 gap-3'>
               <div className='space-y-1.5'>
-                <label className='font-semibold text-foreground'>Tenor Cicilan (Bulan)</label>
+                <FieldLabel className='font-semibold text-foreground'>{m.payroll_thr_tenor_field()}</FieldLabel>
                 <Select
                   value={String(modalForm.tenorMonths)}
                   onValueChange={(val) =>
@@ -1076,21 +1083,23 @@ export function ThrConfigView() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value='1'>1 Bulan (Lunas Langsung)</SelectItem>
-                    <SelectItem value='2'>2 Bulan</SelectItem>
-                    <SelectItem value='3'>3 Bulan (Standar)</SelectItem>
-                    <SelectItem value='4'>4 Bulan</SelectItem>
-                    <SelectItem value='6'>6 Bulan</SelectItem>
+                    <SelectGroup>
+                    <SelectItem value='1'>{m.payroll_thr_tenor_1_full()}</SelectItem>
+                    <SelectItem value='2'>{m.payroll_thr_months({ count: 2 })}</SelectItem>
+                    <SelectItem value='3'>{m.payroll_thr_tenor_3_standard()}</SelectItem>
+                    <SelectItem value='4'>{m.payroll_thr_months({ count: 4 })}</SelectItem>
+                    <SelectItem value='6'>{m.payroll_thr_months({ count: 6 })}</SelectItem>
+                    </SelectGroup>
                   </SelectContent>
                 </Select>
               </div>
 
               <div className='space-y-1.5'>
-                <label className='font-semibold text-foreground'>Periode Mulai Potong</label>
+                <FieldLabel className='font-semibold text-foreground'>{m.payroll_thr_start_period()}</FieldLabel>
                 <Input
                   value={modalForm.startPeriod}
                   onChange={(e) => setModalForm((p) => ({ ...p, startPeriod: e.target.value }))}
-                  placeholder='e.g. Juni 2026'
+                  placeholder={m.payroll_thr_start_period_example()}
                   className='h-9 text-xs rounded-xl'
                 />
               </div>
@@ -1099,22 +1108,22 @@ export function ThrConfigView() {
             {/* Calculated Preview Card */}
             <div className='p-3 rounded-xl border border-primary/20 bg-primary/5 flex items-center justify-between text-xs'>
               <div>
-                <p className='text-muted-foreground text-[10px] font-medium'>Estimasi Cicilan per Bulan:</p>
+                <p className='text-muted-foreground text-[10px] font-medium'>{m.payroll_thr_estimated_monthly()}</p>
                 <p className='text-sm font-bold text-primary mt-0.5'>
                   {formatIDR(Math.round(modalForm.totalTaxAmount / (modalForm.tenorMonths || 1)))}
                 </p>
               </div>
               <Badge variant='outline' className='text-[10px] bg-background font-mono'>
-                {modalForm.tenorMonths}x Pembayaran
+                {m.payroll_thr_payment_count({ count: modalForm.tenorMonths })}
               </Badge>
             </div>
 
             <div className='space-y-1.5'>
-              <label className='font-semibold text-foreground'>Catatan Tambahan (Opsional)</label>
+              <FieldLabel className='font-semibold text-foreground'>{m.payroll_thr_notes()}</FieldLabel>
               <Input
                 value={modalForm.notes}
                 onChange={(e) => setModalForm((p) => ({ ...p, notes: e.target.value }))}
-                placeholder='Keterangan persetujuan memo internal / kebijakan'
+                placeholder={m.payroll_thr_notes_placeholder()}
                 className='h-9 text-xs rounded-xl'
               />
             </div>
@@ -1126,10 +1135,10 @@ export function ThrConfigView() {
                 onClick={() => setIsModalOpen(false)}
                 className='h-9 text-xs rounded-xl'
               >
-                Batal
+                {m.payroll_wizard_cancel()}
               </Button>
               <Button type='submit' className='h-9 text-xs font-semibold rounded-xl'>
-                Simpan Jadwal
+                {m.payroll_thr_save_schedule()}
               </Button>
             </DialogFooter>
           </form>

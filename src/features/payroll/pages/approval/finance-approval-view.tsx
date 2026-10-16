@@ -1,16 +1,18 @@
 // src/features/payroll/pages/approval/finance-approval-view.tsx — Screen 14: Finance Approval Checklist & Sign-off
 import {
-  IconCheck,
   IconShieldCheck,
   IconClock,
   IconUserCheck,
-  IconFileInvoice,
 } from '@tabler/icons-react'
 import { useState } from 'react'
 import { formatIDR } from '../../data/mock-payroll-data'
 import type { PayrollRun } from '../../types'
+import { m } from '@/i18n/paraglide/messages'
+import { Badge } from '@/shared/components/ui/badge'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
+import { Checkbox } from '@/shared/components/ui/checkbox'
+import { FieldLabel } from '@/shared/components/ui/field'
 import { snackbar } from '@/shared/lib/snackbar'
 
 interface FinanceApprovalViewProps {
@@ -32,18 +34,18 @@ export function FinanceApprovalView({
     budgetAvailable: true,
   })
 
-  const [approvalNotes, setApprovalNotes] = useState('Semua komponen gaji, pajak PPh 21, dan BPJS telah diverifikasi.')
+  const [approvalNotes, setApprovalNotes] = useState(m.payroll_finance_default_notes())
 
   const allChecked = Object.values(checklist).every(Boolean)
 
   const handleApprove = () => {
     onApprove(run.id)
-    snackbar.success(`Payroll batch ${run.period} successfully approved by Finance!`)
+    snackbar.success(m.payroll_finance_approve_success({period: run.period}))
   }
 
   const handleRevision = () => {
     onRequestRevision(run.id)
-    snackbar.info('Revision requested. Returned to HR.')
+    snackbar.info(m.payroll_finance_revision_success())
   }
 
   return (
@@ -56,23 +58,21 @@ export function FinanceApprovalView({
           </div>
           <div>
             <div className='flex items-center gap-2'>
-              <h3 className='text-sm font-bold text-foreground'>Finance Approval Stage</h3>
-              <span className='px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 text-[10px] font-bold'>
-                Stage 2 of 3
-              </span>
+              <h3 className='text-sm font-bold text-foreground'>{m.payroll_finance_stage_title()}</h3>
+              <Badge variant='amber'>{m.payroll_finance_stage_number()}</Badge>
             </div>
             <p className='text-xs text-muted-foreground mt-0.5'>
-              Payroll Period: <b className='text-foreground'>{run.period}</b> · Total Disbursement:{' '}
+              {m.payroll_finance_period_label()}: <b className='text-foreground'>{run.period}</b> · {m.payroll_finance_disbursement_label()}:{' '}
               <b className='text-emerald-600 dark:text-emerald-400'>{formatIDR(run.totalNetDisbursement)}</b>
             </p>
           </div>
         </div>
 
         <div className='flex items-center gap-2 text-xs'>
-          <span className='text-muted-foreground'>Submitted by:</span>
+          <span className='text-muted-foreground'>{m.payroll_finance_submitted_by()}</span>
           <span className='font-semibold text-foreground flex items-center gap-1'>
             <IconUserCheck size={14} className='text-primary' />
-            HR Payroll Lead
+            {m.payroll_finance_submitter_role()}
           </span>
         </div>
       </div>
@@ -80,9 +80,9 @@ export function FinanceApprovalView({
       {/* ── 2. Verification Checklist ──────────────────────────────────────── */}
       <div className='rounded-2xl border border-border/80 bg-card p-6 shadow-xs space-y-5'>
         <div>
-          <h4 className='text-sm font-bold text-foreground'>Finance Compliance & Verification Checklist</h4>
+          <h4 className='text-sm font-bold text-foreground'>{m.payroll_finance_checklist_title()}</h4>
           <p className='text-xs text-muted-foreground mt-0.5'>
-            Pastikan seluruh poin verifikasi di bawah telah diperiksa sebelum memberikan persetujuan final
+            {m.payroll_finance_checklist_description()}
           </p>
         </div>
 
@@ -90,60 +90,59 @@ export function FinanceApprovalView({
           {[
             {
               key: 'attendanceVerified',
-              title: 'Presensi & Cuti Terverifikasi',
-              desc: 'Data kehadiran, keterlambatan, dan unpaid leave sudah sesuai dengan log mesin absen.',
+              title: m.payroll_finance_attendance_title(),
+              desc: m.payroll_finance_attendance_description(),
             },
             {
               key: 'overtimeApproved',
-              title: 'Persetujuan Upah Lembur Valid',
-              desc: 'Seluruh jam lembur telah memiliki Surat Perintah Kerja Lembur (SPKL) bertandatangan.',
+              title: m.payroll_finance_overtime_title(),
+              desc: m.payroll_finance_overtime_description(),
             },
             {
               key: 'taxCalculationsAccurate',
-              title: 'PPh 21 TER & BPJS Akurat',
-              desc: 'Kategori TER dan pemotongan iuran BPJS Kesehatan & Ketenagakerjaan telah lolos audit formula.',
+              title: m.payroll_finance_tax_title(),
+              desc: m.payroll_finance_tax_description(),
             },
             {
               key: 'bankAccountsActive',
-              title: 'Rekening Bank Karyawan Aktif',
-              desc: 'Tidak ada rekening bank karyawan yang tertolak / status inaktif pada sistem perbankan.',
+              title: m.payroll_finance_bank_title(),
+              desc: m.payroll_finance_bank_description(),
             },
             {
               key: 'budgetAvailable',
-              title: 'Ketersediaan Anggaran Kas (Cashflow)',
-              desc: 'Dana kas payroll pada rekening operasional perusahaan mencukupi untuk batch transfer.',
+              title: m.payroll_finance_budget_title(),
+              desc: m.payroll_finance_budget_description(),
             },
           ].map((item) => (
-            <label
+            <FieldLabel
               key={item.key}
               className='p-3.5 rounded-xl border border-border/70 bg-muted/20 hover:bg-muted/30 flex items-start gap-3 cursor-pointer transition-colors'
             >
-              <input
-                type='checkbox'
+              <Checkbox
                 checked={checklist[item.key as keyof typeof checklist]}
-                onChange={(e) =>
+                onCheckedChange={(checked) =>
                   setChecklist((prev) => ({
                     ...prev,
-                    [item.key]: e.target.checked,
+                    [item.key]: checked === true,
                   }))
                 }
-                className='mt-1 size-4 accent-primary rounded'
+                className='mt-1'
               />
               <div>
                 <h5 className='text-xs font-bold text-foreground'>{item.title}</h5>
                 <p className='text-[11px] text-muted-foreground mt-0.5 leading-relaxed'>{item.desc}</p>
               </div>
-            </label>
+            </FieldLabel>
           ))}
         </div>
 
         {/* Approval Notes */}
         <div className='space-y-1.5 pt-2'>
-          <label className='text-xs font-semibold text-foreground'>Finance Approval Notes / Comments</label>
+          <FieldLabel className='text-xs font-semibold text-foreground'>{m.payroll_finance_notes_label()}</FieldLabel>
           <Input
             value={approvalNotes}
             onChange={(e) => setApprovalNotes(e.target.value)}
-            placeholder='Catatan persetujuan...'
+            placeholder={m.payroll_finance_notes_placeholder()}
             className='h-10 text-xs bg-background rounded-xl'
           />
         </div>
@@ -152,21 +151,21 @@ export function FinanceApprovalView({
         <div className='pt-5 border-t border-border/70 flex items-center justify-between'>
           <Button
             type='button'
-            variant='outline'
+            variant='destructive'
+            size='sm'
             onClick={handleRevision}
-            className='h-9.5 px-5 text-xs font-semibold text-destructive hover:bg-destructive/10 rounded-xl'
           >
-            Request Revision
+            {m.payroll_finance_revision_button()}
           </Button>
 
           <Button
             type='button'
+            size='sm'
             onClick={handleApprove}
             disabled={!allChecked}
-            className='gap-1.5 h-9.5 px-6 text-xs font-semibold rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs'
           >
-            <IconShieldCheck size={16} />
-            Approve Payroll Batch
+            <IconShieldCheck data-icon='inline-start' />
+            {m.payroll_finance_approve_button()}
           </Button>
         </div>
       </div>

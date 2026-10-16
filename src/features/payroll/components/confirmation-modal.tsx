@@ -1,5 +1,6 @@
 // src/features/payroll/components/confirmation-modal.tsx — Screen 12: Process calculation modal
 import { IconAlertCircle } from '@tabler/icons-react'
+import { m } from '@/i18n/paraglide/messages'
 import { Button } from '@/shared/components/ui/button'
 import {
   Dialog,
@@ -35,12 +36,10 @@ export function CalculationConfirmationModal({
 
           <div className='space-y-1.5'>
             <DialogTitle className='text-base font-bold text-foreground'>
-              Proses penggajian sudah siap
+              {m.payroll_confirmation_title()}
             </DialogTitle>
             <DialogDescription className='text-xs text-muted-foreground leading-relaxed max-w-sm'>
-              Kalkulasi gaji periode <b className='text-foreground'>{periodName}</b> untuk{' '}
-              <b className='text-foreground'>{employeeCount} karyawan</b> akan digenerate
-              berdasarkan sinkronisasi presensi dan komponen aktif.
+              {m.payroll_confirmation_description({ period: periodName, count: employeeCount })}
             </DialogDescription>
           </div>
 
@@ -52,7 +51,7 @@ export function CalculationConfirmationModal({
               disabled={isProcessing}
               className='flex-1 h-9.5 text-xs font-semibold rounded-xl'
             >
-              Batal / Periksa Ulang
+              {m.payroll_confirmation_cancel()}
             </Button>
             <Button
               type='button'
@@ -60,7 +59,7 @@ export function CalculationConfirmationModal({
               disabled={isProcessing}
               className='flex-1 h-9.5 text-xs font-semibold rounded-xl bg-primary shadow-sm'
             >
-              {isProcessing ? 'Memproses...' : 'Generate Payroll'}
+              {isProcessing ? m.payroll_confirmation_processing() : m.payroll_confirmation_generate()}
             </Button>
           </div>
         </div>

@@ -3,8 +3,12 @@ import { IconPlus, IconTrash, IconEdit, IconCoins } from '@tabler/icons-react'
 import { useState } from 'react'
 import { initialSalaryComponents, formatIDR } from '../../data/mock-payroll-data'
 import type { SalaryComponent } from '../../types'
+import { m } from '@/i18n/paraglide/messages'
 import { Badge } from '@/shared/components/ui/badge'
 import { Button } from '@/shared/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card'
+import { Checkbox } from '@/shared/components/ui/checkbox'
+import { FieldLabel } from '@/shared/components/ui/field'
 import {
   Tooltip,
   TooltipContent,
@@ -21,6 +25,7 @@ import { Input } from '@/shared/components/ui/input'
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
@@ -36,6 +41,18 @@ import {
 import { snackbar } from '@/shared/lib/snackbar'
 
 export function SalaryComponentsView() {
+  const categoryLabels: Record<SalaryComponent['category'], string> = {
+    fixed: m.payroll_salary_category_fixed(),
+    variable: m.payroll_salary_category_variable(),
+    tax: m.payroll_salary_category_tax(),
+    statutory: m.payroll_salary_category_statutory(),
+  }
+  const calculationLabels: Record<SalaryComponent['calculationType'], string> = {
+    fixed_amount: m.payroll_salary_calculation_fixed(),
+    attendance_based: m.payroll_salary_calculation_attendance(),
+    formula: m.payroll_salary_calculation_formula(),
+    percentage: m.payroll_salary_calculation_percentage(),
+  }
   const [components, setComponents] = useState<SalaryComponent[]>(initialSalaryComponents)
   const [modalOpen, setModalOpen] = useState(false)
   const [editingComp, setEditingComp] = useState<SalaryComponent | null>(null)
@@ -82,13 +99,13 @@ export function SalaryComponentsView() {
 
   const handleDelete = (id: string) => {
     setComponents((prev) => prev.filter((c) => c.id !== id))
-    snackbar.success('Salary component deleted.')
+    snackbar.success(m.payroll_salary_deleted())
   }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!formData.name.trim() || !formData.code.trim()) {
-      snackbar.error('Name and Code are required.')
+      snackbar.error(m.payroll_salary_name_code_required())
       return
     }
 
@@ -96,60 +113,58 @@ export function SalaryComponentsView() {
       setComponents((prev) =>
         prev.map((c) => (c.id === editingComp.id ? { ...formData, id: editingComp.id } : c)),
       )
-      snackbar.success('Component updated successfully!')
+      snackbar.success(m.payroll_salary_updated())
     } else {
       const newComp: SalaryComponent = {
         ...formData,
         id: `comp-${Date.now()}`,
       }
       setComponents((prev) => [...prev, newComp])
-      snackbar.success('Component created successfully!')
+      snackbar.success(m.payroll_salary_created())
     }
     setModalOpen(false)
   }
 
   return (
-    <div className='space-y-8'>
+    <div className='space-y-6'>
       {/* Header Actions */}
-      <div className='flex items-center justify-between'>
-        <div>
-          <h3 className='text-sm font-bold text-foreground'>Salary Components Directory</h3>
-          <p className='text-xs text-muted-foreground mt-0.5'>
-            Daftar komponen pendapatan (Earnings / Allowances) dan potongan gaji (Deductions)
+      <div className='flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between'>
+        <div className='flex flex-col gap-1'>
+          <h3 className='text-sm font-bold text-foreground'>{m.payroll_salary_directory_title()}</h3>
+          <p className='max-w-2xl text-xs text-muted-foreground'>
+            {m.payroll_salary_directory_description()}
           </p>
         </div>
-        <Button
-          onClick={handleOpenAdd}
-          className='gap-1.5 text-xs font-semibold rounded-xl h-9 px-4 shadow-xs'
-        >
-          <IconPlus size={15} />
-          Add Component
+        <Button type='button' size='sm' className='self-start' onClick={handleOpenAdd}>
+          <IconPlus data-icon='inline-start' />
+          {m.payroll_employee_components_add_button()}
         </Button>
       </div>
 
       {/* ── Table 1: Allowances / Earnings ─────────────────────────────────── */}
-      <div className='rounded-2xl border border-border/80 bg-card shadow-xs overflow-hidden'>
-        <div className='p-5 pb-3 bg-muted/20 border-b border-border/60 flex items-center justify-between'>
+      <Card className='min-w-0 gap-0 overflow-hidden py-0'>
+        <CardHeader className='flex flex-row items-center justify-between gap-3 bg-muted/20 py-4'>
           <div className='flex items-center gap-2'>
             <IconCoins size={16} className='text-emerald-600 dark:text-emerald-400' />
-            <h4 className='text-xs font-bold text-foreground uppercase tracking-wider'>
-              Pendapatan & Tunjangan (Allowances / Earnings)
-            </h4>
+            <CardTitle className='text-xs font-bold uppercase tracking-wider'>
+              {m.payroll_employee_components_allowance_table_title()}
+            </CardTitle>
           </div>
           <Badge variant='green' className='text-[10px]'>
-            {allowances.length} Components
+            {m.payroll_employee_components_count({count: allowances.length})}
           </Badge>
-        </div>
+        </CardHeader>
 
+        <CardContent className='px-0'>
         <Table>
           <TableHeader>
             <TableRow className='bg-muted/10 text-xs border-b border-border/60'>
-              <TableHead className='font-bold text-muted-foreground py-3 pl-6'>Component Name</TableHead>
-              <TableHead className='font-bold text-muted-foreground py-3'>Category</TableHead>
-              <TableHead className='font-bold text-muted-foreground py-3'>Taxable / BPJS</TableHead>
-              <TableHead className='font-bold text-muted-foreground py-3'>Calculation</TableHead>
-              <TableHead className='font-bold text-muted-foreground py-3'>Default Amount</TableHead>
-              <TableHead className='font-bold text-muted-foreground py-3 pr-6 text-right'>Action</TableHead>
+              <TableHead className='font-bold text-muted-foreground py-3 pl-6'>{m.payroll_employee_components_name_field_label()}</TableHead>
+              <TableHead className='font-bold text-muted-foreground py-3'>{m.payroll_salary_col_category()}</TableHead>
+              <TableHead className='font-bold text-muted-foreground py-3'>{m.payroll_salary_col_taxable()}</TableHead>
+              <TableHead className='font-bold text-muted-foreground py-3'>{m.payroll_salary_col_calculation()}</TableHead>
+              <TableHead className='font-bold text-muted-foreground py-3'>{m.payroll_salary_col_default_amount()}</TableHead>
+              <TableHead className='font-bold text-muted-foreground py-3 pr-6 text-right'>{m.payroll_overview_col_action()}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -159,24 +174,24 @@ export function SalaryComponentsView() {
                   <p className='font-bold text-foreground'>{item.name}</p>
                   <p className='text-[10px] text-muted-foreground font-mono mt-0.5'>{item.code}</p>
                 </TableCell>
-                <TableCell className='py-3.5 capitalize text-muted-foreground'>{item.category}</TableCell>
+                <TableCell className='py-3.5 text-muted-foreground'>{categoryLabels[item.category]}</TableCell>
                 <TableCell className='py-3.5'>
                   <div className='flex items-center gap-1.5'>
                     <Badge variant={item.isTaxable ? 'blue' : 'gray'} className='text-[9px] px-1.5 py-0'>
-                      {item.isTaxable ? 'Taxable' : 'Non-taxable'}
+                      {item.isTaxable ? m.payroll_salary_taxable() : m.payroll_salary_non_taxable()}
                     </Badge>
                     {item.isBpjsBase && (
                       <Badge variant='purple' className='text-[9px] px-1.5 py-0'>
-                        BPJS Base
+                        {m.payroll_salary_bpjs_base()}
                       </Badge>
                     )}
                   </div>
                 </TableCell>
                 <TableCell className='py-3.5 text-muted-foreground capitalize'>
-                  {item.calculationType.replace('_', ' ')}
+                  {calculationLabels[item.calculationType]}
                 </TableCell>
                 <TableCell className='py-3.5 font-semibold text-foreground'>
-                  {item.defaultAmount > 0 ? formatIDR(item.defaultAmount) : 'Formula-based'}
+                  {item.defaultAmount > 0 ? formatIDR(item.defaultAmount) : m.payroll_salary_formula_based()}
                 </TableCell>
                 <TableCell className='py-3.5 pr-6 text-right'>
                   <div className='flex items-center justify-end gap-1'>
@@ -187,13 +202,13 @@ export function SalaryComponentsView() {
                           size='icon'
                           onClick={() => handleOpenEdit(item)}
                           className='size-8 text-muted-foreground hover:text-primary hover:bg-primary/10'
-                          aria-label='Edit Component'
+                          aria-label={m.payroll_salary_edit_button()}
                         >
                           <IconEdit size={16} />
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent side='left'>
-                        <p>Edit Component</p>
+                        <p>{m.payroll_salary_edit_button()}</p>
                       </TooltipContent>
                     </Tooltip>
 
@@ -204,13 +219,13 @@ export function SalaryComponentsView() {
                           size='icon'
                           onClick={() => handleDelete(item.id)}
                           className='size-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10'
-                          aria-label='Delete Component'
+                          aria-label={m.payroll_salary_delete_button()}
                         >
                           <IconTrash size={16} />
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent side='left'>
-                        <p>Delete Component</p>
+                        <p>{m.payroll_salary_delete_button()}</p>
                       </TooltipContent>
                     </Tooltip>
                   </div>
@@ -219,31 +234,33 @@ export function SalaryComponentsView() {
             ))}
           </TableBody>
         </Table>
-      </div>
+        </CardContent>
+      </Card>
 
       {/* ── Table 2: Deductions ────────────────────────────────────────────── */}
-      <div className='rounded-2xl border border-border/80 bg-card shadow-xs overflow-hidden'>
-        <div className='p-5 pb-3 bg-muted/20 border-b border-border/60 flex items-center justify-between'>
+      <Card className='min-w-0 gap-0 overflow-hidden py-0'>
+        <CardHeader className='flex flex-row items-center justify-between gap-3 bg-muted/20 py-4'>
           <div className='flex items-center gap-2'>
             <IconCoins size={16} className='text-rose-600 dark:text-rose-400' />
-            <h4 className='text-xs font-bold text-foreground uppercase tracking-wider'>
-              Potongan Gaji (Deductions)
-            </h4>
+            <CardTitle className='text-xs font-bold uppercase tracking-wider'>
+              {m.payroll_employee_components_deduction_table_title()}
+            </CardTitle>
           </div>
           <Badge variant='red' className='text-[10px]'>
-            {deductions.length} Components
+            {m.payroll_employee_components_count({count: deductions.length})}
           </Badge>
-        </div>
+        </CardHeader>
 
+        <CardContent className='px-0'>
         <Table>
           <TableHeader>
             <TableRow className='bg-muted/10 text-xs border-b border-border/60'>
-              <TableHead className='font-bold text-muted-foreground py-3 pl-6'>Component Name</TableHead>
-              <TableHead className='font-bold text-muted-foreground py-3'>Category</TableHead>
-              <TableHead className='font-bold text-muted-foreground py-3'>Statutory Type</TableHead>
-              <TableHead className='font-bold text-muted-foreground py-3'>Calculation</TableHead>
-              <TableHead className='font-bold text-muted-foreground py-3'>Default Amount</TableHead>
-              <TableHead className='font-bold text-muted-foreground py-3 pr-6 text-right'>Action</TableHead>
+              <TableHead className='font-bold text-muted-foreground py-3 pl-6'>{m.payroll_employee_components_name_field_label()}</TableHead>
+              <TableHead className='font-bold text-muted-foreground py-3'>{m.payroll_salary_col_category()}</TableHead>
+              <TableHead className='font-bold text-muted-foreground py-3'>{m.payroll_salary_col_statutory()}</TableHead>
+              <TableHead className='font-bold text-muted-foreground py-3'>{m.payroll_salary_col_calculation()}</TableHead>
+              <TableHead className='font-bold text-muted-foreground py-3'>{m.payroll_salary_col_default_amount()}</TableHead>
+              <TableHead className='font-bold text-muted-foreground py-3 pr-6 text-right'>{m.payroll_overview_col_action()}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -253,17 +270,17 @@ export function SalaryComponentsView() {
                   <p className='font-bold text-foreground'>{item.name}</p>
                   <p className='text-[10px] text-muted-foreground font-mono mt-0.5'>{item.code}</p>
                 </TableCell>
-                <TableCell className='py-3.5 capitalize text-muted-foreground'>{item.category}</TableCell>
+                <TableCell className='py-3.5 text-muted-foreground'>{categoryLabels[item.category]}</TableCell>
                 <TableCell className='py-3.5'>
                   <Badge variant={item.category === 'statutory' ? 'purple' : 'gray'} className='text-[9px] px-1.5 py-0'>
-                    {item.category === 'statutory' ? 'Wajib Regulasi' : 'Internal'}
+                    {item.category === 'statutory' ? m.payroll_salary_statutory() : m.payroll_salary_internal()}
                   </Badge>
                 </TableCell>
                 <TableCell className='py-3.5 text-muted-foreground capitalize'>
-                  {item.calculationType.replace('_', ' ')}
+                  {calculationLabels[item.calculationType]}
                 </TableCell>
                 <TableCell className='py-3.5 font-semibold text-rose-600 dark:text-rose-400'>
-                  {item.defaultAmount > 0 ? `-${formatIDR(item.defaultAmount)}` : 'Formula / Rate'}
+                  {item.defaultAmount > 0 ? `-${formatIDR(item.defaultAmount)}` : m.payroll_salary_formula_rate()}
                 </TableCell>
                 <TableCell className='py-3.5 pr-6 text-right'>
                   <div className='flex items-center justify-end gap-1'>
@@ -274,13 +291,13 @@ export function SalaryComponentsView() {
                           size='icon'
                           onClick={() => handleOpenEdit(item)}
                           className='size-8 text-muted-foreground hover:text-primary hover:bg-primary/10'
-                          aria-label='Edit Component'
+                          aria-label={m.payroll_salary_edit_button()}
                         >
                           <IconEdit size={16} />
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent side='left'>
-                        <p>Edit Component</p>
+                        <p>{m.payroll_salary_edit_button()}</p>
                       </TooltipContent>
                     </Tooltip>
 
@@ -291,13 +308,13 @@ export function SalaryComponentsView() {
                           size='icon'
                           onClick={() => handleDelete(item.id)}
                           className='size-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10'
-                          aria-label='Delete Component'
+                          aria-label={m.payroll_salary_delete_button()}
                         >
                           <IconTrash size={16} />
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent side='left'>
-                        <p>Delete Component</p>
+                        <p>{m.payroll_salary_delete_button()}</p>
                       </TooltipContent>
                     </Tooltip>
                   </div>
@@ -306,7 +323,8 @@ export function SalaryComponentsView() {
             ))}
           </TableBody>
         </Table>
-      </div>
+        </CardContent>
+      </Card>
 
       {/* ── Add / Edit Component Dialog Modal ─────────────────────────────── */}
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
@@ -318,10 +336,10 @@ export function SalaryComponentsView() {
               </div>
               <div>
                 <DialogTitle className='text-base font-bold text-foreground'>
-                  {editingComp ? 'Edit Salary Component' : 'Add New Salary Component'}
+                  {editingComp ? m.payroll_salary_edit_title() : m.payroll_salary_add_title()}
                 </DialogTitle>
                 <DialogDescription className='text-xs text-muted-foreground mt-0.5'>
-                  Atur kode, jenis kalkulasi, dan pengenaan pajak/BPJS komponen gaji.
+                  {m.payroll_salary_form_description()}
                 </DialogDescription>
               </div>
             </div>
@@ -330,18 +348,18 @@ export function SalaryComponentsView() {
           <form onSubmit={handleSubmit} className='space-y-5 pt-5'>
             <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
               <div className='space-y-1.5'>
-                <label className='text-xs font-semibold text-foreground'>Component Name *</label>
+                <FieldLabel className='text-xs font-semibold text-foreground'>{m.payroll_salary_name_required_label()}</FieldLabel>
                 <Input
                   value={formData.name}
                   onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
-                  placeholder='e.g. Tunjangan Kinerja'
+                  placeholder={m.payroll_salary_name_placeholder()}
                   className='h-10 text-xs bg-background border border-input rounded-xl'
                   required
                 />
               </div>
 
               <div className='space-y-1.5'>
-                <label className='text-xs font-semibold text-foreground'>Code *</label>
+                <FieldLabel className='text-xs font-semibold text-foreground'>{m.payroll_salary_code_required_label()}</FieldLabel>
                 <Input
                   value={formData.code}
                   onChange={(e) => setFormData((prev) => ({ ...prev, code: e.target.value.toUpperCase() }))}
@@ -354,7 +372,7 @@ export function SalaryComponentsView() {
 
             <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
               <div className='space-y-1.5'>
-                <label className='text-xs font-semibold text-foreground'>Type</label>
+                <FieldLabel className='text-xs font-semibold text-foreground'>{m.payroll_employee_components_kind_field_label()}</FieldLabel>
                 <Select
                   value={formData.type}
                   onValueChange={(val) =>
@@ -362,17 +380,19 @@ export function SalaryComponentsView() {
                   }
                 >
                   <SelectTrigger className='h-10 text-xs bg-background border border-input rounded-xl'>
-                    <SelectValue placeholder='Select type' />
+                    <SelectValue placeholder={m.payroll_salary_type_placeholder()} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value='allowance'>Allowance (Pendapatan)</SelectItem>
-                    <SelectItem value='deduction'>Deduction (Potongan)</SelectItem>
+                    <SelectGroup>
+                      <SelectItem value='allowance'>{m.payroll_employee_components_type_allowance()}</SelectItem>
+                      <SelectItem value='deduction'>{m.payroll_employee_components_type_deduction()}</SelectItem>
+                    </SelectGroup>
                   </SelectContent>
                 </Select>
               </div>
 
               <div className='space-y-1.5'>
-                <label className='text-xs font-semibold text-foreground'>Calculation Type</label>
+                <FieldLabel className='text-xs font-semibold text-foreground'>{m.payroll_salary_calculation_type_label()}</FieldLabel>
                 <Select
                   value={formData.calculationType}
                   onValueChange={(val) =>
@@ -380,13 +400,15 @@ export function SalaryComponentsView() {
                   }
                 >
                   <SelectTrigger className='h-10 text-xs bg-background border border-input rounded-xl'>
-                    <SelectValue placeholder='Select calculation' />
+                    <SelectValue placeholder={m.payroll_salary_calculation_placeholder()} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value='fixed_amount'>Fixed Amount (Nominal Tetap)</SelectItem>
-                    <SelectItem value='attendance_based'>Attendance Based (Harian Kehadiran)</SelectItem>
-                    <SelectItem value='formula'>Formula / Overtime</SelectItem>
-                    <SelectItem value='percentage'>Percentage (Persentase %)</SelectItem>
+                    <SelectGroup>
+                      <SelectItem value='fixed_amount'>{m.payroll_salary_calculation_fixed()}</SelectItem>
+                      <SelectItem value='attendance_based'>{m.payroll_salary_calculation_attendance()}</SelectItem>
+                      <SelectItem value='formula'>{m.payroll_salary_calculation_formula()}</SelectItem>
+                      <SelectItem value='percentage'>{m.payroll_salary_calculation_percentage()}</SelectItem>
+                    </SelectGroup>
                   </SelectContent>
                 </Select>
               </div>
@@ -394,7 +416,7 @@ export function SalaryComponentsView() {
 
             <div className='space-y-1.5'>
               <div className='flex items-center justify-between'>
-                <label className='text-xs font-semibold text-foreground'>Default Amount (Nominal Standar)</label>
+                <FieldLabel className='text-xs font-semibold text-foreground'>{m.payroll_salary_default_amount_label()}</FieldLabel>
                 {formData.defaultAmount > 0 && (
                   <span className='text-xs font-bold text-primary font-mono'>
                     {formatIDR(formData.defaultAmount)}
@@ -418,54 +440,50 @@ export function SalaryComponentsView() {
             </div>
 
             <div className='space-y-1.5'>
-              <label className='text-xs font-semibold text-foreground'>Description / Keterangan</label>
+              <FieldLabel className='text-xs font-semibold text-foreground'>{m.payroll_salary_description_label()}</FieldLabel>
               <Input
                 value={formData.description || ''}
                 onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))}
-                placeholder='Keterangan singkat komponen...'
+                placeholder={m.payroll_salary_description_placeholder()}
                 className='h-10 text-xs bg-background border border-input rounded-xl'
               />
             </div>
 
             {/* Checkbox cards */}
             <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1'>
-              <label
+              <FieldLabel
                 className={`flex items-center gap-3 p-3.5 rounded-2xl border cursor-pointer transition-colors ${
                   formData.isTaxable
                     ? 'border-blue-500/40 bg-blue-50/40 dark:bg-blue-950/20'
                     : 'border-border/70 bg-muted/20 hover:bg-muted/30'
                 }`}
               >
-                <input
-                  type='checkbox'
+                <Checkbox
                   checked={formData.isTaxable}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, isTaxable: e.target.checked }))}
-                  className='size-4 accent-primary rounded'
+                  onCheckedChange={(checked) => setFormData((prev) => ({ ...prev, isTaxable: checked === true }))}
                 />
                 <div>
-                  <span className='text-xs font-bold text-foreground block'>Objek Pajak PPh 21</span>
-                  <span className='text-[10px] text-muted-foreground'>Masuk dalam perhitungan bruto pajak</span>
+                  <span className='text-xs font-bold text-foreground block'>{m.payroll_salary_tax_subject()}</span>
+                  <span className='text-[10px] text-muted-foreground'>{m.payroll_salary_tax_subject_hint()}</span>
                 </div>
-              </label>
+              </FieldLabel>
 
-              <label
+              <FieldLabel
                 className={`flex items-center gap-3 p-3.5 rounded-2xl border cursor-pointer transition-colors ${
                   formData.isBpjsBase
                     ? 'border-purple-500/40 bg-purple-50/40 dark:bg-purple-950/20'
                     : 'border-border/70 bg-muted/20 hover:bg-muted/30'
                 }`}
               >
-                <input
-                  type='checkbox'
+                <Checkbox
                   checked={formData.isBpjsBase}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, isBpjsBase: e.target.checked }))}
-                  className='size-4 accent-primary rounded'
+                  onCheckedChange={(checked) => setFormData((prev) => ({ ...prev, isBpjsBase: checked === true }))}
                 />
                 <div>
-                  <span className='text-xs font-bold text-foreground block'>Dasar Upah BPJS</span>
-                  <span className='text-[10px] text-muted-foreground'>Dihitung sebagai pengali tarif BPJS</span>
+                  <span className='text-xs font-bold text-foreground block'>{m.payroll_salary_bpjs_wage_base()}</span>
+                  <span className='text-[10px] text-muted-foreground'>{m.payroll_salary_bpjs_wage_base_hint()}</span>
                 </div>
-              </label>
+              </FieldLabel>
             </div>
 
             <div className='flex justify-end gap-3 pt-4 border-t border-border/60'>
@@ -475,10 +493,10 @@ export function SalaryComponentsView() {
                 onClick={() => setModalOpen(false)}
                 className='h-10 px-5 text-xs font-semibold rounded-xl'
               >
-                Cancel
+                {m.payroll_employee_components_cancel_button()}
               </Button>
               <Button type='submit' className='h-10 px-6 text-xs font-semibold rounded-xl shadow-xs'>
-                Save Component
+                {m.payroll_employee_components_save_button()}
               </Button>
             </div>
           </form>

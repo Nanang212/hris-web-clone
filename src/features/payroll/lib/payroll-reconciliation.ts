@@ -11,6 +11,7 @@ import type {
   EmployeePayrollDetail,
   PayrollEmployeeInput,
 } from '../types'
+import { m } from '@/i18n/paraglide/messages'
 
 export type ReconciliationStatus =
   | 'MATCH'
@@ -62,12 +63,13 @@ export function buildBpjsKesReconciliation(params: {
   details: EmployeePayrollDetail[]
   billingRecords: BpjsKesBillingRecord[]
   bpjsKesConfig: BpjsKesConfig
+  locale: string
   employees?: PayrollEmployeeInput[]
 }): {
   rows: BpjsKesReconciliationRow[]
   summary: BpjsKesReconciliationSummary
 } {
-  const { details, billingRecords, bpjsKesConfig, employees = initialPayrollEmployeeInputs } = params
+  const { details, billingRecords, bpjsKesConfig, locale, employees = initialPayrollEmployeeInputs } = params
 
   const employeeMap = new Map(employees.map((e) => [e.employeeId, e]))
   const billingIndex = buildBillingIndex(billingRecords)
@@ -100,17 +102,17 @@ export function buildBpjsKesReconciliation(params: {
       const totalDiff = billingAmounts.total - payrollTotal
 
       let status: ReconciliationStatus = 'MATCH'
-      let statusLabel = 'Match Sempurna'
-      let diagnosis = 'Data tagihan BPJS sesuai dengan rincian payroll.'
+      let statusLabel = m.payroll_recon_status_match()
+      let diagnosis = m.payroll_recon_diagnosis_match()
 
       if (wageDiff !== 0) {
         status = 'WAGE_DIFF'
-        statusLabel = 'Selisih Upah'
-        diagnosis = `Upah di tagihan BPJS (${billingRecord.bpjsWage.toLocaleString('id-ID')}) berbeda dengan gaji master (${detail.baseSalary.toLocaleString('id-ID')}).`
+        statusLabel = m.payroll_recon_status_wage_diff()
+        diagnosis = m.payroll_recon_diagnosis_wage_diff({ billing: billingRecord.bpjsWage.toLocaleString(locale), salary: detail.baseSalary.toLocaleString(locale) })
       } else if (totalDiff !== 0) {
         status = 'WAGE_DIFF'
-        statusLabel = 'Selisih Nominal'
-        diagnosis = `Terdapat selisih nominal Rp ${Math.abs(totalDiff).toLocaleString('id-ID')} antara tagihan dan payroll.`
+        statusLabel = m.payroll_recon_status_amount_diff()
+        diagnosis = m.payroll_recon_diagnosis_amount_diff({ amount: Math.abs(totalDiff).toLocaleString(locale) })
       }
 
       rows.push({
@@ -167,8 +169,8 @@ export function buildBpjsKesReconciliation(params: {
         wageDifference: -detail.baseSalary,
         totalDifference: -payrollTotal,
         status: 'MISSING_IN_BILLING',
-        statusLabel: 'Belum Terdaftar / Tidak Ada Tagihan',
-        diagnosis: 'Karyawan aktif di payroll namun tidak ditemukan di file tagihan BPJS Kesehatan.',
+        statusLabel: m.payroll_recon_status_missing(),
+        diagnosis: m.payroll_recon_diagnosis_missing(),
       })
     }
   }
@@ -182,7 +184,7 @@ export function buildBpjsKesReconciliation(params: {
         nopeg: bRecord.nopeg || '-',
         nik: bRecord.nik || '-',
         bpjsNumber: bRecord.bpjsNumber || '-',
-        employeeName: bRecord.name || 'Peserta Tidak Dikenal',
+        employeeName: bRecord.name || m.payroll_recon_unknown_participant(),
         department: '-',
         project: '-',
         statusInMaster: 'Tidak Terdaftar',
@@ -199,8 +201,8 @@ export function buildBpjsKesReconciliation(params: {
         wageDifference: bRecord.bpjsWage,
         totalDifference: billingAmounts.total,
         status: 'ORPHAN_BILLING',
-        statusLabel: 'Tagihan Tanpa Karyawan',
-        diagnosis: 'Nama/NIK ada di tagihan BPJS tapi tidak ada di master payroll (kemungkinan karyawan resign belum dinonaktifkan di sistem BPJS).',
+        statusLabel: m.payroll_recon_status_orphan(),
+        diagnosis: m.payroll_recon_diagnosis_orphan(),
       })
     }
   }
