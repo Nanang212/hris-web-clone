@@ -29,12 +29,23 @@ export interface MetricCardData {
   iconTextColor?: string
 }
 
-// ── Attendance Report ──────────────────────────────────────────────
+export type TimesheetStatus =
+  | 'DRAFT'
+  | 'PENDING_DEPT_HEAD'
+  | 'PENDING_DIV_HEAD'
+  | 'APPROVED'
+  | 'REJECTED'
+
 export interface AttendanceReportRow {
   id: string
   date: string // YYYY-MM-DD or readable
   employeeName: string
+  employeeCode?: string
   department: string
+  position?: string
+  location?: string
+  project?: string
+  overtimeReason?: string
   workDays: number
   presentDays: number
   lateDays: number
@@ -42,6 +53,61 @@ export interface AttendanceReportRow {
   leaveDays: number
   attendanceRate: number // e.g. 96.5%
   overtimeHours: number
+  timesheetStatus?: TimesheetStatus
+}
+
+export interface EmployeeDailyAttendance {
+  dayNumber: number
+  dayName: string
+  isSunday: boolean
+  workStart: string
+  workEnd: string
+  overtimeStart: string
+  overtimeEnd: string
+  overtimeHoursText: string
+  taskDescription: string // Didapat dari alasan kenapa dia lembur
+  hasEmployeeSignature: boolean
+  hasSupervisorSignature: boolean
+}
+
+export interface OvertimeWorkOrder {
+  id: string
+  orderNumber: string
+  employeeName?: string
+  employeeId?: string
+  nip?: string
+  position?: string
+  department?: string
+  location?: string
+  periodLabel?: string
+  date: string
+  eventDescription: string // Keterangan misal: HUT Republik Indonesia / Maulid Nabi Muhammad SAW / Operasional Tambahan
+  taskDescription: string // Uraian tugas kerja lembur: Pengamanan shift malam / Patroli dsb
+  isHoliday: boolean
+  startTime: string
+  endTime: string
+  actualStartTime?: string
+  actualEndTime?: string
+  totalHours: number
+  approvedBy: string
+  approverTitle: string
+  approvedAt: string
+}
+
+export interface SickLeaveRecord {
+  id: string
+  leaveNumber: string
+  startDate: string
+  endDate: string
+  totalDays: number
+  reason: string
+  diagnosis: string
+  clinicOrHospital: string
+  doctorName: string
+  status: 'APPROVED' | 'PENDING' | 'REJECTED'
+  approvedBy: string
+  approverTitle: string
+  approvedAt: string
 }
 
 // ── Payroll Report ────────────────────────────────────────────────

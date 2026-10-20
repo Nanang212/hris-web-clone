@@ -60,7 +60,7 @@ export function LeaveApprovalDetailPage({ requestId }: Readonly<{ requestId: str
       backTo='/leave/approval'
       className='gap-5 bg-muted/30'
     >
-      <LeaveTabs active='approval' />
+      <LeaveTabs active='overview' />
       <div className='grid gap-4 xl:grid-cols-[minmax(0,1.8fr)_320px]'>
         <section className='rounded-2xl border border-border bg-card p-5 shadow-sm'>
           <div className='flex items-start justify-between'>

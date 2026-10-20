@@ -54,7 +54,7 @@ export function OvertimeApprovalDetailPage() {
       backTo='/overtime/approval'
       className='gap-5 bg-muted/30'
     >
-      <OvertimeTabs active='approval' />
+      <OvertimeTabs active='requests' />
       <OvertimeRequestIdentity status='pending' />
       <div className='grid gap-4 xl:grid-cols-[minmax(0,1.7fr)_340px]'>
         <Card>

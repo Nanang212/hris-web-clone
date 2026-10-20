@@ -20,7 +20,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/shared/components/ui/table'
-import { leaveRequests } from '@/features/leave/components/leave-data'
+import { useApprovalSyncStore } from '@/shared/lib/approval-sync-store'
 import { LeaveSelect } from '@/features/leave/components/leave-select'
 import { LeaveTabs } from '@/features/leave/components/leave-tabs'
 import {
@@ -31,6 +31,8 @@ import {
 import { m } from '@/i18n/paraglide/messages'
 
 export function LeaveRequestsPage() {
+  const { leaves } = useApprovalSyncStore()
+
   return (
     <AppMain
       title={m.leave_requests_title()}
@@ -102,7 +104,7 @@ export function LeaveRequestsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {leaveRequests.map((request) => (
+              {leaves.map((request) => (
                 <TableRow key={request.id}>
                   <TableCell className='text-xs font-medium'>{request.id}</TableCell>
                   <TableCell className='text-xs'>{request.employee}</TableCell>

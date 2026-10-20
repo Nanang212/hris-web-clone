@@ -27,6 +27,7 @@ import { cn } from '@/shared/lib/utils'
 import { m } from '@/i18n/paraglide/messages'
 
 import { useApprovalSyncStore } from '@/shared/lib/approval-sync-store'
+import type { ModuleType } from '@/features/settings/approval-workflow/types'
 import { ApprovalActionDialog } from '@/shared/components/approval/approval-action-dialog'
 import { ApprovalDetailDrawer } from './components/detail-drawer'
 import type { ApprovalRequest } from './types'
@@ -34,12 +35,17 @@ import type { ApprovalRequest } from './types'
 type TabType = string
 type StatusFilterType = 'all' | 'pending' | 'approved' | 'rejected'
 
-export function ApprovalPage() {
+export interface ApprovalPageProps {
+  initialTab?: string
+  initialStatus?: StatusFilterType
+}
+
+export function ApprovalPage({ initialTab, initialStatus }: ApprovalPageProps = {}) {
   const { approvals, approve: syncApprove, reject: syncReject } = useApprovalSyncStore()
   const requests = approvals
 
-  const [activeTab, setActiveTab] = useState<TabType>('all')
-  const [statusFilter, setStatusFilter] = useState<StatusFilterType>('pending')
+  const [activeTab, setActiveTab] = useState<TabType>(initialTab || 'all')
+  const [statusFilter, setStatusFilter] = useState<StatusFilterType>(initialStatus || 'pending')
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedRequest, setSelectedRequest] = useState<ApprovalRequest | null>(null)
 
@@ -49,6 +55,7 @@ export function ApprovalPage() {
 
   const tabConfig: Record<string, { label: string; icon: typeof IconCategory }> = {
     all: { label: m.approval_tab_all(), icon: IconCategory },
+    timesheet: { label: 'Timesheet', icon: IconClock },
     leave: { label: m.approval_tab_leave(), icon: IconCalendarWeek },
     overtime: { label: m.approval_tab_overtime(), icon: IconClock },
     claim: { label: m.approval_tab_claim(), icon: IconReceipt },
@@ -61,6 +68,8 @@ export function ApprovalPage() {
 
   const getModuleLabel = (type: string) => {
     switch (type) {
+      case 'timesheet':
+        return 'Timesheet'
       case 'leave':
         return m.approval_tab_leave()
       case 'overtime':
@@ -82,10 +91,23 @@ export function ApprovalPage() {
     }
   }
 
-  // Derive active tabs dynamically from workflows with active status
-  const activeTabs = [
+  // Derive active tabs with Timesheet placed prominently upfront
+  const preferredModuleOrder: ModuleType[] = [
+    'timesheet',
+    'leave',
+    'overtime',
+    'claim',
+    'business_trip',
+    'resignation',
+  ]
+  const activeWorkflowModules = dummyWorkflows
+    .filter((w) => w.status === 'active')
+    .map((w) => w.module)
+
+  const activeTabs: string[] = [
     'all',
-    ...dummyWorkflows.filter((w) => w.status === 'active').map((w) => w.module),
+    ...preferredModuleOrder.filter((mod) => activeWorkflowModules.includes(mod)),
+    ...activeWorkflowModules.filter((mod) => !preferredModuleOrder.includes(mod)),
   ]
 
   // Dialog Confirmation State
@@ -226,7 +248,7 @@ export function ApprovalPage() {
       {/* Tabs Layout Container matching mockup */}
       <div className='flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-border/50 bg-card p-2 shadow-sm'>
         {/* Horizontal tabs list - scrollable, no scrollbar */}
-        <div className='no-scrollbar flex max-w-full flex-nowrap items-center gap-1 overflow-x-auto pb-1 sm:max-w-[400px] sm:pb-0 md:max-w-[550px] lg:max-w-[700px]'>
+        <div className='no-scrollbar flex min-w-0 flex-1 flex-nowrap items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0'>
           {activeTabs.map((type) => {
             const config = tabConfig[type] || { label: getModuleLabel(type), icon: IconCategory }
             const Icon = config.icon

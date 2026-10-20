@@ -10,12 +10,14 @@ import {
   TableHeader,
   TableRow,
 } from '@/shared/components/ui/table'
-import { overtimeRequests } from '@/features/overtime/components/overtime-data'
+import { useApprovalSyncStore } from '@/shared/lib/approval-sync-store'
 import { OvertimeStatus } from '@/features/overtime/components/overtime-shared'
 import { OvertimeTabs } from '@/features/overtime/components/overtime-tabs'
 import { m } from '@/i18n/paraglide/messages'
 
 export function OvertimeHistoryPage() {
+  const { overtimeList } = useApprovalSyncStore()
+
   return (
     <AppMain
       title={m.overtime_history_title()}
@@ -46,7 +48,7 @@ export function OvertimeHistoryPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {overtimeRequests.map((request) => (
+              {overtimeList.map((request) => (
                 <TableRow key={request.id}>
                   <TableCell className='text-xs font-medium'>{request.employee}</TableCell>
                   <TableCell className='text-xs'>

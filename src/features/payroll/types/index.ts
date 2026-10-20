@@ -300,6 +300,13 @@ export interface BpjsTkProjectSetting {
   jpActive: boolean
 }
 
+/** Kebijakan apakah absensi (alpa & telat) memotong payroll untuk karyawan pada project ini. */
+export interface ProjectAttendancePayrollPolicy {
+  attendanceAffectsPayroll: boolean
+  deductAbsence: boolean
+  deductLate: boolean
+}
+
 /** Batas maksimal dasar upah (cap) dengan tanggal berlaku. */
 export interface WageCapRule {
   id: string

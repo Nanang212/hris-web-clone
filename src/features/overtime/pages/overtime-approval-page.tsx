@@ -76,7 +76,7 @@ export function OvertimeApprovalPage() {
       ]}
       className='gap-5 bg-muted/30'
     >
-      <OvertimeTabs active='approval' />
+      <OvertimeTabs active='requests' />
       <div className='grid gap-3 sm:grid-cols-2 xl:grid-cols-4'>
         <OvertimeStat
           icon={IconClockHour4}

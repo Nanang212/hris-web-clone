@@ -1,4 +1,4 @@
-import { IconCalendar, IconMapPin, IconUsers } from '@tabler/icons-react'
+import { IconCalendar, IconClockHour4, IconMapPin, IconUsers } from '@tabler/icons-react'
 import dayjs from 'dayjs'
 
 import { AppMain } from '@/shared/components/app-layout/app-main'
@@ -82,8 +82,38 @@ export function ProjectDetailPage({ projectId }: Readonly<ProjectDetailPageProps
                 <dt className='text-muted-foreground'>{m.company_project_description()}</dt>
                 <dd className='font-medium'>{project.description || '-'}</dd>
               </div>
+              <div className='md:col-span-2 border-t border-border/60 pt-4 mt-1'>
+                <dt className='text-muted-foreground flex items-center gap-1.5 font-semibold text-xs'>
+                  <IconClockHour4 className='size-4 text-primary' />
+                  Kebijakan Absensi & Penggajian
+                </dt>
+                <dd className='mt-2 flex flex-wrap items-center gap-3'>
+                  <Badge
+                    variant={
+                      project.attendancePolicy?.attendanceAffectsPayroll === false
+                        ? 'amber'
+                        : 'emerald'
+                    }
+                    className='text-xs font-semibold'
+                  >
+                    {project.attendancePolicy?.attendanceAffectsPayroll === false
+                      ? 'Non-Mandatory Payroll (Gaji Utuh)'
+                      : 'Absensi Memotong Payroll (No Work No Pay)'}
+                  </Badge>
+                  <span className='text-xs text-muted-foreground'>
+                    {project.attendancePolicy?.attendanceAffectsPayroll === false
+                      ? 'Absensi harian tidak memotong gaji pokok & bebas denda keterlambatan.'
+                      : `Potong Alpa: ${
+                          project.attendancePolicy?.deductAbsence !== false ? 'Ya' : 'Tidak'
+                        } • Denda Telat: ${
+                          project.attendancePolicy?.deductLate !== false ? 'Ya' : 'Tidak'
+                        }`}
+                  </span>
+                </dd>
+              </div>
             </dl>
           </CardContent>
+
         </Card>
 
         {/* Assigned Employees Card */}

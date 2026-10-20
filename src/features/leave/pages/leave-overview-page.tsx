@@ -22,7 +22,8 @@ import {
   TableRow,
 } from '@/shared/components/ui/table'
 import { cn } from '@/shared/lib/utils'
-import { leaveBalances, leaveRequests } from '@/features/leave/components/leave-data'
+import { leaveBalances } from '@/features/leave/components/leave-data'
+import { useApprovalSyncStore } from '@/shared/lib/approval-sync-store'
 import { LeaveTabs } from '@/features/leave/components/leave-tabs'
 import {
   formatLeavePeriod,
@@ -96,6 +97,7 @@ function QuickAction({ icon: Icon, title, description }: Readonly<QuickActionPro
 }
 
 export function LeaveOverviewPage() {
+  const { leaves } = useApprovalSyncStore()
   const quickActions: QuickActionProps[] = [
     {
       icon: IconCalendarPlus,
@@ -199,7 +201,7 @@ export function LeaveOverviewPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {leaveRequests.map((request) => (
+                {leaves.map((request) => (
                   <TableRow key={`${request.employee}-${request.startDate}`}>
                     <TableCell className='text-xs font-medium'>{request.employee}</TableCell>
                     <TableCell className='text-xs'>

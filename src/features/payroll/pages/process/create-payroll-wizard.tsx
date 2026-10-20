@@ -24,6 +24,7 @@ import {
   isEmployeeComponentEffective,
   usePayrollComponentStore,
 } from '../../store/payroll-component-store'
+import { useProjects } from '@/features/company/project/data/dummy-projects'
 import { usePayrollTaxInputStore } from '../../store/payroll-tax-input-store'
 import { usePayrollRunStore } from '../../store/payroll-run-store'
 import type { PayrollRun } from '../../types'
@@ -91,6 +92,7 @@ export function CreatePayrollWizard({ onCancel, onSuccess }: CreatePayrollWizard
   const employeeComponents = usePayrollComponentStore((s) => s.employeeComponents)
   const taxYearToDateOverrides = usePayrollTaxInputStore((s) => s.taxYearToDateOverrides)
   const applyPayrollPeriod = usePayrollComponentStore((s) => s.applyPayrollPeriod)
+  const projects = useProjects()
 
   const hqCount = initialPayrollEmployeeInputs.filter((e) => e.workLocation === HQ_LOCATION).length
   const allCount = initialPayrollEmployeeInputs.length
@@ -223,6 +225,12 @@ export function CreatePayrollWizard({ onCancel, onSuccess }: CreatePayrollWizard
         return
       }
 
+      const projectAttendancePolicies = Object.fromEntries(
+        projects
+          .filter((p) => p.attendancePolicy)
+          .map((p) => [p.id, p.attendancePolicy!]),
+      )
+
       const result = calculatePayroll({
         employees,
         billing: billingUpload?.records ?? [],
@@ -234,6 +242,7 @@ export function CreatePayrollWizard({ onCancel, onSuccess }: CreatePayrollWizard
         pph21Config: initialPph21Config,
         generalConfig: initialGeneralConfig,
         includeThrInstallment: syncThrTaxInstallment,
+        projectAttendancePolicies,
       })
 
       setIsCalculating(false)

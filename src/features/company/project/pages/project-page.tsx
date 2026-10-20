@@ -35,6 +35,13 @@ import {
 } from '@/shared/components/ui/dropdown-menu'
 import { Input } from '@/shared/components/ui/input'
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/shared/components/ui/select'
+import {
   Table,
   TableBody,
   TableCell,
@@ -42,6 +49,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/shared/components/ui/table'
+import { TablePagination } from '@/shared/components/ui/table-pagination'
 import { snackbar } from '@/shared/lib/snackbar'
 import { useClients } from '@/features/company/client/data/dummy-clients'
 import { m } from '@/i18n/paraglide/messages'
@@ -76,6 +84,10 @@ export function ProjectPage() {
   const projectList = useProjects()
   const clientList = useClients()
   const [search, setSearch] = useState('')
+  const [clientFilter, setClientFilter] = useState('all')
+  const [statusFilter, setStatusFilter] = useState('all')
+  const [currentPage, setCurrentPage] = useState(1)
+  const [pageSize, setPageSize] = useState(10)
   const [deleteTarget, setDeleteTarget] = useState<Project | null>(null)
   const [selectedProjectForDetail, setSelectedProjectForDetail] = useState<Project | null>(null)
 
@@ -83,16 +95,35 @@ export function ProjectPage() {
     () => new Map(clientList.map((client) => [client.id, client.name])),
     [clientList],
   )
-  const projects = useMemo(() => {
-    const keyword = search.trim().toLowerCase()
-    if (!keyword) return projectList
 
-    return projectList.filter((project) =>
-      [project.code, project.name, project.industryField, clientNameById.get(project.clientId)]
-        .filter(Boolean)
-        .some((value) => value?.toLowerCase().includes(keyword)),
-    )
-  }, [clientNameById, projectList, search])
+  const filteredProjects = useMemo(() => {
+    const keyword = search.trim().toLowerCase()
+    return projectList.filter((project) => {
+      if (clientFilter !== 'all' && project.clientId !== clientFilter) {
+        return false
+      }
+      if (statusFilter !== 'all' && project.status !== statusFilter) {
+        return false
+      }
+      if (!keyword) return true
+
+      const clientName = clientNameById.get(project.clientId) || ''
+      return (
+        project.code.toLowerCase().includes(keyword) ||
+        project.name.toLowerCase().includes(keyword) ||
+        (project.industryField && project.industryField.toLowerCase().includes(keyword)) ||
+        clientName.toLowerCase().includes(keyword)
+      )
+    })
+  }, [clientFilter, clientNameById, projectList, search, statusFilter])
+
+  const totalPages = Math.max(1, Math.ceil(filteredProjects.length / pageSize))
+  const safeCurrentPage = Math.min(currentPage, totalPages)
+
+  const paginatedProjects = useMemo(() => {
+    const start = (safeCurrentPage - 1) * pageSize
+    return filteredProjects.slice(start, start + pageSize)
+  }, [filteredProjects, safeCurrentPage, pageSize])
 
   const activeProjects = projectList.filter((project) => project.status === 'ONGOING').length
   const completedProjects = projectList.filter((project) => project.status === 'COMPLETED').length
@@ -170,19 +201,73 @@ export function ProjectPage() {
             )
           })}
         </div>
-        <div className='flex flex-wrap items-center gap-3 rounded-2xl border border-border/60 bg-card p-4 shadow-sm'>
-          <div className='relative w-full md:max-w-sm'>
-            <IconSearch className='absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground' />
-            <Input
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder={m.company_project_search_placeholder()}
-              className='pl-9'
-            />
+
+        {/* ── Filter and Action Bar ── */}
+        <div className='flex flex-col items-stretch justify-between gap-3 rounded-2xl border border-border/80 bg-card p-4 lg:flex-row lg:items-center shadow-xs'>
+          <div className='flex min-w-0 flex-1 flex-wrap items-center gap-2.5'>
+            {/* Search Input */}
+            <div className='relative w-full sm:w-64'>
+              <IconSearch
+                size={14}
+                className='absolute top-1/2 left-3 -translate-y-1/2 text-muted-foreground'
+              />
+              <Input
+                value={search}
+                onChange={(event) => {
+                  setSearch(event.target.value)
+                  setCurrentPage(1)
+                }}
+                placeholder={m.company_project_search_placeholder()}
+                className='h-9 w-full rounded-xl bg-background pl-9 text-xs'
+              />
+            </div>
+
+            {/* Client Filter */}
+            <Select
+              value={clientFilter}
+              onValueChange={(val) => {
+                setClientFilter(val)
+                setCurrentPage(1)
+              }}
+            >
+              <SelectTrigger className='h-9 w-full rounded-xl bg-background text-xs sm:w-44'>
+                <SelectValue placeholder='Semua Klien' />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value='all'>Semua Klien</SelectItem>
+                {clientList.map((client) => (
+                  <SelectItem key={client.id} value={client.id}>
+                    {client.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {/* Status Filter */}
+            <Select
+              value={statusFilter}
+              onValueChange={(val) => {
+                setStatusFilter(val)
+                setCurrentPage(1)
+              }}
+            >
+              <SelectTrigger className='h-9 w-full rounded-xl bg-background text-xs sm:w-36'>
+                <SelectValue placeholder='Semua Status' />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value='all'>Semua Status</SelectItem>
+                <SelectItem value='PLANNING'>{m.company_project_status_planning()}</SelectItem>
+                <SelectItem value='ONGOING'>{m.company_project_status_ongoing()}</SelectItem>
+                <SelectItem value='ON_HOLD'>{m.company_project_status_on_hold()}</SelectItem>
+                <SelectItem value='COMPLETED'>{m.company_project_status_completed()}</SelectItem>
+                <SelectItem value='CANCELLED'>{m.company_project_status_cancelled()}</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
-          <div className='ml-auto flex w-full items-center justify-between gap-3 sm:w-auto'>
+
+          <div className='flex items-center justify-between gap-3 sm:justify-end'>
             <span className='text-xs font-medium text-muted-foreground'>
-              {m.company_project_count({ count: projects.length })}
+              {filteredProjects.length} proyek ditemukan
             </span>
             <Button
               type='button'
@@ -199,13 +284,18 @@ export function ProjectPage() {
         </div>
 
         <div className='overflow-hidden rounded-2xl border border-border/60 bg-card shadow-sm'>
-          <div className='border-b border-border/60 p-5'>
-            <h3 className='text-sm font-bold text-foreground'>
-              {m.company_project_table_project()}
-            </h3>
-            <p className='mt-0.5 text-xs text-muted-foreground'>
-              {m.company_project_form_description()}
-            </p>
+          <div className='border-b border-border/60 p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2'>
+            <div>
+              <h3 className='text-sm font-bold text-foreground'>
+                {m.company_project_table_project()}
+              </h3>
+              <p className='mt-0.5 text-xs text-muted-foreground'>
+                {m.company_project_form_description()}
+              </p>
+            </div>
+            <span className='text-xs font-medium text-muted-foreground'>
+              Menampilkan {paginatedProjects.length} dari {filteredProjects.length} proyek
+            </span>
           </div>
           <Table>
             <TableHeader>
@@ -221,21 +311,21 @@ export function ProjectPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {projects.length === 0 ? (
+              {paginatedProjects.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={8} className='h-32 text-center text-sm text-muted-foreground'>
                     {m.company_project_empty()}
                   </TableCell>
                 </TableRow>
               ) : (
-                projects.map((project, index) => {
+                paginatedProjects.map((project, index) => {
                   const locationCount = project.addresses.length
                   const employeeCount = project.employeeIds?.length ?? 0
 
                   return (
                     <TableRow key={project.id} className='transition-colors hover:bg-muted/30'>
                       <TableCell className='text-center text-xs font-semibold text-muted-foreground'>
-                        {index + 1}
+                        {(safeCurrentPage - 1) * pageSize + index + 1}
                       </TableCell>
                       <TableCell>
                         <button
@@ -248,12 +338,20 @@ export function ProjectPage() {
                           </div>
                           <div>
                             <div className='font-semibold group-hover:underline'>{project.name}</div>
-                            <div className='font-mono text-xs text-muted-foreground'>
-                              {project.code}
+                            <div className='flex items-center gap-1.5 mt-0.5'>
+                              <span className='font-mono text-xs text-muted-foreground'>
+                                {project.code}
+                              </span>
+                              {project.attendancePolicy?.attendanceAffectsPayroll === false && (
+                                <span className='rounded bg-amber-100 px-1.5 py-0.2 text-[10px] font-semibold text-amber-800 dark:bg-amber-950/60 dark:text-amber-300'>
+                                  Gaji Utuh (Non-Deductible)
+                                </span>
+                              )}
                             </div>
                           </div>
                         </button>
                       </TableCell>
+
                       <TableCell>
                         {clientNameById.get(project.clientId) ?? project.clientId}
                       </TableCell>
@@ -317,6 +415,20 @@ export function ProjectPage() {
               )}
             </TableBody>
           </Table>
+
+          {/* Table Pagination */}
+          <TablePagination
+            itemLabel='proyek'
+            totalItems={filteredProjects.length}
+            currentPage={safeCurrentPage}
+            pageSize={pageSize}
+            onPageChange={setCurrentPage}
+            onPageSizeChange={(newSize) => {
+              setPageSize(newSize)
+              setCurrentPage(1)
+            }}
+            pageSizeOptions={[5, 10, 20, 50]}
+          />
         </div>
       </div>
 

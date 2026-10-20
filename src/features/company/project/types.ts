@@ -8,6 +8,18 @@ export interface ProjectAddress {
   geofenceRadiusMeters?: number | null
 }
 
+export interface ProjectAttendancePayrollPolicy {
+  /**
+   * Apakah absensi (alpa/terlambat) mempengaruhi perhitungan penggajian karyawan di project ini.
+   * Default: true. Jika false, absensi tetap dicatat tapi tidak memotong gaji / tidak mengenakan denda telat.
+   */
+  attendanceAffectsPayroll: boolean
+  /** Potong gaji pokok bila ada hari tanpa keterangan / alpa (No Work No Pay) */
+  deductAbsence: boolean
+  /** Potong denda nominal bila ada keterlambatan masuk kerja */
+  deductLate: boolean
+}
+
 export interface Project {
   id: string
   clientId: string
@@ -22,6 +34,8 @@ export interface Project {
   employeeIds?: string[]
   assignmentStartDate?: string | null
   assignmentEndDate?: string | null
+  attendancePolicy?: ProjectAttendancePayrollPolicy
   createdAt: string
   updatedAt: string
 }
+

@@ -21,6 +21,7 @@ import type {
   PayrollEmployeeInput,
   PayrollLine,
   Pph21Config,
+  ProjectAttendancePayrollPolicy,
   WageCapRule,
 } from '../types'
 import {
@@ -52,6 +53,8 @@ export interface CalculatePayrollParams {
   includeThrInstallment?: boolean
   /** Denda per keterlambatan. Default: Rp 50.000. */
   latePenaltyPerOccurrence?: number
+  /** Kebijakan absensi per project (apakah absensi memotong gaji alpa & telat). Map dari projectId -> ProjectAttendancePayrollPolicy. */
+  projectAttendancePolicies?: Record<string, ProjectAttendancePayrollPolicy>
 }
 
 const sum = (values: number[]) => values.reduce((acc, v) => acc + v, 0)
@@ -68,6 +71,7 @@ export function calculatePayroll(params: CalculatePayrollParams): PayrollCalcula
     generalConfig,
     includeThrInstallment = true,
     latePenaltyPerOccurrence = 50_000,
+    projectAttendancePolicies,
   } = params
 
   const bpjsKesConfig = bpjsKesConfigForPeriod(params.bpjsKesConfig, wageCapRules, periodKey)
@@ -98,11 +102,19 @@ export function calculatePayroll(params: CalculatePayrollParams): PayrollCalcula
         ? rp((overtimeHours * emp.baseSalary) / generalConfig.overtimeHourlyRateDivider)
         : 0
     const overtimePay = manualOvertimePay + calculatedOvertimePay
+
+    // Kebijakan absensi per project (apakah absensi memotong gaji alpa & denda telat)
+    const projectPolicy = projectAttendancePolicies?.[emp.projectId]
+    const attendanceAffectsPayroll = projectPolicy?.attendanceAffectsPayroll ?? true
+    const shouldDeductAbsence = attendanceAffectsPayroll && (projectPolicy?.deductAbsence ?? true)
+    const shouldDeductLate = attendanceAffectsPayroll && (projectPolicy?.deductLate ?? true)
+
     const unpaidLeaveDeduction =
-      manualAttendanceReduction === 0 && absentCount > 0 && workingDays > 0
+      shouldDeductAbsence && manualAttendanceReduction === 0 && absentCount > 0 && workingDays > 0
         ? rp((absentCount * emp.baseSalary) / workingDays)
         : 0
-    const lateDeduction = lateCount > 0 ? rp(lateCount * latePenaltyPerOccurrence) : 0
+    const lateDeduction =
+      shouldDeductLate && lateCount > 0 ? rp(lateCount * latePenaltyPerOccurrence) : 0
 
     if (calculatedOvertimePay > 0) {
       lines.push({

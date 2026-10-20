@@ -1,4 +1,3 @@
-// src/features/travel-expense/claim/pages/claim-management-page.tsx
 import {
   IconChecklist,
   IconHistory,
@@ -7,6 +6,7 @@ import {
   IconReceiptTax,
   IconSparkles,
 } from '@tabler/icons-react'
+import { Link } from '@tanstack/react-router'
 import { useState } from 'react'
 import { ClaimApprovalTab } from '../components/claim-approval-tab'
 import { ClaimCreateTab } from '../components/claim-create-tab'
@@ -21,7 +21,7 @@ import { Button } from '@/shared/components/ui/button'
 import { snackbar } from '@/shared/lib/snackbar'
 
 export function ClaimManagementPage() {
-  const [activeTab, setActiveTab] = useState<'list' | 'create' | 'approvals' | 'history'>('list')
+  const [activeTab, setActiveTab] = useState<'list' | 'create' | 'history'>('list')
   const { claims, approve: syncApprove, reject: syncReject, addClaim: syncAddClaim } = useApprovalSyncStore()
 
   // Modals state
@@ -55,10 +55,10 @@ export function ClaimManagementPage() {
     if (!actionDialog.claim) return
     const claim = actionDialog.claim
     if (actionDialog.action === 'approve') {
-      syncApprove(claim.id, note || 'Disetujui dari menu Claim & Reimbursement.')
+      syncApprove(claim.id, note || 'Disetujui dari menu Persetujuan.')
       snackbar.success('Pengajuan klaim berhasil disetujui!')
     } else {
-      syncReject(claim.id, note || 'Ditolak dari menu Claim & Reimbursement.')
+      syncReject(claim.id, note || 'Ditolak dari menu Persetujuan.')
       snackbar.error('Pengajuan klaim telah ditolak.')
     }
   }
@@ -66,7 +66,9 @@ export function ClaimManagementPage() {
   const handleCreateSuccess = (newClaim: ClaimRecord) => {
     syncAddClaim(newClaim)
     setActiveTab('list')
-    snackbar.success(`Klaim ${newClaim.claimNumber} berhasil diajukan!`)
+    snackbar.success(
+      `Klaim ${newClaim.claimNumber} berhasil diajukan! Menunggu persetujuan atasan di menu Persetujuan.`,
+    )
   }
 
   const pendingCount = claims.filter((c) => c.status === 'pending').length
@@ -147,24 +149,6 @@ export function ClaimManagementPage() {
 
           <button
             type='button'
-            onClick={() => setActiveTab('approvals')}
-            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
-              activeTab === 'approvals'
-                ? 'bg-card text-foreground shadow-xs'
-                : 'text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            <IconChecklist size={14} />
-            Persetujuan
-            {pendingCount > 0 && (
-              <Badge className='size-4 p-0 flex items-center justify-center text-[9px] bg-amber-500 text-white rounded-full'>
-                {pendingCount}
-              </Badge>
-            )}
-          </button>
-
-          <button
-            type='button'
             onClick={() => setActiveTab('history')}
             className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
               activeTab === 'history'
@@ -193,15 +177,6 @@ export function ClaimManagementPage() {
         <ClaimCreateTab
           onSuccess={handleCreateSuccess}
           onCancel={() => setActiveTab('list')}
-        />
-      )}
-
-      {activeTab === 'approvals' && (
-        <ClaimApprovalTab
-          claims={claims}
-          onViewDetail={handleViewDetail}
-          onApprove={(claim) => handleOpenAction(claim, 'approve')}
-          onReject={(claim) => handleOpenAction(claim, 'reject')}
         />
       )}
 

@@ -30,6 +30,20 @@ export const dummyWorkflows: Workflow[] = [
     createdBy: 'Admin HR',
   },
   {
+    id: 'wf-010',
+    name: 'Timesheet & Presensi Bulanan',
+    description: 'Persetujuan lembar presensi dan SPKL lembur bertingkat (Head Departemen -> Head Divisi)',
+    module: 'timesheet',
+    status: 'active',
+    totalLevels: 2,
+    totalRequests: 84,
+    avgProcessingDays: 1.5,
+    pendingRequests: 5,
+    createdAt: '2025-03-01',
+    updatedAt: '2026-08-01',
+    createdBy: 'Admin HR Operations',
+  },
+  {
     id: 'wf-003',
     name: 'Claim & Reimbursement Approval',
     description: 'Verifikasi struk OCR dan persetujuan klaim biaya operasional',
@@ -480,6 +494,7 @@ export const dummyMatrixEntries: MatrixEntry[] = [
 ]
 
 export const moduleLabels: Record<string, string> = {
+  timesheet: 'Timesheet / Absensi',
   leave: 'Cuti',
   overtime: 'Lembur',
   claim: 'Klaim Reimbursement',
@@ -492,6 +507,7 @@ export const moduleLabels: Record<string, string> = {
 }
 
 export const moduleColors: Record<string, string> = {
+  timesheet: 'bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300 border border-teal-200/60',
   leave: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 border border-blue-200/60',
   overtime: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300 border border-amber-200/60',
   claim: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300 border border-emerald-200/60',
