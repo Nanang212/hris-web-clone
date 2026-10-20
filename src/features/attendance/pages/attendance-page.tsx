@@ -1,372 +1,156 @@
-import {
-  IconAlarm,
-  IconArrowRight,
-  IconBell,
-  IconCalendarEvent,
-  IconCalendarTime,
-  IconChecklist,
-  IconClock,
-  IconFileText,
-  IconGridDots,
-  IconMapPin,
-  IconPlane,
-  IconReceipt,
-  IconRosetteDiscountCheck,
-} from '@tabler/icons-react'
-import { Link } from '@tanstack/react-router'
+import dayjs from 'dayjs'
+import { useState } from 'react'
 
 import { AppMain } from '@/shared/components/app-layout/app-main'
-import { Button } from '@/shared/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card'
+import { Card, CardContent, CardHeader } from '@/shared/components/ui/card'
+import { DatePicker } from '@/shared/components/ui/date-picker'
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/shared/components/ui/table'
-import { cn } from '@/shared/lib/utils'
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/shared/components/ui/select'
+import { Skeleton } from '@/shared/components/ui/skeleton'
 import { getAttendanceBreadcrumbs } from '@/features/attendance/components/attendance-breadcrumbs'
+import { AttendanceOverviewHistory } from '@/features/attendance/components/attendance-overview-history'
+import { AttendanceOverviewPanels } from '@/features/attendance/components/attendance-overview-panels'
 import { AttendanceTabs } from '@/features/attendance/components/attendance-tabs'
+import { useGetAttendanceOverview } from '@/features/attendance/hooks'
 import { m } from '@/i18n/paraglide/messages'
 
-interface AttendanceStatProps {
-  icon: typeof IconRosetteDiscountCheck
-  iconClassName: string
-  label: string
-  value: string
-  percentage: string
-  percentageClassName: string
-}
-
-interface QuickMenuItemProps {
-  icon: typeof IconCalendarEvent
-  label: string
-  iconClassName: string
-  to:
-    | '/leave'
-    | '/overtime'
-    | '/travel-expense/claim'
-    | '/travel-expense/business-trip'
-    | '/attendance/history'
-    | '/payroll'
-    | '/attendance/calendar'
-    | '/attendance/all-menu'
-}
-
-function AttendanceStat({
-  icon: Icon,
-  iconClassName,
-  label,
-  value,
-  percentage,
-  percentageClassName,
-}: Readonly<AttendanceStatProps>) {
+function AttendanceOverviewSkeleton() {
   return (
-    <Card>
-      <CardContent className='p-4'>
-      <div className='flex items-center gap-3'>
-        <div className={cn('flex size-10 items-center justify-center rounded-xl', iconClassName)}>
-          <Icon className='size-5' stroke={2} />
-        </div>
-        <div>
-          <p className='text-[26px] leading-7 font-bold tracking-tight'>{value}</p>
-          <p className='text-xs text-muted-foreground'>{label}</p>
+    <div className='flex flex-col gap-5' aria-label={m.attendance_overview_title()}>
+      <Skeleton className='h-11 w-full max-w-4xl' />
+      <div className='flex flex-wrap items-center justify-between gap-3'>
+        <Skeleton className='h-6 w-48' />
+        <div className='flex gap-2'>
+          <Skeleton className='h-9 w-44' />
+          <Skeleton className='h-9 w-40' />
         </div>
       </div>
-      <p className={cn('mt-4 text-xs font-semibold', percentageClassName)}>{percentage}</p>
-      </CardContent>
-    </Card>
-  )
-}
-
-function QuickMenuItem({ icon: Icon, label, iconClassName, to }: Readonly<QuickMenuItemProps>) {
-  return (
-    <Button asChild variant='ghost' className='h-auto min-h-19 w-full justify-start p-0'>
-      <Link
-        to={to}
-        className='flex w-full min-w-0 flex-col items-start justify-between rounded-xl border border-border bg-background p-3 text-left transition-colors hover:bg-muted/60'
-      >
-        <span
-          className={cn(
-            'flex size-8 shrink-0 items-center justify-center rounded-lg',
-            iconClassName,
-          )}
-        >
-          <Icon className='size-4' stroke={2} />
-        </span>
-        <span className='min-w-0 text-xs leading-4 font-medium break-words whitespace-normal'>
-          {label}
-        </span>
-      </Link>
-    </Button>
+      <div className='grid gap-3 sm:grid-cols-2 xl:grid-cols-4'>
+        {Array.from({ length: 4 }, (_, index) => (
+          <Card key={index} size='sm'>
+            <CardContent className='flex flex-col gap-4'>
+              <Skeleton className='size-9' />
+              <Skeleton className='h-7 w-24' />
+              <Skeleton className='h-4 w-32' />
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+      <div className='grid gap-4 xl:grid-cols-2'>
+        {Array.from({ length: 4 }, (_, index) => (
+          <Card key={index}>
+            <CardHeader>
+              <Skeleton className='h-5 w-40' />
+              <Skeleton className='h-4 w-56' />
+            </CardHeader>
+            <CardContent>
+              <Skeleton className='h-44 w-full' />
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+      <Card>
+        <CardHeader>
+          <Skeleton className='h-6 w-60' />
+        </CardHeader>
+        <CardContent className='flex flex-col gap-3'>
+          {Array.from({ length: 5 }, (_, index) => (
+            <Skeleton key={index} className='h-10 w-full' />
+          ))}
+        </CardContent>
+      </Card>
+    </div>
   )
 }
 
 export function AttendancePage() {
-  const menuItems = [
-    {
-      icon: IconCalendarEvent,
-      label: m.attendance_quick_menu_leave(),
-      iconClassName: 'bg-emerald-50 text-emerald-600',
-      to: '/leave',
-    },
-    {
-      icon: IconClock,
-      label: m.attendance_quick_menu_overtime(),
-      iconClassName: 'bg-orange-50 text-orange-500',
-      to: '/overtime',
-    },
-    {
-      icon: IconFileText,
-      label: m.attendance_quick_menu_claim(),
-      iconClassName: 'bg-blue-50 text-blue-600',
-      to: '/travel-expense/claim',
-    },
-    {
-      icon: IconPlane,
-      label: m.attendance_quick_menu_business_trip(),
-      iconClassName: 'bg-blue-50 text-blue-600',
-      to: '/travel-expense/business-trip',
-    },
-    {
-      icon: IconChecklist,
-      label: m.attendance_quick_menu_log(),
-      iconClassName: 'bg-blue-50 text-blue-600',
-      to: '/attendance/history',
-    },
-    {
-      icon: IconReceipt,
-      label: m.attendance_quick_menu_payslip(),
-      iconClassName: 'bg-cyan-50 text-cyan-600',
-      to: '/payroll',
-    },
-    {
-      icon: IconCalendarTime,
-      label: m.attendance_quick_menu_calendar(),
-      iconClassName: 'bg-slate-100 text-slate-500',
-      to: '/attendance/calendar',
-    },
-    {
-      icon: IconGridDots,
-      label: m.attendance_quick_menu_all(),
-      iconClassName: 'bg-slate-100 text-slate-500',
-      to: '/attendance/all-menu',
-    },
-  ]
+  const [date, setDate] = useState(() => dayjs().format('YYYY-MM-DD'))
+  const [departmentId, setDepartmentId] = useState('all')
+  const overviewQuery = useGetAttendanceOverview({
+    date,
+    departmentId: departmentId === 'all' ? undefined : departmentId,
+  })
+  const { data, isPending, error, refetch } = overviewQuery
+  const breadcrumbs = getAttendanceBreadcrumbs(m.attendance_tab_overview())
+
+  if (isPending || error || !data) {
+    return (
+      <AppMain
+        title={m.attendance_overview_title()}
+        subtitle={m.attendance_overview_subtitle()}
+        breadcrumbs={breadcrumbs}
+        pending={isPending}
+        error={error}
+        notFound={!isPending && !error && !data}
+        retry={refetch}
+        loadingComponent={<AttendanceOverviewSkeleton />}
+      />
+    )
+  }
+
+  const departmentName =
+    departmentId === 'all'
+      ? m.attendance_overview_all_departments()
+      : (data.departments.find((department) => department.id === departmentId)?.name ??
+        m.attendance_overview_all_departments())
+  const isToday = dayjs(date).isSame(dayjs(), 'day')
 
   return (
     <AppMain
       title={m.attendance_overview_title()}
       subtitle={m.attendance_overview_subtitle()}
-      breadcrumbs={getAttendanceBreadcrumbs()}
-      className='gap-5 bg-muted/30'
+      breadcrumbs={breadcrumbs}
+      className='gap-5'
     >
       <AttendanceTabs active='overview' />
 
-      <div className='grid gap-3 sm:grid-cols-2 xl:grid-cols-4'>
-        <AttendanceStat
-          icon={IconRosetteDiscountCheck}
-          iconClassName='bg-emerald-50 text-emerald-600'
-          value='1,183'
-          label={m.attendance_stat_present()}
-          percentage='94.7%'
-          percentageClassName='text-emerald-600'
-        />
-        <AttendanceStat
-          icon={IconClock}
-          iconClassName='bg-orange-50 text-orange-500'
-          value='45'
-          label={m.attendance_stat_late()}
-          percentage='3.6%'
-          percentageClassName='text-orange-500'
-        />
-        <AttendanceStat
-          icon={IconRosetteDiscountCheck}
-          iconClassName='bg-rose-50 text-rose-500'
-          value='20'
-          label={m.attendance_stat_absent()}
-          percentage='1.6%'
-          percentageClassName='text-rose-500'
-        />
-        <AttendanceStat
-          icon={IconCalendarEvent}
-          iconClassName='bg-emerald-50 text-emerald-600'
-          value='32'
-          label={m.attendance_stat_leave()}
-          percentage='2.6%'
-          percentageClassName='text-violet-600'
-        />
-      </div>
-
-      <div className='grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(430px,1fr)]'>
-        <Card>
-          <CardContent className='p-4'>
-          <div className='flex items-center justify-between gap-3'>
-            <h3 className='font-semibold'>{m.attendance_today_shift_title()}</h3>
-            <Button size='sm' variant='outline' className='rounded-lg' asChild>
-              <Link to='/attendance/management/shifts'>
-                <IconArrowRight />
-                {m.attendance_view_schedule()}
-              </Link>
-            </Button>
-          </div>
-          <div className='mt-4 flex gap-3'>
-            <span className='flex size-8 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-500'>
-              <IconCalendarEvent className='size-4' />
-            </span>
-            <div>
-              <p className='text-[26px] leading-7 font-bold tracking-tight'>09:00 – 18:00</p>
-              <p className='mt-1 text-xs text-muted-foreground'>{m.attendance_regular_hours()}</p>
-            </div>
-          </div>
-          <div className='mt-4 flex items-center gap-2 text-sm'>
-            <IconCalendarEvent className='size-4 text-slate-500' />
-            <span>{m.attendance_office_location()}</span>
-          </div>
-          <div className='mt-4 flex flex-wrap gap-2'>
-            <span className='rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-600'>
-              {m.attendance_requirement()}
-            </span>
-            <span className='rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700'>
-              <IconMapPin className='mr-1 inline size-3' />
-              {m.attendance_zone()}
-            </span>
-          </div>
-          <div className='mt-4 grid gap-2 sm:grid-cols-2'>
-            <Button className='rounded-lg' asChild>
-              <Link to='/attendance/clock-in-out'>
-                <IconAlarm />
-                {m.attendance_clock_in()}
-              </Link>
-            </Button>
-            <Button
-              variant='outline'
-              className='rounded-lg border-rose-100 text-rose-500 hover:bg-rose-50 hover:text-rose-600'
-              asChild
+      <div className='flex flex-wrap items-end justify-between gap-3'>
+        <h2 className='text-lg font-semibold'>{m.attendance_overview_summary_title()}</h2>
+        <div className='grid w-full min-w-0 grid-cols-2 gap-2 sm:flex sm:w-auto'>
+          <Select value={departmentId} onValueChange={setDepartmentId}>
+            <SelectTrigger
+              className='w-full min-w-0 sm:w-44'
+              aria-label={m.attendance_overview_department_filter()}
             >
-              <Link to='/attendance/clock-out'>
-                <IconClock />
-                {m.attendance_clock_out()}
-              </Link>
-            </Button>
-          </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className='p-4'>
-          <h3 className='font-semibold'>{m.attendance_quick_menu_title()}</h3>
-          <div className='mt-4 grid min-w-0 grid-cols-1 gap-3 min-[420px]:grid-cols-2 sm:grid-cols-4'>
-            {menuItems.map((item) => (
-              <QuickMenuItem key={item.label} {...item} />
-            ))}
-          </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className='grid gap-4 xl:grid-cols-2'>
-        <Card>
-          <CardContent className='flex min-h-28 items-start justify-between gap-4 p-4'>
-          <div className='flex gap-3'>
-            <span className='flex size-9 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600'>
-              <IconBell className='size-5' />
-            </span>
-            <div>
-              <h3 className='font-semibold'>{m.attendance_announcement_title()}</h3>
-              <p className='mt-2 text-xs leading-5 text-muted-foreground'>
-                {m.attendance_announcement_description()}
-              </p>
-            </div>
-          </div>
-          <Button size='sm' variant='outline' className='shrink-0 rounded-lg' asChild>
-            <Link to='/attendance/all-menu'>
-              <IconArrowRight />
-              {m.attendance_view_all()}
-            </Link>
-          </Button>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className='p-4'>
-          <div className='flex items-center justify-between'>
-            <h3 className='font-semibold'>{m.attendance_today_summary_title()}</h3>
-            <Button size='sm' variant='outline' className='rounded-lg' asChild>
-              <Link to='/attendance/history'>
-                <IconArrowRight />
-                {m.attendance_view_detail()}
-              </Link>
-            </Button>
-          </div>
-          <dl className='mt-4 grid grid-cols-4 gap-3 text-xs'>
-            <div>
-              <dt className='text-muted-foreground'>{m.attendance_summary_status()}</dt>
-              <dd className='mt-1 font-semibold text-emerald-600'>
-                {m.attendance_summary_before_clock_in()}
-              </dd>
-            </div>
-            <div>
-              <dt className='text-muted-foreground'>{m.attendance_summary_work_hours()}</dt>
-              <dd className='mt-1 font-semibold text-orange-500'>08:00</dd>
-            </div>
-            <div>
-              <dt className='text-muted-foreground'>{m.attendance_summary_duration()}</dt>
-              <dd className='mt-1 font-semibold text-blue-600'>–</dd>
-            </div>
-            <div>
-              <dt className='text-muted-foreground'>{m.attendance_summary_break()}</dt>
-              <dd className='mt-1 font-semibold text-blue-600'>–</dd>
-            </div>
-          </dl>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card className='min-w-0 overflow-hidden py-0'>
-        <CardHeader className='flex-row items-center justify-between p-4'>
-          <CardTitle>{m.attendance_recent_history_title()}</CardTitle>
-          <Button size='sm' variant='outline' className='rounded-lg' asChild>
-            <Link to='/attendance/history'>
-              <IconArrowRight />
-              {m.attendance_view_all()}
-            </Link>
-          </Button>
-        </CardHeader>
-        <CardContent className='overflow-x-auto px-0'>
-        <Table className='min-w-[640px]'>
-          <TableHeader className='bg-muted/50'>
-            <TableRow>
-              <TableHead>{m.attendance_table_date()}</TableHead>
-              <TableHead>{m.attendance_table_clock_in()}</TableHead>
-              <TableHead>{m.attendance_table_clock_out()}</TableHead>
-              <TableHead>{m.attendance_table_duration()}</TableHead>
-              <TableHead>{m.attendance_table_status()}</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {[
-              ['15 Mei 2024', '08:52', '17:30', '8j 38m'],
-              ['14 Mei 2024', '08:47', '17:32', '8j 45m'],
-            ].map((row) => (
-              <TableRow key={row[0]}>
-                {row.map((cell) => (
-                  <TableCell key={cell} className='text-xs'>
-                    {cell}
-                  </TableCell>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectItem value='all'>{m.attendance_overview_all_departments()}</SelectItem>
+                {data.departments.map((department) => (
+                  <SelectItem key={department.id} value={department.id}>
+                    {department.name}
+                  </SelectItem>
                 ))}
-                <TableCell>
-                  <span className='rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-600'>
-                    {m.attendance_status_present()}
-                  </span>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-        </CardContent>
-      </Card>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+          <DatePicker
+            mode='single'
+            selected={dayjs(date).toDate()}
+            onSelect={(selected) => {
+              if (selected) setDate(dayjs(selected).format('YYYY-MM-DD'))
+            }}
+            aria-label={m.attendance_overview_date_filter()}
+            className='w-full min-w-0 sm:w-auto sm:min-w-40'
+          />
+        </div>
+      </div>
+
+      <AttendanceOverviewPanels data={data} isToday={isToday} />
+      <AttendanceOverviewHistory
+        key={`${date}:${departmentId}`}
+        date={date}
+        departmentId={departmentId === 'all' ? undefined : departmentId}
+        departmentName={departmentName}
+        isToday={isToday}
+      />
     </AppMain>
   )
 }
