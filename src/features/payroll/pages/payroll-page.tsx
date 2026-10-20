@@ -177,6 +177,12 @@ export function PayrollPage({
           {processView === 'detail' && selectedRun && (
             <PayrollProcessDetail
               run={selectedRun}
+              onSynchronize={(updatedRun) => {
+                setRuns((prev) =>
+                  prev.map((item) => item.id === updatedRun.id ? updatedRun : item),
+                )
+                setSelectedRun(updatedRun)
+              }}
               onBack={() => {
                 setProcessView('list')
                 setSelectedRun(null)

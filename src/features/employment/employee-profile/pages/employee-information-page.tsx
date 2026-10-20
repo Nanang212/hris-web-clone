@@ -86,6 +86,7 @@ import {
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
@@ -112,7 +113,7 @@ import {
   useUpdateEmployeeInformationStatus,
 } from '@/features/employment/employee-profile/hooks'
 import type {
-  DepartmentDistributionItem,
+  ProjectDistributionItem,
   EmployeeInformationEmploymentType,
   EmployeeInformationFilterParams,
   EmployeeInformationItem,
@@ -244,40 +245,40 @@ function StatsGrid({ stats }: { stats: EmployeeInformationStats }) {
   )
 }
 
-function DepartmentDistribution({
+function ProjectDistribution({
   data,
   total,
 }: {
-  data: DepartmentDistributionItem[]
+  data: ProjectDistributionItem[]
   total: number
 }) {
   const config = useMemo<ChartConfig>(
     () =>
       Object.fromEntries(
-        data.map((item) => [item.departmentId, { label: item.departmentName, color: item.color }]),
+        data.map((item) => [item.projectId, { label: item.projectName, color: item.color }]),
       ),
     [data],
   )
   return (
     <Card size='sm'>
       <CardHeader>
-        <CardTitle>{m.employee_information_distribution_title()}</CardTitle>
+        <CardTitle>{m.employee_information_project_distribution_title()}</CardTitle>
       </CardHeader>
       <CardContent>
         <div className='relative mx-auto size-36'>
           <ChartContainer config={config} className='aspect-square size-36'>
             <PieChart>
-              <ChartTooltip content={<ChartTooltipContent nameKey='departmentName' />} />
+              <ChartTooltip content={<ChartTooltipContent nameKey='projectName' />} />
               <Pie
                 data={data}
                 dataKey='employeeCount'
-                nameKey='departmentName'
+                nameKey='projectName'
                 innerRadius={43}
                 outerRadius={62}
                 paddingAngle={2}
               >
                 {data.map((item) => (
-                  <Cell key={item.departmentId} fill={item.color} />
+                  <Cell key={item.projectId} fill={item.color} />
                 ))}
               </Pie>
             </PieChart>
@@ -285,18 +286,18 @@ function DepartmentDistribution({
           <div className='pointer-events-none absolute inset-0 flex flex-col items-center justify-center'>
             <span className='text-lg font-semibold'>{total.toLocaleString()}</span>
             <span className='text-[10px] text-muted-foreground'>
-              {m.employee_information_distribution_total()}
+              {m.employee_information_project_distribution_total()}
             </span>
           </div>
         </div>
         <div className='mt-3 space-y-2'>
           {data.map((item) => (
             <div
-              key={item.departmentId}
+              key={item.projectId}
               className='grid grid-cols-[auto_1fr_auto] items-center gap-2 text-xs'
             >
               <span className='size-2 rounded-full' style={{ backgroundColor: item.color }} />
-              <span className='truncate'>{item.departmentName}</span>
+              <span className='truncate'>{item.projectName}</span>
               <span className='text-muted-foreground'>
                 {item.employeeCount.toLocaleString()} ({item.percentage}%)
               </span>
@@ -621,7 +622,7 @@ export function EmployeeInformationPage() {
   const archiveMutation = useArchiveEmployeeInformation()
   const filterSchema = useSchema((z) => ({
     search: z.string().trim().max(100, { message: m.employee_information_search_invalid() }),
-    departmentId: z.string(),
+    projectId: z.string(),
     status: z.enum([ALL, 'Active', 'OnLeave', 'Probation', 'Resigned', 'Inactive']),
     employmentType: z.enum([ALL, 'Permanent', 'Contract', 'Internship', 'Freelance']),
   }))
@@ -635,7 +636,7 @@ export function EmployeeInformationPage() {
   }))
   const filterForm = useForm<z.infer<typeof filterSchema>>({
     resolver: zodResolver(filterSchema),
-    defaultValues: { search: '', departmentId: ALL, status: ALL, employmentType: ALL },
+    defaultValues: { search: '', projectId: ALL, status: ALL, employmentType: ALL },
   })
   const importForm = useForm<z.infer<typeof importSchema>>({ resolver: zodResolver(importSchema) })
   const statusForm = useForm<z.infer<typeof statusSchema>>({
@@ -675,7 +676,7 @@ export function EmployeeInformationPage() {
     setSelectedIds(new Set())
     setFilters({
       search: values.search || undefined,
-      departmentId: values.departmentId === ALL ? undefined : values.departmentId,
+      projectId: values.projectId === ALL ? undefined : values.projectId,
       status: values.status === ALL ? undefined : values.status,
       employmentType: values.employmentType === ALL ? undefined : values.employmentType,
       page: 1,
@@ -683,7 +684,7 @@ export function EmployeeInformationPage() {
     })
   }
   const handleReset = () => {
-    filterForm.reset({ search: '', departmentId: ALL, status: ALL, employmentType: ALL })
+    filterForm.reset({ search: '', projectId: ALL, status: ALL, employmentType: ALL })
     setSelectedIds(new Set())
     setFilters({ page: 1, limit: filters.limit })
   }
@@ -812,24 +813,37 @@ export function EmployeeInformationPage() {
                   <FieldError errors={[filterForm.formState.errors.search]} />
                 </Field>
                 <Field>
-                  <FieldLabel>{m.employee_information_department_label()}</FieldLabel>
+                  <FieldLabel>{m.employee_information_project_label()}</FieldLabel>
                   <Controller
                     control={filterForm.control}
-                    name='departmentId'
+                    name='projectId'
                     render={({ field }) => (
-                      <Select value={field.value} onValueChange={field.onChange}>
+                      <Select
+                        value={field.value}
+                        onValueChange={(projectId) => {
+                          field.onChange(projectId)
+                          setSelectedIds(new Set())
+                          setFilters((current) => ({
+                            ...current,
+                            projectId: projectId === ALL ? undefined : projectId,
+                            page: 1,
+                          }))
+                        }}
+                      >
                         <SelectTrigger className='w-full'>
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value={ALL}>
-                            {m.employee_information_all_departments()}
-                          </SelectItem>
-                          {overview.filterOptions.departments.map((option) => (
-                            <SelectItem key={option.value} value={option.value}>
-                              {option.label}
+                          <SelectGroup>
+                            <SelectItem value={ALL}>
+                              {m.employee_information_all_projects()}
                             </SelectItem>
-                          ))}
+                            {overview.filterOptions.projects.map((option) => (
+                              <SelectItem key={option.value} value={option.value}>
+                                {option.label}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
                         </SelectContent>
                       </Select>
                     )}
@@ -846,14 +860,16 @@ export function EmployeeInformationPage() {
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value={ALL}>
-                            {m.employee_information_all_statuses()}
-                          </SelectItem>
-                          {overview.filterOptions.statuses.map((status) => (
-                            <SelectItem key={status} value={status}>
-                              {getStatusLabel(status)}
+                          <SelectGroup>
+                            <SelectItem value={ALL}>
+                              {m.employee_information_all_statuses()}
                             </SelectItem>
-                          ))}
+                            {overview.filterOptions.statuses.map((status) => (
+                              <SelectItem key={status} value={status}>
+                                {getStatusLabel(status)}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
                         </SelectContent>
                       </Select>
                     )}
@@ -870,12 +886,14 @@ export function EmployeeInformationPage() {
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value={ALL}>{m.employee_information_all_types()}</SelectItem>
-                          {overview.filterOptions.employmentTypes.map((type) => (
-                            <SelectItem key={type} value={type}>
-                              {getEmploymentTypeLabel(type)}
-                            </SelectItem>
-                          ))}
+                          <SelectGroup>
+                            <SelectItem value={ALL}>{m.employee_information_all_types()}</SelectItem>
+                            {overview.filterOptions.employmentTypes.map((type) => (
+                              <SelectItem key={type} value={type}>
+                                {getEmploymentTypeLabel(type)}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
                         </SelectContent>
                       </Select>
                     )}
@@ -966,11 +984,13 @@ export function EmployeeInformationPage() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {[10, 20, 50].map((limit) => (
-                        <SelectItem key={limit} value={String(limit)}>
-                          {m.employee_information_per_page({ count: limit })}
-                        </SelectItem>
-                      ))}
+                      <SelectGroup>
+                        {[10, 20, 50].map((limit) => (
+                          <SelectItem key={limit} value={String(limit)}>
+                            {m.employee_information_per_page({ count: limit })}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
                     </SelectContent>
                   </Select>
                   <Pagination className='w-auto'>
@@ -1022,9 +1042,9 @@ export function EmployeeInformationPage() {
             )}
           </Card>
           <aside ref={sidebarRef} className='space-y-4'>
-            <DepartmentDistribution
-              data={overview.departmentDistribution}
-              total={overview.stats.totalEmployees}
+            <ProjectDistribution
+              data={overview.projectDistribution}
+              total={overview.projectDistribution.reduce((sum, item) => sum + item.employeeCount, 0)}
             />
             <QuickActions />
             <Card size='sm'>
@@ -1115,11 +1135,13 @@ export function EmployeeInformationPage() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {overview.filterOptions.statuses.map((status) => (
-                        <SelectItem key={status} value={status}>
-                          {getStatusLabel(status)}
-                        </SelectItem>
-                      ))}
+                      <SelectGroup>
+                        {overview.filterOptions.statuses.map((status) => (
+                          <SelectItem key={status} value={status}>
+                            {getStatusLabel(status)}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
                     </SelectContent>
                   </Select>
                 )}

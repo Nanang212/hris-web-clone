@@ -14,6 +14,7 @@ import {
   IconLoader2,
   IconInfoCircle,
   IconChecklist,
+  IconRefresh,
 } from '@tabler/icons-react'
 import { useMemo, useState } from 'react'
 import { EmployeePayrollBreakdownModal } from '../../components/employee-payroll-breakdown-modal'
@@ -60,6 +61,7 @@ import { exportPayrollRunToExcel } from '../../lib/payroll-export-excel'
 interface PayrollProcessDetailProps {
   run: PayrollRun
   onBack: () => void
+  onSynchronize: (run: PayrollRun) => void
   onSubmitForApproval: (runId: string) => void
   onNavigateToApproval?: (runId: string) => void
 }
@@ -67,6 +69,7 @@ interface PayrollProcessDetailProps {
 export function PayrollProcessDetail({
   run,
   onBack,
+  onSynchronize,
   onSubmitForApproval,
   onNavigateToApproval,
 }: PayrollProcessDetailProps) {
@@ -75,6 +78,7 @@ export function PayrollProcessDetail({
   const [isExporting, setIsExporting] = useState(false)
 
   const runResult = usePayrollRunStore((s) => s.resultsByRunId[run.id])
+  const setRunResult = usePayrollRunStore((s) => s.setRunResult)
   const [details, setDetails] = useState<EmployeePayrollDetail[]>(
     runResult?.details ?? initialEmployeePayrollDetails,
   )
@@ -125,6 +129,24 @@ export function PayrollProcessDetail({
   const totalGrossSum = details.reduce((acc, curr) => acc + curr.totalGross, 0)
   const totalDeductionsSum = details.reduce((acc, curr) => acc + curr.totalDeductions, 0)
   const totalNetDisbursementSum = details.reduce((acc, curr) => acc + curr.netTakeHomePay, 0)
+
+  const handleSynchronize = () => {
+    const synchronizedRun: PayrollRun = {
+      ...run,
+      totalEmployees,
+      totalGrossPay: totalGrossSum,
+      totalAllowances: totalGrossSum - details.reduce((sum, item) => sum + item.baseSalary, 0),
+      totalDeductions: totalDeductionsSum,
+      totalTaxPPh21: details.reduce((sum, item) => sum + item.pph21Tax, 0),
+      totalBpjsTK: details.reduce((sum, item) => sum + item.bpjsTkEmployee, 0),
+      totalBpjsKes: details.reduce((sum, item) => sum + item.bpjsKesEmployee, 0),
+      totalNetDisbursement: totalNetDisbursementSum,
+    }
+
+    setRunResult(run.id, { details, unmatchedBilling })
+    onSynchronize(synchronizedRun)
+    snackbar.success(m.payroll_run_detail_synchronize_success())
+  }
 
   const handleExport = async () => {
     setIsExporting(true)
@@ -235,6 +257,10 @@ export function PayrollProcessDetail({
         </div>
 
         <div className='flex items-center gap-2.5'>
+          <Button variant='outline' size='sm' onClick={handleSynchronize}>
+            <IconRefresh data-icon='inline-start' />
+            {m.payroll_run_detail_synchronize()}
+          </Button>
           <Button
             variant='outline'
             size='sm'
