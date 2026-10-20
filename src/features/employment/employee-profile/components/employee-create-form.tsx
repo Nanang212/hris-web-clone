@@ -225,6 +225,7 @@ function toUpdatePayload(
     status: employee.status,
     personalInformation: {
       fullName: form.employee.fullName,
+      ktpNumber: form.employee.ktpNumber,
       email: form.employee.personalEmail,
       phoneNumber: form.employee.phoneNumber || null,
       birthDate: form.employee.dateOfBirth || null,
@@ -308,6 +309,7 @@ export function EmployeeCreateForm({ options, mode = 'create', employee }: Emplo
       ...values.employee,
       employeeNumber: employee.employeeNumber,
       fullName: employee.personalInformation.fullName,
+      ktpNumber: employee.personalInformation.ktpNumber ?? '',
       personalEmail: employee.personalInformation.email,
       phoneNumber: employee.personalInformation.phoneNumber ?? '',
       dateOfBirth: employee.personalInformation.birthDate ?? '',

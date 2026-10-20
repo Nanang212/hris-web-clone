@@ -214,6 +214,7 @@ function createDefaultValues(employee: EmployeeInformationDetailData) {
 
   return {
     fullName: personal.fullName,
+    ktpNumber: personal.ktpNumber ?? '',
     email: personal.email,
     phoneNumber: personal.phoneNumber ?? '',
     birthDate: personal.birthDate ?? '',
@@ -288,6 +289,11 @@ export function EmployeeInformationEditSheet({
   const [activeTab, setActiveTab] = useState('personal')
   const formSchema = useSchema((z) => ({
     fullName: z.string().trim().min(1, { message: m.employee_information_edit_name_required() }),
+    ktpNumber: z
+      .string()
+      .trim()
+      .min(1, { message: m.employee_information_nik_required() })
+      .regex(/^\d{16}$/, { message: m.employee_information_nik_invalid() }),
     email: z.email({ message: m.employee_information_edit_email_invalid() }),
     phoneNumber: z
       .string()
@@ -467,6 +473,7 @@ export function EmployeeInformationEditSheet({
           removeProfilePhoto: formValues.removeProfilePhoto,
           personalInformation: {
             fullName: formValues.fullName,
+            ktpNumber: formValues.ktpNumber,
             email: formValues.email,
             phoneNumber: formValues.phoneNumber,
             birthDate: formValues.birthDate,
@@ -665,6 +672,15 @@ export function EmployeeInformationEditSheet({
                       label={m.employee_information_detail_field_full_name()}
                       error={errors.fullName?.message}
                       registration={register('fullName')}
+                    />
+                    <TextFormField
+                      id='employee-edit-nik'
+                      label={m.employee_information_nik_label()}
+                      inputMode='numeric'
+                      maxLength={16}
+                      required
+                      error={errors.ktpNumber?.message}
+                      registration={register('ktpNumber')}
                     />
                     <TextFormField
                       id='employee-edit-emergency-name'

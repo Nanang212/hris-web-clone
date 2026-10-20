@@ -438,6 +438,10 @@ export function EmployeeInformationDetailPage({
                 value={personal.fullName}
               />
               <DetailRow
+                label={m.employee_information_nik_label()}
+                value={personal.ktpNumber}
+              />
+              <DetailRow
                 label={m.employee_information_detail_field_email()}
                 value={personal.email}
               />

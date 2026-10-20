@@ -265,7 +265,11 @@ export function EmployeeCreateEmployeeStep({ options }: EmployeeCreateEmployeeSt
           />
           <EmployeeTextField
             name='employee.ktpNumber'
-            label={m.employee_information_create_ktp_label()}
+            id='employee-create-nik'
+            label={m.employee_information_nik_label()}
+            inputMode='numeric'
+            maxLength={16}
+            required
           />
           <EmployeeFileField
             name='employee.ktpFileId'

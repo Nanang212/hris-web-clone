@@ -27,9 +27,17 @@ interface BaseFieldProps {
   required?: boolean
 }
 
-function FormLabel({ children, required }: { children: string; required?: boolean }) {
+function FormLabel({
+  children,
+  required,
+  htmlFor,
+}: {
+  children: string
+  required?: boolean
+  htmlFor?: string
+}) {
   return (
-    <FieldLabel>
+    <FieldLabel htmlFor={htmlFor}>
       {children}
       {required && <span className='text-destructive'>*</span>}
     </FieldLabel>
@@ -38,17 +46,34 @@ function FormLabel({ children, required }: { children: string; required?: boolea
 
 export function EmployeeTextField({
   name,
+  id,
   label,
   required,
   type,
-}: BaseFieldProps & { type?: React.HTMLInputTypeAttribute }) {
+  inputMode,
+  maxLength,
+}: BaseFieldProps & {
+  id?: string
+  type?: React.HTMLInputTypeAttribute
+  inputMode?: React.HTMLAttributes<HTMLInputElement>['inputMode']
+  maxLength?: number
+}) {
   const { register, getFieldState, formState } = useFormContext<EmployeeCreateFormValues>()
   const error = getFieldState(name, formState).error
 
   return (
     <Field data-invalid={Boolean(error)}>
-      <FormLabel required={required}>{label}</FormLabel>
-      <Input type={type} aria-invalid={Boolean(error)} {...register(name)} />
+      <FormLabel required={required} htmlFor={id}>
+        {label}
+      </FormLabel>
+      <Input
+        id={id}
+        type={type}
+        inputMode={inputMode}
+        maxLength={maxLength}
+        aria-invalid={Boolean(error)}
+        {...register(name)}
+      />
       <FieldError errors={[error]} />
     </Field>
   )
