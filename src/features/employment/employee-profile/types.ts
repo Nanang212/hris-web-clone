@@ -8,7 +8,7 @@ export type EmployeeInformationWorkTimeType = 'Regular' | 'JamPenggal'
 export interface EmployeeInformationFilterParams {
   search?: string
   employeeIds?: string[]
-  departmentId?: string
+  projectId?: string
   status?: EmployeeInformationStatus
   employmentType?: EmployeeInformationEmploymentType
   page?: number
@@ -31,9 +31,9 @@ export interface EmployeeInformationStats {
   resignedChangePercent: number
 }
 
-export interface DepartmentDistributionItem {
-  departmentId: string
-  departmentName: string
+export interface ProjectDistributionItem {
+  projectId: string
+  projectName: string
   employeeCount: number
   percentage: number
   color: string
@@ -41,9 +41,9 @@ export interface DepartmentDistributionItem {
 
 export interface EmployeeInformationOverviewData {
   stats: EmployeeInformationStats
-  departmentDistribution: DepartmentDistributionItem[]
+  projectDistribution: ProjectDistributionItem[]
   filterOptions: {
-    departments: EmployeeInformationFilterOption[]
+    projects: EmployeeInformationFilterOption[]
     statuses: EmployeeInformationStatus[]
     employmentTypes: EmployeeInformationEmploymentType[]
   }
@@ -218,7 +218,7 @@ export interface CreateEmployeeProfileInput {
     kkFileId?: string | null
     kkNumber?: string | null
     ktpFileId?: string | null
-    ktpNumber?: string | null
+    ktpNumber: string
     lastEducationLevel?: string | null
     latitude?: EmployeeProfileJsonValue
     longitude?: EmployeeProfileJsonValue
@@ -415,6 +415,7 @@ export type CreateEmployeeInformationData = CreateEmployeeProfileOutput
 
 export interface EmployeeInformationPersonalDetail {
   fullName: string
+  ktpNumber: string | null
   email: string
   phoneNumber: string | null
   birthDate: string | null

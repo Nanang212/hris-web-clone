@@ -14,6 +14,7 @@ export type ModuleType =
   | 'resignation'
   | 'transfer'
   | 'promotion'
+  | 'timesheet'
 
 export interface Workflow {
   id: string

@@ -10,6 +10,8 @@ import { useState } from 'react'
 import { PayrollStatusBadge } from '../../components/payroll-status-badge'
 import { formatIDR } from '../../data/mock-payroll-data'
 import type { PayrollRun } from '../../types'
+import { m } from '@/i18n/paraglide/messages'
+import { Badge } from '@/shared/components/ui/badge'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import {
@@ -54,7 +56,7 @@ export function PayrollProcessTab({
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder='Search period or batch code...'
+            placeholder={m.payroll_process_search_placeholder()}
             className='pl-9 h-9.5 text-xs bg-card rounded-xl shadow-xs'
           />
         </div>
@@ -63,8 +65,8 @@ export function PayrollProcessTab({
           onClick={onOpenCreate}
           className='gap-1.5 text-xs font-semibold rounded-xl h-9.5 px-4 shadow-xs'
         >
-          <IconPlus size={15} />
-          Create Payroll Process
+          <IconPlus data-icon='inline-start' />
+          {m.payroll_process_create_button()}
         </Button>
       </div>
 
@@ -73,15 +75,15 @@ export function PayrollProcessTab({
         <Table>
           <TableHeader>
             <TableRow className='bg-muted/30 text-xs border-b border-border/60'>
-              <TableHead className='font-bold text-muted-foreground py-3.5 pl-6'>Period / Batch</TableHead>
-              <TableHead className='font-bold text-muted-foreground py-3.5'>Cut-off Dates</TableHead>
-              <TableHead className='font-bold text-muted-foreground py-3.5'>Pay Date</TableHead>
-              <TableHead className='font-bold text-muted-foreground py-3.5'>Employees</TableHead>
-              <TableHead className='font-bold text-muted-foreground py-3.5'>Total Gross</TableHead>
-              <TableHead className='font-bold text-muted-foreground py-3.5'>Net Disbursement</TableHead>
-              <TableHead className='font-bold text-muted-foreground py-3.5'>Attendance</TableHead>
-              <TableHead className='font-bold text-muted-foreground py-3.5'>Status</TableHead>
-              <TableHead className='font-bold text-muted-foreground py-3.5 pr-6 text-right'>Action</TableHead>
+              <TableHead className='font-bold text-muted-foreground py-3.5 pl-6'>{m.payroll_overview_col_period()}</TableHead>
+              <TableHead className='font-bold text-muted-foreground py-3.5'>{m.payroll_process_col_cutoff()}</TableHead>
+              <TableHead className='font-bold text-muted-foreground py-3.5'>{m.payroll_process_col_pay_date()}</TableHead>
+              <TableHead className='font-bold text-muted-foreground py-3.5'>{m.payroll_overview_col_employees()}</TableHead>
+              <TableHead className='font-bold text-muted-foreground py-3.5'>{m.payroll_overview_col_gross()}</TableHead>
+              <TableHead className='font-bold text-muted-foreground py-3.5'>{m.payroll_overview_net_disbursement()}</TableHead>
+              <TableHead className='font-bold text-muted-foreground py-3.5'>{m.payroll_process_col_attendance()}</TableHead>
+              <TableHead className='font-bold text-muted-foreground py-3.5'>{m.payroll_overview_col_status()}</TableHead>
+              <TableHead className='font-bold text-muted-foreground py-3.5 pr-6 text-right'>{m.payroll_overview_col_action()}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -110,10 +112,7 @@ export function PayrollProcessTab({
                   {formatIDR(run.totalNetDisbursement)}
                 </TableCell>
                 <TableCell className='py-4'>
-                  <span className='inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400'>
-                    <IconClockCheck size={14} />
-                    Synced
-                  </span>
+                  <Badge variant='green'><IconClockCheck data-icon='inline-start' />{m.payroll_process_synced()}</Badge>
                 </TableCell>
                 <TableCell className='py-4'>
                   <PayrollStatusBadge status={run.status} />
@@ -126,13 +125,13 @@ export function PayrollProcessTab({
                         size='icon'
                         onClick={() => onViewDetail(run)}
                         className='size-8 text-muted-foreground hover:text-primary hover:bg-primary/10'
-                        aria-label='View Detail'
+                        aria-label={m.payroll_overview_view_detail()}
                       >
                         <IconEye size={16} />
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent side='left'>
-                      <p>View Detail</p>
+                      <p>{m.payroll_overview_view_detail()}</p>
                     </TooltipContent>
                   </Tooltip>
                 </TableCell>

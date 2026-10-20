@@ -7,58 +7,64 @@ import {
   IconCheck,
   IconCalendar,
   IconInfoCircle,
-  IconShieldCheck,
 } from '@tabler/icons-react'
 import dayjs from 'dayjs'
 import { useState } from 'react'
-import { BpjsKesBillingPanel } from '../../components/bpjs-kes-billing-panel'
 import { CalculationConfirmationModal } from '../../components/confirmation-modal'
 import { initialGeneralConfig, initialPph21Config } from '../../data/mock-payroll-data'
 import { HQ_LOCATION, initialPayrollEmployeeInputs } from '../../data/mock-payroll-inputs'
 import { calculatePayroll } from '../../lib/calculate-payroll'
+import { isValidPtkpStatus } from '../../lib/pph21-calc'
 import { toPeriodKey, usePayrollBpjsBillingStore } from '../../store/payroll-bpjs-billing-store'
 import { usePayrollBpjsStore } from '../../store/payroll-bpjs-store'
+import {
+  employeeComponentToInputLine,
+  getEmployeeComponentKind,
+  isAutomaticPayrollComponent,
+  isEmployeeComponentEffective,
+  usePayrollComponentStore,
+} from '../../store/payroll-component-store'
+import { useProjects } from '@/features/company/project/data/dummy-projects'
+import { usePayrollTaxInputStore } from '../../store/payroll-tax-input-store'
 import { usePayrollRunStore } from '../../store/payroll-run-store'
 import type { PayrollRun } from '../../types'
 import { Button } from '@/shared/components/ui/button'
 import { DatePicker } from '@/shared/components/ui/date-picker'
 import { Input } from '@/shared/components/ui/input'
+import { Checkbox } from '@/shared/components/ui/checkbox'
+import { FieldLabel } from '@/shared/components/ui/field'
+import { RadioGroup, RadioGroupItem } from '@/shared/components/ui/radio-group'
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from '@/shared/components/ui/select'
 import { snackbar } from '@/shared/lib/snackbar'
+import { m } from '@/i18n/paraglide/messages'
+import { getLocale } from '@/i18n/paraglide/runtime'
+import 'dayjs/locale/id'
+import 'dayjs/locale/en'
 
 interface CreatePayrollWizardProps {
   onCancel: () => void
   onSuccess: (newRun: PayrollRun) => void
 }
 
-const MONTH_OPTIONS = [
-  { value: '1', label: 'January' },
-  { value: '2', label: 'February' },
-  { value: '3', label: 'March' },
-  { value: '4', label: 'April' },
-  { value: '5', label: 'May' },
-  { value: '6', label: 'June' },
-  { value: '7', label: 'July' },
-  { value: '8', label: 'August' },
-  { value: '9', label: 'September' },
-  { value: '10', label: 'October' },
-  { value: '11', label: 'November' },
-  { value: '12', label: 'December' },
-]
+const getMonthOptions = () => Array.from({ length: 12 }, (_, index) => ({
+  value: String(index + 1),
+  label: dayjs().locale(getLocale()).month(index).format('MMMM'),
+}))
 
 export function CreatePayrollWizard({ onCancel, onSuccess }: CreatePayrollWizardProps) {
-  const [step, setStep] = useState<1 | 2 | 3 | 4>(1)
+  const [step, setStep] = useState<1 | 2 | 3>(1)
 
   // Step 1: Period and Dates
   const [periodMonth, setPeriodMonth] = useState('7')
   const [periodYear, setPeriodYear] = useState('2026')
-  const [periodName, setPeriodName] = useState('July 2026')
+  const [periodName, setPeriodName] = useState(() => dayjs().locale(getLocale()).month(6).year(2026).format('MMMM YYYY'))
   const [paymentDate, setPaymentDate] = useState<Date | undefined>(new Date(2026, 6, 25))
   const [cutoffStart, setCutoffStart] = useState<Date | undefined>(new Date(2026, 5, 21))
   const [cutoffEnd, setCutoffEnd] = useState<Date | undefined>(new Date(2026, 6, 20))
@@ -83,6 +89,10 @@ export function CreatePayrollWizard({ onCancel, onSuccess }: CreatePayrollWizard
   const tkProjectSettings = usePayrollBpjsStore((s) => s.tkProjectSettings)
   const wageCapRules = usePayrollBpjsStore((s) => s.wageCapRules)
   const setRunResult = usePayrollRunStore((s) => s.setRunResult)
+  const employeeComponents = usePayrollComponentStore((s) => s.employeeComponents)
+  const taxYearToDateOverrides = usePayrollTaxInputStore((s) => s.taxYearToDateOverrides)
+  const applyPayrollPeriod = usePayrollComponentStore((s) => s.applyPayrollPeriod)
+  const projects = useProjects()
 
   const hqCount = initialPayrollEmployeeInputs.filter((e) => e.workLocation === HQ_LOCATION).length
   const allCount = initialPayrollEmployeeInputs.length
@@ -97,8 +107,8 @@ export function CreatePayrollWizard({ onCancel, onSuccess }: CreatePayrollWizard
 
   const handleMonthChange = (newMonth: string) => {
     setPeriodMonth(newMonth)
-    const monthObj = MONTH_OPTIONS.find((m) => m.value === newMonth)
-    const mName = monthObj ? monthObj.label : 'July'
+    const monthObj = getMonthOptions().find((month) => month.value === newMonth)
+    const mName = monthObj ? monthObj.label : dayjs().locale(getLocale()).month(6).format('MMMM')
     const generatedPeriod = `${mName} ${periodYear}`
     setPeriodName(generatedPeriod)
 
@@ -111,8 +121,8 @@ export function CreatePayrollWizard({ onCancel, onSuccess }: CreatePayrollWizard
 
   const handleYearChange = (newYear: string) => {
     setPeriodYear(newYear)
-    const monthObj = MONTH_OPTIONS.find((m) => m.value === periodMonth)
-    const mName = monthObj ? monthObj.label : 'July'
+    const monthObj = getMonthOptions().find((month) => month.value === periodMonth)
+    const mName = monthObj ? monthObj.label : dayjs().locale(getLocale()).month(6).format('MMMM')
     const generatedPeriod = `${mName} ${newYear}`
     setPeriodName(generatedPeriod)
 
@@ -126,15 +136,12 @@ export function CreatePayrollWizard({ onCancel, onSuccess }: CreatePayrollWizard
   const handleNextStep = () => {
     if (step === 1) {
       if (!paymentDate || !cutoffStart || !cutoffEnd) {
-        snackbar.error('Mohon lengkapi semua tanggal cut-off dan tanggal pembayaran gaji.')
+        snackbar.error(m.payroll_wizard_dates_required())
         return
       }
       setStep(2)
     } else if (step === 2) {
-      // Step 2 otomatis: kalkulasi BPJS Kes dihitung otomatis dari master upah atau tagihan terupload
       setStep(3)
-    } else if (step === 3) {
-      setStep(4)
     } else {
       setConfirmModalOpen(true)
     }
@@ -144,15 +151,85 @@ export function CreatePayrollWizard({ onCancel, onSuccess }: CreatePayrollWizard
     setIsCalculating(true)
     setTimeout(() => {
       // Opsi sinkronisasi presensi/lembur menentukan komponen otomatis yang ikut dihitung
-      const employees = scopeEmployees.map((emp) => ({
-        ...emp,
-        attendance: {
-          ...emp.attendance,
-          lateCount: syncAttendance ? emp.attendance.lateCount : 0,
-          absentCount: syncAttendance ? emp.attendance.absentCount : 0,
-          overtimeHours: syncOvertime ? emp.attendance.overtimeHours : 0,
-        },
-      }))
+      const automaticComponents = employeeComponents.filter(
+        (component) =>
+          scopeEmployees.some((employee) => employee.employeeId === component.employeeId) &&
+          isEmployeeComponentEffective(component, periodKey) &&
+          isAutomaticPayrollComponent(component),
+      )
+      if (automaticComponents.length > 0) {
+        snackbar.info(m.payroll_wizard_automatic_components_skipped({ count: automaticComponents.length }))
+      }
+      const employees = scopeEmployees.map((emp) => {
+        const applicableComponents = employeeComponents.filter(
+          (component) =>
+            component.employeeId === emp.employeeId &&
+            isEmployeeComponentEffective(component, periodKey) &&
+            !isAutomaticPayrollComponent(component),
+        )
+        return {
+          ...emp,
+          taxYearToDate:
+            taxYearToDateOverrides[`${periodYear}:${emp.employeeId}`] ??
+            (periodYear === '2026' ? emp.taxYearToDate : undefined),
+          fixedComponents: [
+            ...emp.fixedComponents,
+            ...applicableComponents
+              .filter((component) => getEmployeeComponentKind(component) === 'fixed_allowance')
+              .map(employeeComponentToInputLine),
+          ],
+          variableComponents: [
+            ...emp.variableComponents,
+            ...applicableComponents
+              .filter((component) => getEmployeeComponentKind(component) !== 'fixed_allowance')
+              .map(employeeComponentToInputLine),
+          ],
+          attendance: {
+            ...emp.attendance,
+            lateCount: syncAttendance ? emp.attendance.lateCount : 0,
+            absentCount: syncAttendance ? emp.attendance.absentCount : 0,
+            overtimeHours: syncOvertime ? emp.attendance.overtimeHours : 0,
+          },
+        }
+      })
+
+      const invalidPtkpCount = employees.filter(
+        (employee) => !isValidPtkpStatus(employee.ptkpStatus),
+      ).length
+      if (invalidPtkpCount > 0) {
+        setIsCalculating(false)
+        snackbar.error(m.payroll_wizard_invalid_ptkp({ count: invalidPtkpCount }))
+        return
+      }
+
+      const periodMonthNumber = Number(periodMonth)
+      const missingFinalTaxInputs = employees.filter((employee) => {
+        if (periodMonthNumber !== 12 && !employee.taxYearToDate?.isFinalTaxPeriod) return false
+        const yearToDate = employee.taxYearToDate
+        return (
+          !yearToDate ||
+          yearToDate.verified === false ||
+          yearToDate.monthsWorked < 1 ||
+          yearToDate.monthsWorked > periodMonthNumber ||
+          [
+            yearToDate.priorTaxableGross,
+            yearToDate.priorEmployeePensionContributions,
+            yearToDate.priorQualifiedZakat,
+            yearToDate.priorPph21Paid,
+          ].some((value) => !Number.isFinite(value) || value < 0)
+        )
+      })
+      if (missingFinalTaxInputs.length > 0) {
+        setIsCalculating(false)
+        snackbar.error(m.payroll_wizard_final_tax_missing({ count: missingFinalTaxInputs.length }))
+        return
+      }
+
+      const projectAttendancePolicies = Object.fromEntries(
+        projects
+          .filter((p) => p.attendancePolicy)
+          .map((p) => [p.id, p.attendancePolicy!]),
+      )
 
       const result = calculatePayroll({
         employees,
@@ -165,6 +242,7 @@ export function CreatePayrollWizard({ onCancel, onSuccess }: CreatePayrollWizard
         pph21Config: initialPph21Config,
         generalConfig: initialGeneralConfig,
         includeThrInstallment: syncThrTaxInstallment,
+        projectAttendancePolicies,
       })
 
       setIsCalculating(false)
@@ -196,7 +274,7 @@ export function CreatePayrollWizard({ onCancel, onSuccess }: CreatePayrollWizard
         status: 'draft',
         attendanceSynced: syncAttendance,
         approvalStage: 'hr_review',
-        notes: `Payroll batch created for ${periodName}.`,
+        notes: m.payroll_wizard_created_note({ period: periodName }),
       }
 
       // Simpan rincian per karyawan agar halaman detail menampilkan hasil kalkulasi yang sebenarnya
@@ -204,14 +282,15 @@ export function CreatePayrollWizard({ onCancel, onSuccess }: CreatePayrollWizard
         details: result.details,
         unmatchedBilling: result.unmatchedBilling,
       })
+      applyPayrollPeriod(periodKey, employees.map((employee) => employee.employeeId))
 
       onSuccess(createdRun)
       if (summary.warningCount > 0 || result.unmatchedBilling.length > 0) {
         snackbar.warning(
-          `Payroll dihitung, tetapi ada ${summary.warningCount} karyawan dan ${result.unmatchedBilling.length} baris tagihan yang perlu diperiksa.`,
+          m.payroll_wizard_warning({ employees: summary.warningCount, bills: result.unmatchedBilling.length }),
         )
       } else {
-        snackbar.success('Payroll batch calculated successfully!')
+        snackbar.success(m.payroll_wizard_success())
       }
     }, 600)
   }
@@ -219,12 +298,11 @@ export function CreatePayrollWizard({ onCancel, onSuccess }: CreatePayrollWizard
   return (
     <div className='max-w-4xl mx-auto space-y-8'>
       {/* ── Step Indicator ─────────────────────────────────────────────────── */}
-      <div className='grid grid-cols-4 gap-3'>
+      <div className='grid grid-cols-3 gap-3'>
         {[
-          { num: 1, label: 'Period & Cut-off', icon: IconCalendarEvent },
-          { num: 2, label: 'BPJS Kesehatan', icon: IconShieldCheck },
-          { num: 3, label: 'Employee Scope', icon: IconUsers },
-          { num: 4, label: 'Attendance Sync', icon: IconClockCheck },
+          { num: 1, label: m.payroll_wizard_step_period(), icon: IconCalendarEvent },
+          { num: 2, label: m.payroll_wizard_step_scope(), icon: IconUsers },
+          { num: 3, label: m.payroll_wizard_step_sync(), icon: IconClockCheck },
         ].map((s) => (
           <div
             key={s.num}
@@ -246,7 +324,7 @@ export function CreatePayrollWizard({ onCancel, onSuccess }: CreatePayrollWizard
               {step > s.num ? <IconCheck size={16} /> : s.num}
             </div>
             <div>
-              <p className='text-[10px] uppercase font-bold tracking-wider opacity-80'>Step 0{s.num}</p>
+              <p className='text-[10px] uppercase font-bold tracking-wider opacity-80'>{m.payroll_wizard_step_number({ number: s.num })}</p>
               <h5 className='text-xs font-bold'>{s.label}</h5>
             </div>
           </div>
@@ -259,9 +337,9 @@ export function CreatePayrollWizard({ onCancel, onSuccess }: CreatePayrollWizard
         {step === 1 && (
           <div className='space-y-6'>
             <div>
-              <h3 className='text-sm font-bold text-foreground'>Select Payroll Period & Cut-off Cycle</h3>
+              <h3 className='text-sm font-bold text-foreground'>{m.payroll_wizard_period_title()}</h3>
               <p className='text-xs text-muted-foreground mt-0.5'>
-                Tentukan bulan periode penggajian, tanggal gajian, dan rentang tanggal cut-off presensi karyawan
+                {m.payroll_wizard_period_description()}
               </p>
             </div>
 
@@ -269,47 +347,51 @@ export function CreatePayrollWizard({ onCancel, onSuccess }: CreatePayrollWizard
             <div className='p-4 rounded-2xl border border-border/70 bg-muted/20 space-y-3'>
               <div className='flex items-center gap-2 text-xs font-bold text-foreground'>
                 <IconCalendar size={16} className='text-primary' />
-                <span>Pilih Bulan & Tahun Periode</span>
+                <span>{m.payroll_wizard_select_month_year()}</span>
               </div>
               <div className='grid grid-cols-1 sm:grid-cols-3 gap-3'>
                 <div className='space-y-1'>
-                  <span className='text-[11px] font-medium text-muted-foreground'>Bulan Gaji</span>
+                  <span className='text-[11px] font-medium text-muted-foreground'>{m.payroll_wizard_payroll_month()}</span>
                   <Select value={periodMonth} onValueChange={handleMonthChange}>
                     <SelectTrigger className='h-9.5 text-xs bg-background rounded-xl shadow-xs'>
-                      <SelectValue placeholder='Pilih Bulan' />
+                      <SelectValue placeholder={m.payroll_wizard_select_month()} />
                     </SelectTrigger>
                     <SelectContent>
-                      {MONTH_OPTIONS.map((m) => (
-                        <SelectItem key={m.value} value={m.value}>
-                          {m.label}
+                      <SelectGroup>
+                      {getMonthOptions().map((month) => (
+                        <SelectItem key={month.value} value={month.value}>
+                          {month.label}
                         </SelectItem>
                       ))}
+                      </SelectGroup>
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div className='space-y-1'>
-                  <span className='text-[11px] font-medium text-muted-foreground'>Tahun</span>
+                  <span className='text-[11px] font-medium text-muted-foreground'>{m.payroll_wizard_year()}</span>
                   <Select value={periodYear} onValueChange={handleYearChange}>
                     <SelectTrigger className='h-9.5 text-xs bg-background rounded-xl shadow-xs'>
-                      <SelectValue placeholder='Pilih Tahun' />
+                      <SelectValue placeholder={m.payroll_wizard_select_year()} />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectGroup>
                       {['2025', '2026', '2027', '2028'].map((y) => (
                         <SelectItem key={y} value={y}>
                           {y}
                         </SelectItem>
                       ))}
+                      </SelectGroup>
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div className='space-y-1'>
-                  <span className='text-[11px] font-medium text-muted-foreground'>Label Batch / Period Name *</span>
+                  <span className='text-[11px] font-medium text-muted-foreground'>{m.payroll_wizard_period_name()}</span>
                   <Input
                     value={periodName}
                     onChange={(e) => setPeriodName(e.target.value)}
-                    placeholder='e.g. July 2026'
+                    placeholder={m.payroll_wizard_period_example()}
                     className='h-9.5 text-xs bg-background rounded-xl font-semibold shadow-xs'
                     required
                   />
@@ -320,53 +402,53 @@ export function CreatePayrollWizard({ onCancel, onSuccess }: CreatePayrollWizard
             {/* Calendar Date Pickers Grid */}
             <div className='space-y-4'>
               <h4 className='text-xs font-bold text-foreground uppercase tracking-wider text-muted-foreground'>
-                Konfigurasi Tanggal dengan Kalender
+                {m.payroll_wizard_date_configuration()}
               </h4>
 
               <div className='grid grid-cols-1 sm:grid-cols-3 gap-4'>
                 {/* 1. Payment Date */}
                 <div className='space-y-1.5'>
-                  <label className='text-xs font-semibold text-foreground flex items-center justify-between'>
-                    <span>Tanggal Gajian (Payment Date) *</span>
-                  </label>
+                  <FieldLabel className='text-xs font-semibold text-foreground flex items-center justify-between'>
+                    <span>{m.payroll_wizard_payment_date()}</span>
+                  </FieldLabel>
                   <DatePicker
                     mode='single'
                     selected={paymentDate}
                     onSelect={setPaymentDate}
-                    placeholder='Pilih Tanggal Gajian...'
+                    placeholder={m.payroll_wizard_select_payment_date()}
                     className='w-full h-10 text-xs rounded-xl bg-background justify-start shadow-xs font-medium'
                   />
-                  <p className='text-[10px] text-muted-foreground'>Tanggal transfer gaji ke rekening karyawan</p>
+                  <p className='text-[10px] text-muted-foreground'>{m.payroll_wizard_payment_hint()}</p>
                 </div>
 
                 {/* 2. Cut-off Start Date */}
                 <div className='space-y-1.5'>
-                  <label className='text-xs font-semibold text-foreground flex items-center justify-between'>
-                    <span>Cut-off Start Date *</span>
-                  </label>
+                  <FieldLabel className='text-xs font-semibold text-foreground flex items-center justify-between'>
+                    <span>{m.payroll_wizard_cutoff_start()}</span>
+                  </FieldLabel>
                   <DatePicker
                     mode='single'
                     selected={cutoffStart}
                     onSelect={setCutoffStart}
-                    placeholder='Pilih Mulai Cut-off...'
+                    placeholder={m.payroll_wizard_select_cutoff_start()}
                     className='w-full h-10 text-xs rounded-xl bg-background justify-start shadow-xs font-medium'
                   />
-                  <p className='text-[10px] text-muted-foreground'>Awal perhitungan absensi & lembur</p>
+                  <p className='text-[10px] text-muted-foreground'>{m.payroll_wizard_cutoff_start_hint()}</p>
                 </div>
 
                 {/* 3. Cut-off End Date */}
                 <div className='space-y-1.5'>
-                  <label className='text-xs font-semibold text-foreground flex items-center justify-between'>
-                    <span>Cut-off End Date *</span>
-                  </label>
+                  <FieldLabel className='text-xs font-semibold text-foreground flex items-center justify-between'>
+                    <span>{m.payroll_wizard_cutoff_end()}</span>
+                  </FieldLabel>
                   <DatePicker
                     mode='single'
                     selected={cutoffEnd}
                     onSelect={setCutoffEnd}
-                    placeholder='Pilih Akhir Cut-off...'
+                    placeholder={m.payroll_wizard_select_cutoff_end()}
                     className='w-full h-10 text-xs rounded-xl bg-background justify-start shadow-xs font-medium'
                   />
-                  <p className='text-[10px] text-muted-foreground'>Akhir periode perhitungan kehadiran</p>
+                  <p className='text-[10px] text-muted-foreground'>{m.payroll_wizard_cutoff_end_hint()}</p>
                 </div>
               </div>
             </div>
@@ -376,167 +458,137 @@ export function CreatePayrollWizard({ onCancel, onSuccess }: CreatePayrollWizard
               <IconInfoCircle className='size-5 text-primary shrink-0 mt-0.5' />
               <div className='space-y-1'>
                 <p className='font-bold text-foreground'>
-                  Ringkasan Siklus Penggajian: <span className='text-primary'>{periodName}</span>
+                  {m.payroll_wizard_cycle_summary()} <span className='text-primary'>{periodName}</span>
                 </p>
                 <p className='text-[11px] text-muted-foreground leading-relaxed'>
-                  Data presensi, cuti tanpa bayar, dan lembur akan ditarik dari rentang{' '}
+                  {m.payroll_wizard_cycle_from()}{' '}
                   <strong className='text-foreground'>
-                    {cutoffStart ? dayjs(cutoffStart).format('DD MMM YYYY') : '-'}
+                    {cutoffStart ? dayjs(cutoffStart).locale(getLocale()).format('DD MMM YYYY') : '-'}
                   </strong>{' '}
-                  sampai{' '}
+                  {m.payroll_wizard_cycle_to()}{' '}
                   <strong className='text-foreground'>
-                    {cutoffEnd ? dayjs(cutoffEnd).format('DD MMM YYYY') : '-'}
+                    {cutoffEnd ? dayjs(cutoffEnd).locale(getLocale()).format('DD MMM YYYY') : '-'}
                   </strong>
-                  . Pembayaran dijadwalkan pada{' '}
+                  {m.payroll_wizard_cycle_payment()}{' '}
                   <strong className='text-primary'>
-                    {paymentDate ? dayjs(paymentDate).format('DD MMMM YYYY') : '-'}
+                    {paymentDate ? dayjs(paymentDate).locale(getLocale()).format('DD MMMM YYYY') : '-'}
                   </strong>
-                  .
+                  {'.'}
                 </p>
               </div>
             </div>
           </div>
         )}
 
-        {/* ── STEP 2: BPJS Kesehatan (Otomatis dari Master Upah / Upload Tagihan) ── */}
+        {/* ── STEP 2: Employee Scope ── */}
         {step === 2 && (
-          <div className='space-y-5'>
-            <div>
-              <div className='flex items-center gap-2'>
-                <h3 className='text-sm font-bold text-foreground'>Kalkulasi BPJS Kesehatan</h3>
-                <span className='px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-500/30'>
-                  Otomatis Aktif
-                </span>
-              </div>
-              <p className='text-xs text-muted-foreground mt-0.5'>
-                Sistem otomatis menghitung iuran BPJS Kesehatan (1% Karyawan, 4% Perusahaan) dari Master Upah karyawan aktif dan langsung menyimpannya ke sistem.
-              </p>
-            </div>
-            <BpjsKesBillingPanel periodKey={periodKey} periodLabel={periodName} isWizard />
-          </div>
-        )}
-
-        {/* ── STEP 3: Employee Scope ── */}
-        {step === 3 && (
           <div className='space-y-6'>
             <div>
-              <h3 className='text-sm font-bold text-foreground'>Employee Scope Selection</h3>
+              <h3 className='text-sm font-bold text-foreground'>{m.payroll_wizard_scope_title()}</h3>
               <p className='text-xs text-muted-foreground mt-0.5'>
-                Pilih cakupan karyawan yang akan diproses dalam batch penggajian ini
+                {m.payroll_wizard_scope_description()}
               </p>
             </div>
 
-            <div className='space-y-4'>
+            <RadioGroup value={employeeScope} onValueChange={setEmployeeScope} className='gap-4'>
               {[
                 {
                   id: 'all',
-                  title: `All Active Employees (${allCount} Karyawan)`,
-                  desc: 'Seluruh karyawan tetap, kontrak, dan probation di semua divisi & kantor cabang',
+                  title: m.payroll_wizard_scope_all({ count: allCount }),
+                  desc: m.payroll_wizard_scope_all_hint(),
                 },
                 {
                   id: 'hq',
-                  title: `${HQ_LOCATION} Only (${hqCount} Karyawan)`,
-                  desc: 'Khusus karyawan dengan lokasi penempatan kantor pusat Jakarta',
+                  title: m.payroll_wizard_scope_hq({ location: HQ_LOCATION, count: hqCount }),
+                  desc: m.payroll_wizard_scope_hq_hint(),
                 },
                 {
                   id: 'branches',
-                  title: `Branch Offices (Bandung & Surabaya: ${branchCount} Karyawan)`,
-                  desc: 'Khusus karyawan operasional kantor cabang non-pusat',
+                  title: m.payroll_wizard_scope_branches({ count: branchCount }),
+                  desc: m.payroll_wizard_scope_branches_hint(),
                 },
               ].map((opt) => (
-                <label
+                <FieldLabel
                   key={opt.id}
                   className={`p-4 rounded-2xl border flex items-start gap-3.5 cursor-pointer transition-all ${employeeScope === opt.id
                       ? 'border-primary bg-primary/5 text-foreground shadow-xs'
                       : 'border-border/70 bg-background hover:bg-muted/30 text-muted-foreground'
                     }`}
                 >
-                  <input
-                    type='radio'
-                    name='scope'
-                    checked={employeeScope === opt.id}
-                    onChange={() => setEmployeeScope(opt.id)}
-                    className='mt-1 size-4 accent-primary'
-                  />
+                  <RadioGroupItem value={opt.id} className='mt-1' />
                   <div>
                     <h5 className='text-xs font-bold text-foreground'>{opt.title}</h5>
                     <p className='text-[11px] text-muted-foreground mt-0.5'>{opt.desc}</p>
                   </div>
-                </label>
+                </FieldLabel>
               ))}
-            </div>
+            </RadioGroup>
           </div>
         )}
 
-        {/* ── STEP 4: Attendance Sync ── */}
-        {step === 4 && (
+        {/* ── STEP 3: Attendance Sync ── */}
+        {step === 3 && (
           <div className='space-y-6'>
             <div>
-              <h3 className='text-sm font-bold text-foreground'>Attendance & Overtime Sync</h3>
+              <h3 className='text-sm font-bold text-foreground'>{m.payroll_wizard_sync_title()}</h3>
               <p className='text-xs text-muted-foreground mt-0.5'>
-                Sinkronisasi data kehadiran, keterlambatan, dan jam lembur yang telah disetujui atasan
+                {m.payroll_wizard_sync_description()}
               </p>
             </div>
 
             <div className='space-y-3.5'>
-              <label className='p-4 rounded-2xl border border-border/80 bg-muted/20 flex items-center justify-between cursor-pointer hover:bg-muted/30 transition-colors'>
+              <FieldLabel className='p-4 rounded-2xl border border-border/80 bg-muted/20 flex items-center justify-between cursor-pointer hover:bg-muted/30 transition-colors'>
                 <div>
-                  <h5 className='text-xs font-bold text-foreground'>Sync Attendance & Leaves</h5>
+                  <h5 className='text-xs font-bold text-foreground'>{m.payroll_wizard_sync_attendance()}</h5>
                   <p className='text-[11px] text-muted-foreground mt-0.5'>
-                    Tarik otomatis potongan izin tanpa bayar (Unpaid Leave) dan denda keterlambatan
+                    {m.payroll_wizard_sync_attendance_hint()}
                   </p>
                 </div>
-                <input
-                  type='checkbox'
+                <Checkbox
                   checked={syncAttendance}
-                  onChange={(e) => setSyncAttendance(e.target.checked)}
-                  className='size-4 accent-primary rounded'
+                  onCheckedChange={(checked) => setSyncAttendance(checked === true)}
                 />
-              </label>
+              </FieldLabel>
 
-              <label className='p-4 rounded-2xl border border-border/80 bg-muted/20 flex items-center justify-between cursor-pointer hover:bg-muted/30 transition-colors'>
+              <FieldLabel className='p-4 rounded-2xl border border-border/80 bg-muted/20 flex items-center justify-between cursor-pointer hover:bg-muted/30 transition-colors'>
                 <div>
-                  <h5 className='text-xs font-bold text-foreground'>Sync Approved Overtime Hours</h5>
+                  <h5 className='text-xs font-bold text-foreground'>{m.payroll_wizard_sync_overtime()}</h5>
                   <p className='text-[11px] text-muted-foreground mt-0.5'>
-                    Kalkulasi otomatis upah lembur resmi berdasarkan pengajuan lembur yang disetujui atasan
+                    {m.payroll_wizard_sync_overtime_hint()}
                   </p>
                 </div>
-                <input
-                  type='checkbox'
+                <Checkbox
                   checked={syncOvertime}
-                  onChange={(e) => setSyncOvertime(e.target.checked)}
-                  className='size-4 accent-primary rounded'
+                  onCheckedChange={(checked) => setSyncOvertime(checked === true)}
                 />
-              </label>
+              </FieldLabel>
 
-              <label className='p-4 rounded-2xl border border-primary/20 bg-primary/5 flex items-center justify-between cursor-pointer hover:bg-primary/10 transition-colors'>
+              <FieldLabel className='p-4 rounded-2xl border border-primary/20 bg-primary/5 flex items-center justify-between cursor-pointer hover:bg-primary/10 transition-colors'>
                 <div>
                   <div className='flex items-center gap-2'>
-                    <h5 className='text-xs font-bold text-foreground'>Sertakan Cicilan PPh 21 THR Otomatis</h5>
+                    <h5 className='text-xs font-bold text-foreground'>{m.payroll_wizard_sync_thr()}</h5>
                     <span className='px-1.5 py-0.2 rounded text-[9px] font-bold bg-primary/10 text-primary border border-primary/20'>
-                      Rekomendasi
+                      {m.payroll_wizard_recommended()}
                     </span>
                   </div>
                   <p className='text-[11px] text-muted-foreground mt-0.5'>
-                    Tarik otomatis potongan angsuran pajak THR yang masih aktif berjalan ke dalam slip gaji karyawan
+                    {m.payroll_wizard_sync_thr_hint()}
                   </p>
                 </div>
-                <input
-                  type='checkbox'
+                <Checkbox
                   checked={syncThrTaxInstallment}
-                  onChange={(e) => setSyncThrTaxInstallment(e.target.checked)}
-                  className='size-4 accent-primary rounded'
+                  onCheckedChange={(checked) => setSyncThrTaxInstallment(checked === true)}
                 />
-              </label>
+              </FieldLabel>
             </div>
 
             <div className='p-4 rounded-2xl border border-blue-200 bg-blue-50/60 dark:border-blue-900/40 dark:bg-blue-950/20 text-xs text-blue-900 dark:text-blue-300'>
               <p className='font-bold flex items-center gap-1.5'>
                 <IconCalculator size={16} />
-                Siap Melakukan Kalkulasi Otomatis
+                {m.payroll_wizard_ready_title()}
               </p>
               <p className='mt-1 text-[11px] opacity-90 leading-relaxed'>
-                Setelah mengklik tombol di bawah, sistem menghitung payroll per karyawan: menjumlahkan pendapatan tetap + variabel, mengambil potongan BPJS Kesehatan dari tagihan yang diupload, menghitung BPJS TK (JHT/JP) dari master, lalu PPh 21 dan gaji bersih.
+                {m.payroll_wizard_ready_description()}
               </p>
             </div>
           </div>
@@ -547,10 +599,10 @@ export function CreatePayrollWizard({ onCancel, onSuccess }: CreatePayrollWizard
           <Button
             type='button'
             variant='outline'
-            onClick={step === 1 ? onCancel : () => setStep((prev) => (prev - 1) as 1 | 2 | 3)}
+            onClick={step === 1 ? onCancel : () => setStep((prev) => (prev - 1) as 1 | 2)}
             className='h-9.5 px-5 text-xs font-semibold rounded-xl'
           >
-            {step === 1 ? 'Cancel' : 'Previous Step'}
+            {step === 1 ? m.payroll_wizard_cancel() : m.payroll_wizard_previous()}
           </Button>
 
           <Button
@@ -558,7 +610,7 @@ export function CreatePayrollWizard({ onCancel, onSuccess }: CreatePayrollWizard
             onClick={handleNextStep}
             className='h-9.5 px-6 text-xs font-semibold rounded-xl shadow-xs'
           >
-            {step === 4 ? 'Run Calculation' : 'Next Step'}
+            {step === 3 ? m.payroll_wizard_run() : m.payroll_wizard_next()}
           </Button>
         </div>
       </div>

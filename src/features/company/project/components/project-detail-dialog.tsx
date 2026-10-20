@@ -1,4 +1,4 @@
-import { IconBriefcase, IconCalendar, IconMapPin } from '@tabler/icons-react'
+import { IconBriefcase, IconCalendar, IconClockHour4, IconMapPin } from '@tabler/icons-react'
 import dayjs from 'dayjs'
 import * as React from 'react'
 
@@ -149,6 +149,77 @@ export function ProjectDetailDialog({
               </p>
             </div>
           )}
+
+          {/* Kebijakan Absensi & Penggajian (Attendance & Payroll Policy) */}
+          <div className='rounded-xl border border-border/70 bg-card p-4 space-y-3 shadow-2xs'>
+            <div className='flex flex-wrap items-center justify-between gap-2 border-b border-border/60 pb-2.5'>
+              <div className='flex items-center gap-2'>
+                <IconClockHour4 className='size-4 text-primary' />
+                <h4 className='text-xs font-bold uppercase tracking-wider text-foreground'>
+                  Kebijakan Absensi & Penggajian
+                </h4>
+              </div>
+              <Badge
+                variant={
+                  project.attendancePolicy?.attendanceAffectsPayroll === false
+                    ? 'amber'
+                    : 'emerald'
+                }
+                className='text-[11px] font-semibold'
+              >
+                {project.attendancePolicy?.attendanceAffectsPayroll === false
+                  ? 'Non-Mandatory Payroll (Gaji Utuh)'
+                  : 'Absensi Memotong Payroll (No Work No Pay)'}
+              </Badge>
+            </div>
+
+            <div className='grid gap-3 sm:grid-cols-2 text-xs'>
+              <div className='flex items-center gap-2.5 rounded-lg border border-border/50 bg-muted/20 p-2.5'>
+                <span
+                  className={`flex size-5 shrink-0 items-center justify-center rounded-full text-white text-[10px] font-bold ${
+                    project.attendancePolicy?.attendanceAffectsPayroll !== false &&
+                    project.attendancePolicy?.deductAbsence !== false
+                      ? 'bg-emerald-600'
+                      : 'bg-muted-foreground/50'
+                  }`}
+                >
+                  ✓
+                </span>
+                <div>
+                  <p className='font-semibold text-foreground'>Potongan Alpa (Unpaid Leave)</p>
+                  <p className='text-[11px] text-muted-foreground'>
+                    {project.attendancePolicy?.attendanceAffectsPayroll !== false &&
+                    project.attendancePolicy?.deductAbsence !== false
+                      ? 'Aktif (Memotong Gaji Pokok)'
+                      : 'Tidak Memotong Gaji'}
+                  </p>
+                </div>
+              </div>
+
+              <div className='flex items-center gap-2.5 rounded-lg border border-border/50 bg-muted/20 p-2.5'>
+                <span
+                  className={`flex size-5 shrink-0 items-center justify-center rounded-full text-white text-[10px] font-bold ${
+                    project.attendancePolicy?.attendanceAffectsPayroll !== false &&
+                    project.attendancePolicy?.deductLate !== false
+                      ? 'bg-emerald-600'
+                      : 'bg-muted-foreground/50'
+                  }`}
+                >
+                  ✓
+                </span>
+                <div>
+                  <p className='font-semibold text-foreground'>Denda Keterlambatan</p>
+                  <p className='text-[11px] text-muted-foreground'>
+                    {project.attendancePolicy?.attendanceAffectsPayroll !== false &&
+                    project.attendancePolicy?.deductLate !== false
+                      ? 'Aktif (Denda Nominal)'
+                      : 'Bebas Denda'}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
 
           {/* Assigned Employees Section */}
           <div>

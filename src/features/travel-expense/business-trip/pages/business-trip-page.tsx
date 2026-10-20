@@ -7,6 +7,7 @@ import {
   IconReceipt,
   IconRoute,
 } from '@tabler/icons-react'
+import { Link } from '@tanstack/react-router'
 import { useState } from 'react'
 import { RejectTripModal } from '../components/reject-trip-modal'
 import { TripApprovalTab } from '../components/trip-approval-tab'
@@ -24,7 +25,7 @@ import { snackbar } from '@/shared/lib/snackbar'
 
 export function BusinessTripPage() {
   const [activeTab, setActiveTab] = useState<
-    'list' | 'create' | 'approvals' | 'itinerary' | 'expenses' | 'history'
+    'list' | 'create' | 'itinerary' | 'expenses' | 'history'
   >('list')
   const { trips, approve: syncApprove, reject: syncReject, addTrip: syncAddTrip } = useApprovalSyncStore()
 
@@ -80,7 +81,9 @@ export function BusinessTripPage() {
   const handleCreateSuccess = (newTrip: BusinessTripRecord) => {
     syncAddTrip(newTrip)
     setActiveTab('list')
-    snackbar.success(`Permohonan dinas ${newTrip.tripNumber} ke ${newTrip.destinationCity} berhasil diajukan!`)
+    snackbar.success(
+      `Permohonan dinas ${newTrip.tripNumber} ke ${newTrip.destinationCity} berhasil diajukan! Menunggu persetujuan atasan di menu Persetujuan.`,
+    )
   }
 
   const handleUpdateItinerary = (tripId: string, updatedDays: TripItineraryDay[]) => {
@@ -171,24 +174,6 @@ export function BusinessTripPage() {
 
           <button
             type='button'
-            onClick={() => setActiveTab('approvals')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-              activeTab === 'approvals'
-                ? 'bg-card text-foreground shadow-xs'
-                : 'text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            <IconChecklist size={14} />
-            Persetujuan
-            {pendingCount > 0 && (
-              <Badge className='size-4 p-0 flex items-center justify-center text-[9px] bg-amber-500 text-white rounded-full'>
-                {pendingCount}
-              </Badge>
-            )}
-          </button>
-
-          <button
-            type='button'
             onClick={() => setActiveTab('itinerary')}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
               activeTab === 'itinerary'
@@ -245,15 +230,6 @@ export function BusinessTripPage() {
         <TripCreateTab
           onSuccess={handleCreateSuccess}
           onCancel={() => setActiveTab('list')}
-        />
-      )}
-
-      {activeTab === 'approvals' && (
-        <TripApprovalTab
-          trips={trips}
-          onViewDetail={handleViewDetail}
-          onApprove={(trip) => handleOpenAction(trip, 'approve')}
-          onReject={(trip) => handleOpenAction(trip, 'reject')}
         />
       )}
 

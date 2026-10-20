@@ -1,6 +1,14 @@
 import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react'
-import { getLocale } from '@/i18n/paraglide/runtime'
+import { m } from '@/i18n/paraglide/messages'
 import { Button } from '@/shared/components/ui/button'
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/shared/components/ui/select'
 import { cn } from '@/shared/lib/utils'
 
 export interface TablePaginationProps {
@@ -24,9 +32,7 @@ export function TablePagination({
   pageSizeOptions = [5, 10, 20, 50],
   className,
 }: TablePaginationProps) {
-  const isEn = getLocale() === 'en'
-  const defaultLabel = isEn ? 'entries' : 'data'
-  const resolvedLabel = itemLabel || defaultLabel
+  const resolvedLabel = itemLabel || m.table_pagination_entries()
   const totalPages = Math.max(1, Math.ceil(totalItems / pageSize))
   const startItem = totalItems === 0 ? 0 : (currentPage - 1) * pageSize + 1
   const endItem = Math.min(currentPage * pageSize, totalItems)
@@ -58,32 +64,39 @@ export function TablePagination({
       {/* Left: Info and Page Size Selector */}
       <div className='flex flex-wrap items-center gap-3 w-full sm:w-auto justify-between sm:justify-start'>
         <p>
-          {isEn ? 'Showing ' : 'Menampilkan '}
+          {m.table_pagination_showing()}{' '}
           <span className='font-bold text-foreground'>{startItem}</span> -{' '}
           <span className='font-bold text-foreground'>{endItem}</span>{' '}
-          {isEn ? 'of ' : 'dari '}
+          {m.table_pagination_of()}{' '}
           <span className='font-bold text-foreground'>{totalItems}</span> {resolvedLabel}
         </p>
 
         {onPageSizeChange && (
           <div className='flex items-center gap-1.5'>
-            <span className='text-[11px] text-muted-foreground'>
-              {isEn ? 'Per page:' : 'Per halaman:'}
-            </span>
-            <select
-              value={pageSize}
-              onChange={(e) => {
-                onPageSizeChange(Number(e.target.value))
+            <Select
+              value={String(pageSize)}
+              onValueChange={(value) => {
+                onPageSizeChange(Number(value))
                 onPageChange(1)
               }}
-              className='h-7 cursor-pointer rounded-lg border border-border/80 bg-background px-2 text-xs font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary'
             >
-              {pageSizeOptions.map((opt) => (
-                <option key={opt} value={opt}>
-                  {opt}
-                </option>
-              ))}
-            </select>
+              <SelectTrigger
+                size='sm'
+                aria-label={m.table_pagination_per_page()}
+                className='w-auto'
+              >
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  {pageSizeOptions.map((option) => (
+                    <SelectItem key={option} value={String(option)}>
+                      {option}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
           </div>
         )}
       </div>
@@ -98,8 +111,8 @@ export function TablePagination({
           disabled={currentPage <= 1}
           className='h-8 px-2 text-xs font-semibold rounded-lg'
         >
-          <IconChevronLeft size={14} className='mr-1' />
-          Prev
+          <IconChevronLeft data-icon='inline-start' />
+          {m.table_pagination_previous()}
         </Button>
 
         {getPageNumbers().map((p, idx) => {
@@ -139,8 +152,8 @@ export function TablePagination({
           disabled={currentPage >= totalPages}
           className='h-8 px-2 text-xs font-semibold rounded-lg'
         >
-          Next
-          <IconChevronRight size={14} className='ml-1' />
+          {m.table_pagination_next()}
+          <IconChevronRight data-icon='inline-end' />
         </Button>
       </div>
     </div>

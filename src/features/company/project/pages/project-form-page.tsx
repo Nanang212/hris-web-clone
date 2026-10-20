@@ -1,10 +1,13 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
+  IconBriefcase,
+  IconClockHour4,
   IconLoader2,
   IconMapPin,
   IconPlus,
   IconSearch,
   IconTrash,
+  IconUsers,
 } from '@tabler/icons-react'
 import { Link, useNavigate } from '@tanstack/react-router'
 import dayjs from 'dayjs'
@@ -21,13 +24,16 @@ import {
 import { z } from 'zod'
 
 import { AppMain } from '@/shared/components/app-layout/app-main'
+import { Badge } from '@/shared/components/ui/badge'
 import { Button } from '@/shared/components/ui/button'
-import { Card, CardContent } from '@/shared/components/ui/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card'
 import { Checkbox } from '@/shared/components/ui/checkbox'
+
 import { DatePicker } from '@/shared/components/ui/date-picker'
 import { Field, FieldError as UIFieldError, FieldGroup, FieldLabel } from '@/shared/components/ui/field'
 import { Input } from '@/shared/components/ui/input'
 import { Map, MapControls, MapMarker, MarkerContent, useMap } from '@/shared/components/ui/map'
+import { Switch } from '@/shared/components/ui/switch'
 import {
   Select,
   SelectContent,
@@ -156,6 +162,9 @@ type FormValues = {
   employeeIds?: string[]
   assignmentStartDate?: string
   assignmentEndDate?: string
+  attendanceAffectsPayroll: boolean
+  deductAbsence: boolean
+  deductLate: boolean
   addresses: Array<{
     address: string
     latitude?: string
@@ -180,6 +189,11 @@ function buildNewProject(values: FormValues): Project {
     employeeIds: values.employeeIds || [],
     assignmentStartDate: values.assignmentStartDate || null,
     assignmentEndDate: values.assignmentEndDate || null,
+    attendancePolicy: {
+      attendanceAffectsPayroll: values.attendanceAffectsPayroll,
+      deductAbsence: values.deductAbsence,
+      deductLate: values.deductLate,
+    },
     addresses: values.addresses.map((addr, idx) => ({
       id: `addr-${timestamp}-${idx}`,
       address: addr.address,
@@ -208,6 +222,11 @@ function buildUpdatedProject(values: FormValues): Partial<Project> {
     employeeIds: values.employeeIds || [],
     assignmentStartDate: values.assignmentStartDate || null,
     assignmentEndDate: values.assignmentEndDate || null,
+    attendancePolicy: {
+      attendanceAffectsPayroll: values.attendanceAffectsPayroll,
+      deductAbsence: values.deductAbsence,
+      deductLate: values.deductLate,
+    },
     addresses: values.addresses.map((addr, idx) => ({
       id: `addr-${timestamp}-${idx}`,
       address: addr.address,
@@ -219,6 +238,7 @@ function buildUpdatedProject(values: FormValues): Partial<Project> {
     })),
   }
 }
+
 
 interface ProjectLocationItemProps {
   index: number
@@ -522,6 +542,9 @@ export function ProjectFormPage({ projectId }: Readonly<ProjectFormPageProps>) {
     employeeIds: z.array(z.string()).optional(),
     assignmentStartDate: z.string().optional(),
     assignmentEndDate: z.string().optional(),
+    attendanceAffectsPayroll: z.boolean(),
+    deductAbsence: z.boolean(),
+    deductLate: z.boolean(),
     addresses: z
       .array(
         z.object({
@@ -560,6 +583,9 @@ export function ProjectFormPage({ projectId }: Readonly<ProjectFormPageProps>) {
       employeeIds: project?.employeeIds ?? [],
       assignmentStartDate: project?.assignmentStartDate ?? '',
       assignmentEndDate: project?.assignmentEndDate ?? '',
+      attendanceAffectsPayroll: project?.attendancePolicy?.attendanceAffectsPayroll ?? true,
+      deductAbsence: project?.attendancePolicy?.deductAbsence ?? true,
+      deductLate: project?.attendancePolicy?.deductLate ?? true,
       addresses: project?.addresses.length
         ? project.addresses.map((address) => ({
             address: address.address,
@@ -574,6 +600,8 @@ export function ProjectFormPage({ projectId }: Readonly<ProjectFormPageProps>) {
   const addressValues = useWatch({ control, name: 'addresses' })
   const selectedEmployeeIds = useWatch({ control, name: 'employeeIds' }) ?? []
   const watchProjectName = useWatch({ control, name: 'name' })
+  const watchAttendanceAffectsPayroll =
+    useWatch({ control, name: 'attendanceAffectsPayroll' }) ?? true
 
   const toggleEmployee = (empId: string) => {
     const current = selectedEmployeeIds
@@ -650,8 +678,22 @@ export function ProjectFormPage({ projectId }: Readonly<ProjectFormPageProps>) {
       backTo='/company/project'
       className='w-full max-w-full min-w-0 gap-6'
     >
-      <form className='w-full' onSubmit={handleSubmit(onSubmit)} noValidate>
+      <form className='w-full space-y-6' onSubmit={handleSubmit(onSubmit)} noValidate>
+        {/* ── Card 1: Informasi Utama Proyek ── */}
         <Card>
+          <CardHeader className='border-b'>
+            <div className='flex items-center gap-2.5'>
+              <div className='flex size-9 items-center justify-center rounded-lg bg-primary/10 text-primary'>
+                <IconBriefcase className='size-5' />
+              </div>
+              <div>
+                <CardTitle className='text-base font-bold'>{m.company_project_table_project()}</CardTitle>
+                <CardDescription className='text-xs'>
+                  Detail identitas proyek, klien penugasan, dan durasi kontrak operasional.
+                </CardDescription>
+              </div>
+            </div>
+          </CardHeader>
           <CardContent className='pt-6'>
             <FieldGroup className='grid gap-6 md:grid-cols-2'>
               <Field data-invalid={!!errors.code}>
@@ -756,182 +798,354 @@ export function ProjectFormPage({ projectId }: Readonly<ProjectFormPageProps>) {
                 </FieldLabel>
                 <Textarea id='project-description' {...register('description')} />
               </Field>
-
-              {/* Assign Employees Section */}
-              <div className='flex flex-col gap-4 md:col-span-2 rounded-2xl border border-border/70 bg-card p-5 shadow-xs'>
-                {/* Search & Department Filters */}
-                <div className='grid gap-4 sm:grid-cols-2'>
-                  <div>
-                    <FieldLabel htmlFor='search-employee' className='text-xs font-semibold text-foreground'>
-                      Search Employee
-                    </FieldLabel>
-                    <Input
-                      id='search-employee'
-                      placeholder='Search name / NIP / position...'
-                      value={employeeSearch}
-                      onChange={(e) => setEmployeeSearch(e.target.value)}
-                      className='mt-1.5 h-10 text-xs'
-                    />
-                  </div>
-                  <div>
-                    <FieldLabel htmlFor='department-filter' className='text-xs font-semibold text-foreground'>
-                      Department
-                    </FieldLabel>
-                    <Select value={selectedDepartment} onValueChange={setSelectedDepartment}>
-                      <SelectTrigger id='department-filter' className='mt-1.5 h-10 text-xs'>
-                        <SelectValue placeholder='All departments' />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value='ALL'>All departments</SelectItem>
-                        {departmentOptions.map((dept) => (
-                          <SelectItem key={dept} value={dept}>
-                            {dept}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                {/* Employee List with Checkbox Cards */}
-                <div className='flex flex-col gap-2.5 max-h-64 overflow-y-auto pr-1'>
-                  {filteredEmployees.length === 0 ? (
-                    <div className='p-6 text-center text-xs text-muted-foreground rounded-xl border border-border/60 bg-muted/20'>
-                      No employees found.
-                    </div>
-                  ) : (
-                    filteredEmployees.map((emp) => {
-                      const isChecked = selectedEmployeeIds.includes(emp.id)
-                      return (
-                        <div
-                          key={emp.id}
-                          onClick={() => toggleEmployee(emp.id)}
-                          className={`flex items-center gap-3.5 rounded-xl border p-3.5 transition-all cursor-pointer ${
-                            isChecked
-                              ? 'border-primary/60 bg-primary/5 shadow-2xs'
-                              : 'border-border/70 bg-card hover:border-border hover:bg-muted/30 shadow-2xs'
-                          }`}
-                        >
-                          <Checkbox
-                            checked={isChecked}
-                            onCheckedChange={() => toggleEmployee(emp.id)}
-                            onClick={(e) => e.stopPropagation()}
-                            id={`emp-check-${emp.id}`}
-                            className='size-5 rounded-md'
-                          />
-                          <div className='min-w-0 flex-1'>
-                            <p className='text-sm font-semibold text-foreground leading-tight'>
-                              {emp.fullName}
-                            </p>
-                            <p className='mt-0.5 text-xs text-muted-foreground'>
-                              {emp.employeeCode} · {emp.departmentName || 'Operations'}
-                            </p>
-                          </div>
-                        </div>
-                      )
-                    })
-                  )}
-                </div>
-
-                {/* Assignment Dates (2-columns) */}
-                <div className='grid gap-4 sm:grid-cols-2 pt-1'>
-                  <div>
-                    <FieldLabel className='text-xs font-semibold text-foreground'>
-                      Assignment Start Date *
-                    </FieldLabel>
-                    <Controller
-                      name='assignmentStartDate'
-                      control={control}
-                      render={({ field }) => (
-                        <DatePicker
-                          mode='single'
-                          selected={field.value ? dayjs(field.value).toDate() : undefined}
-                          onSelect={(date) =>
-                            field.onChange(date ? dayjs(date).format('YYYY-MM-DD') : '')
-                          }
-                          placeholder='12 Sep 2026'
-                          className='mt-1.5'
-                        />
-                      )}
-                    />
-                  </div>
-                  <div>
-                    <FieldLabel className='text-xs font-semibold text-foreground'>
-                      Assignment End Date
-                    </FieldLabel>
-                    <Controller
-                      name='assignmentEndDate'
-                      control={control}
-                      render={({ field }) => (
-                        <DatePicker
-                          mode='single'
-                          selected={field.value ? dayjs(field.value).toDate() : undefined}
-                          onSelect={(date) =>
-                            field.onChange(date ? dayjs(date).format('YYYY-MM-DD') : '')
-                          }
-                          placeholder='Optional'
-                          className='mt-1.5'
-                        />
-                      )}
-                    />
-                  </div>
-                </div>
-
-                {/* Notice / Keterangan Box */}
-                <div className='rounded-xl border border-border/50 bg-muted/25 p-4'>
-                  <p className='text-sm font-semibold text-foreground'>
-                    Assignment to {watchProjectName?.trim() ? watchProjectName : 'BFP Operations'}
-                  </p>
-                  <p className='mt-0.5 text-xs text-muted-foreground'>
-                    Selected employees will be assigned directly to this project.
-                  </p>
-                </div>
-              </div>
-
-              {/* Locations Section with Live Inline Map */}
-              <div className='flex flex-col gap-4 md:col-span-2'>
-                <div className='flex items-center justify-between gap-3'>
-                  <div>
-                    <FieldLabel>{m.company_project_address()}</FieldLabel>
-                    <p className='text-xs text-muted-foreground'>
-                      Peta langsung tampil pada setiap lokasi. Anda dapat mengetik alamat atau langsung memilih titik dari peta.
-                    </p>
-                  </div>
-                  <Button
-                    type='button'
-                    variant='outline'
-                    size='sm'
-                    onClick={() =>
-                      append({ address: '', latitude: '', longitude: '', geofenceRadiusMeters: '' })
-                    }
-                  >
-                    <IconPlus data-icon='inline-start' />
-                    {m.company_project_add_address()}
-                  </Button>
-                </div>
-
-                <div className='flex flex-col gap-5'>
-                  {fields.map((field, index) => (
-                    <ProjectLocationItem
-                      key={field.id}
-                      fieldId={field.id}
-                      index={index}
-                      canRemove={fields.length > 1}
-                      onRemove={() => remove(index)}
-                      register={register}
-                      setValue={setValue}
-                      watchAddress={addressValues?.[index]?.address}
-                      watchLatitude={addressValues?.[index]?.latitude}
-                      watchLongitude={addressValues?.[index]?.longitude}
-                      errorAddress={errors.addresses?.[index]?.address}
-                    />
-                  ))}
-                </div>
-              </div>
             </FieldGroup>
           </CardContent>
         </Card>
 
+        {/* ── Card 2: Penugasan Karyawan (Assign Employees) ── */}
+        <Card>
+          <CardHeader className='border-b'>
+            <div className='flex flex-wrap items-center justify-between gap-3'>
+              <div className='flex items-center gap-2.5'>
+                <div className='flex size-9 items-center justify-center rounded-lg bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400'>
+                  <IconUsers className='size-5' />
+                </div>
+                <div>
+                  <CardTitle className='text-base font-bold'>
+                    {m.company_project_assign_employee()}
+                  </CardTitle>
+                  <CardDescription className='text-xs'>
+                    Pilih personil yang ditugaskan ke proyek ini beserta periode penugasannya.
+                  </CardDescription>
+                </div>
+              </div>
+              <div className='flex items-center gap-2'>
+                <Button
+                  type='button'
+                  variant='outline'
+                  size='sm'
+                  className='h-8 text-xs'
+                  onClick={() => {
+                    const filteredIds = filteredEmployees.map((e) => e.id)
+                    const allSelected = filteredIds.every((id) => selectedEmployeeIds.includes(id))
+                    if (allSelected) {
+                      setValue(
+                        'employeeIds',
+                        selectedEmployeeIds.filter((id) => !filteredIds.includes(id)),
+                        { shouldValidate: true },
+                      )
+                    } else {
+                      const newSet = Array.from(new Set([...selectedEmployeeIds, ...filteredIds]))
+                      setValue('employeeIds', newSet, { shouldValidate: true })
+                    }
+                  }}
+                >
+                  {filteredEmployees.length > 0 &&
+                  filteredEmployees.every((e) => selectedEmployeeIds.includes(e.id))
+                    ? 'Batal Pilih Semua'
+                    : 'Pilih Semua'}
+                </Button>
+                <Badge variant='secondary' className='text-xs font-semibold px-2.5 py-1'>
+                  {selectedEmployeeIds.length} Karyawan Dipilih
+                </Badge>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className='pt-6 space-y-5'>
+            {/* Periode Penugasan (Assignment Dates) */}
+            <div className='grid gap-4 sm:grid-cols-2 p-4 rounded-xl border border-border/60 bg-muted/20'>
+              <div>
+                <FieldLabel className='text-xs font-semibold text-foreground'>
+                  Tanggal Mulai Penugasan
+                </FieldLabel>
+                <Controller
+                  name='assignmentStartDate'
+                  control={control}
+                  render={({ field }) => (
+                    <DatePicker
+                      mode='single'
+                      selected={field.value ? dayjs(field.value).toDate() : undefined}
+                      onSelect={(date) =>
+                        field.onChange(date ? dayjs(date).format('YYYY-MM-DD') : '')
+                      }
+                      placeholder='Pilih tanggal mulai penugasan'
+                      className='mt-1.5 w-full bg-background'
+                    />
+                  )}
+                />
+              </div>
+              <div>
+                <FieldLabel className='text-xs font-semibold text-foreground'>
+                  Tanggal Selesai Penugasan
+                </FieldLabel>
+                <Controller
+                  name='assignmentEndDate'
+                  control={control}
+                  render={({ field }) => (
+                    <DatePicker
+                      mode='single'
+                      selected={field.value ? dayjs(field.value).toDate() : undefined}
+                      onSelect={(date) =>
+                        field.onChange(date ? dayjs(date).format('YYYY-MM-DD') : '')
+                      }
+                      placeholder='Opsional (sampai proyek selesai)'
+                      className='mt-1.5 w-full bg-background'
+                    />
+                  )}
+                />
+              </div>
+            </div>
+
+            {/* Search & Department Filters */}
+            <div className='grid gap-3 sm:grid-cols-2'>
+              <div>
+                <FieldLabel htmlFor='search-employee' className='text-xs font-semibold text-foreground'>
+                  Cari Karyawan
+                </FieldLabel>
+                <div className='relative mt-1.5'>
+                  <IconSearch className='absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground' />
+                  <Input
+                    id='search-employee'
+                    placeholder='Cari nama, NIP, atau jabatan...'
+                    value={employeeSearch}
+                    onChange={(e) => setEmployeeSearch(e.target.value)}
+                    className='pl-9 h-9.5 text-xs bg-background'
+                  />
+                </div>
+              </div>
+              <div>
+                <FieldLabel htmlFor='department-filter' className='text-xs font-semibold text-foreground'>
+                  Departemen
+                </FieldLabel>
+                <Select value={selectedDepartment} onValueChange={setSelectedDepartment}>
+                  <SelectTrigger id='department-filter' className='mt-1.5 h-9.5 text-xs bg-background'>
+                    <SelectValue placeholder='Semua Departemen' />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value='ALL'>Semua Departemen</SelectItem>
+                    {departmentOptions.map((dept) => (
+                      <SelectItem key={dept} value={dept}>
+                        {dept}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Employee List with Checkbox Cards (Responsive 2-column Grid) */}
+            <div className='grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-72 overflow-y-auto pr-1'>
+              {filteredEmployees.length === 0 ? (
+                <div className='col-span-full p-8 text-center text-xs text-muted-foreground rounded-xl border border-dashed border-border/80 bg-muted/10'>
+                  Tidak ada karyawan yang sesuai filter pencarian.
+                </div>
+              ) : (
+                filteredEmployees.map((emp) => {
+                  const isChecked = selectedEmployeeIds.includes(emp.id)
+                  return (
+                    <div
+                      key={emp.id}
+                      onClick={() => toggleEmployee(emp.id)}
+                      className={`flex items-center gap-3 rounded-xl border p-3 transition-all cursor-pointer ${
+                        isChecked
+                          ? 'border-primary bg-primary/5 shadow-xs'
+                          : 'border-border/70 bg-card hover:border-border hover:bg-muted/30 shadow-2xs'
+                      }`}
+                    >
+                      <Checkbox
+                        checked={isChecked}
+                        onCheckedChange={() => toggleEmployee(emp.id)}
+                        onClick={(e) => e.stopPropagation()}
+                        id={`emp-check-${emp.id}`}
+                        className='size-4.5 rounded-md shrink-0'
+                      />
+                      <div className='flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary overflow-hidden border border-border/40'>
+                        {emp.photo ? (
+                          <img src={emp.photo} alt={emp.fullName} className='size-full object-cover' />
+                        ) : (
+                          emp.fullName.slice(0, 2).toUpperCase()
+                        )}
+                      </div>
+                      <div className='min-w-0 flex-1'>
+                        <p className='truncate text-xs font-semibold text-foreground leading-tight'>
+                          {emp.fullName}
+                        </p>
+                        <p className='truncate text-[11px] text-muted-foreground mt-0.5'>
+                          {emp.employeeCode} · {emp.departmentName || 'Operations'}
+                        </p>
+                      </div>
+                    </div>
+                  )
+                })
+              )}
+            </div>
+
+            {/* Notice / Keterangan Box */}
+            <div className='rounded-xl border border-border/50 bg-muted/30 p-3.5 flex items-center justify-between text-xs'>
+              <p className='text-muted-foreground'>
+                Penugasan ke:{' '}
+                <strong className='text-foreground'>{watchProjectName?.trim() ? watchProjectName : 'Proyek Ini'}</strong>
+              </p>
+              <span className='text-[11px] font-medium text-primary'>
+                {selectedEmployeeIds.length} personil terdaftar
+              </span>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* ── Card 3: Kebijakan Absensi & Penggajian ── */}
+        <Card>
+          <CardHeader className='border-b'>
+            <div className='flex flex-wrap items-center justify-between gap-3'>
+              <div className='flex items-center gap-2.5'>
+                <div className='flex size-9 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400'>
+                  <IconClockHour4 className='size-5' />
+                </div>
+                <div>
+                  <CardTitle className='text-base font-bold'>
+                    Kebijakan Absensi & Penggajian (Attendance & Payroll Policy)
+                  </CardTitle>
+                  <CardDescription className='text-xs'>
+                    Atur apakah ketidakhadiran & keterlambatan karyawan pada proyek ini memotong gaji atau bersifat non-mandatory.
+                  </CardDescription>
+                </div>
+              </div>
+              <Badge
+                variant={watchAttendanceAffectsPayroll ? 'emerald' : 'amber'}
+                className='text-xs px-2.5 py-1 font-semibold'
+              >
+                {watchAttendanceAffectsPayroll
+                  ? 'Absensi Memotong Payroll (No Work No Pay)'
+                  : 'Non-Mandatory Payroll (Gaji Utuh)'}
+              </Badge>
+            </div>
+          </CardHeader>
+          <CardContent className='pt-6 space-y-4'>
+            {/* Master Switch: Absensi Mempengaruhi Payroll */}
+            <div className='flex items-center justify-between gap-4 rounded-xl border border-border/60 bg-muted/20 p-4 transition-colors'>
+              <div className='space-y-1 max-w-xl'>
+                <p className='text-xs font-bold text-foreground'>
+                  Absensi Mempengaruhi Penggajian
+                </p>
+                <p className='text-[11px] text-muted-foreground leading-relaxed'>
+                  Jika <strong>dinonaktifkan</strong>, karyawan di proyek ini tetap wajib absen harian untuk rekap kehadiran & audit KPI, namun alpa dan keterlambatan <strong>tidak akan memotong gaji</strong> (gaji pokok dibayarkan utuh 100%).
+                </p>
+              </div>
+              <Controller
+                name='attendanceAffectsPayroll'
+                control={control}
+                render={({ field }) => (
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                )}
+              />
+            </div>
+
+            {/* Sub Options (hanya aktif jika master switch aktif) */}
+            <div
+              className={`grid gap-3 sm:grid-cols-2 transition-opacity ${
+                watchAttendanceAffectsPayroll ? 'opacity-100' : 'opacity-40 pointer-events-none'
+              }`}
+            >
+              <div className='flex items-start gap-3 rounded-xl border border-border/60 bg-card p-3.5 shadow-2xs'>
+                <Controller
+                  name='deductAbsence'
+                  control={control}
+                  render={({ field }) => (
+                    <Checkbox
+                      id='check-deduct-absence'
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                      disabled={!watchAttendanceAffectsPayroll}
+                      className='mt-0.5'
+                    />
+                  )}
+                />
+                <label htmlFor='check-deduct-absence' className='text-xs space-y-0.5 cursor-pointer'>
+                  <p className='font-semibold text-foreground'>Potong Gaji Jika Alpa (Unpaid Leave)</p>
+                  <p className='text-[11px] text-muted-foreground'>
+                    Gaji pokok dipotong secara prorata berdasarkan jumlah hari alpa / tanpa keterangan.
+                  </p>
+                </label>
+              </div>
+
+              <div className='flex items-start gap-3 rounded-xl border border-border/60 bg-card p-3.5 shadow-2xs'>
+                <Controller
+                  name='deductLate'
+                  control={control}
+                  render={({ field }) => (
+                    <Checkbox
+                      id='check-deduct-late'
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                      disabled={!watchAttendanceAffectsPayroll}
+                      className='mt-0.5'
+                    />
+                  )}
+                />
+                <label htmlFor='check-deduct-late' className='text-xs space-y-0.5 cursor-pointer'>
+                  <p className='font-semibold text-foreground'>Denda Keterlambatan (Late Penalty)</p>
+                  <p className='text-[11px] text-muted-foreground'>
+                    Dikenakan denda nominal per kali datang terlambat melewati batas toleransi shift.
+                  </p>
+                </label>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* ── Card 4: Lokasi Proyek & Geofence ── */}
+        <Card>
+          <CardHeader className='border-b'>
+            <div className='flex flex-wrap items-center justify-between gap-3'>
+              <div className='flex items-center gap-2.5'>
+                <div className='flex size-9 items-center justify-center rounded-lg bg-amber-50 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400'>
+                  <IconMapPin className='size-5' />
+                </div>
+                <div>
+                  <CardTitle className='text-base font-bold'>{m.company_project_address()}</CardTitle>
+                  <CardDescription className='text-xs'>
+                    Peta langsung tampil pada setiap lokasi. Anda dapat mengetik alamat atau langsung memilih titik dari peta.
+                  </CardDescription>
+                </div>
+              </div>
+              <Button
+                type='button'
+                variant='outline'
+                size='sm'
+                onClick={() =>
+                  append({ address: '', latitude: '', longitude: '', geofenceRadiusMeters: '' })
+                }
+              >
+                <IconPlus data-icon='inline-start' />
+                {m.company_project_add_address()}
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent className='pt-6'>
+            <div className='flex flex-col gap-5'>
+              {fields.map((field, index) => (
+                <ProjectLocationItem
+                  key={field.id}
+                  fieldId={field.id}
+                  index={index}
+                  canRemove={fields.length > 1}
+                  onRemove={() => remove(index)}
+                  register={register}
+                  setValue={setValue}
+                  watchAddress={addressValues?.[index]?.address}
+                  watchLatitude={addressValues?.[index]?.latitude}
+                  watchLongitude={addressValues?.[index]?.longitude}
+                  errorAddress={errors.addresses?.[index]?.address}
+                />
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Footer Actions */}
         <div className='mt-7 flex justify-end gap-2'>
           <Button variant='outline' asChild>
             <Link to='/company/project'>{m.company_action_cancel()}</Link>
@@ -941,6 +1155,7 @@ export function ProjectFormPage({ projectId }: Readonly<ProjectFormPageProps>) {
           </Button>
         </div>
       </form>
+
     </AppMain>
   )
 }

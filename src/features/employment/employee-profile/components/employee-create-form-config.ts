@@ -97,7 +97,11 @@ export function employeeCreateFormShape(
       hireDate: schema.string().min(1, { message: messages.required }),
       kkFileId: schema.string(),
       kkNumber: schema.string(),
-      ktpNumber: schema.string(),
+      ktpNumber: schema
+        .string()
+        .trim()
+        .min(1, { message: m.employee_information_nik_required() })
+        .regex(/^\d{16}$/, { message: m.employee_information_nik_invalid() }),
       ktpFileId: schema.string(),
       lastEducationLevel: schema.string(),
       latitude: schema.string(),

@@ -23,6 +23,7 @@ import type {
 import { Badge } from '@/shared/components/ui/badge'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
+import { m } from '@/i18n/paraglide/messages'
 import {
   Table,
   TableBody,
@@ -77,7 +78,7 @@ export function BpjsKesReconciliationPanel({
               <IconFileSpreadsheet size={20} />
             </span>
             <div>
-              <p className='text-[11px] font-semibold text-muted-foreground'>Total Tagihan BPJS Upload</p>
+              <p className='text-[11px] font-semibold text-muted-foreground'>{m.payroll_recon_total_bill()}</p>
               <b className='text-base font-bold text-foreground'>{formatIDR(summary.totalBillingSum)}</b>
             </div>
           </div>
@@ -89,7 +90,7 @@ export function BpjsKesReconciliationPanel({
               <IconCircleCheck size={20} />
             </span>
             <div>
-              <p className='text-[11px] font-semibold text-muted-foreground'>Total Masuk Payroll</p>
+              <p className='text-[11px] font-semibold text-muted-foreground'>{m.payroll_recon_total_payroll()}</p>
               <b className='text-base font-bold text-foreground'>{formatIDR(summary.totalPayrollSum)}</b>
             </div>
           </div>
@@ -107,7 +108,7 @@ export function BpjsKesReconciliationPanel({
               {summary.netDifference === 0 ? <IconCheck size={20} /> : <IconAlertTriangle size={20} />}
             </span>
             <div>
-              <p className='text-[11px] font-semibold text-muted-foreground'>Selisih Bersih (Variance)</p>
+              <p className='text-[11px] font-semibold text-muted-foreground'>{m.payroll_recon_variance()}</p>
               <b
                 className={`text-base font-bold ${
                   summary.netDifference === 0
@@ -116,7 +117,7 @@ export function BpjsKesReconciliationPanel({
                 }`}
               >
                 {summary.netDifference === 0
-                  ? 'Rp 0 (Sempurna)'
+                  ? m.payroll_recon_perfect_match()
                   : `${summary.netDifference > 0 ? '+' : ''}${formatIDR(summary.netDifference)}`}
               </b>
             </div>
@@ -135,9 +136,9 @@ export function BpjsKesReconciliationPanel({
               <IconInfoCircle size={20} />
             </span>
             <div>
-              <p className='text-[11px] font-semibold text-muted-foreground'>Audit Kepesertaan</p>
+              <p className='text-[11px] font-semibold text-muted-foreground'>{m.payroll_recon_membership_audit()}</p>
               <b className='text-base font-bold text-foreground'>
-                {summary.matchCount} Cocok · {issueCount} Temuan
+                {m.payroll_recon_audit_count({ matched: summary.matchCount, issues: issueCount })}
               </b>
             </div>
           </div>
@@ -149,17 +150,17 @@ export function BpjsKesReconciliationPanel({
         <div className='p-4 rounded-2xl border border-amber-300/80 bg-amber-50/80 dark:bg-amber-950/30 text-xs text-amber-900 dark:text-amber-200 space-y-2'>
           <div className='flex items-center gap-2 font-bold'>
             <IconAlertTriangle size={17} className='text-amber-600 dark:text-amber-400 shrink-0' />
-            <span>Ditemukan {issueCount} baris data yang memerlukan verifikasi:</span>
+            <span>{m.payroll_recon_verify_count({ count: issueCount })}</span>
           </div>
           <div className='grid grid-cols-1 md:grid-cols-3 gap-2 pt-1 text-[11px]'>
             {summary.missingInBillingCount > 0 && (
               <div className='p-2.5 rounded-xl bg-background/80 border border-amber-200 dark:border-amber-900/50 space-y-0.5'>
                 <p className='font-bold text-amber-800 dark:text-amber-300 flex items-center gap-1.5'>
                   <IconUserExclamation size={14} />
-                  {summary.missingInBillingCount} Karyawan Belum Terdaftar
+                  {m.payroll_recon_missing_count({ count: summary.missingInBillingCount })}
                 </p>
                 <p className='text-muted-foreground'>
-                  Karyawan ada di master HRIS tapi tidak ada di tagihan BPJS (cek pendaftaran e-Dabu).
+                  {m.payroll_recon_missing_hint()}
                 </p>
               </div>
             )}
@@ -167,10 +168,10 @@ export function BpjsKesReconciliationPanel({
               <div className='p-2.5 rounded-xl bg-background/80 border border-amber-200 dark:border-amber-900/50 space-y-0.5'>
                 <p className='font-bold text-rose-700 dark:text-rose-400 flex items-center gap-1.5'>
                   <IconUserX size={14} />
-                  {summary.orphanBillingCount} Tagihan Tanpa Karyawan
+                  {m.payroll_recon_orphan_count({ count: summary.orphanBillingCount })}
                 </p>
                 <p className='text-muted-foreground'>
-                  Ada di tagihan BPJS tapi tidak ada di payroll (karyawan resign belum dinonaktifkan).
+                  {m.payroll_recon_orphan_hint()}
                 </p>
               </div>
             )}
@@ -178,10 +179,10 @@ export function BpjsKesReconciliationPanel({
               <div className='p-2.5 rounded-xl bg-background/80 border border-amber-200 dark:border-amber-900/50 space-y-0.5'>
                 <p className='font-bold text-amber-800 dark:text-amber-300 flex items-center gap-1.5'>
                   <IconAlertTriangle size={14} />
-                  {summary.wageDiffCount} Selisih Upah
+                  {m.payroll_recon_wage_diff_count({ count: summary.wageDiffCount })}
                 </p>
                 <p className='text-muted-foreground'>
-                  Upah di tagihan BPJS berbeda dengan gaji master / kenaikan upah belum diupdate di BPJS.
+                  {m.payroll_recon_wage_diff_hint()}
                 </p>
               </div>
             )}
@@ -198,51 +199,48 @@ export function BpjsKesReconciliationPanel({
               <Input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder='Cari nama, NIK, Nopeg, No BPJS...'
+                placeholder={m.payroll_recon_search()}
                 className='pl-9 h-9 text-xs bg-background rounded-xl'
               />
             </div>
 
             <div className='flex items-center gap-1 bg-muted/40 p-1 rounded-xl border border-border/60 text-xs'>
-              <button
+              <Button
                 type='button'
+                size='xs'
+                variant={statusFilter === 'ALL' ? 'secondary' : 'ghost'}
+                aria-pressed={statusFilter === 'ALL'}
                 onClick={() => setStatusFilter('ALL')}
-                className={`px-2.5 py-1 rounded-lg font-semibold cursor-pointer transition-colors ${
-                  statusFilter === 'ALL'
-                    ? 'bg-background text-foreground shadow-2xs'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
+                className='rounded-lg'
               >
-                Semua ({rows.length})
-              </button>
-              <button
+                {m.payroll_recon_all({ count: rows.length })}
+              </Button>
+              <Button
                 type='button'
+                size='xs'
+                variant={statusFilter === 'ISSUES' ? 'secondary' : 'ghost'}
+                aria-pressed={statusFilter === 'ISSUES'}
                 onClick={() => setStatusFilter('ISSUES')}
-                className={`px-2.5 py-1 rounded-lg font-semibold cursor-pointer transition-colors ${
-                  statusFilter === 'ISSUES'
-                    ? 'bg-amber-500/20 text-amber-700 dark:text-amber-300 font-bold'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
+                className='rounded-lg'
               >
-                Perlu Perhatian ({issueCount})
-              </button>
-              <button
+                {m.payroll_recon_issues({ count: issueCount })}
+              </Button>
+              <Button
                 type='button'
+                size='xs'
+                variant={statusFilter === 'MATCH' ? 'secondary' : 'ghost'}
+                aria-pressed={statusFilter === 'MATCH'}
                 onClick={() => setStatusFilter('MATCH')}
-                className={`px-2.5 py-1 rounded-lg font-semibold cursor-pointer transition-colors ${
-                  statusFilter === 'MATCH'
-                    ? 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
+                className='rounded-lg'
               >
-                Match ({summary.matchCount})
-              </button>
+                {m.payroll_recon_matched({ count: summary.matchCount })}
+              </Button>
             </div>
           </div>
 
           <div className='flex items-center gap-2'>
             <span className='text-xs text-muted-foreground font-semibold'>
-              Periode {periodLabel} · {filteredRows.length} baris
+              {m.payroll_recon_period_rows({ period: periodLabel, count: filteredRows.length })}
             </span>
             {onDownloadExcel && (
               <Button
@@ -252,7 +250,7 @@ export function BpjsKesReconciliationPanel({
                 className='h-8.5 px-3 text-xs font-semibold rounded-xl gap-1.5'
               >
                 <IconFileSpreadsheet size={15} />
-                Download Rekonsiliasi Excel
+                {m.payroll_recon_download()}
               </Button>
             )}
           </div>
@@ -262,23 +260,23 @@ export function BpjsKesReconciliationPanel({
           <Table>
             <TableHeader>
               <TableRow className='bg-muted/30 text-xs border-b border-border/60 whitespace-nowrap'>
-                <TableHead className='font-bold text-muted-foreground py-3.5 pl-6'>Peserta / Karyawan</TableHead>
-                <TableHead className='font-bold text-muted-foreground py-3.5'>Project</TableHead>
-                <TableHead className='font-bold text-muted-foreground py-3.5'>Upah Tagihan vs Payroll</TableHead>
-                <TableHead className='font-bold text-muted-foreground py-3.5'>1% Karyawan (Tagihan / Payroll)</TableHead>
-                <TableHead className='font-bold text-muted-foreground py-3.5'>Kel. Tambahan</TableHead>
-                <TableHead className='font-bold text-muted-foreground py-3.5'>4% Perusahaan</TableHead>
-                <TableHead className='font-bold text-muted-foreground py-3.5'>Total Tagihan</TableHead>
-                <TableHead className='font-bold text-muted-foreground py-3.5'>Total di Payroll</TableHead>
-                <TableHead className='font-bold text-muted-foreground py-3.5'>Selisih (+/-)</TableHead>
-                <TableHead className='font-bold text-muted-foreground py-3.5 pr-6'>Status & Diagnosa</TableHead>
+                <TableHead className='font-bold text-muted-foreground py-3.5 pl-6'>{m.payroll_recon_col_employee()}</TableHead>
+                <TableHead className='font-bold text-muted-foreground py-3.5'>{m.payroll_recon_col_project()}</TableHead>
+                <TableHead className='font-bold text-muted-foreground py-3.5'>{m.payroll_recon_col_wage()}</TableHead>
+                <TableHead className='font-bold text-muted-foreground py-3.5'>{m.payroll_recon_col_employee_contribution()}</TableHead>
+                <TableHead className='font-bold text-muted-foreground py-3.5'>{m.payroll_recon_col_family()}</TableHead>
+                <TableHead className='font-bold text-muted-foreground py-3.5'>{m.payroll_recon_col_employer()}</TableHead>
+                <TableHead className='font-bold text-muted-foreground py-3.5'>{m.payroll_recon_col_total_bill()}</TableHead>
+                <TableHead className='font-bold text-muted-foreground py-3.5'>{m.payroll_recon_col_total_payroll()}</TableHead>
+                <TableHead className='font-bold text-muted-foreground py-3.5'>{m.payroll_recon_col_difference()}</TableHead>
+                <TableHead className='font-bold text-muted-foreground py-3.5 pr-6'>{m.payroll_recon_col_diagnosis()}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredRows.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={10} className='text-center py-10 text-xs text-muted-foreground'>
-                    Tidak ada data rekonsiliasi yang sesuai dengan filter pencarian.
+                    {m.payroll_recon_empty()}
                   </TableCell>
                 </TableRow>
               ) : (
@@ -317,7 +315,7 @@ export function BpjsKesReconciliationPanel({
                       <div className='space-y-0.5'>
                         <span className='font-semibold text-foreground'>{formatIDR(r.billingWage)}</span>
                         <p className='text-[10px] text-muted-foreground'>
-                          Payroll: {formatIDR(r.payrollWage)}
+                          {m.payroll_recon_payroll_amount({ amount: formatIDR(r.payrollWage) })}
                         </p>
                       </div>
                     </TableCell>
@@ -328,7 +326,7 @@ export function BpjsKesReconciliationPanel({
                           -{formatIDR(r.billingEmployee1Pct)}
                         </span>
                         <p className='text-[10px] text-muted-foreground'>
-                          Payroll: -{formatIDR(r.payrollEmployee1Pct)}
+                          {m.payroll_recon_payroll_amount({ amount: `-${formatIDR(r.payrollEmployee1Pct)}` })}
                         </p>
                       </div>
                     </TableCell>

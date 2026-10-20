@@ -1,5 +1,10 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, redirect } from '@tanstack/react-router'
 
-import { LeaveApprovalPage } from '@/features/leave/pages/leave-approval-page'
-
-export const Route = createFileRoute('/(app)/leave/approval/')({ component: LeaveApprovalPage })
+export const Route = createFileRoute('/(app)/leave/approval/')({
+  beforeLoad: () => {
+    throw redirect({
+      to: '/approval',
+      search: { tab: 'leave' },
+    })
+  },
+})

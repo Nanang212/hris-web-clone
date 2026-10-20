@@ -4,9 +4,15 @@
 
 import { IconAlertTriangle, IconCheck, IconPlus, IconTrash } from '@tabler/icons-react'
 import { useMemo, useState } from 'react'
+import dayjs from 'dayjs'
+import 'dayjs/locale/en'
+import 'dayjs/locale/id'
 import { usePayrollBpjsStore } from '../store/payroll-bpjs-store'
 import type { WageCapRule } from '../types'
+import { m } from '@/i18n/paraglide/messages'
+import { getLocale } from '@/i18n/paraglide/runtime'
 import { Button } from '@/shared/components/ui/button'
+import { FieldLabel } from '@/shared/components/ui/field'
 import { Input } from '@/shared/components/ui/input'
 import { TableActionButton } from '@/shared/components/ui/table-action-button'
 import { snackbar } from '@/shared/lib/snackbar'
@@ -68,28 +74,8 @@ export function WageCapRulesCard({ scope = 'all' }: WageCapRulesCardProps) {
     return JSON.stringify(sortedCurrent) !== JSON.stringify(sortedSaved)
   }, [rules, savedRules, scope])
 
-  const formatSaveTimestamp = (date: Date = new Date()) => {
-    const day = String(date.getDate()).padStart(2, '0')
-    const months = [
-      'Januari',
-      'Februari',
-      'Maret',
-      'April',
-      'Mei',
-      'Juni',
-      'Juli',
-      'Agustus',
-      'September',
-      'Oktober',
-      'November',
-      'Desember',
-    ]
-    const month = months[date.getMonth()]
-    const year = date.getFullYear()
-    const hours = String(date.getHours()).padStart(2, '0')
-    const minutes = String(date.getMinutes()).padStart(2, '0')
-    return `${day} ${month} ${year} pukul ${hours}:${minutes} WIB`
-  }
+  const formatSaveTimestamp = (date: Date = new Date()) =>
+    m.payroll_wage_cap_timestamp({ timestamp: dayjs(date).locale(getLocale()).format('DD MMMM YYYY HH:mm') })
 
   const update = (id: string, patch: Partial<WageCapRule>) =>
     setRules((prev) => prev.map((rule) => (rule.id === id ? { ...rule, ...patch } : rule)))
@@ -100,22 +86,22 @@ export function WageCapRulesCard({ scope = 'all' }: WageCapRulesCardProps) {
       ...prev,
       {
         id: `cap-${Date.now()}`,
-        effectiveFrom: new Date().toISOString().slice(0, 7),
+        effectiveFrom: dayjs().format('YYYY-MM'),
         kesMaxWageCap: last?.kesMaxWageCap ?? 12_000_000,
         jpMaxWageCap: last?.jpMaxWageCap ?? 10_042_300,
       },
     ])
-    snackbar.info('Aturan cap baru ditambahkan. Klik "Simpan cap" untuk menyimpan.')
+    snackbar.info(m.payroll_wage_cap_added())
   }
 
   const handleSave = () => {
     if (rules.length === 0) {
-      snackbar.error('Minimal harus ada satu aturan cap.')
+      snackbar.error(m.payroll_wage_cap_required())
       return
     }
     const months = rules.map((r) => r.effectiveFrom)
     if (months.some((m) => !m) || new Set(months).size !== months.length) {
-      snackbar.error('Tanggal berlaku harus diisi dan tidak boleh sama antar aturan.')
+      snackbar.error(m.payroll_wage_cap_unique_dates())
       return
     }
     const timestampStr = formatSaveTimestamp()
@@ -123,26 +109,26 @@ export function WageCapRulesCard({ scope = 'all' }: WageCapRulesCardProps) {
     setLastSavedAt(timestampStr)
     snackbar.success(
       scope === 'kes'
-        ? `Cap upah BPJS Kesehatan berhasil disimpan pada ${timestampStr}.`
+        ? m.payroll_wage_cap_saved_kes({timestamp: timestampStr})
         : scope === 'tk'
-          ? `Cap upah Jaminan Pensiun (JP) BPJS TK berhasil disimpan pada ${timestampStr}.`
-          : `Cap upah BPJS berhasil disimpan pada ${timestampStr}.`,
+          ? m.payroll_wage_cap_saved_tk({timestamp: timestampStr})
+          : m.payroll_wage_cap_saved_all({timestamp: timestampStr}),
     )
   }
 
   const cardTitle =
     scope === 'kes'
-      ? 'Batas Upah Maksimal (Cap) BPJS Kesehatan & Tanggal Berlaku'
+      ? m.payroll_wage_cap_title_kes()
       : scope === 'tk'
-        ? 'Batas Upah Maksimal (Cap) Jaminan Pensiun (JP) & Tanggal Berlaku'
-        : 'Batas Upah Maksimal (Cap) & Tanggal Berlaku'
+        ? m.payroll_wage_cap_title_tk()
+        : m.payroll_wage_cap_title_all()
 
   const cardDescription =
     scope === 'kes'
-      ? 'Plafon dasar upah maksimal untuk perhitungan iuran BPJS Kesehatan (4% perusahaan & 1% karyawan). Payroll memakai aturan terbaru yang sudah berlaku di periode tersebut, jadi periode lama tidak berubah saat cap diganti.'
+      ? m.payroll_wage_cap_description_kes()
       : scope === 'tk'
-        ? 'Plafon dasar upah maksimal tahunan untuk program Jaminan Pensiun BPJS TK (2% perusahaan & 1% karyawan). Program BPJS TK lain (JKK, JKM, JHT) tidak memiliki batas upah.'
-        : 'Cap BPJS Kesehatan dan JP. Payroll memakai aturan terbaru yang sudah berlaku di periode tersebut, jadi periode lama tidak berubah saat cap diganti.'
+        ? m.payroll_wage_cap_description_tk()
+        : m.payroll_wage_cap_description_all()
 
   const gridColsClass =
     scope === 'all'
@@ -164,7 +150,7 @@ export function WageCapRulesCard({ scope = 'all' }: WageCapRulesCardProps) {
           onClick={handleAdd}
         >
           <IconPlus size={15} />
-          Tambah aturan
+          {m.payroll_wage_cap_add_button()}
         </Button>
       </div>
 
@@ -179,16 +165,16 @@ export function WageCapRulesCard({ scope = 'all' }: WageCapRulesCardProps) {
               </span>
               <IconAlertTriangle size={16} className='text-amber-600 dark:text-amber-400 shrink-0' />
               <span>
-                <b className='font-semibold'>Perubahan belum disimpan.</b> Nilai batas upah (cap) telah diubah. Klik tombol <i>"Simpan cap"</i> di bawah untuk menyimpan.
+                {m.payroll_wage_cap_unsaved_description()}
               </span>
             </div>
             <Button
               type='button'
               size='sm'
-              className='h-7.5 px-3 text-xs font-semibold rounded-lg bg-amber-600 hover:bg-amber-700 text-white shrink-0 shadow-2xs cursor-pointer'
+              className='shrink-0'
               onClick={handleSave}
             >
-              Simpan Sekarang
+              {m.payroll_wage_cap_save_now()}
             </Button>
           </div>
         )}
@@ -203,7 +189,7 @@ export function WageCapRulesCard({ scope = 'all' }: WageCapRulesCardProps) {
                 className={`grid ${gridColsClass} gap-3.5 items-end p-3.5 rounded-xl border border-border/70 bg-muted/20 hover:bg-muted/30 transition-colors shadow-2xs`}
               >
                 <div className='space-y-1.5'>
-                  <label className='text-[11px] font-semibold text-muted-foreground'>Berlaku mulai</label>
+                  <FieldLabel className='text-[11px] font-semibold text-muted-foreground'>{m.payroll_wage_cap_effective_from()}</FieldLabel>
                   <Input
                     type='month'
                     value={rule.effectiveFrom}
@@ -215,10 +201,10 @@ export function WageCapRulesCard({ scope = 'all' }: WageCapRulesCardProps) {
                 {/* Input Cap BPJS Kesehatan (hanya ditampilkan jika scope === 'all' atau 'kes') */}
                 {(scope === 'all' || scope === 'kes') && (
                   <div className='space-y-1.5'>
-                    <label className='text-[11px] font-semibold text-muted-foreground flex items-center justify-between'>
-                      <span>Cap BPJS Kesehatan (4% & 1%)</span>
-                      <span className='text-[10px] text-muted-foreground font-normal'>Dasar iuran maks.</span>
-                    </label>
+                    <FieldLabel className='text-[11px] font-semibold text-muted-foreground flex items-center justify-between'>
+                      <span>{m.payroll_wage_cap_kes_label()}</span>
+                      <span className='text-[10px] text-muted-foreground font-normal'>{m.payroll_wage_cap_base_hint()}</span>
+                    </FieldLabel>
                     <div className='relative flex items-center'>
                       <span className='absolute left-3 text-xs font-bold text-muted-foreground select-none pointer-events-none'>
                         Rp
@@ -238,10 +224,10 @@ export function WageCapRulesCard({ scope = 'all' }: WageCapRulesCardProps) {
                 {/* Input Cap JP BPJS TK (hanya ditampilkan jika scope === 'all' atau 'tk') */}
                 {(scope === 'all' || scope === 'tk') && (
                   <div className='space-y-1.5'>
-                    <label className='text-[11px] font-semibold text-muted-foreground flex items-center justify-between'>
-                      <span>Cap JP - Jaminan Pensiun (1% & 2%)</span>
-                      <span className='text-[10px] text-muted-foreground font-normal'>Plafon tahunan</span>
-                    </label>
+                    <FieldLabel className='text-[11px] font-semibold text-muted-foreground flex items-center justify-between'>
+                      <span>{m.payroll_wage_cap_jp_label()}</span>
+                      <span className='text-[10px] text-muted-foreground font-normal'>{m.payroll_wage_cap_annual_hint()}</span>
+                    </FieldLabel>
                     <div className='relative flex items-center'>
                       <span className='absolute left-3 text-xs font-bold text-muted-foreground select-none pointer-events-none'>
                         Rp
@@ -259,7 +245,7 @@ export function WageCapRulesCard({ scope = 'all' }: WageCapRulesCardProps) {
                 )}
 
                 <TableActionButton
-                  tooltip='Hapus aturan'
+                  tooltip={m.payroll_wage_cap_delete_rule()}
                   icon={<IconTrash size={15} />}
                   intent='danger'
                   disabled={rules.length <= 1}
@@ -272,7 +258,7 @@ export function WageCapRulesCard({ scope = 'all' }: WageCapRulesCardProps) {
         {/* Footer dengan Count, Status Note dan Tombol Simpan */}
         <div className='flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-border/60'>
           <p className='text-xs text-muted-foreground'>
-            Total <b>{rules.length}</b> aturan batas upah (cap).
+            {m.payroll_wage_cap_rule_count({count: rules.length})}
           </p>
 
           <div className='flex flex-wrap items-center gap-3'>
@@ -285,10 +271,10 @@ export function WageCapRulesCard({ scope = 'all' }: WageCapRulesCardProps) {
                 <IconAlertTriangle size={15} className='text-amber-600 dark:text-amber-400 shrink-0' />
                 <span>
                   {scope === 'kes'
-                    ? 'Perubahan cap BPJS Kesehatan belum disimpan'
+                    ? m.payroll_wage_cap_unsaved_kes()
                     : scope === 'tk'
-                      ? 'Perubahan cap JP BPJS TK belum disimpan'
-                      : 'Perubahan belum disimpan'}
+                      ? m.payroll_wage_cap_unsaved_tk()
+                      : m.payroll_wage_cap_unsaved_all()}
                 </span>
               </div>
             ) : lastSavedAt ? (
@@ -296,28 +282,24 @@ export function WageCapRulesCard({ scope = 'all' }: WageCapRulesCardProps) {
                 <IconCheck size={15} className='text-emerald-600 dark:text-emerald-400 shrink-0' />
                 <span>
                   {scope === 'kes'
-                    ? `Data cap BPJS Kesehatan berhasil disimpan pada ${lastSavedAt}`
+                    ? m.payroll_wage_cap_saved_kes({timestamp: lastSavedAt})
                     : scope === 'tk'
-                      ? `Data cap JP BPJS TK berhasil disimpan pada ${lastSavedAt}`
-                      : `Data berhasil disimpan pada ${lastSavedAt}`}
+                      ? m.payroll_wage_cap_saved_tk({timestamp: lastSavedAt})
+                      : m.payroll_wage_cap_saved_all({timestamp: lastSavedAt})}
                 </span>
               </div>
             ) : null}
 
             <Button
               type='button'
-              className={`h-9 px-5 text-xs font-semibold rounded-xl shadow-xs transition-all cursor-pointer ${
-                isDirty
-                  ? 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-md ring-2 ring-primary/20'
-                  : 'bg-primary/85 hover:bg-primary text-primary-foreground'
-              }`}
+              size='sm'
               onClick={handleSave}
             >
               {scope === 'kes'
-                ? 'Simpan cap BPJS Kesehatan'
+                ? m.payroll_wage_cap_save_kes()
                 : scope === 'tk'
-                  ? 'Simpan cap JP BPJS TK'
-                  : 'Simpan cap'}
+                  ? m.payroll_wage_cap_save_tk()
+                  : m.payroll_wage_cap_save_all()}
             </Button>
           </div>
         </div>

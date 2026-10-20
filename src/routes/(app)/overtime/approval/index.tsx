@@ -1,7 +1,10 @@
-import { createFileRoute } from '@tanstack/react-router'
-
-import { OvertimeApprovalPage } from '@/features/overtime/pages/overtime-approval-page'
+import { createFileRoute, redirect } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/(app)/overtime/approval/')({
-  component: OvertimeApprovalPage,
+  beforeLoad: () => {
+    throw redirect({
+      to: '/approval',
+      search: { tab: 'overtime' },
+    })
+  },
 })

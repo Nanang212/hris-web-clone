@@ -1,12 +1,9 @@
 // src/features/payroll/types/index.ts — Complete TypeScript definitions for Payroll Module
 
-export type PayrollTab = 'overview' | 'configuration' | 'process' | 'approval' | 'payslip' | 'attendance'
+export type PayrollTab =
+  'overview' | 'configuration' | 'process' | 'approval' | 'payslip' | 'attendance'
 
-export type AttendanceSyncStatus =
-  | 'synced_auto'
-  | 'synced_manual'
-  | 'pending'
-  | 'needs_review'
+export type AttendanceSyncStatus = 'synced_auto' | 'synced_manual' | 'pending' | 'needs_review'
 
 export interface AttendancePayrollRecord {
   nik: string
@@ -22,15 +19,27 @@ export interface AttendancePayrollRecord {
 }
 
 export type ConfigSubTab =
-  | 'general'
-  | 'components'
-  | 'bpjs-tk'
-  | 'bpjs-kes'
-  | 'pph21'
-  | 'thr'
+  'general' | 'components' | 'employee-components' | 'bpjs-tk' | 'bpjs-kes' | 'pph21' | 'thr'
 
 export type PayrollStatus = 'draft' | 'in_review' | 'approved' | 'disbursed'
 export type PayslipStatus = 'draft' | 'published' | 'sent' | 'downloaded'
+
+export type PayrollComponentKind =
+  | 'fixed_allowance'
+  | 'variable_allowance'
+  | 'overtime'
+  | 'thr_bonus'
+  | 'arrears'
+  | 'tax_allowance'
+  | 'other_taxable_income'
+  | 'non_taxable_payment'
+  | 'taxable_benefit'
+  | 'attendance_reduction'
+  | 'qualified_pension'
+  | 'qualified_zakat'
+  | 'loan'
+  | 'cash_advance'
+  | 'other_deduction'
 
 export interface SalaryComponent {
   id: string
@@ -41,6 +50,7 @@ export interface SalaryComponent {
   isTaxable: boolean
   isBpjsBase: boolean
   calculationType: 'fixed_amount' | 'percentage' | 'formula' | 'attendance_based'
+  componentKind?: PayrollComponentKind
   defaultAmount: number
   description?: string
   status: 'active' | 'inactive'
@@ -102,6 +112,11 @@ export interface EmployeePayrollDetail {
   unpaidLeaveDeduction: number
   lateDeduction: number
   loanDeduction: number
+  qualifiedPensionDeduction?: number
+  qualifiedZakatDeduction?: number
+  otherDeductions?: number
+  nonTaxablePayments?: number
+  taxableBenefits?: number
   bpjsTkEmployee: number
   bpjsTkEmployer: number
   bpjsKesEmployee: number
@@ -133,6 +148,10 @@ export interface EmployeePayrollDetail {
   bpjsTkJhtEmployer?: number
   bpjsTkJpEmployer?: number
   taxableIncome?: number // penghasilan bruto kena pajak bulan ini
+  taxRatePercent?: number
+  taxScheme?: 'TER_PMK168' | 'PROGRESSIVE_PASAL17'
+  terCategory?: 'A' | 'B' | 'C'
+  finalTaxReconciliation?: FinalTaxReconciliation
   totalFixedEarnings?: number
   totalVariableEarnings?: number
   totalFixedDeductions?: number
@@ -146,6 +165,8 @@ export interface ManualAdjustmentItem {
   name: string
   amount: number
   type: 'allowance' | 'deduction'
+  componentKind?: PayrollComponentKind
+  isTaxable?: boolean
   note?: string
 }
 
@@ -158,6 +179,9 @@ export interface PayrollInputLine {
   type: 'allowance' | 'deduction'
   amount: number
   isTaxable: boolean
+  componentKind?: PayrollComponentKind
+  /** False for taxable benefits that increase tax gross but are not transferred to the employee. */
+  cashImpact?: boolean
 }
 
 /** Baris komponen setelah dihitung: menyimpan asalnya agar rincian bisa diperiksa. */
@@ -205,6 +229,50 @@ export interface PayrollEmployeeInput {
     remainingBalance: number
     amount: number
   }
+  taxYearToDate?: TaxYearToDateInput
+}
+
+export interface TaxYearToDateInput {
+  isFinalTaxPeriod?: boolean
+  verified?: boolean
+  priorTaxableGross: number
+  priorEmployeePensionContributions: number
+  priorQualifiedZakat: number
+  priorPph21Paid: number
+  monthsWorked: number
+}
+
+export interface FinalTaxReconciliation {
+  cumulativeTaxableGross: number
+  jobCost: number
+  employeePensionContributions: number
+  qualifiedZakat: number
+  cumulativeNetIncome: number
+  annualPtkp: number
+  taxableIncomePkp: number
+  annualPph21: number
+  priorPph21Paid: number
+  currentPeriodPph21: number
+}
+
+export interface EmployeePayrollComponent {
+  id: string
+  employeeId: string
+  employeeName: string
+  employeeCode: string
+  name: string
+  code: string
+  type: 'allowance' | 'deduction'
+  /** Determines whether a component affects cash, taxable gross, or final-period deductions. */
+  componentKind?: PayrollComponentKind
+  amount: number
+  frequency: 'one_time' | 'recurring' | 'installment'
+  startPeriod: string
+  endPeriod?: string
+  originalAmount?: number
+  remainingBalance?: number
+  status: 'active' | 'completed' | 'paused'
+  notes?: string
 }
 
 /**
@@ -230,6 +298,13 @@ export interface BpjsTkProjectSetting {
   jkkRatePercent: number // 0.24 / 0.54 / 0.89 / 1.24 / 1.74
   jhtActive: boolean
   jpActive: boolean
+}
+
+/** Kebijakan apakah absensi (alpa & telat) memotong payroll untuk karyawan pada project ini. */
+export interface ProjectAttendancePayrollPolicy {
+  attendanceAffectsPayroll: boolean
+  deductAbsence: boolean
+  deductLate: boolean
 }
 
 /** Batas maksimal dasar upah (cap) dengan tanggal berlaku. */

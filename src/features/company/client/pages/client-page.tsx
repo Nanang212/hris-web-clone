@@ -1,4 +1,13 @@
-import { IconEdit, IconPlus, IconTrash } from '@tabler/icons-react'
+import {
+  IconBriefcase,
+  IconBuildingSkyscraper,
+  IconEdit,
+  IconFolderCheck,
+  IconFolderOff,
+  IconPlus,
+  IconSearch,
+  IconTrash,
+} from '@tabler/icons-react'
 import { useMemo, useState } from 'react'
 
 import { useProjects } from '@/features/company/project/data/dummy-projects'
@@ -29,6 +38,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/shared/components/ui/table'
+import { TablePagination } from '@/shared/components/ui/table-pagination'
 import {
   Tooltip,
   TooltipContent,
@@ -68,6 +78,8 @@ export function ClientPage() {
 
   const [search, setSearch] = useState('')
   const [projectUsage, setProjectUsage] = useState<'ALL' | 'USED' | 'UNUSED'>('ALL')
+  const [currentPage, setCurrentPage] = useState(1)
+  const [pageSize, setPageSize] = useState(10)
 
   // Modals state
   const [isAddOpen, setIsAddOpen] = useState(false)
@@ -105,6 +117,47 @@ export function ClientPage() {
       return true
     })
   }, [clients, search, projectUsage, clientProjectCounts])
+
+  const totalPages = Math.max(1, Math.ceil(filteredClients.length / pageSize))
+  const safeCurrentPage = Math.min(currentPage, totalPages)
+
+  const paginatedClients = useMemo(() => {
+    const start = (safeCurrentPage - 1) * pageSize
+    return filteredClients.slice(start, start + pageSize)
+  }, [filteredClients, safeCurrentPage, pageSize])
+
+  const usedClientsCount = clients.filter((c) => (clientProjectCounts.get(c.id) ?? 0) > 0).length
+  const unusedClientsCount = clients.filter((c) => (clientProjectCounts.get(c.id) ?? 0) === 0).length
+  const statsCards = [
+    {
+      label: 'Total Klien',
+      value: clients.length,
+      icon: IconBuildingSkyscraper,
+      color: 'text-blue-600',
+      bg: 'bg-blue-50 dark:bg-blue-950/30',
+    },
+    {
+      label: 'Klien Aktif (Ada Proyek)',
+      value: usedClientsCount,
+      icon: IconFolderCheck,
+      color: 'text-emerald-600',
+      bg: 'bg-emerald-50 dark:bg-emerald-950/30',
+    },
+    {
+      label: 'Klien Tanpa Proyek',
+      value: unusedClientsCount,
+      icon: IconFolderOff,
+      color: 'text-slate-600',
+      bg: 'bg-slate-100 dark:bg-slate-900/50',
+    },
+    {
+      label: 'Total Proyek Terkait',
+      value: projects.length,
+      icon: IconBriefcase,
+      color: 'text-amber-600',
+      bg: 'bg-amber-50 dark:bg-amber-950/30',
+    },
+  ]
 
   // Open Edit Modal
   const openEditModal = (client: Client) => {
@@ -183,94 +236,137 @@ export function ClientPage() {
         { to: '.', label: 'Client' },
       ]}
       className='w-full max-w-full min-w-0 gap-6'
-      actions={
-        <Button
-          type='button'
-          onClick={() => {
-            setAddForm(defaultFormData)
-            setIsAddOpen(true)
-          }}
-          className='h-10 gap-1.5 rounded-lg bg-blue-600 px-4 text-xs font-semibold text-white shadow-xs hover:bg-blue-700'
-        >
-          <IconPlus size={16} />
-          Add Client
-        </Button>
-      }
     >
-      <div className='flex flex-col gap-6'>
-        {/* Filters Row */}
-        <div className='grid gap-4 sm:grid-cols-2'>
-          <div>
-            <FieldLabel htmlFor='search-client' className='text-xs font-semibold text-foreground'>
-              Search Client
-            </FieldLabel>
-            <Input
-              id='search-client'
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder='Search code, name, PIC, or email'
-              className='mt-1.5 h-10 text-xs'
-            />
-          </div>
+      <div className='flex flex-col gap-4'>
+        {/* ── Top Stats Cards ── */}
+        <div className='mb-2 grid grid-cols-2 gap-4 lg:grid-cols-4'>
+          {statsCards.map((card) => {
+            const Icon = card.icon
+            return (
+              <div
+                key={card.label}
+                className='flex items-center gap-4 rounded-2xl border border-border/60 bg-card p-5 shadow-sm'
+              >
+                <div
+                  className={`flex size-11 shrink-0 items-center justify-center rounded-xl ${card.bg}`}
+                >
+                  <Icon size={22} className={card.color} />
+                </div>
+                <div className='min-w-0'>
+                  <p className='text-[11px] font-medium text-muted-foreground'>{card.label}</p>
+                  <p className={`text-2xl font-extrabold ${card.color}`}>{card.value}</p>
+                </div>
+              </div>
+            )
+          })}
+        </div>
 
-          <div>
-            <FieldLabel htmlFor='project-usage' className='text-xs font-semibold text-foreground'>
-              Project Usage
-            </FieldLabel>
+        {/* ── Filter and Action Bar ── */}
+        <div className='flex flex-col items-stretch justify-between gap-3 rounded-2xl border border-border/80 bg-card p-4 lg:flex-row lg:items-center shadow-xs'>
+          <div className='flex min-w-0 flex-1 flex-wrap items-center gap-2.5'>
+            {/* Search Input */}
+            <div className='relative w-full sm:w-64'>
+              <IconSearch
+                size={14}
+                className='absolute top-1/2 left-3 -translate-y-1/2 text-muted-foreground'
+              />
+              <Input
+                id='search-client'
+                value={search}
+                onChange={(e) => {
+                  setSearch(e.target.value)
+                  setCurrentPage(1)
+                }}
+                placeholder='Search code, name, PIC, or email...'
+                className='h-9 w-full rounded-xl bg-background pl-9 text-xs'
+              />
+            </div>
+
+            {/* Project Usage Filter */}
             <Select
               value={projectUsage}
-              onValueChange={(val) => setProjectUsage(val as 'ALL' | 'USED' | 'UNUSED')}
+              onValueChange={(val) => {
+                setProjectUsage(val as 'ALL' | 'USED' | 'UNUSED')
+                setCurrentPage(1)
+              }}
             >
-              <SelectTrigger id='project-usage' className='mt-1.5 h-10 text-xs'>
+              <SelectTrigger id='project-usage' className='h-9 w-full rounded-xl bg-background text-xs sm:w-48'>
                 <SelectValue placeholder='All clients' />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value='ALL'>All clients</SelectItem>
-                <SelectItem value='USED'>Used in projects</SelectItem>
-                <SelectItem value='UNUSED'>Not used in projects</SelectItem>
+                <SelectItem value='ALL'>Semua Klien</SelectItem>
+                <SelectItem value='USED'>Digunakan di Proyek</SelectItem>
+                <SelectItem value='UNUSED'>Belum Ada Proyek</SelectItem>
               </SelectContent>
             </Select>
           </div>
+
+          <div className='flex items-center justify-between gap-3 sm:justify-end'>
+            <span className='text-xs font-medium text-muted-foreground'>
+              {filteredClients.length} klien ditemukan
+            </span>
+            <Button
+              type='button'
+              size='sm'
+              className='h-9 shrink-0 gap-1.5 rounded-xl px-4 text-xs font-bold shadow-xs'
+              onClick={() => {
+                setAddForm(defaultFormData)
+                setIsAddOpen(true)
+              }}
+            >
+              <IconPlus size={15} />
+              Add Client
+            </Button>
+          </div>
         </div>
 
-        {/* Card with Table */}
-        <div className='overflow-hidden rounded-2xl border border-border/70 bg-card p-6 shadow-xs'>
+        {/* ── Card with Table ── */}
+        <div className='overflow-hidden rounded-2xl border border-border/60 bg-card shadow-sm'>
           {/* Card Header */}
-          <div className='mb-4'>
-            <h3 className='text-base font-bold text-foreground'>
-              Clients · {filteredClients.length}
-            </h3>
-            <p className='mt-0.5 text-xs text-muted-foreground'>
-              Client master data is used by the Client field when creating or editing a project.
-            </p>
+          <div className='border-b border-border/60 p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2'>
+            <div>
+              <h3 className='text-sm font-bold text-foreground'>
+                Daftar Klien
+              </h3>
+              <p className='mt-0.5 text-xs text-muted-foreground'>
+                Master data klien yang terintegrasi dengan penugasan dan operasional proyek.
+              </p>
+            </div>
+            <span className='text-xs font-medium text-muted-foreground'>
+              Menampilkan {paginatedClients.length} dari {filteredClients.length} klien
+            </span>
           </div>
 
           {/* Table */}
           <div className='overflow-x-auto'>
             <Table>
               <TableHeader>
-                <TableRow className='hover:bg-transparent'>
-                  <TableHead className='font-semibold text-xs text-foreground'>Client Code</TableHead>
-                  <TableHead className='font-semibold text-xs text-foreground'>Client Name</TableHead>
-                  <TableHead className='font-semibold text-xs text-foreground'>PIC Name</TableHead>
-                  <TableHead className='font-semibold text-xs text-foreground'>Email</TableHead>
-                  <TableHead className='font-semibold text-xs text-foreground'>Phone</TableHead>
-                  <TableHead className='font-semibold text-xs text-foreground'>Projects</TableHead>
-                  <TableHead className='font-semibold text-xs text-foreground'>Action</TableHead>
+                <TableRow>
+                  <TableHead className='w-12 text-center'>No</TableHead>
+                  <TableHead>Kode Klien</TableHead>
+                  <TableHead>Nama Klien</TableHead>
+                  <TableHead>Nama PIC</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Telepon</TableHead>
+                  <TableHead className='text-center'>Proyek</TableHead>
+                  <TableHead className='text-right'>Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredClients.length === 0 ? (
+                {paginatedClients.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={7} className='h-32 text-center text-xs text-muted-foreground'>
-                      No clients found.
+                    <TableCell colSpan={8} className='h-32 text-center text-sm text-muted-foreground'>
+                      Tidak ada data klien yang ditemukan.
                     </TableCell>
                   </TableRow>
                 ) : (
-                  filteredClients.map((client) => {
+                  paginatedClients.map((client, index) => {
                     const count = clientProjectCounts.get(client.id) ?? 0
                     return (
                       <TableRow key={client.id} className='transition-colors hover:bg-muted/30'>
+                        <TableCell className='text-center text-xs font-semibold text-muted-foreground'>
+                          {(safeCurrentPage - 1) * pageSize + index + 1}
+                        </TableCell>
                         <TableCell className='font-mono text-xs font-medium text-foreground'>
                           {client.code}
                         </TableCell>
@@ -286,17 +382,20 @@ export function ClientPage() {
                         <TableCell className='text-xs text-foreground'>
                           {client.contactPersonPhone || '-'}
                         </TableCell>
-                        <TableCell className='text-xs text-foreground'>
-                          {count} {count === 1 ? 'project' : 'projects'}
+                        <TableCell className='text-center'>
+                          <div className='inline-flex items-center gap-1.5 rounded-lg border border-border/60 bg-blue-50/60 dark:bg-blue-950/30 px-2.5 py-1 text-xs font-medium text-foreground'>
+                            <IconBriefcase className='size-3.5 text-blue-600 shrink-0' />
+                            <span>{count} Proyek</span>
+                          </div>
                         </TableCell>
-                        <TableCell className='text-xs'>
-                          <div className='flex items-center gap-1'>
+                        <TableCell className='text-right'>
+                          <div className='flex items-center justify-end gap-1'>
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <Button
                                   type='button'
                                   variant='ghost'
-                                  size='icon'
+                                  size='icon-sm'
                                   onClick={() => openEditModal(client)}
                                   className='size-8 text-muted-foreground hover:bg-primary/10 hover:text-primary'
                                   aria-label='Edit'
@@ -314,7 +413,7 @@ export function ClientPage() {
                                 <Button
                                   type='button'
                                   variant='ghost'
-                                  size='icon'
+                                  size='icon-sm'
                                   onClick={() => setDeleteTarget(client)}
                                   className='size-8 text-muted-foreground hover:bg-destructive/10 hover:text-destructive'
                                   aria-label='Delete'
@@ -336,39 +435,19 @@ export function ClientPage() {
             </Table>
           </div>
 
-          {/* Pagination Row */}
-          <div className='mt-5 flex flex-wrap items-center justify-between gap-3 text-xs text-muted-foreground'>
-            <span>
-              Showing {filteredClients.length > 0 ? 1 : 0}–{filteredClients.length} of {filteredClients.length} clients
-            </span>
-            <div className='flex items-center gap-3'>
-              <button
-                type='button'
-                disabled
-                className='cursor-not-allowed opacity-50 hover:text-foreground'
-              >
-                ‹ Previous
-              </button>
-              <span className='font-semibold text-foreground'>1</span>
-              <button
-                type='button'
-                disabled
-                className='cursor-not-allowed opacity-50 hover:text-foreground'
-              >
-                Next ›
-              </button>
-            </div>
-          </div>
-
-          {/* Project Integration Callout */}
-          <div className='mt-6 rounded-xl border border-blue-100 bg-blue-50/70 p-4 dark:border-blue-900/40 dark:bg-blue-950/25'>
-            <p className='text-xs font-bold text-blue-600 dark:text-blue-400'>
-              Project integration
-            </p>
-            <p className='mt-0.5 text-xs text-muted-foreground'>
-              The Project &gt; Client field should load its options from this Client master data.
-            </p>
-          </div>
+          {/* Table Pagination */}
+          <TablePagination
+            itemLabel='klien'
+            totalItems={filteredClients.length}
+            currentPage={safeCurrentPage}
+            pageSize={pageSize}
+            onPageChange={setCurrentPage}
+            onPageSizeChange={(newSize) => {
+              setPageSize(newSize)
+              setCurrentPage(1)
+            }}
+            pageSizeOptions={[5, 10, 20, 50]}
+          />
         </div>
       </div>
 

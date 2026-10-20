@@ -42,7 +42,7 @@ export function LeaveApprovalPage() {
       ]}
       className='gap-5 bg-muted/30'
     >
-      <LeaveTabs active='approval' />
+      <LeaveTabs active='overview' />
       <div className='grid gap-3 sm:grid-cols-2 xl:grid-cols-4'>
         {[
           {

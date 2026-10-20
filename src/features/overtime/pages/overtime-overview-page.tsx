@@ -28,9 +28,9 @@ import {
   TableRow,
 } from '@/shared/components/ui/table'
 import { cn } from '@/shared/lib/utils'
+import { useApprovalSyncStore } from '@/shared/lib/approval-sync-store'
 import {
   overtimePolicies,
-  overtimeRequests,
   overtimeTrend,
 } from '@/features/overtime/components/overtime-data'
 import { OvertimeStat, OvertimeStatus } from '@/features/overtime/components/overtime-shared'
@@ -97,6 +97,8 @@ function OvertimeTrendChart() {
 }
 
 export function OvertimeOverviewPage() {
+  const { overtimeList } = useApprovalSyncStore()
+
   return (
     <AppMain
       title={m.overtime_overview_title()}
@@ -174,7 +176,7 @@ export function OvertimeOverviewPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {overtimeRequests.map((request) => (
+                {overtimeList.map((request) => (
                   <TableRow key={request.id}>
                     <TableCell className='text-xs font-medium'>{request.employee}</TableCell>
                     <TableCell className='text-xs'>
