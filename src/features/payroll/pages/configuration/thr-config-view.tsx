@@ -22,7 +22,7 @@ import {
 import type { ThrPolicyConfig, ThrTaxInstallment, ThrEmployeeOption } from '../../types'
 import { Badge } from '@/shared/components/ui/badge'
 import { Button } from '@/shared/components/ui/button'
-import { FieldLabel } from '@/shared/components/ui/field'
+import { Field, FieldLabel } from '@/shared/components/ui/field'
 import {
   Dialog,
   DialogContent,
@@ -939,7 +939,7 @@ export function ThrConfigView() {
                                   employeeCode: emp.code,
                                   employeeName: emp.name,
                                   department: emp.department,
-                                  ...(!editingItem
+                                  ...(emp.code !== modalForm.employeeCode
                                     ? {
                                       totalThrAmount: emp.baseSalary,
                                       totalTaxAmount: emp.estimatedThrTax,
@@ -1016,12 +1016,8 @@ export function ThrConfigView() {
                           employeeCode: '',
                           employeeName: '',
                           department: '',
-                          ...(!editingItem
-                            ? {
-                              totalThrAmount: 0,
-                              totalTaxAmount: 0,
-                            }
-                            : {}),
+                          totalThrAmount: 0,
+                          totalTaxAmount: 0,
                         }))
                       }}
                       className='p-1 text-muted-foreground hover:text-destructive transition-colors rounded-md'
@@ -1035,39 +1031,31 @@ export function ThrConfigView() {
             </div>
 
             <div className='grid grid-cols-2 gap-3'>
-              <div className='space-y-1.5'>
-                <FieldLabel className='font-semibold text-foreground'>{m.payroll_thr_gross_field()}</FieldLabel>
+              <Field data-disabled>
+                <FieldLabel htmlFor='thr-schedule-amount' className='font-semibold text-foreground'>
+                  {m.payroll_thr_gross_field()}
+                </FieldLabel>
                 <Input
+                  id='thr-schedule-amount'
                   type='number'
-                  step={500000}
                   value={modalForm.totalThrAmount}
-                  onChange={(e) =>
-                    setModalForm((p) => ({
-                      ...p,
-                      totalThrAmount: parseInt(e.target.value, 10) || 0,
-                    }))
-                  }
                   className='h-9 text-xs rounded-xl'
-                  required
+                  disabled
                 />
-              </div>
+              </Field>
 
-              <div className='space-y-1.5'>
-                <FieldLabel className='font-semibold text-foreground'>{m.payroll_thr_tax_field()}</FieldLabel>
+              <Field data-disabled>
+                <FieldLabel htmlFor='thr-schedule-tax' className='font-semibold text-foreground'>
+                  {m.payroll_thr_tax_field()}
+                </FieldLabel>
                 <Input
+                  id='thr-schedule-tax'
                   type='number'
-                  step={50000}
                   value={modalForm.totalTaxAmount}
-                  onChange={(e) =>
-                    setModalForm((p) => ({
-                      ...p,
-                      totalTaxAmount: parseInt(e.target.value, 10) || 0,
-                    }))
-                  }
                   className='h-9 text-xs rounded-xl'
-                  required
+                  disabled
                 />
-              </div>
+              </Field>
             </div>
 
             <div className='grid grid-cols-2 gap-3'>
