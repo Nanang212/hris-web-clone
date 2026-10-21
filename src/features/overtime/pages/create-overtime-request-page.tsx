@@ -6,6 +6,7 @@ import {
   IconCalendarEvent,
   IconCheck,
   IconClock,
+  IconLock,
   IconMapPin,
   IconSearch,
   IconSelector,
@@ -131,6 +132,27 @@ const EMPLOYEES: EmployeeOption[] = [
   },
 ]
 
+const INDONESIAN_MONTHS = [
+  'Januari',
+  'Februari',
+  'Maret',
+  'April',
+  'Mei',
+  'Juni',
+  'Juli',
+  'Agustus',
+  'September',
+  'Oktober',
+  'November',
+  'Desember',
+]
+
+export const getOvertimePeriodFromDate = (dateStr: string) => {
+  const d = dayjs(dateStr)
+  if (!d.isValid()) return 'Agustus 2026'
+  return `${INDONESIAN_MONTHS[d.month()]} ${d.year()}`
+}
+
 export function CreateOvertimeRequestPage() {
   const navigate = useNavigate()
 
@@ -140,7 +162,10 @@ export function CreateOvertimeRequestPage() {
   const [employeeSearch, setEmployeeSearch] = useState<string>('')
   const [dayType, setDayType] = useState<'workday' | 'holiday'>('workday')
   const [overtimeDate, setOvertimeDate] = useState<string>('2026-08-14')
-  const [periodLabel, setPeriodLabel] = useState<string>('2026-08-01 s.d. 2026-08-31')
+  const periodLabel = useMemo(
+    () => getOvertimePeriodFromDate(overtimeDate),
+    [overtimeDate],
+  )
   const [eventDescription, setEventDescription] = useState<string>(
     'Operasional Tambahan & Percepatan Proyek',
   )
@@ -553,14 +578,27 @@ export function CreateOvertimeRequestPage() {
                 </Field>
 
                 <Field>
-                  <FieldLabel htmlFor='overtime-period'>Periode Lembur *</FieldLabel>
-                  <Input
-                    id='overtime-period'
-                    value={periodLabel}
-                    onChange={(e) => setPeriodLabel(e.target.value)}
-                    placeholder='2026-08-01 s.d. 2026-08-31'
-                    required
-                  />
+                  <FieldLabel htmlFor='overtime-period' className='flex items-center gap-1.5'>
+                    <span>Periode Lembur (Otomatis)</span>
+                    <Badge variant='outline' className='text-[10px] font-normal py-0 px-1.5 text-muted-foreground bg-muted/40'>
+                      Otomatis
+                    </Badge>
+                  </FieldLabel>
+                  <div className='relative'>
+                    <Input
+                      id='overtime-period'
+                      value={periodLabel}
+                      readOnly
+                      tabIndex={-1}
+                      placeholder='Agustus 2026'
+                      className='bg-muted/60 font-semibold text-muted-foreground cursor-not-allowed select-none pr-9 focus-visible:ring-0 focus-visible:border-border/80'
+                      title='Periode lembur otomatis terisi dari bulan & tahun tanggal lembur (tidak dapat diedit manual)'
+                    />
+                    <IconLock className='absolute right-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/60 pointer-events-none' />
+                  </div>
+                  <span className='text-[10.5px] text-muted-foreground'>
+                    Otomatis terisi bulan & tahun dari tanggal lembur (tidak dapat diedit).
+                  </span>
                 </Field>
               </div>
 
@@ -819,19 +857,21 @@ export function CreateOvertimeRequestPage() {
                       </label>
                     </div>
                   </div>
-                  <div className='flex'>
+                  <div className='flex items-baseline'>
                     <span className='w-24 font-medium shrink-0'>Periode lembur</span>
-                    <span className='truncate'>: {periodLabel}</span>
-                  </div>
-                  <div className='flex'>
-                    <span className='w-24 font-medium shrink-0'>Keterangan</span>
-                    <span className='font-bold truncate'>: {eventDescription}</span>
+                    <span className='font-bold text-slate-900 dark:text-zinc-100'>: {periodLabel}</span>
                   </div>
                 </div>
               </div>
 
+              {/* Keterangan Lembur - Sesuai form fisik BFP */}
+              <div className='p-2 px-2.5 bg-slate-100/70 dark:bg-zinc-800/60 border-t border-slate-900 dark:border-zinc-300 text-[11px] flex items-baseline gap-2'>
+                <span className='font-bold text-slate-700 dark:text-zinc-300 shrink-0'>Keterangan :</span>
+                <span className='font-semibold text-slate-900 dark:text-zinc-100'>{eventDescription || '-'}</span>
+              </div>
+
               {/* Uraian Tugas Kerja Lembur */}
-              <div className='p-2 px-2.5 bg-slate-50 dark:bg-zinc-900 border-t border-slate-900 dark:border-zinc-300 text-[11px] font-medium'>
+              <div className='p-2 px-2.5 bg-slate-50 dark:bg-zinc-900 border-t border-slate-900 dark:border-zinc-300 text-[11px] font-medium text-center'>
                 <strong>Uraian Tugas Kerja Lembur :</strong>{' '}
                 <span className='uppercase font-bold text-slate-900 dark:text-zinc-100'>
                   {taskDescription || 'TUGAS OPERASIONAL LAPANGAN'}

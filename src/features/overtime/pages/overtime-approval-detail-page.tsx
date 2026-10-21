@@ -14,6 +14,8 @@ import {
 import { OvertimeTabs } from '@/features/overtime/components/overtime-tabs'
 import { m } from '@/i18n/paraglide/messages'
 
+import { SpklDocumentPreview } from '@/shared/components/documents/spkl-document-preview'
+
 export function OvertimeApprovalDetailPage() {
   const navigate = useNavigate()
   const [note, setNote] = useState('')
@@ -56,11 +58,43 @@ export function OvertimeApprovalDetailPage() {
     >
       <OvertimeTabs active='requests' />
       <OvertimeRequestIdentity status='pending' />
-      <div className='grid gap-4 xl:grid-cols-[minmax(0,1.7fr)_340px]'>
-        <Card>
-          <CardHeader>
-            <CardTitle>{m.overtime_policy_check()}</CardTitle>
-          </CardHeader>
+      <div className='grid gap-6 xl:grid-cols-[minmax(0,1.9fr)_360px]'>
+        <div className='space-y-6'>
+          {/* Live Official SPKL Document Sheet Preview */}
+          <div className='space-y-2'>
+            <div className='flex items-center justify-between px-1'>
+              <h3 className='text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5'>
+                <span className='size-2 rounded-full bg-emerald-500 animate-pulse' />
+                Dokumen Resmi SPKL Yang Ditinjau
+              </h3>
+            </div>
+            <SpklDocumentPreview
+              orderNumber='SPKL/BFP/2026/VIII/088'
+              employeeName='Maya Putri'
+              nip='20261600108'
+              position='Fullstack Developer'
+              department='Engineering & Technology'
+              location='Headquarter BFP'
+              periodLabel='Agustus 2026'
+              isHoliday={false}
+              date='14/08/2026'
+              eventDescription='Deployment Sistem & Migrasi Database'
+              taskDescription='LEMBUR DEPLOYMENT SISTEM DAN MIGRASI CLOUD INFRASTRUCTURE'
+              startTime='17:00'
+              endTime='21:00'
+              actualStartTime='18:00'
+              actualEndTime='21:30'
+              totalHours={3.5}
+              status='pending'
+              approverName='Oktavianus Taufan Juwa'
+              approverTitle='HO Engineering & Technology'
+            />
+          </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>{m.overtime_policy_check()}</CardTitle>
+            </CardHeader>
           <CardContent className='px-4'>
             <OvertimeKeyValue label={m.overtime_shift_ended()} value='17:00' />
             <OvertimeKeyValue label={m.overtime_overtime_starts()} value='18:00' />

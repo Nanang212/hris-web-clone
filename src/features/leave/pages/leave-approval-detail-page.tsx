@@ -14,6 +14,8 @@ import { LeaveTabs } from '@/features/leave/components/leave-tabs'
 import { getLeaveTypeLabel } from '@/features/leave/components/leave-utils'
 import { m } from '@/i18n/paraglide/messages'
 
+import { LeaveDocumentPreview } from '@/shared/components/documents/leave-document-preview'
+
 export function LeaveApprovalDetailPage({ requestId }: Readonly<{ requestId: string }>) {
   const navigate = useNavigate()
   const [note, setNote] = useState('')
@@ -61,64 +63,59 @@ export function LeaveApprovalDetailPage({ requestId }: Readonly<{ requestId: str
       className='gap-5 bg-muted/30'
     >
       <LeaveTabs active='overview' />
-      <div className='grid gap-4 xl:grid-cols-[minmax(0,1.8fr)_320px]'>
-        <section className='rounded-2xl border border-border bg-card p-5 shadow-sm'>
-          <div className='flex items-start justify-between'>
-            <div>
-              <p className='text-xs text-muted-foreground'>{m.leave_table_employee()}</p>
-              <h3 className='mt-1 text-xl font-bold'>{request.employee}</h3>
-              <p className='text-xs text-muted-foreground'>{request.employeeRole}</p>
+      <div className='grid gap-6 xl:grid-cols-[minmax(0,1.9fr)_340px]'>
+        <div className='space-y-6'>
+          {/* Live Official Leave Document Sheet Preview */}
+          <div className='space-y-2'>
+            <div className='flex items-center justify-between px-1'>
+              <h3 className='text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5'>
+                <span className='size-2 rounded-full bg-emerald-500 animate-pulse' />
+                Dokumen Resmi Pengajuan Cuti / Izin Sakit
+              </h3>
             </div>
-            <span
-              className={cn(
-                'rounded-full px-5 py-1.5 text-xs font-semibold uppercase',
-                request.status === 'approved'
-                  ? 'bg-emerald-50 text-emerald-600'
-                  : request.status === 'rejected'
-                    ? 'bg-rose-50 text-rose-600'
-                    : 'bg-orange-50 text-orange-600',
-              )}
-            >
-              {request.status}
-            </span>
-          </div>
-          <dl className='mt-7 grid gap-5 text-sm sm:grid-cols-[180px_1fr]'>
-            <dt className='text-muted-foreground'>{m.leave_table_type()}</dt>
-            <dd className='font-medium'>{getLeaveTypeLabel(request.leaveType)}</dd>
-            <dt className='text-muted-foreground'>{m.leave_table_period()}</dt>
-            <dd className='font-medium'>
-              {request.startDate} s.d {request.endDate}
-            </dd>
-            <dt className='text-muted-foreground'>{m.leave_table_duration()}</dt>
-            <dd className='font-medium'>{m.leave_days({ count: request.duration })}</dd>
-            <dt className='text-muted-foreground'>{m.leave_create_reason_label()}</dt>
-            <dd className='font-medium'>{request.reason}</dd>
-            <dt className='text-muted-foreground'>{m.leave_approval_balance_after()}</dt>
-            <dd className='font-medium'>{m.leave_days({ count: '9' })}</dd>
-            <dt className='text-muted-foreground'>{m.leave_balance_expiry_date()}</dt>
-            <dd className='font-medium text-rose-500'>31 Dec 2026</dd>
-          </dl>
-          <Field className='mt-7'>
-            <FieldLabel htmlFor='approval-note'>{m.leave_approval_note_label()}</FieldLabel>
-            <Textarea
-              id='approval-note'
-              className='mt-2'
-              value={note}
-              onChange={(event) => setNote(event.target.value)}
-              placeholder={m.leave_approval_note_placeholder()}
+            <LeaveDocumentPreview
+              documentNumber={`CUTI/BFP/2026/VIII/${request.id.replace(/\D/g, '').slice(-3) || '042'}`}
+              employeeName={request.employee}
+              nip='20261600475'
+              position={request.employeeRole}
+              department='Operations & Logistics'
+              location='AFT Tambolaka'
+              leaveType={request.leaveType}
+              startDate={request.startDate}
+              endDate={request.endDate}
+              durationDays={request.duration}
+              reason={request.reason}
+              status={request.status}
+              approverName='Oktavianus Taufan Juwa'
+              approverTitle='HO AFT Tambolaka'
+              divHeadName='Joko Priyambodo'
+              divHeadTitle='Direktur Pemasaran & Operasi'
             />
-          </Field>
-          <div className='mt-4 flex justify-end gap-4'>
-            <Button variant='destructive' onClick={() => handleOpenConfirm('reject')}>
-              <IconX />
-              {m.leave_reject()}
-            </Button>
-            <Button onClick={() => handleOpenConfirm('approve')}>
-              <IconCircleCheck />
-              {m.leave_approve_request()}
-            </Button>
           </div>
-        </section>
+
+          <section className='rounded-2xl border border-border bg-card p-5 shadow-sm space-y-4'>
+            <Field>
+              <FieldLabel htmlFor='approval-note'>{m.leave_approval_note_label()}</FieldLabel>
+              <Textarea
+                id='approval-note'
+                className='mt-2'
+                value={note}
+                onChange={(event) => setNote(event.target.value)}
+                placeholder={m.leave_approval_note_placeholder()}
+              />
+            </Field>
+            <div className='flex justify-end gap-3'>
+              <Button variant='destructive' onClick={() => handleOpenConfirm('reject')}>
+                <IconX size={15} />
+                {m.leave_reject()}
+              </Button>
+              <Button onClick={() => handleOpenConfirm('approve')}>
+                <IconCircleCheck size={15} />
+                {m.leave_approve_request()}
+              </Button>
+            </div>
+          </section>
+        </div>
         <aside className='h-fit rounded-2xl border border-border bg-card p-5 shadow-sm'>
           <h3 className='font-semibold'>{m.leave_coverage_check_title()}</h3>
           <div className='mt-5 space-y-4 text-sm'>
