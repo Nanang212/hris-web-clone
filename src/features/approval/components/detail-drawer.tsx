@@ -2,8 +2,10 @@ import {
   IconCalendar,
   IconCheck,
   IconDownload,
+  IconEye,
   IconFileText,
   IconLoader2,
+  IconPrinter,
   IconX,
 } from '@tabler/icons-react'
 import { useState } from 'react'
@@ -12,6 +14,9 @@ import { m } from '@/i18n/paraglide/messages'
 import { getLocale } from '@/i18n/paraglide/runtime'
 import { ApprovalActionDialog } from '@/shared/components/approval/approval-action-dialog'
 import { moduleColors, moduleLabels } from '@/features/settings/approval-workflow/data'
+import { useApprovalSyncStore } from '@/shared/lib/approval-sync-store'
+import { SpklDocumentPreview } from '@/shared/components/documents/spkl-document-preview'
+import { LeaveDocumentPreview } from '@/shared/components/documents/leave-document-preview'
 import type { ApprovalRequest } from '../types'
 
 export interface ApprovalDetailDrawerProps {
@@ -232,6 +237,40 @@ export function ApprovalDetailDrawer({ request, onClose, onAction }: ApprovalDet
               </div>
             </div>
 
+            {/* Banner Preview Dokumen Resmi SPKL / Formulir Cuti */}
+            {(request.requestType === 'overtime' || request.requestType === 'leave') && (
+              <div className='rounded-2xl border border-primary/25 bg-primary/5 p-3.5 space-y-2.5'>
+                <div className='flex items-center justify-between'>
+                  <div className='flex items-center gap-2'>
+                    <div className='size-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0'>
+                      <IconFileText size={16} />
+                    </div>
+                    <div>
+                      <h4 className='text-xs font-bold text-foreground'>
+                        {request.requestType === 'overtime'
+                          ? 'Dokumen SPKL Resmi'
+                          : 'Dokumen Formulir Cuti Resmi'}
+                      </h4>
+                      <p className='text-[10px] text-muted-foreground'>
+                        Format fisik PT. Bintang Fajar Persada
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type='button'
+                    onClick={() => setShowPreview(true)}
+                    className='flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-primary text-primary-foreground text-xs font-semibold shadow-xs hover:bg-primary/90 transition-all cursor-pointer'
+                  >
+                    <IconEye size={13} />
+                    <span>Lihat Dokumen</span>
+                  </button>
+                </div>
+                <p className='text-[11px] text-muted-foreground leading-relaxed'>
+                  Tinjau lembar formulir fisik resmi sebelum memberikan persetujuan atau penolakan.
+                </p>
+              </div>
+            )}
+
             {request.attachmentUrl && (
               <div className='space-y-2'>
                 <h4 className='text-xs font-semibold tracking-wider text-muted-foreground uppercase'>
@@ -421,31 +460,57 @@ interface DocumentPreviewModalProps {
 
 function DocumentPreviewModal({ request, onClose, onDownload }: DocumentPreviewModalProps) {
   const isEn = getLocale() === 'en'
+  const isOvertime = request.requestType === 'overtime'
+  const isLeave = request.requestType === 'leave'
   const isTrip = request.requestType === 'business_trip'
   const isClaim = request.requestType === 'claim' || request.requestType === 'reimbursement'
-  const isLeave = request.requestType === 'leave'
 
-  const docTitle = isTrip
-    ? 'Surat_Perintah_Perjalanan_Dinas_SPPD.pdf'
-    : isClaim
-      ? 'Kwitansi_Resmi_Reimbursement.pdf'
-      : isLeave
-        ? 'Surat_Keterangan_Dokter.pdf'
-        : 'Dokumen_Lampiran.pdf'
+  const docTitle = isOvertime
+    ? `Surat_Perintah_Kerja_Lembur_${request.employeeName.replace(/\s+/g, '_')}.pdf`
+    : isLeave
+      ? `Formulir_Cuti_${request.employeeName.replace(/\s+/g, '_')}.pdf`
+      : isTrip
+        ? 'Surat_Perintah_Perjalanan_Dinas_SPPD.pdf'
+        : isClaim
+          ? 'Kwitansi_Resmi_Reimbursement.pdf'
+          : 'Dokumen_Lampiran.pdf'
+
+  const handlePrint = () => {
+    window.print()
+  }
 
   return (
-    <div className='fixed inset-0 z-[100] flex items-center justify-center p-4'>
+    <div className='fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4'>
       <div className='absolute inset-0 bg-black/60 backdrop-blur-sm' onClick={onClose} />
 
-      <div className='relative flex max-h-[90vh] w-full max-w-lg flex-col overflow-hidden rounded-2xl border border-border/50 bg-card shadow-2xl'>
+      <div
+        className={cn(
+          'relative flex max-h-[92vh] w-full flex-col overflow-hidden rounded-2xl border border-border/50 bg-card shadow-2xl transition-all',
+          isOvertime || isLeave ? 'max-w-3xl' : 'max-w-lg',
+        )}
+      >
         <div className='flex items-center justify-between border-b border-border bg-muted/30 p-4'>
           <div>
             <h4 className='text-sm font-bold text-foreground'>
-              {isEn ? 'Supporting Document Preview' : 'Preview Dokumen Lampiran'}
+              {isOvertime
+                ? 'Preview Surat Perintah Kerja Lembur (SPKL)'
+                : isLeave
+                  ? 'Preview Formulir Cuti / Izin Sakit'
+                  : isEn
+                    ? 'Supporting Document Preview'
+                    : 'Preview Dokumen Lampiran'}
             </h4>
             <p className='text-xs text-muted-foreground'>{docTitle}</p>
           </div>
           <div className='flex items-center gap-2'>
+            <button
+              onClick={handlePrint}
+              className='flex h-8 cursor-pointer items-center gap-1.5 rounded-lg border border-border bg-background px-3 text-xs font-semibold text-foreground transition-colors hover:bg-muted'
+              title='Cetak Dokumen'
+            >
+              <IconPrinter size={13} />
+              <span>Cetak</span>
+            </button>
             <button
               onClick={onDownload}
               className='flex h-8 cursor-pointer items-center gap-1.5 rounded-lg border border-border bg-background px-3 text-xs font-semibold text-foreground transition-colors hover:bg-muted'
@@ -463,164 +528,193 @@ function DocumentPreviewModal({ request, onClose, onDownload }: DocumentPreviewM
           </div>
         </div>
 
-        <div className='flex flex-1 items-center justify-center overflow-y-auto bg-muted/10 p-6'>
-          <div className='flex aspect-[1/1.4] w-full max-w-sm flex-col justify-between rounded-xl border border-gray-200 bg-white p-6 font-mono text-[10px] leading-relaxed text-black shadow-lg select-text'>
-            {isTrip ? (
-              <>
-                <div>
-                  <div className='mb-3 border-b border-gray-300 pb-2 text-center font-sans'>
-                    <p className='text-xs font-bold tracking-wide text-indigo-900 uppercase'>
-                      PT NUSANTARA HRIS SOLUSINDO
-                    </p>
-                    <p className='text-[7px] text-gray-500'>
-                      Jl. Sudirman No. 108, Jakarta Pusat · Telp: (021) 555-0199
-                    </p>
+        <div className='flex-1 overflow-y-auto bg-muted/10 p-4 sm:p-6'>
+          {isOvertime ? (
+            <SpklDocumentPreview
+              orderNumber={`SPKL/BFP/2026/VIII/${request.id.replace(/\D/g, '').slice(-3) || '042'}`}
+              employeeName={request.employeeName}
+              nip='20261600475'
+              position={request.position}
+              department={request.department}
+              location='AFT Tambolaka'
+              periodLabel='Agustus 2026'
+              isHoliday={true}
+              date={request.requestDate}
+              eventDescription={request.details || 'Penugasan Lembur Operasional'}
+              taskDescription={request.reason || 'PATROLI & PENGAMANAN AREA KERJA'}
+              startTime='07:00'
+              endTime='19:00'
+              actualStartTime='07:00'
+              actualEndTime='19:00'
+              totalHours={request.days || 4}
+              status={request.status}
+              approverName={request.timeline[0]?.approverName || 'Oktavianus Taufan Juwa'}
+              approverTitle='HO AFT Tambolaka'
+            />
+          ) : isLeave ? (
+            <LeaveDocumentPreview
+              documentNumber={`CUTI/BFP/2026/VIII/${request.id.replace(/\D/g, '').slice(-3) || '012'}`}
+              employeeName={request.employeeName}
+              nip='20261600475'
+              position={request.position}
+              department={request.department}
+              location='AFT Tambolaka'
+              leaveType={request.details.toLowerCase().includes('sakit') ? 'sick' : 'annual'}
+              startDate={request.requestDate}
+              endDate={dayjs(request.requestDate).add((request.days || 2) - 1, 'day').format('YYYY-MM-DD')}
+              durationDays={request.days || 2}
+              reason={request.reason || request.details}
+              status={request.status}
+              approverName={request.timeline[0]?.approverName || 'Oktavianus Taufan Juwa'}
+              approverTitle='Head Departemen'
+              divHeadName={request.timeline[1]?.approverName || 'Joko Priyambodo'}
+              divHeadTitle='Direktur Pemasaran & Operasi'
+            />
+          ) : isTrip ? (
+            <div className='flex aspect-[1/1.4] w-full max-w-sm mx-auto flex-col justify-between rounded-xl border border-gray-200 bg-white p-6 font-mono text-[10px] leading-relaxed text-black shadow-lg select-text'>
+              <div>
+                <div className='mb-3 border-b border-gray-300 pb-2 text-center font-sans'>
+                  <p className='text-xs font-bold tracking-wide text-indigo-900 uppercase'>
+                    PT. BINTANG FAJAR PERSADA
+                  </p>
+                  <p className='text-[7px] text-gray-500'>
+                    Headquarter BFP · Manpower Supply & Facility Support Services
+                  </p>
+                </div>
+                <div className='mb-3 text-center text-[9px] font-bold uppercase underline font-sans'>
+                  SURAT PERINTAH PERJALANAN DINAS (SPPD)
+                </div>
+                <div className='space-y-2 font-sans text-[8px] leading-relaxed text-gray-800'>
+                  <div className='flex justify-between border-b border-dashed border-gray-200 pb-1'>
+                    <span className='font-semibold text-gray-600'>No. SPPD:</span>
+                    <span className='font-bold text-black'>SPPD/2026/04/{request.id}</span>
                   </div>
-                  <div className='mb-3 text-center text-[9px] font-bold uppercase underline font-sans'>
-                    SURAT PERINTAH PERJALANAN DINAS (SPPD)
+                  <div className='flex justify-between'>
+                    <span className='font-semibold text-gray-600'>Nama Pegawai:</span>
+                    <span className='font-bold text-black'>{request.employeeName}</span>
                   </div>
-                  <div className='space-y-2 font-sans text-[8px] leading-relaxed text-gray-800'>
-                    <div className='flex justify-between border-b border-dashed border-gray-200 pb-1'>
-                      <span className='font-semibold text-gray-600'>No. SPPD:</span>
-                      <span className='font-bold text-black'>SPPD/2026/04/{request.id}</span>
-                    </div>
-                    <div className='flex justify-between'>
-                      <span className='font-semibold text-gray-600'>Nama Pegawai:</span>
-                      <span className='font-bold text-black'>{request.employeeName}</span>
-                    </div>
-                    <div className='flex justify-between'>
-                      <span className='font-semibold text-gray-600'>Jabatan / Dept:</span>
-                      <span>{request.position} ({request.department})</span>
-                    </div>
-                    <div className='flex justify-between'>
-                      <span className='font-semibold text-gray-600'>Kota Tujuan:</span>
-                      <span className='font-bold text-indigo-800'>{request.destination || 'Surabaya'}</span>
-                    </div>
-                    <div className='flex justify-between'>
-                      <span className='font-semibold text-gray-600'>Periode Dinas:</span>
-                      <span className='font-bold text-black'>{request.travelDates || '3 Hari'}</span>
-                    </div>
-                    <div className='flex justify-between'>
-                      <span className='font-semibold text-gray-600'>Moda Transportasi:</span>
-                      <span>{request.transportType || 'Pesawat'}</span>
-                    </div>
-                    <div className='flex justify-between border-t border-dashed border-gray-200 pt-1'>
-                      <span className='font-semibold text-gray-600'>Estimasi Biaya:</span>
-                      <span className='font-bold text-black'>Rp {(request.amount || 0).toLocaleString('id-ID')}</span>
-                    </div>
-                    <div className='flex justify-between font-bold text-indigo-900'>
-                      <span>Uang Muka (Advance):</span>
-                      <span>Rp {(request.advanceMoney || 0).toLocaleString('id-ID')}</span>
-                    </div>
+                  <div className='flex justify-between'>
+                    <span className='font-semibold text-gray-600'>Jabatan / Dept:</span>
+                    <span>{request.position} ({request.department})</span>
+                  </div>
+                  <div className='flex justify-between'>
+                    <span className='font-semibold text-gray-600'>Kota Tujuan:</span>
+                    <span className='font-bold text-indigo-800'>{request.destination || 'Surabaya'}</span>
+                  </div>
+                  <div className='flex justify-between'>
+                    <span className='font-semibold text-gray-600'>Periode Dinas:</span>
+                    <span className='font-bold text-black'>{request.travelDates || '3 Hari'}</span>
+                  </div>
+                  <div className='flex justify-between'>
+                    <span className='font-semibold text-gray-600'>Moda Transportasi:</span>
+                    <span>{request.transportType || 'Pesawat'}</span>
+                  </div>
+                  <div className='flex justify-between border-t border-dashed border-gray-200 pt-1'>
+                    <span className='font-semibold text-gray-600'>Estimasi Biaya:</span>
+                    <span className='font-bold text-black'>Rp {(request.amount || 0).toLocaleString('id-ID')}</span>
+                  </div>
+                  <div className='flex justify-between font-bold text-indigo-900'>
+                    <span>Uang Muka (Advance):</span>
+                    <span>Rp {(request.advanceMoney || 0).toLocaleString('id-ID')}</span>
                   </div>
                 </div>
-                <div className='mt-4 border-t border-dashed border-gray-300 pt-3 text-center text-[8px] text-gray-500 font-sans'>
-                  <p className='font-bold text-black'>Telah Diverifikasi oleh Travel & GA Desk</p>
-                  <p className='mt-0.5'>Dokumen sah diterbitkan secara elektronik oleh Sistem HRIS</p>
+              </div>
+              <div className='mt-4 border-t border-dashed border-gray-300 pt-3 text-center text-[8px] text-gray-500 font-sans'>
+                <p className='font-bold text-black'>Telah Diverifikasi oleh Travel & GA Desk</p>
+                <p className='mt-0.5'>Dokumen sah diterbitkan secara elektronik oleh Sistem HRIS</p>
+              </div>
+            </div>
+          ) : isClaim ? (
+            <div className='flex aspect-[1/1.4] w-full max-w-sm mx-auto flex-col justify-between rounded-xl border border-gray-200 bg-white p-6 font-mono text-[10px] leading-relaxed text-black shadow-lg select-text'>
+              <div>
+                <div className='mb-4 border-b border-dashed border-gray-400 pb-3 text-center'>
+                  <p className='text-xs font-bold tracking-wide uppercase'>
+                    RECEIPT / STRUK TRANSAKSI
+                  </p>
+                  <p className='mt-0.5 text-[8px] text-gray-500'>
+                    Merchant: {request.categoryLabel || 'Operational & Business Claim'}
+                  </p>
                 </div>
-              </>
-            ) : isClaim ? (
-              <>
-                <div>
-                  <div className='mb-4 border-b border-dashed border-gray-400 pb-3 text-center'>
-                    <p className='text-xs font-bold tracking-wide uppercase'>
-                      RECEIPT / STRUK TRANSAKSI
-                    </p>
-                    <p className='mt-0.5 text-[8px] text-gray-500'>
-                      Merchant: {request.categoryLabel || 'Operational & Business Claim'}
-                    </p>
+                <div className='mb-4 space-y-1 text-[9px]'>
+                  <div className='flex justify-between'>
+                    <span>TANGGAL:</span>
+                    <span>{request.requestDate}</span>
                   </div>
-                  <div className='mb-4 space-y-1 text-[9px]'>
-                    <div className='flex justify-between'>
-                      <span>TANGGAL:</span>
-                      <span>{request.requestDate}</span>
-                    </div>
-                    <div className='flex justify-between'>
-                      <span>KLAIM OLEH:</span>
-                      <span className='font-bold'>{request.employeeName}</span>
-                    </div>
-                    <div className='flex justify-between'>
-                      <span>REK. PENCAIRAN:</span>
-                      <span>{request.bankAccount || 'BCA Transfer'}</span>
-                    </div>
+                  <div className='flex justify-between'>
+                    <span>KLAIM OLEH:</span>
+                    <span className='font-bold'>{request.employeeName}</span>
                   </div>
-                  <div className='mb-2 border-b border-dashed border-gray-400 pb-2 font-bold'>
-                    <div className='flex justify-between'>
-                      <span>DESKRIPSI ITEM</span>
-                      <span>NOMINAL</span>
-                    </div>
+                  <div className='flex justify-between'>
+                    <span>REK. PENCAIRAN:</span>
+                    <span>{request.bankAccount || 'BCA Transfer'}</span>
                   </div>
-                  <div className='mb-3 space-y-1.5 border-b border-dashed border-gray-400 pb-3'>
-                    <div className='flex justify-between'>
-                      <span>1x {request.details}</span>
-                      <span>Rp {(request.amount || 0).toLocaleString('id-ID')}</span>
-                    </div>
+                </div>
+                <div className='mb-2 border-b border-dashed border-gray-400 pb-2 font-bold'>
+                  <div className='flex justify-between'>
+                    <span>DESKRIPSI ITEM</span>
+                    <span>NOMINAL</span>
                   </div>
-                  <div className='flex justify-between text-[11px] font-bold text-emerald-800'>
-                    <span>TOTAL KLAIM:</span>
+                </div>
+                <div className='mb-3 space-y-1.5 border-b border-dashed border-gray-400 pb-3'>
+                  <div className='flex justify-between'>
+                    <span>1x {request.details}</span>
                     <span>Rp {(request.amount || 0).toLocaleString('id-ID')}</span>
                   </div>
                 </div>
-                <div className='mt-4 border-t border-dashed border-gray-400 pt-3 text-center text-[8px] text-gray-500'>
-                  <p>OCR Scan Validated ✓ 99.8% Match</p>
-                  <p className='mt-0.5'>Siap untuk diproses oleh Tim Keuangan</p>
+                <div className='flex justify-between text-[11px] font-bold text-emerald-800'>
+                  <span>TOTAL KLAIM:</span>
+                  <span>Rp {(request.amount || 0).toLocaleString('id-ID')}</span>
                 </div>
-              </>
-            ) : (
-              <>
-                <div>
-                  <div className='mb-4 border-b border-gray-300 pb-3 text-center'>
-                    <p className='text-xs font-bold tracking-wide text-blue-800 uppercase font-sans'>
-                      Klinik Medika Sehat
-                    </p>
-                    <p className='mt-0.5 font-sans text-[7px] text-gray-500'>
-                      Izin Operasional Dinkes No: 440/12/Dinkes/2023
-                    </p>
-                  </div>
-                  <div className='mb-4 text-center text-[9px] font-bold uppercase underline font-sans'>
-                    Surat Keterangan Dokter
-                  </div>
-                  <div className='space-y-3 font-sans text-[8px] leading-relaxed text-gray-800'>
-                    <p>Yang bertanda tangan di bawah ini menerangkan bahwa:</p>
-                    <div className='space-y-1 pl-3 font-bold text-black'>
-                      <div className='flex'>
-                        <span className='w-20'>Nama Pasien</span>
-                        <span>: {request.employeeName}</span>
-                      </div>
-                      <div className='flex'>
-                        <span className='w-20'>Pekerjaan</span>
-                        <span>: {request.position}</span>
-                      </div>
-                      <div className='flex'>
-                        <span className='w-20'>Departemen</span>
-                        <span>: {request.department}</span>
-                      </div>
+              </div>
+              <div className='mt-4 border-t border-dashed border-gray-400 pt-3 text-center text-[8px] text-gray-500'>
+                <p>OCR Scan Validated ✓ 99.8% Match</p>
+                <p className='mt-0.5'>Siap untuk diproses oleh Tim Keuangan</p>
+              </div>
+            </div>
+          ) : (
+            <div className='flex aspect-[1/1.4] w-full max-w-sm mx-auto flex-col justify-between rounded-xl border border-gray-200 bg-white p-6 font-mono text-[10px] leading-relaxed text-black shadow-lg select-text'>
+              <div>
+                <div className='mb-4 border-b border-gray-300 pb-3 text-center'>
+                  <p className='text-xs font-bold tracking-wide text-blue-800 uppercase font-sans'>
+                    PT. BINTANG FAJAR PERSADA
+                  </p>
+                  <p className='mt-0.5 font-sans text-[7px] text-gray-500'>
+                    Dokumen Pendukung Lampiran Persetujuan
+                  </p>
+                </div>
+                <div className='mb-4 text-center text-[9px] font-bold uppercase underline font-sans'>
+                  Dokumen Permohonan
+                </div>
+                <div className='space-y-3 font-sans text-[8px] leading-relaxed text-gray-800'>
+                  <div className='space-y-1 pl-3 font-bold text-black'>
+                    <div className='flex'>
+                      <span className='w-20'>Nama Pemohon</span>
+                      <span>: {request.employeeName}</span>
                     </div>
-                    <p>
-                      Berdasarkan hasil pemeriksaan medis, pasien tersebut dalam keadaan kurang
-                      sehat dan memerlukan istirahat selama{' '}
-                      <span className='font-bold text-black'>{request.days || 2} hari</span>.
-                    </p>
-                    <p>
-                      Terhitung mulai tanggal{' '}
-                      <span className='font-bold text-black'>21 April 2026</span> sampai dengan
-                      tanggal <span className='font-bold text-black'>22 April 2026</span>.
-                    </p>
+                    <div className='flex'>
+                      <span className='w-20'>Pekerjaan</span>
+                      <span>: {request.position}</span>
+                    </div>
+                    <div className='flex'>
+                      <span className='w-20'>Departemen</span>
+                      <span>: {request.department}</span>
+                    </div>
                   </div>
+                  <p>{request.details}</p>
+                  <p className='font-bold'>{request.reason || '-'}</p>
                 </div>
-                <div className='mt-8 flex items-end justify-between font-sans text-[8px] text-gray-600'>
-                  <div>
-                    <p>Diagnosa: Rawat Jalan</p>
-                  </div>
-                  <div className='w-28 text-center'>
-                    <p>Jakarta, 20 April 2026</p>
-                    <p className='mt-10 font-bold text-black underline'>dr. Andi Wijaya, Sp.PD</p>
-                    <p className='text-[7px]'>SIP. 198503122010121002</p>
-                  </div>
+              </div>
+              <div className='mt-8 flex items-end justify-between font-sans text-[8px] text-gray-600'>
+                <div>
+                  <p>Status: {request.status.toUpperCase()}</p>
                 </div>
-              </>
-            )}
-          </div>
+                <div className='w-28 text-center'>
+                  <p>{dayjs().format('DD MMMM YYYY')}</p>
+                  <p className='mt-8 font-bold text-black underline'>{request.employeeName}</p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

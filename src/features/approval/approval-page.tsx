@@ -27,8 +27,10 @@ import { cn } from '@/shared/lib/utils'
 import { m } from '@/i18n/paraglide/messages'
 
 import { useApprovalSyncStore } from '@/shared/lib/approval-sync-store'
+import dayjs from 'dayjs'
 import type { ModuleType } from '@/features/settings/approval-workflow/types'
 import { ApprovalActionDialog } from '@/shared/components/approval/approval-action-dialog'
+import { DocumentPreviewDialog } from '@/shared/components/documents/document-preview-dialog'
 import { ApprovalDetailDrawer } from './components/detail-drawer'
 import type { ApprovalRequest } from './types'
 
@@ -48,6 +50,13 @@ export function ApprovalPage({ initialTab, initialStatus }: ApprovalPageProps = 
   const [statusFilter, setStatusFilter] = useState<StatusFilterType>(initialStatus || 'pending')
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedRequest, setSelectedRequest] = useState<ApprovalRequest | null>(null)
+  const [previewModal, setPreviewModal] = useState<{
+    open: boolean
+    request: ApprovalRequest | null
+  }>({
+    open: false,
+    request: null,
+  })
 
   // Pagination State
   const [currentPage, setCurrentPage] = useState(1)
@@ -508,6 +517,12 @@ export function ApprovalPage({ initialTab, initialStatus }: ApprovalPageProps = 
             : undefined
         }
         itemDetail={dialogState.request?.details}
+        onViewPreview={
+          dialogState.request?.requestType === 'overtime' ||
+          dialogState.request?.requestType === 'leave'
+            ? () => setPreviewModal({ open: true, request: dialogState.request })
+            : undefined
+        }
         onConfirm={async (note) => {
           if (!dialogState.request) return
           if (dialogState.action === 'approve') {
@@ -517,6 +532,50 @@ export function ApprovalPage({ initialTab, initialStatus }: ApprovalPageProps = 
           }
         }}
       />
+
+      {/* Full Document Preview Modal */}
+      {previewModal.request && (
+        <DocumentPreviewDialog
+          open={previewModal.open}
+          onOpenChange={(open) => setPreviewModal((prev) => ({ ...prev, open }))}
+          type={previewModal.request.requestType === 'overtime' ? 'overtime' : 'leave'}
+          spklProps={{
+            orderNumber: `SPKL/BFP/2026/VIII/${previewModal.request.id.replace(/\D/g, '').slice(-3) || '042'}`,
+            employeeName: previewModal.request.employeeName,
+            nip: '20261600475',
+            position: previewModal.request.position,
+            department: previewModal.request.department,
+            location: 'AFT Tambolaka',
+            periodLabel: 'Agustus 2026',
+            isHoliday: true,
+            date: previewModal.request.requestDate,
+            eventDescription: previewModal.request.details,
+            taskDescription: previewModal.request.reason || 'PENUGASAN OPERASIONAL LAPANGAN',
+            totalHours: previewModal.request.days || 4,
+            status: previewModal.request.status,
+            approverName: previewModal.request.timeline[0]?.approverName || 'Oktavianus Taufan Juwa',
+            approverTitle: 'HO AFT Tambolaka',
+          }}
+          leaveProps={{
+            documentNumber: `CUTI/BFP/2026/VIII/${previewModal.request.id.replace(/\D/g, '').slice(-3) || '012'}`,
+            employeeName: previewModal.request.employeeName,
+            nip: '20261600475',
+            position: previewModal.request.position,
+            department: previewModal.request.department,
+            location: 'AFT Tambolaka',
+            leaveType: previewModal.request.details.toLowerCase().includes('sakit') ? 'sick' : 'annual',
+            startDate: previewModal.request.requestDate,
+            endDate: dayjs(previewModal.request.requestDate).add((previewModal.request.days || 2) - 1, 'day').format('YYYY-MM-DD'),
+            durationDays: previewModal.request.days || 2,
+            reason: previewModal.request.reason || previewModal.request.details,
+            status: previewModal.request.status,
+            approverName: previewModal.request.timeline[0]?.approverName || 'Oktavianus Taufan Juwa',
+            approverTitle: 'Head Departemen',
+            divHeadName: previewModal.request.timeline[1]?.approverName || 'Joko Priyambodo',
+            divHeadTitle: 'Direktur Pemasaran & Operasi',
+          }}
+        />
+      )}
 
       {/* Detail Drawer */}
       {selectedRequest && (

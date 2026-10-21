@@ -1,4 +1,4 @@
-import { IconAlertTriangle, IconCheck, IconCircleCheck, IconLoader2, IconX } from '@tabler/icons-react'
+import { IconAlertTriangle, IconCheck, IconCircleCheck, IconFileText, IconLoader2, IconX } from '@tabler/icons-react'
 import { useEffect, useState } from 'react'
 import {
   Dialog,
@@ -19,6 +19,7 @@ export interface ApprovalActionDialogProps {
   itemName?: string
   itemDetail?: string
   onConfirm: (note: string) => Promise<void> | void
+  onViewPreview?: () => void
 }
 
 export function ApprovalActionDialog({
@@ -28,6 +29,7 @@ export function ApprovalActionDialog({
   itemName,
   itemDetail,
   onConfirm,
+  onViewPreview,
 }: ApprovalActionDialogProps) {
   const [note, setNote] = useState('')
   const [submitting, setSubmitting] = useState(false)
@@ -83,9 +85,23 @@ export function ApprovalActionDialog({
 
         {/* Item context banner */}
         {itemName && (
-          <div className='rounded-2xl border border-border/70 bg-muted/30 p-3 text-xs space-y-1'>
-            <p className='font-bold text-foreground leading-snug'>{itemName}</p>
-            {itemDetail && <p className='text-muted-foreground text-[11px]'>{itemDetail}</p>}
+          <div className='rounded-2xl border border-border/70 bg-muted/30 p-3 text-xs flex items-center justify-between gap-3'>
+            <div className='space-y-1 min-w-0 flex-1'>
+              <p className='font-bold text-foreground leading-snug truncate'>{itemName}</p>
+              {itemDetail && <p className='text-muted-foreground text-[11px] truncate'>{itemDetail}</p>}
+            </div>
+            {onViewPreview && (
+              <Button
+                type='button'
+                variant='outline'
+                size='sm'
+                onClick={onViewPreview}
+                className='shrink-0 h-8 gap-1.5 text-[11px] font-semibold rounded-xl bg-background hover:bg-muted'
+              >
+                <IconFileText size={13} />
+                <span>Lihat Dokumen</span>
+              </Button>
+            )}
           </div>
         )}
 
