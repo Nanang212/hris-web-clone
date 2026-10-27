@@ -21,6 +21,7 @@ import {
 } from '../../data/mock-payroll-data'
 import type { ThrPolicyConfig, ThrTaxInstallment, ThrEmployeeOption } from '../../types'
 import { Badge } from '@/shared/components/ui/badge'
+import { Alert, AlertDescription, AlertIcon, AlertTitle } from '@/shared/components/ui/alert'
 import { Button } from '@/shared/components/ui/button'
 import { Field, FieldLabel } from '@/shared/components/ui/field'
 import {
@@ -487,13 +488,14 @@ export function ThrConfigView() {
               </div>
 
               {/* Information Callout */}
-              <div className='p-4 rounded-xl border border-blue-500/20 bg-blue-50/50 dark:bg-blue-950/20 flex items-start gap-3 text-xs'>
-                <IconInfoCircle className='size-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5' />
-                <div className='space-y-1 text-muted-foreground'>
-                  <p className='font-semibold text-foreground'>
+              <Alert variant='info' className='items-start'>
+                <AlertIcon><IconInfoCircle /></AlertIcon>
+                <div className='flex min-w-0 flex-1 flex-col gap-1'>
+                  <AlertTitle>
                     {m.payroll_thr_how_it_works()}
-                  </p>
-                  <ul className='list-disc list-inside space-y-0.5 text-[11px]'>
+                  </AlertTitle>
+                  <AlertDescription>
+                  <ul className='flex list-inside list-disc flex-col gap-0.5'>
                     <li>
                       {m.payroll_thr_how_step_1()}
                     </li>
@@ -504,13 +506,15 @@ export function ThrConfigView() {
                       {m.payroll_thr_how_step_3()}
                     </li>
                   </ul>
+                  </AlertDescription>
                 </div>
-              </div>
+              </Alert>
             </div>
           ) : (
-            <div className='p-6 text-center rounded-xl border border-dashed border-border/80 bg-muted/20 text-xs text-muted-foreground'>
-              {m.payroll_thr_facility_disabled_hint()}
-            </div>
+            <Alert variant='info' className='items-start'>
+              <AlertIcon><IconInfoCircle /></AlertIcon>
+              <AlertDescription className='min-w-0 flex-1'>{m.payroll_thr_facility_disabled_hint()}</AlertDescription>
+            </Alert>
           )}
 
           <div className='flex justify-end pt-2'>

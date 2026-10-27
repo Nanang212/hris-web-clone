@@ -12,6 +12,7 @@ import { useMemo, useState } from 'react'
 import { usePayrollBpjsStore } from '../store/payroll-bpjs-store'
 import type { BpjsTkProjectSetting } from '../types'
 import { Badge } from '@/shared/components/ui/badge'
+import { Alert, AlertAction, AlertDescription, AlertIcon, AlertTitle } from '@/shared/components/ui/alert'
 import { Button } from '@/shared/components/ui/button'
 import {
   DropdownMenu,
@@ -154,17 +155,13 @@ export function BpjsTkProjectCard() {
       <div className='p-5 space-y-4'>
         {/* Banner Peringatan Perubahan Belum Disimpan */}
         {isDirty && (
-          <div className='p-3.5 rounded-xl border border-amber-300/80 bg-amber-50/80 dark:bg-amber-950/25 text-xs flex flex-wrap items-center justify-between gap-3 text-amber-900 dark:text-amber-200 animate-in fade-in slide-in-from-top-1 duration-200 shadow-2xs'>
-            <div className='flex items-center gap-2.5'>
-              <span className='relative flex h-2.5 w-2.5 shrink-0'>
-                <span className='animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75'></span>
-                <span className='relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500'></span>
-              </span>
-              <IconAlertTriangle size={16} className='text-amber-600 dark:text-amber-400 shrink-0' />
-              <span>
-                <b className='font-semibold'>{m.payroll_tk_project_unsaved()}</b> {m.payroll_tk_project_unsaved_hint()}
-              </span>
+          <Alert variant='warning' className='flex-wrap items-start'>
+            <AlertIcon><IconAlertTriangle /></AlertIcon>
+            <div className='flex min-w-0 flex-1 flex-col gap-1'>
+              <AlertTitle>{m.payroll_tk_project_unsaved()}</AlertTitle>
+              <AlertDescription>{m.payroll_tk_project_unsaved_hint()}</AlertDescription>
             </div>
+            <AlertAction>
             <Button
               type='button'
               size='sm'
@@ -173,35 +170,33 @@ export function BpjsTkProjectCard() {
             >
               {m.payroll_tk_project_save_now()}
             </Button>
-          </div>
+            </AlertAction>
+          </Alert>
         )}
 
         {/* Banner Project yang Belum Dikonfigurasi */}
         {unconfigured.length > 0 && (
-          <div className='p-3.5 rounded-xl border border-border/80 bg-muted/20 text-xs flex flex-wrap items-center justify-between gap-2.5'>
-            <div className='flex items-center gap-2 text-foreground'>
-              <IconAlertTriangle size={16} className='text-amber-600 dark:text-amber-400 shrink-0' />
-              <span>
-                <b className='font-semibold'>{m.payroll_tk_project_unconfigured({ count: unconfigured.length })}</b>{' '}
-                <span className='text-muted-foreground'>
-                  {m.payroll_tk_project_unconfigured_hint()}
-                </span>
-              </span>
+          <Alert variant='warning' className='flex-wrap items-start'>
+            <AlertIcon><IconAlertTriangle /></AlertIcon>
+            <div className='flex min-w-0 flex-1 flex-col gap-1'>
+              <AlertTitle>{m.payroll_tk_project_unconfigured({ count: unconfigured.length })}</AlertTitle>
+              <AlertDescription>{m.payroll_tk_project_unconfigured_hint()}</AlertDescription>
             </div>
-            <div className='flex flex-wrap items-center gap-1.5'>
+            <AlertAction className='flex max-w-full flex-wrap gap-1.5'>
               {unconfigured.map((project) => (
                 <Button
                   key={project.id}
                   type='button'
                   onClick={() => handleAdd(project.id)}
-                  className='inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-amber-100 hover:bg-amber-200/90 dark:bg-amber-900/40 dark:hover:bg-amber-800/50 text-amber-900 dark:text-amber-100 transition-colors border border-amber-300 dark:border-amber-700/60 cursor-pointer shadow-2xs'
+                  variant='outline'
+                  size='sm'
                 >
-                  <IconPlus size={12} className='text-amber-700 dark:text-amber-300' />
+                  <IconPlus data-icon='inline-start' />
                   {project.name}
                 </Button>
               ))}
-            </div>
-          </div>
+            </AlertAction>
+          </Alert>
         )}
 
         <div className='rounded-xl border border-border/70 overflow-hidden bg-background shadow-2xs'>
@@ -336,19 +331,15 @@ export function BpjsTkProjectCard() {
 
           <div className='flex flex-wrap items-center gap-3'>
             {isDirty ? (
-              <div className='inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-800 dark:text-amber-300 text-xs font-semibold animate-in fade-in duration-200'>
-                <span className='relative flex h-2 w-2'>
-                  <span className='animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75'></span>
-                  <span className='relative inline-flex rounded-full h-2 w-2 bg-amber-500'></span>
-                </span>
-                <IconAlertTriangle size={15} className='text-amber-600 dark:text-amber-400 shrink-0' />
+              <Badge variant='amber' className='max-w-full whitespace-normal'>
+                <IconAlertTriangle />
                 <span>{m.payroll_tk_project_unsaved()}</span>
-              </div>
+              </Badge>
             ) : lastSavedAt ? (
-              <div className='inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/25 text-emerald-700 dark:text-emerald-300 text-xs font-semibold animate-in fade-in duration-200'>
-                <IconCheck size={15} className='text-emerald-600 dark:text-emerald-400 shrink-0' />
+              <Badge variant='green' className='max-w-full whitespace-normal'>
+                <IconCheck />
                 <span>{m.payroll_tk_project_saved({ timestamp: lastSavedAt })}</span>
-              </div>
+              </Badge>
             ) : null}
 
             <Button

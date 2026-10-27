@@ -14,7 +14,7 @@ import { useSchema } from '@/shared/lib/schema'
 import { snackbar } from '@/shared/lib/snackbar'
 
 import { initialPayrollEmployeeInputs } from '../../data/mock-payroll-inputs'
-import { usePayrollTaxInputStore } from '../../store/payroll-tax-input-store'
+import { payrollTaxIdentityKey, usePayrollTaxInputStore } from '../../store/payroll-tax-input-store'
 import type { TaxYearToDateInput } from '../../types'
 
 const emptyTaxInput: TaxYearToDateInput = {
@@ -32,7 +32,7 @@ function initialTaxInput(
   year: number,
   overrides: Record<string, TaxYearToDateInput>,
 ): TaxYearToDateInput {
-  const saved = overrides[`${year}:${employeeId}`]
+  const saved = overrides[payrollTaxIdentityKey(year, employeeId)] ?? overrides[`${year}:${employeeId}`]
   if (saved) return saved
   if (year !== 2026) return emptyTaxInput
   const demoInput = initialPayrollEmployeeInputs.find(
@@ -62,7 +62,7 @@ export function TaxYearToDateEditor() {
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<FormValues>({
+  } = useForm<z.input<typeof formSchema>, unknown, FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: initialTaxInput(employeeId, 2026, overrides),
   })

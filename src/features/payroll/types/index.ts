@@ -22,6 +22,24 @@ export type ConfigSubTab =
   'general' | 'components' | 'employee-components' | 'bpjs-tk' | 'bpjs-kes' | 'pph21' | 'thr'
 
 export type PayrollStatus = 'draft' | 'in_review' | 'approved' | 'disbursed'
+export type PayrollComponentEffect = 'add' | 'subtract' | 'none'
+export type PayrollComponentTaxTreatment = 'regular' | 'final' | 'non_taxable'
+
+export interface PayrollComponentParameters {
+  thpEffect: PayrollComponentEffect
+  taxGrossEffect: PayrollComponentEffect
+  taxTreatment: PayrollComponentTaxTreatment
+}
+
+export interface PayrollSpecialPeriodConfig {
+  enabled: boolean
+  startDate: string
+  endDate: string
+  paymentDate: string
+  holidayName?: string
+  holidayDate?: string
+  paymentTime?: string
+}
 export type PayslipStatus = 'draft' | 'published' | 'sent' | 'downloaded'
 
 export type PayrollComponentKind =
@@ -42,6 +60,7 @@ export type PayrollComponentKind =
   | 'other_deduction'
 
 export interface SalaryComponent {
+  parameters?: PayrollComponentParameters
   id: string
   name: string
   code: string
@@ -57,6 +76,11 @@ export interface SalaryComponent {
 }
 
 export interface PayrollRun {
+  runType?: 'REGULAR' | 'UUCK'
+  parentRunId?: string
+  thrPeriodConfig?: PayrollSpecialPeriodConfig
+  uuckPeriodConfig?: PayrollSpecialPeriodConfig
+  specialPeriodsPending?: boolean
   id: string
   code: string
   period: string // e.g. "May 2026"
@@ -84,6 +108,11 @@ export interface PayrollRun {
 }
 
 export interface EmployeePayrollDetail {
+  joinDate?: string
+  npwp?: string
+  systemComponents?: PayrollInputLine[]
+  nik?: string
+  pph21EmployeeDeduction?: number
   id: string
   employeeId: string
   employeeName: string
@@ -174,6 +203,8 @@ export interface ManualAdjustmentItem {
 
 /** Satu baris komponen payroll (pendapatan/potongan) yang menjadi masukan engine. */
 export interface PayrollInputLine {
+  calculated?: boolean
+  parameters?: PayrollComponentParameters
   code: string
   name: string
   type: 'allowance' | 'deduction'
@@ -190,6 +221,13 @@ export interface PayrollLine extends PayrollInputLine {
 }
 
 export interface PayrollEmployeeInput {
+  npwp?: string
+  joinDate?: string
+  contractStart?: string
+  contractEnd?: string
+  resignationDate?: string
+  employmentPeriods?: PayrollEmploymentPeriod[]
+  overrides?: PayrollEmployeeOverride
   employeeId: string
   nopeg: string // nomor pegawai / kode karyawan (bisa dobel karena human error)
   nik: string // NIK KTP
@@ -232,6 +270,34 @@ export interface PayrollEmployeeInput {
   taxYearToDate?: TaxYearToDateInput
 }
 
+export interface PayrollEmploymentPeriod {
+  id: string
+  startDate: string
+  endDate?: string
+  reason?: string
+}
+
+export interface PayrollStatutoryAmounts {
+  bpjsKesEmployee: number
+  bpjsKesEmployer: number
+  bpjsTkJhtEmployee: number
+  bpjsTkJpEmployee: number
+  bpjsTkJkk: number
+  bpjsTkJkm: number
+}
+
+export interface PayrollEmployeeOverride {
+  baseSalary: number
+  ptkpStatus: string
+  fixedComponents: PayrollInputLine[]
+  variableComponents: PayrollInputLine[]
+  statutoryAmounts: Partial<PayrollStatutoryAmounts>
+  thrTaxInstallmentAmount: number
+  taxYearToDate?: TaxYearToDateInput
+  note: string
+  updatedAt: string
+}
+
 export interface TaxYearToDateInput {
   isFinalTaxPeriod?: boolean
   verified?: boolean
@@ -256,6 +322,7 @@ export interface FinalTaxReconciliation {
 }
 
 export interface EmployeePayrollComponent {
+  parameters?: PayrollComponentParameters
   id: string
   employeeId: string
   employeeName: string

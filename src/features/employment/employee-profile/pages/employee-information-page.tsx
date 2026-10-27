@@ -29,6 +29,7 @@ import { Cell, Pie, PieChart } from 'recharts'
 import { z } from 'zod'
 
 import { AppMain } from '@/shared/components/app-layout/app-main'
+import { EmployeeRejoinDialog } from '@/features/employment/employee-profile/components/employee-rejoin-dialog'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -68,6 +69,7 @@ import {
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
@@ -413,7 +415,9 @@ function RowActions({
   onArchive: (employee: EmployeeInformationItem) => void
   onPrint: (employee: EmployeeInformationItem) => void
 }) {
+  const [rejoinOpen, setRejoinOpen] = useState(false)
   return (
+    <>
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
@@ -425,6 +429,7 @@ function RowActions({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align='end'>
+        {(employee.status === 'Resigned' || employee.status === 'Inactive') && <DropdownMenuGroup><DropdownMenuItem onSelect={() => setRejoinOpen(true)}><IconUserCheck />{m.payroll_revision_rejoin()}</DropdownMenuItem></DropdownMenuGroup>}
         <DropdownMenuItem asChild>
           <Link to='/employment/employee-profile/$employeeId' params={{ employeeId: employee.id }}>
             <IconEye />
@@ -452,6 +457,8 @@ function RowActions({
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
+    {rejoinOpen && <EmployeeRejoinDialog employeeId={employee.id} name={employee.fullName} onClose={() => setRejoinOpen(false)} />}
+    </>
   )
 }
 

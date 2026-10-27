@@ -8,13 +8,13 @@ import {
   IconReportMoney,
   IconBuildingBank,
   IconAdjustments,
-  IconCoins,
   IconReceipt,
   IconFileSpreadsheet,
   IconLoader2,
-  IconInfoCircle,
   IconChecklist,
   IconRefresh,
+  IconAlertTriangle,
+  IconInfoCircle,
 } from '@tabler/icons-react'
 import { useMemo, useState } from 'react'
 import { EmployeePayrollBreakdownModal } from '../../components/employee-payroll-breakdown-modal'
@@ -22,22 +22,13 @@ import { PayrollStatusBadge } from '../../components/payroll-status-badge'
 import {
   formatIDR,
   formatCompactIDR,
-  initialEmployeePayrollDetails,
 } from '../../data/mock-payroll-data'
 import type { PayrollRun, EmployeePayrollDetail } from '../../types'
 import { Badge } from '@/shared/components/ui/badge'
 import { Button } from '@/shared/components/ui/button'
-import { FieldLabel } from '@/shared/components/ui/field'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/shared/components/ui/dialog'
+import { EmployeePayrollEditModal } from '../../components/employee-payroll-edit-modal'
+import { Alert, AlertDescription, AlertIcon, AlertTitle } from '@/shared/components/ui/alert'
 import { Input } from '@/shared/components/ui/input'
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/shared/components/ui/select'
 import { TableActionButton } from '@/shared/components/ui/table-action-button'
 import {
   Table,
@@ -78,10 +69,9 @@ export function PayrollProcessDetail({
   const [isExporting, setIsExporting] = useState(false)
 
   const runResult = usePayrollRunStore((s) => s.resultsByRunId[run.id])
-  const setRunResult = usePayrollRunStore((s) => s.setRunResult)
-  const [details, setDetails] = useState<EmployeePayrollDetail[]>(
-    runResult?.details ?? initialEmployeePayrollDetails,
-  )
+  const recalculate = usePayrollRunStore((s) => s.recalculate)
+  const saveOverride = usePayrollRunStore((s) => s.saveOverride)
+  const details = useMemo(() => runResult?.details ?? [], [runResult?.details])
   const missingBilling = details.filter((d) => d.bpjsKesSource === 'missing')
   const unmatchedBilling = runResult?.unmatchedBilling ?? []
 
@@ -108,14 +98,11 @@ export function PayrollProcessDetail({
   const [breakdownModalOpen, setBreakdownModalOpen] = useState(false)
   const [breakdownEmp, setBreakdownEmp] = useState<EmployeePayrollDetail | null>(null)
 
-  // Manual Adjustment Modal State
-  const [adjustModalOpen, setAdjustModalOpen] = useState(false)
   const [selectedEmp, setSelectedEmp] = useState<EmployeePayrollDetail | null>(null)
-  const [adjustedThrTax, setAdjustedThrTax] = useState<number>(0)
-  const [manualAdjName, setManualAdjName] = useState<string>('')
-  const [manualAdjAmount, setManualAdjAmount] = useState<number>(0)
-  const [manualAdjType, setManualAdjType] = useState<'allowance' | 'deduction'>('deduction')
-  const [manualAdjNote, setManualAdjNote] = useState<string>('')
+  const [isRecalculating, setIsRecalculating] = useState(false)
+  const dirtyEmployeeIds = runResult?.dirtyEmployeeIds ?? []
+  const isDirty = dirtyEmployeeIds.length > 0
+  const canEdit = run.status === 'draft' && Boolean(runResult?.calculation)
 
   const filtered = details.filter(
     (d) =>
@@ -130,22 +117,18 @@ export function PayrollProcessDetail({
   const totalDeductionsSum = details.reduce((acc, curr) => acc + curr.totalDeductions, 0)
   const totalNetDisbursementSum = details.reduce((acc, curr) => acc + curr.netTakeHomePay, 0)
 
-  const handleSynchronize = () => {
-    const synchronizedRun: PayrollRun = {
-      ...run,
-      totalEmployees,
-      totalGrossPay: totalGrossSum,
-      totalAllowances: totalGrossSum - details.reduce((sum, item) => sum + item.baseSalary, 0),
-      totalDeductions: totalDeductionsSum,
-      totalTaxPPh21: details.reduce((sum, item) => sum + item.pph21Tax, 0),
-      totalBpjsTK: details.reduce((sum, item) => sum + item.bpjsTkEmployee, 0),
-      totalBpjsKes: details.reduce((sum, item) => sum + item.bpjsKesEmployee, 0),
-      totalNetDisbursement: totalNetDisbursementSum,
+  const handleRecalculate = async () => {
+    setIsRecalculating(true)
+    await new Promise<void>((resolve) => setTimeout(resolve, 0))
+    try {
+      const updatedRun = recalculate(run)
+      onSynchronize(updatedRun)
+      snackbar.success(m.payroll_revision_success())
+    } catch (error) {
+      snackbar.exception(error)
+    } finally {
+      setIsRecalculating(false)
     }
-
-    setRunResult(run.id, { details, unmatchedBilling })
-    onSynchronize(synchronizedRun)
-    snackbar.success(m.payroll_run_detail_synchronize_success())
   }
 
   const handleExport = async () => {
@@ -166,71 +149,48 @@ export function PayrollProcessDetail({
     }
   }
 
-  const handleOpenAdjustment = (emp: EmployeePayrollDetail) => {
-    setSelectedEmp(emp)
-    setAdjustedThrTax(emp.thrTaxInstallment || 0)
-    setManualAdjName('')
-    setManualAdjAmount(0)
-    setManualAdjType('deduction')
-    setManualAdjNote('')
-    setAdjustModalOpen(true)
-  }
-
-  const handleSaveAdjustment = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!selectedEmp) return
-
-    setDetails((prev) =>
-      prev.map((item) => {
-        if (item.id === selectedEmp.id) {
-          const prevThrTax = item.thrTaxInstallment || 0
-          const thrDiff = adjustedThrTax - prevThrTax
-
-          let extraAdjGross = 0
-          let extraAdjDeduction = 0
-          if (manualAdjAmount > 0) {
-            if (manualAdjType === 'allowance') {
-              extraAdjGross = manualAdjAmount
-            } else {
-              extraAdjDeduction = manualAdjAmount
-            }
-          }
-
-          const newTotalGross = item.totalGross + extraAdjGross
-          const newTotalDeductions = item.totalDeductions + thrDiff + extraAdjDeduction
-          const newNetPay = newTotalGross - newTotalDeductions
-
-          return {
-            ...item,
-            thrTaxInstallment: adjustedThrTax,
-            totalGross: newTotalGross,
-            totalDeductions: newTotalDeductions,
-            netTakeHomePay: newNetPay,
-            manualAdjustments:
-              manualAdjAmount > 0
-                ? [
-                    ...(item.manualAdjustments || []),
-                    {
-                      id: `adj-${Date.now()}`,
-                      name: manualAdjName || m.payroll_run_detail_manual_adjustment(),
-                      amount: manualAdjAmount,
-                      type: manualAdjType,
-                      note: manualAdjNote,
-                    },
-                  ]
-                : item.manualAdjustments,
-          }
-        }
-        return item
-      }),
-    )
-
-    snackbar.success(m.payroll_run_detail_adjustment_saved({ employee: selectedEmp.employeeName }))
-    setAdjustModalOpen(false)
+  const handleOpenAdjustment = (employee: EmployeePayrollDetail) => {
+    if (!canEdit) {
+      snackbar.error(run.status !== 'draft' ? m.payroll_revision_revision_required() : m.payroll_revision_missing_inputs())
+      return
+    }
+    setSelectedEmp(employee)
   }
 
   return (
     <div className='space-y-6'>
+      {isDirty && (
+        <Alert variant='warning' className='items-start'>
+          <AlertIcon><IconRefresh /></AlertIcon>
+          <div className='flex min-w-0 flex-1 flex-col gap-1'>
+            <AlertTitle>{m.payroll_revision_dirty()}</AlertTitle>
+            <AlertDescription>{m.payroll_revision_inputs_description()}</AlertDescription>
+          </div>
+        </Alert>
+      )}
+      {!runResult?.calculation && (
+        <Alert variant='warning' className='items-start'>
+          <AlertIcon><IconAlertTriangle /></AlertIcon>
+          <AlertDescription className='min-w-0 flex-1'>{m.payroll_revision_missing_inputs()}</AlertDescription>
+        </Alert>
+      )}
+      {run.specialPeriodsPending && (
+        <Alert variant='info' className='items-start'>
+          <AlertIcon><IconInfoCircle /></AlertIcon>
+          <AlertDescription className='min-w-0 flex-1'>{m.payroll_revision_special_pending()}</AlertDescription>
+        </Alert>
+      )}
+      {(run.thrPeriodConfig?.enabled || run.uuckPeriodConfig?.enabled) && <div className='grid gap-3 sm:grid-cols-2'>
+        {([['thr', run.thrPeriodConfig], ['uuck', run.uuckPeriodConfig]] as const).map(([kind, config]) => config?.enabled && (
+          <Alert key={kind} variant='info' className='items-start'>
+            <AlertIcon><IconReceipt /></AlertIcon>
+            <div className='flex min-w-0 flex-1 flex-col gap-1'>
+              <AlertTitle>{kind === 'thr' ? m.payroll_revision_thr_period() : m.payroll_revision_uuck_period()}</AlertTitle>
+              <AlertDescription>{config.startDate} – {config.endDate} · {config.paymentDate} {config.paymentTime}</AlertDescription>
+            </div>
+          </Alert>
+        ))}
+      </div>}
       {/* ── Top Header Actions ─────────────────────────────────────────────── */}
       <div className='flex flex-wrap items-center justify-between gap-4'>
         <div className='flex items-center gap-3'>
@@ -257,15 +217,15 @@ export function PayrollProcessDetail({
         </div>
 
         <div className='flex items-center gap-2.5'>
-          <Button variant='outline' size='sm' onClick={handleSynchronize}>
-            <IconRefresh data-icon='inline-start' />
-            {m.payroll_run_detail_synchronize()}
+          <Button variant='outline' size='sm' onClick={handleRecalculate} disabled={!canEdit || isRecalculating}>
+            {isRecalculating ? <IconLoader2 data-icon='inline-start' className='animate-spin' /> : <IconRefresh data-icon='inline-start' />}
+            {isRecalculating ? m.payroll_revision_recalculating() : m.payroll_revision_recalculate()}
           </Button>
           <Button
             variant='outline'
             size='sm'
             onClick={handleExport}
-            disabled={isExporting}
+            disabled={isExporting || isDirty || isRecalculating || details.length === 0}
             className='gap-1.5 text-xs font-semibold rounded-xl h-9 cursor-pointer'
           >
             {isExporting ? <IconLoader2 className='animate-spin' size={15} /> : <IconDownload size={15} />}
@@ -275,6 +235,7 @@ export function PayrollProcessDetail({
           {run.status === 'draft' && (
             <Button
               size='sm'
+              disabled={isDirty || isRecalculating || !runResult?.calculation || run.specialPeriodsPending}
               onClick={() => onSubmitForApproval(run.id)}
             >
               <IconSend data-icon='inline-start' />
@@ -417,19 +378,22 @@ export function PayrollProcessDetail({
       {activeTab === 'payroll' ? (
         <>
           {(missingBilling.length > 0 || unmatchedBilling.length > 0) && (
-            <div className='rounded-2xl border border-amber-300/60 bg-amber-50 dark:bg-amber-950/30 p-4 text-xs space-y-1.5'>
+            <Alert variant='warning' className='items-start'>
+              <AlertIcon><IconAlertTriangle /></AlertIcon>
+              <AlertDescription className='flex min-w-0 flex-1 flex-col gap-1.5'>
               {missingBilling.length > 0 && (
-                <p className='text-amber-800 dark:text-amber-300'>
+                <p>
                   <b>{m.payroll_run_detail_missing_billing({ count: missingBilling.length })}</b> {m.payroll_run_detail_missing_billing_hint()} {missingBilling.map((d) => d.employeeName).join(', ')}
                 </p>
               )}
               {unmatchedBilling.length > 0 && (
-                <p className='text-amber-800 dark:text-amber-300'>
+                <p>
                   <b>{m.payroll_run_detail_unmatched_billing({ count: unmatchedBilling.length })}</b>{' '}
                   {m.payroll_run_detail_unmatched_billing_hint()}
                 </p>
               )}
-            </div>
+              </AlertDescription>
+            </Alert>
           )}
 
           {/* ── Employee Breakdown Table ───────────────────────────────────────── */}
@@ -476,6 +440,7 @@ export function PayrollProcessDetail({
                     <TableRow key={item.id} className='text-xs hover:bg-muted/20 border-b border-border/40 whitespace-nowrap'>
                       <TableCell className='py-3.5 pl-6'>
                         <p className='font-bold text-foreground'>{item.employeeName}</p>
+                        {dirtyEmployeeIds.includes(item.employeeId) && <Badge variant='amber'>{m.payroll_revision_dirty()}</Badge>}
                         <p className='text-[10px] text-muted-foreground font-mono mt-0.5'>
                           {item.employeeCode} · {item.department}
                         </p>
@@ -535,6 +500,7 @@ export function PayrollProcessDetail({
                             tooltip={m.payroll_run_detail_adjustment_tooltip()}
                             icon={<IconAdjustments size={16} />}
                             onClick={() => handleOpenAdjustment(item)}
+                            disabled={!canEdit || isRecalculating}
                             intent='primary'
                           />
                         </div>
@@ -555,161 +521,21 @@ export function PayrollProcessDetail({
         />
       )}
 
-      {/* ── Dialog Modal: Penyesuaian Manual & Cicilan PPh 21 THR ───────── */}
-      <Dialog open={adjustModalOpen} onOpenChange={setAdjustModalOpen}>
-        <DialogContent className='sm:max-w-lg'>
-          <DialogHeader>
-            <DialogTitle className='text-base font-bold flex items-center gap-2'>
-              <IconAdjustments className='size-5 text-primary' />
-              {m.payroll_run_detail_dialog_title()}
-            </DialogTitle>
-            <DialogDescription className='text-xs text-muted-foreground'>
-              {m.payroll_run_detail_dialog_description()}{' '}
-              <span className='font-bold text-foreground'>{selectedEmp?.employeeName}</span> ({selectedEmp?.employeeCode}).
-            </DialogDescription>
-          </DialogHeader>
-
-          {selectedEmp && (
-            <form onSubmit={handleSaveAdjustment} className='space-y-4 py-2 text-xs'>
-              {/* Box 1: Cicilan PPh 21 THR Section */}
-              <div className='p-3.5 rounded-xl border border-primary/20 bg-primary/5 space-y-3'>
-                <div className='flex items-center justify-between'>
-                  <div className='flex items-center gap-2'>
-                    <IconCoins className='size-4 text-primary' />
-                    <span className='font-bold text-foreground'>{m.payroll_run_detail_thr_installment()}</span>
-                  </div>
-                  {selectedEmp.thrTaxInstallmentInfo && (
-                    <Badge variant='outline' className='text-[10px] bg-background'>
-                      {m.payroll_run_detail_month_of({ current: selectedEmp.thrTaxInstallmentInfo.currentInstallmentMonth, total: selectedEmp.thrTaxInstallmentInfo.tenorMonths })}
-                    </Badge>
-                  )}
-                </div>
-
-                <div className='space-y-1.5'>
-                  <FieldLabel className='font-semibold text-muted-foreground'>
-                    {m.payroll_run_detail_thr_amount()}
-                  </FieldLabel>
-                  <Input
-                    type='number'
-                    step={25000}
-                    value={adjustedThrTax}
-                    onChange={(e) => setAdjustedThrTax(parseInt(e.target.value, 10) || 0)}
-                    className='h-9 text-xs bg-background rounded-xl'
-                  />
-                  <div className='flex justify-between items-center text-[10px] text-muted-foreground'>
-                    <span>{m.payroll_run_detail_remaining_balance({ amount: formatIDR(selectedEmp.thrTaxInstallmentInfo?.remainingBalance || 0) })}</span>
-                    <Button
-                      type='button'
-                      onClick={() => setAdjustedThrTax(0)}
-                      variant='link'
-                      className='h-auto p-0 text-primary font-semibold'
-                    >
-                      {m.payroll_run_detail_pause_installment()}
-                    </Button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Box 2: Penyesuaian Tambahan Lainnya (Manual Adjustment) */}
-              <div className='p-3.5 rounded-xl border border-border/80 bg-muted/20 space-y-3'>
-                <p className='font-bold text-foreground flex items-center gap-1.5'>
-                  <IconInfoCircle className='size-4 text-muted-foreground' />
-                  {m.payroll_run_detail_extra_adjustment()}
-                </p>
-
-                <div className='grid grid-cols-2 gap-2.5'>
-                  <div className='space-y-1'>
-                    <FieldLabel className='font-semibold text-muted-foreground'>{m.payroll_run_detail_adjustment_type()}</FieldLabel>
-                    <Select
-                      value={manualAdjType}
-                      onValueChange={(val: 'allowance' | 'deduction') => setManualAdjType(val)}
-                    >
-                      <SelectTrigger className='h-8.5 text-xs bg-background rounded-xl'>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                        <SelectItem value='deduction'>{m.payroll_run_detail_type_deduction()}</SelectItem>
-                        <SelectItem value='allowance'>{m.payroll_run_detail_type_allowance()}</SelectItem>
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className='space-y-1'>
-                    <FieldLabel className='font-semibold text-muted-foreground'>{m.payroll_run_detail_adjustment_amount()}</FieldLabel>
-                    <Input
-                      type='number'
-                      step={50000}
-                      value={manualAdjAmount}
-                      onChange={(e) => setManualAdjAmount(parseInt(e.target.value, 10) || 0)}
-                      className='h-8.5 text-xs bg-background rounded-xl'
-                      placeholder='0'
-                    />
-                  </div>
-                </div>
-
-                <div className='space-y-1'>
-                  <FieldLabel className='font-semibold text-muted-foreground'>{m.payroll_run_detail_adjustment_reason()}</FieldLabel>
-                  <Input
-                    value={manualAdjName}
-                    onChange={(e) => setManualAdjName(e.target.value)}
-                    placeholder={m.payroll_run_detail_adjustment_reason_placeholder()}
-                    className='h-8.5 text-xs bg-background rounded-xl'
-                  />
-                </div>
-              </div>
-
-              {/* Box 3: Live Impact Calculation Preview */}
-              {(() => {
-                const prevThr = selectedEmp.thrTaxInstallment || 0
-                const thrDelta = adjustedThrTax - prevThr
-                let extraGross = 0
-                let extraDeduction = 0
-                if (manualAdjAmount > 0) {
-                  if (manualAdjType === 'allowance') extraGross = manualAdjAmount
-                  else extraDeduction = manualAdjAmount
-                }
-                const previewNet =
-                  selectedEmp.totalGross +
-                  extraGross -
-                  (selectedEmp.totalDeductions + thrDelta + extraDeduction)
-
-                return (
-                  <div className='p-3 rounded-xl border border-emerald-500/20 bg-emerald-50/50 dark:bg-emerald-950/20 space-y-1.5'>
-                    <div className='flex justify-between items-center text-xs'>
-                      <span className='font-semibold text-foreground'>{m.payroll_run_detail_new_net_pay()}</span>
-                      <span className='text-sm font-bold text-emerald-600 dark:text-emerald-400'>
-                        {formatIDR(previewNet)}
-                      </span>
-                    </div>
-                    <div className='flex justify-between items-center text-[10px] text-muted-foreground'>
-                      <span>{m.payroll_run_detail_previous_net_pay({ amount: formatIDR(selectedEmp.netTakeHomePay) })}</span>
-                      <span className='font-medium font-mono'>
-                        {m.payroll_run_detail_difference({ amount: formatIDR(previewNet - selectedEmp.netTakeHomePay) })}
-                      </span>
-                    </div>
-                  </div>
-                )
-              })()}
-
-              <DialogFooter className='pt-2'>
-                <Button
-                  type='button'
-                  variant='outline'
-                  onClick={() => setAdjustModalOpen(false)}
-                  className='h-9 text-xs rounded-xl'
-                >
-                  {m.payroll_wizard_cancel()}
-                </Button>
-                <Button type='submit' className='h-9 text-xs font-semibold rounded-xl'>
-                  {m.payroll_run_detail_apply_adjustment()}
-                </Button>
-              </DialogFooter>
-            </form>
-          )}
-        </DialogContent>
-      </Dialog>
+      {selectedEmp && runResult?.calculation && (() => {
+        const source = runResult.calculation.employees.find((item) => item.employeeId === selectedEmp.employeeId)
+        const sourceDetail = runResult.sourceDetails?.find((item) => item.employeeId === selectedEmp.employeeId)
+        if (!source || !sourceDetail) return null
+        return <EmployeePayrollEditModal
+          source={source} sourceDetail={sourceDetail} currentDetail={selectedEmp}
+          override={runResult.overrides?.[source.employeeId]} periodMonth={run.periodMonth}
+          onClose={() => setSelectedEmp(null)}
+          onSave={(value) => {
+            saveOverride(run.id, source.employeeId, value)
+            setSelectedEmp(null)
+            snackbar.success(m.payroll_revision_override_saved())
+          }}
+        />
+      })()}
 
       {/* Rincian Komponen Payroll Per Karyawan */}
       <EmployeePayrollBreakdownModal

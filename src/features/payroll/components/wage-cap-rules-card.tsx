@@ -12,6 +12,8 @@ import type { WageCapRule } from '../types'
 import { m } from '@/i18n/paraglide/messages'
 import { getLocale } from '@/i18n/paraglide/runtime'
 import { Button } from '@/shared/components/ui/button'
+import { Badge } from '@/shared/components/ui/badge'
+import { Alert, AlertAction, AlertDescription, AlertIcon } from '@/shared/components/ui/alert'
 import { FieldLabel } from '@/shared/components/ui/field'
 import { Input } from '@/shared/components/ui/input'
 import { TableActionButton } from '@/shared/components/ui/table-action-button'
@@ -157,17 +159,12 @@ export function WageCapRulesCard({ scope = 'all' }: WageCapRulesCardProps) {
       <div className='p-5 space-y-4'>
         {/* Banner Peringatan Perubahan Belum Disimpan */}
         {isDirty && (
-          <div className='p-3.5 rounded-xl border border-amber-300/80 bg-amber-50/80 dark:bg-amber-950/25 text-xs flex flex-wrap items-center justify-between gap-3 text-amber-900 dark:text-amber-200 animate-in fade-in slide-in-from-top-1 duration-200 shadow-2xs'>
-            <div className='flex items-center gap-2.5'>
-              <span className='relative flex h-2.5 w-2.5 shrink-0'>
-                <span className='animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75'></span>
-                <span className='relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500'></span>
-              </span>
-              <IconAlertTriangle size={16} className='text-amber-600 dark:text-amber-400 shrink-0' />
-              <span>
+          <Alert variant='warning' className='flex-wrap items-start'>
+            <AlertIcon><IconAlertTriangle /></AlertIcon>
+            <AlertDescription className='min-w-0 flex-1'>
                 {m.payroll_wage_cap_unsaved_description()}
-              </span>
-            </div>
+            </AlertDescription>
+            <AlertAction>
             <Button
               type='button'
               size='sm'
@@ -176,7 +173,8 @@ export function WageCapRulesCard({ scope = 'all' }: WageCapRulesCardProps) {
             >
               {m.payroll_wage_cap_save_now()}
             </Button>
-          </div>
+            </AlertAction>
+          </Alert>
         )}
 
         <div className='space-y-3'>
@@ -263,12 +261,8 @@ export function WageCapRulesCard({ scope = 'all' }: WageCapRulesCardProps) {
 
           <div className='flex flex-wrap items-center gap-3'>
             {isDirty ? (
-              <div className='inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-800 dark:text-amber-300 text-xs font-semibold animate-in fade-in duration-200'>
-                <span className='relative flex h-2 w-2'>
-                  <span className='animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75'></span>
-                  <span className='relative inline-flex rounded-full h-2 w-2 bg-amber-500'></span>
-                </span>
-                <IconAlertTriangle size={15} className='text-amber-600 dark:text-amber-400 shrink-0' />
+              <Badge variant='amber' className='max-w-full whitespace-normal'>
+                <IconAlertTriangle />
                 <span>
                   {scope === 'kes'
                     ? m.payroll_wage_cap_unsaved_kes()
@@ -276,10 +270,10 @@ export function WageCapRulesCard({ scope = 'all' }: WageCapRulesCardProps) {
                       ? m.payroll_wage_cap_unsaved_tk()
                       : m.payroll_wage_cap_unsaved_all()}
                 </span>
-              </div>
+              </Badge>
             ) : lastSavedAt ? (
-              <div className='inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/25 text-emerald-700 dark:text-emerald-300 text-xs font-semibold animate-in fade-in duration-200'>
-                <IconCheck size={15} className='text-emerald-600 dark:text-emerald-400 shrink-0' />
+              <Badge variant='green' className='max-w-full whitespace-normal'>
+                <IconCheck />
                 <span>
                   {scope === 'kes'
                     ? m.payroll_wage_cap_saved_kes({timestamp: lastSavedAt})
@@ -287,7 +281,7 @@ export function WageCapRulesCard({ scope = 'all' }: WageCapRulesCardProps) {
                       ? m.payroll_wage_cap_saved_tk({timestamp: lastSavedAt})
                       : m.payroll_wage_cap_saved_all({timestamp: lastSavedAt})}
                 </span>
-              </div>
+              </Badge>
             ) : null}
 
             <Button

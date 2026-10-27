@@ -1,10 +1,12 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { initialSalaryComponents } from '../data/mock-payroll-data'
 
 import type {
   EmployeePayrollComponent,
   PayrollComponentKind,
   PayrollInputLine,
+  SalaryComponent,
 } from '../types'
 
 export const employeeComponentKinds = {
@@ -33,7 +35,7 @@ const automaticComponentKinds: readonly PayrollComponentKind[] = [
 ]
 
 export function isAutomaticPayrollComponent(component: EmployeePayrollComponent): boolean {
-  return automaticComponentKinds.includes(getEmployeeComponentKind(component))
+  return ['BASIC_SALARY', 'OVERTIME_PAY', 'OVERTIME', 'UNPAID_LEAVE', 'DED_LATE', 'LATE', 'DED_BPJS_TK', 'DED_BPJS_KES', 'DED_PPH21', 'TAX_ALLOWANCE', 'THR_TAX_INSTALLMENT'].includes(component.code.toUpperCase()) || automaticComponentKinds.includes(getEmployeeComponentKind(component))
 }
 
 export function getEmployeeComponentKind(component: EmployeePayrollComponent): PayrollComponentKind {
@@ -45,6 +47,9 @@ export function getEmployeeComponentKind(component: EmployeePayrollComponent): P
 }
 
 interface PayrollComponentStoreState {
+  salaryComponents: SalaryComponent[]
+  saveSalaryComponent: (component: SalaryComponent) => void
+  removeSalaryComponent: (id: string) => void
   employeeComponents: EmployeePayrollComponent[]
   addEmployeeComponent: (component: EmployeePayrollComponent) => void
   addImportedEmployeeComponents: (components: EmployeePayrollComponent[]) => void
@@ -138,6 +143,7 @@ export function employeeComponentToInputLine(
     amount,
     isTaxable: component.type === 'allowance' && componentKind !== 'non_taxable_payment',
     componentKind,
+    parameters: component.parameters,
     cashImpact: componentKind !== 'taxable_benefit',
   }
 }
@@ -146,6 +152,15 @@ export const usePayrollComponentStore = create<PayrollComponentStoreState>()(
   persist(
     (set) => ({
       employeeComponents: initialEmployeeComponents,
+      salaryComponents: initialSalaryComponents,
+      saveSalaryComponent: (component) => set((state) => ({
+        salaryComponents: state.salaryComponents.some((item) => item.id === component.id)
+          ? state.salaryComponents.map((item) => item.id === component.id ? component : item)
+          : [...state.salaryComponents, component],
+      })),
+      removeSalaryComponent: (id) => set((state) => ({
+        salaryComponents: state.salaryComponents.filter((item) => item.id !== id),
+      })),
       addEmployeeComponent: (component) =>
         set((state) => ({
           employeeComponents: [

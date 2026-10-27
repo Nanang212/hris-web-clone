@@ -7,11 +7,14 @@ import {
   IconSend,
 } from '@tabler/icons-react'
 import { useState } from 'react'
-import { formatIDR, initialPayslips } from '../../data/mock-payroll-data'
+import { formatIDR } from '../../data/mock-payroll-data'
+import { usePayrollRunStore } from '../../store/payroll-run-store'
+import { detailToPayslip } from '../../lib/payroll-payslip-helper'
 import { downloadBankBatchTransferFile } from '../../lib/payroll-download-helper'
 import type { PayrollRun } from '../../types'
 import { m } from '@/i18n/paraglide/messages'
 import { Badge } from '@/shared/components/ui/badge'
+import { Alert, AlertAction, AlertDescription, AlertIcon, AlertTitle } from '@/shared/components/ui/alert'
 import { Button } from '@/shared/components/ui/button'
 import { FieldLabel } from '@/shared/components/ui/field'
 import { RadioGroup, RadioGroupItem } from '@/shared/components/ui/radio-group'
@@ -25,11 +28,16 @@ interface DisbursementViewProps {
 export function DisbursementView({ run, onMarkAsDisbursed }: DisbursementViewProps) {
   const [bankFormat, setBankFormat] = useState<'bca' | 'mandiri' | 'generic'>('bca')
   const [isDisbursing, setIsDisbursing] = useState(false)
+  const result = usePayrollRunStore((state) => state.resultsByRunId[run.id])
+  const ready = Boolean(result?.details.length && !result.dirtyEmployeeIds?.length && !run.specialPeriodsPending && (run.status === 'approved' || run.status === 'disbursed'))
 
   const handleDownloadBatchFile = () => {
     try {
-      const periodPayslips = initialPayslips.filter((p) => p.period === run.period || p.payrollRunId === run.id)
-      const dataToExport = periodPayslips.length > 0 ? periodPayslips : initialPayslips
+      if (!ready || !result) {
+        snackbar.error(m.payroll_revision_no_results())
+        return
+      }
+      const dataToExport = result.details.map((detail) => detailToPayslip(detail, run.id, run.period, run.paymentDate))
       downloadBankBatchTransferFile(run, dataToExport, bankFormat)
       snackbar.success(m.payroll_disbursement_download_success({format: bankFormat.toUpperCase(), period: run.period}))
     } catch {
@@ -38,6 +46,10 @@ export function DisbursementView({ run, onMarkAsDisbursed }: DisbursementViewPro
   }
 
   const handleDisburse = () => {
+    if (!ready || run.status !== 'approved') {
+      snackbar.error(m.payroll_revision_no_results())
+      return
+    }
     setIsDisbursing(true)
     setTimeout(() => {
       setIsDisbursing(false)
@@ -49,34 +61,30 @@ export function DisbursementView({ run, onMarkAsDisbursed }: DisbursementViewPro
   return (
     <div className='max-w-4xl mx-auto space-y-6'>
       {/* ── 1. Approved Success Banner ──────────────────────────────────────── */}
-      <div className='p-6 rounded-2xl border border-emerald-500/30 bg-emerald-50/50 dark:bg-emerald-950/20 shadow-xs flex flex-wrap items-center justify-between gap-4'>
-        <div className='flex items-center gap-3.5'>
-          <div className='flex size-12 items-center justify-center rounded-2xl bg-emerald-600 text-white shadow-md'>
-            <IconCheck size={26} />
-          </div>
-          <div>
-            <div className='flex items-center gap-2'>
-              <h3 className='text-base font-bold text-emerald-950 dark:text-emerald-300'>
+      <Alert variant='success' className='flex-wrap items-start'>
+          <AlertIcon><IconCheck /></AlertIcon>
+          <div className='flex min-w-0 flex-1 flex-col gap-1'>
+            <div className='flex flex-wrap items-center gap-2'>
+              <AlertTitle>
                 {m.payroll_disbursement_ready_title()}
-              </h3>
+              </AlertTitle>
               <Badge variant='green' className='text-[10px] uppercase font-bold'>
                 {m.payroll_disbursement_ready_badge()}
               </Badge>
             </div>
-            <p className='text-xs text-emerald-900/80 dark:text-emerald-400/90 mt-0.5'>
+            <AlertDescription>
               {m.payroll_attendance_period()}: <b className='font-semibold'>{run.period}</b> · {m.payroll_disbursement_approved_by()}: {' '}
               <b>{run.approvedBy || m.payroll_disbursement_approver_role()}</b>
-            </p>
+            </AlertDescription>
           </div>
-        </div>
 
-        <div className='text-right'>
+        <AlertAction className='max-w-full text-right'>
           <p className='text-[11px] text-muted-foreground'>{m.payroll_disbursement_total_payout()}</p>
           <b className='text-lg font-bold text-emerald-600 dark:text-emerald-400'>
             {formatIDR(run.totalNetDisbursement)}
           </b>
-        </div>
-      </div>
+        </AlertAction>
+      </Alert>
 
       {/* ── 2. Bank Transfer Batch File Generator ───────────────────────────── */}
       <div className='rounded-2xl border border-border/80 bg-card p-6 shadow-xs space-y-5'>
@@ -153,7 +161,7 @@ export function DisbursementView({ run, onMarkAsDisbursed }: DisbursementViewPro
         <Button
           type='button'
           onClick={handleDisburse}
-          disabled={isDisbursing || run.status === 'disbursed'}
+          disabled={isDisbursing || run.status === 'disbursed' || !ready}
           className='gap-1.5 h-9.5 px-6 text-xs font-semibold rounded-xl bg-primary shadow-xs'
         >
           <IconSend size={15} />

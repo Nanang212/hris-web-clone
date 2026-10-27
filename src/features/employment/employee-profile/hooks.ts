@@ -13,6 +13,10 @@ import {
   requestEmployeeBankVerification,
   updateEmployeeInformation,
   updateEmployeeInformationStatus,
+  rejoinEmployee,
+  getEmployeeEmploymentPeriods,
+  uploadEmployeeEmploymentDocument,
+  createEmployeeEmploymentScreening,
 } from '@/features/employment/employee-profile/api'
 import type {
   CreateEmployeeProfileInput,
@@ -20,6 +24,40 @@ import type {
   UpdateEmployeeInformationRequest,
   UpdateEmployeeStatusPayload,
 } from '@/features/employment/employee-profile/types'
+import type { EmployeeRejoinInput, UploadEmployeeEmploymentDocumentInput, CreateEmployeeEmploymentScreeningInput } from '@/features/employment/employee-profile/api'
+
+export function useUploadEmployeeEmploymentDocument() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ employeeId, periodId, input, requestId }: { employeeId: string; periodId: string; input: UploadEmployeeEmploymentDocumentInput; requestId: string }) => uploadEmployeeEmploymentDocument(employeeId, periodId, input, requestId),
+    onSuccess: (_response, { employeeId }) => queryClient.invalidateQueries({ queryKey: employeeInformationQueryKeys.detail(employeeId) }),
+  })
+}
+
+export function useCreateEmployeeEmploymentScreening() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ employeeId, periodId, input, requestId }: { employeeId: string; periodId: string; input: CreateEmployeeEmploymentScreeningInput; requestId: string }) => createEmployeeEmploymentScreening(employeeId, periodId, input, requestId),
+    onSuccess: (_response, { employeeId }) => queryClient.invalidateQueries({ queryKey: employeeInformationQueryKeys.detail(employeeId) }),
+  })
+}
+
+export function useRejoinEmployee() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ employeeId, input, requestId }: { employeeId: string; input: EmployeeRejoinInput; requestId: string }) => rejoinEmployee(employeeId, input, requestId),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: employeeInformationQueryKeys.all }),
+  })
+}
+
+export function useGetEmployeeEmploymentPeriods(employeeId: string) {
+  return useQuery({
+    queryKey: [...employeeInformationQueryKeys.detail(employeeId), 'employment-periods'],
+    queryFn: () => getEmployeeEmploymentPeriods(employeeId),
+    select: (response) => response.data,
+    enabled: Boolean(employeeId),
+  })
+}
 
 export const employeeInformationQueryKeys = {
   all: ['company', 'employee-information'] as const,

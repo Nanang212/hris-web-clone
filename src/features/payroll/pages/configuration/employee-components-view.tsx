@@ -79,6 +79,9 @@ import {
 } from '../../store/payroll-component-store'
 import type { EmployeePayrollComponent, PayrollComponentKind } from '../../types'
 import { EmployeeComponentImportPanel } from './employee-component-import-panel'
+import { PayrollComponentParametersFields } from '../../components/payroll-component-parameters-fields'
+import { PayrollComponentParameterSummary } from '../../components/payroll-component-parameter-summary'
+import { resolveComponentParameters, validateComponentParameters } from '../../lib/payroll-component-parameters'
 
 const componentTypes = ['allowance', 'deduction'] as const
 
@@ -299,6 +302,7 @@ function EmployeeComponentTable({
                       <p className='text-xs text-muted-foreground'>
                         {componentKindLabels[getEmployeeComponentKind(component)]()}
                       </p>
+                      <PayrollComponentParameterSummary line={employeeComponentToInputLine(component)} />
                     </TableCell>
                     <TableCell>{frequencyLabels[component.frequency]()}</TableCell>
                     <TableCell>
@@ -378,6 +382,8 @@ function EmployeeComponentTable({
 }
 
 export function EmployeeComponentsView() {
+  const salaryComponents = usePayrollComponentStore((state) => state.salaryComponents)
+  const assignableSalaryComponents = salaryComponents.filter((component) => component.status === 'active' && component.calculationType === 'fixed_amount' && !isAutomaticPayrollComponent({ ...component, status: 'active', employeeId: '', employeeName: '', employeeCode: '', amount: 0, frequency: 'one_time', startPeriod: '' }))
   const components = usePayrollComponentStore((state) => state.employeeComponents)
   const addComponent = usePayrollComponentStore((state) => state.addEmployeeComponent)
   const updateComponent = usePayrollComponentStore((state) => state.updateEmployeeComponent)
@@ -396,7 +402,7 @@ export function EmployeeComponentsView() {
   )
   const totalForType = (type: EmployeePayrollComponent['type']) =>
     activeComponents
-      .filter((component) => component.type === type)
+      .filter((component) => resolveComponentParameters(employeeComponentToInputLine(component)).thpEffect === (type === 'allowance' ? 'add' : 'subtract'))
       .reduce((total, component) => total + employeeComponentToInputLine(component).amount, 0)
   const stats = [
     {
@@ -444,6 +450,11 @@ export function EmployeeComponentsView() {
     originalAmount: z.coerce.number().min(0),
     remainingBalance: z.coerce.number().min(0),
     notes: z.string(),
+    parameters: z.object({
+      thpEffect: z.enum(['add', 'subtract', 'none']),
+      taxGrossEffect: z.enum(['add', 'subtract', 'none']),
+      taxTreatment: z.enum(['regular', 'final', 'non_taxable']),
+    }).refine(validateComponentParameters, messages.payroll_revision_invalid_parameters()),
   }))
   const validatedSchema = useMemo(
     () =>
@@ -496,10 +507,11 @@ export function EmployeeComponentsView() {
     reset,
     setValue,
     formState: { errors },
-  } = useForm<FormValues>({
+  } = useForm<z.input<typeof validatedSchema>, unknown, FormValues>({
     resolver: zodResolver(validatedSchema),
     defaultValues: {
       employeeId: '',
+      parameters: { thpEffect: 'add', taxGrossEffect: 'add', taxTreatment: 'regular' },
       name: '',
       code: '',
       type: 'allowance',
@@ -521,6 +533,7 @@ export function EmployeeComponentsView() {
     setEditingComponent(null)
     reset({
       employeeId: '',
+      parameters: { thpEffect: 'add', taxGrossEffect: 'add', taxTreatment: 'regular' },
       name: '',
       code: '',
       type: 'allowance',
@@ -544,6 +557,7 @@ export function EmployeeComponentsView() {
     }
     reset({
       employeeId: component.employeeId,
+      parameters: resolveComponentParameters(employeeComponentToInputLine(component)),
       name: component.name,
       code: component.code,
       type: component.type,
@@ -551,7 +565,7 @@ export function EmployeeComponentsView() {
         ? component.type === 'allowance'
           ? 'other_taxable_income'
           : 'other_deduction'
-        : getEmployeeComponentKind(component),
+        : componentKindOptions.find((kind) => kind === getEmployeeComponentKind(component)) ?? 'other_deduction',
       amount: component.amount,
       frequency: component.frequency,
       startPeriod: component.startPeriod,
@@ -577,6 +591,7 @@ export function EmployeeComponentsView() {
       code: values.code.toUpperCase().replace(/\s+/g, '_'),
       type: values.type,
       componentKind: values.componentKind,
+      parameters: values.parameters,
       amount: values.amount,
       frequency: values.frequency,
       startPeriod: values.startPeriod,
@@ -711,6 +726,19 @@ export function EmployeeComponentsView() {
           </DialogHeader>
           <form id='employee-payroll-component-form' onSubmit={handleSubmit(onSubmit)} noValidate>
             <FieldGroup className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
+              <Field className='sm:col-span-2'>
+                <FieldLabel htmlFor='employee-component-master'>{m.payroll_salary_directory_title()}</FieldLabel>
+                <Controller name='code' control={control} render={({ field }) => <Select value={salaryComponents.some((item) => item.code === field.value) ? field.value : ''} onValueChange={(code) => {
+                  const master = salaryComponents.find((item) => item.code === code)
+                  if (!master) return
+                  field.onChange(code)
+                  setValue('name', master.name)
+                  setValue('type', master.type)
+                  setValue('amount', master.defaultAmount)
+                  setValue('componentKind', componentKindOptions.find((kind) => kind === master.componentKind) ?? (master.type === 'allowance' ? 'other_taxable_income' : 'other_deduction'))
+                  setValue('parameters', resolveComponentParameters(master))
+                }}><SelectTrigger id='employee-component-master' className='w-full'><SelectValue placeholder={m.payroll_salary_type_placeholder()} /></SelectTrigger><SelectContent><SelectGroup>{assignableSalaryComponents.map((item) => <SelectItem key={item.id} value={item.code}>{item.code} · {item.name}</SelectItem>)}</SelectGroup></SelectContent></Select>} />
+              </Field>
               <Field data-invalid={!!errors.employeeId}>
                 <FieldLabel>{m.payroll_employee_components_employee_field_label()}</FieldLabel>
                 <Controller
@@ -915,6 +943,9 @@ export function EmployeeComponentsView() {
                   </Field>
                 </>
               )}
+              <FieldGroup className='sm:col-span-2'>
+                <Controller name='parameters' control={control} render={({ field }) => <PayrollComponentParametersFields value={field.value} onChange={field.onChange} error={errors.parameters?.message} />} />
+              </FieldGroup>
               <Field className='sm:col-span-2'>
                 <FieldLabel htmlFor='employee-component-notes'>
                   {m.payroll_employee_components_notes_field_label()}

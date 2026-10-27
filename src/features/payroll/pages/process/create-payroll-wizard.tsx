@@ -10,6 +10,12 @@ import {
 } from '@tabler/icons-react'
 import dayjs from 'dayjs'
 import { useState } from 'react'
+import { Controller, useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+import { useSchema } from '@/shared/lib/schema'
+import { PayrollSpecialPeriodFields } from '../../components/payroll-special-period-fields'
+import { resolveComponentParameters } from '../../lib/payroll-component-parameters'
 import { CalculationConfirmationModal } from '../../components/confirmation-modal'
 import { initialGeneralConfig, initialPph21Config } from '../../data/mock-payroll-data'
 import { HQ_LOCATION, initialPayrollEmployeeInputs } from '../../data/mock-payroll-inputs'
@@ -25,10 +31,11 @@ import {
   usePayrollComponentStore,
 } from '../../store/payroll-component-store'
 import { useProjects } from '@/features/company/project/data/dummy-projects'
-import { usePayrollTaxInputStore } from '../../store/payroll-tax-input-store'
+import { payrollTaxIdentityKey, usePayrollTaxInputStore } from '../../store/payroll-tax-input-store'
 import { usePayrollRunStore } from '../../store/payroll-run-store'
 import type { PayrollRun } from '../../types'
 import { Button } from '@/shared/components/ui/button'
+import { Alert, AlertDescription, AlertIcon, AlertTitle } from '@/shared/components/ui/alert'
 import { DatePicker } from '@/shared/components/ui/date-picker'
 import { Input } from '@/shared/components/ui/input'
 import { Checkbox } from '@/shared/components/ui/checkbox'
@@ -60,6 +67,23 @@ const getMonthOptions = () => Array.from({ length: 12 }, (_, index) => ({
 
 export function CreatePayrollWizard({ onCancel, onSuccess }: CreatePayrollWizardProps) {
   const [step, setStep] = useState<1 | 2 | 3>(1)
+  const specialSchema = useSchema(() => {
+    const period = (kind: 'thr' | 'uuck') => z.object({
+      enabled: z.boolean(), startDate: z.string(), endDate: z.string(), paymentDate: z.string(),
+      holidayName: z.string(), holidayDate: z.string(), paymentTime: z.string(),
+    }).refine((value) => !value.enabled || (
+      [value.startDate, value.endDate, value.paymentDate].every((date) => /^\d{4}-\d{2}-\d{2}$/.test(date) && dayjs(date).isValid()) &&
+      value.startDate <= value.endDate &&
+      (kind === 'thr' ? Boolean(value.holidayName.trim() && value.holidayDate && dayjs(value.holidayDate).isValid()) : /^([01]\d|2[0-3]):[0-5]\d$/.test(value.paymentTime))
+    ), m.payroll_revision_period_invalid())
+    return { thrPeriodConfig: period('thr'), uuckPeriodConfig: period('uuck') }
+  })
+  const specialForm = useForm<z.infer<typeof specialSchema>>({
+    resolver: zodResolver(specialSchema), defaultValues: {
+      thrPeriodConfig: { enabled: false, startDate: '', endDate: '', paymentDate: '', holidayName: '', holidayDate: '', paymentTime: '' },
+      uuckPeriodConfig: { enabled: false, startDate: '', endDate: '', paymentDate: '', holidayName: '', holidayDate: '', paymentTime: '' },
+    },
+  })
 
   // Step 1: Period and Dates
   const [periodMonth, setPeriodMonth] = useState('7')
@@ -90,6 +114,7 @@ export function CreatePayrollWizard({ onCancel, onSuccess }: CreatePayrollWizard
   const wageCapRules = usePayrollBpjsStore((s) => s.wageCapRules)
   const setRunResult = usePayrollRunStore((s) => s.setRunResult)
   const employeeComponents = usePayrollComponentStore((s) => s.employeeComponents)
+  const salaryComponents = usePayrollComponentStore((s) => s.salaryComponents)
   const taxYearToDateOverrides = usePayrollTaxInputStore((s) => s.taxYearToDateOverrides)
   const applyPayrollPeriod = usePayrollComponentStore((s) => s.applyPayrollPeriod)
   const projects = useProjects()
@@ -133,12 +158,13 @@ export function CreatePayrollWizard({ onCancel, onSuccess }: CreatePayrollWizard
     setCutoffEnd(new Date(yr, mIndex, 20))
   }
 
-  const handleNextStep = () => {
+  const handleNextStep = async () => {
     if (step === 1) {
-      if (!paymentDate || !cutoffStart || !cutoffEnd) {
+      if (!paymentDate || !cutoffStart || !cutoffEnd || dayjs(cutoffStart).isAfter(cutoffEnd, 'day')) {
         snackbar.error(m.payroll_wizard_dates_required())
         return
       }
+      if (!(await specialForm.trigger())) return
       setStep(2)
     } else if (step === 2) {
       setStep(3)
@@ -150,6 +176,7 @@ export function CreatePayrollWizard({ onCancel, onSuccess }: CreatePayrollWizard
   const handleConfirmCalculation = () => {
     setIsCalculating(true)
     setTimeout(() => {
+      try {
       // Opsi sinkronisasi presensi/lembur menentukan komponen otomatis yang ikut dihitung
       const automaticComponents = employeeComponents.filter(
         (component) =>
@@ -170,16 +197,17 @@ export function CreatePayrollWizard({ onCancel, onSuccess }: CreatePayrollWizard
         return {
           ...emp,
           taxYearToDate:
+            taxYearToDateOverrides[payrollTaxIdentityKey(Number(periodYear), emp.employeeId, emp.nik)] ??
             taxYearToDateOverrides[`${periodYear}:${emp.employeeId}`] ??
             (periodYear === '2026' ? emp.taxYearToDate : undefined),
           fixedComponents: [
-            ...emp.fixedComponents,
+            ...emp.fixedComponents.filter((line) => !applicableComponents.some((component) => component.code.toUpperCase() === line.code.toUpperCase())),
             ...applicableComponents
               .filter((component) => getEmployeeComponentKind(component) === 'fixed_allowance')
               .map(employeeComponentToInputLine),
           ],
           variableComponents: [
-            ...emp.variableComponents,
+            ...emp.variableComponents.filter((line) => !applicableComponents.some((component) => component.code.toUpperCase() === line.code.toUpperCase())),
             ...applicableComponents
               .filter((component) => getEmployeeComponentKind(component) !== 'fixed_allowance')
               .map(employeeComponentToInputLine),
@@ -191,6 +219,12 @@ export function CreatePayrollWizard({ onCancel, onSuccess }: CreatePayrollWizard
             overtimeHours: syncOvertime ? emp.attendance.overtimeHours : 0,
           },
         }
+      }).map((employee) => {
+        const applyParameters = (line: typeof employee.fixedComponents[number]) => ({
+          ...line,
+          parameters: line.parameters ?? salaryComponents.find((component) => component.code === line.code && component.status === 'active')?.parameters,
+        })
+        return { ...employee, fixedComponents: employee.fixedComponents.map(applyParameters), variableComponents: employee.variableComponents.map(applyParameters) }
       })
 
       const invalidPtkpCount = employees.filter(
@@ -243,6 +277,7 @@ export function CreatePayrollWizard({ onCancel, onSuccess }: CreatePayrollWizard
         generalConfig: initialGeneralConfig,
         includeThrInstallment: syncThrTaxInstallment,
         projectAttendancePolicies,
+        componentParameters: Object.fromEntries(salaryComponents.filter((component) => component.status === 'active').map((component) => [component.code, resolveComponentParameters(component)])),
       })
 
       setIsCalculating(false)
@@ -255,6 +290,10 @@ export function CreatePayrollWizard({ onCancel, onSuccess }: CreatePayrollWizard
       const runId = `pay-run-${Date.now()}`
       const { summary } = result
       const createdRun: PayrollRun = {
+        runType: 'REGULAR',
+        thrPeriodConfig: specialForm.getValues('thrPeriodConfig'),
+        uuckPeriodConfig: specialForm.getValues('uuckPeriodConfig'),
+        specialPeriodsPending: specialForm.getValues('thrPeriodConfig.enabled') || specialForm.getValues('uuckPeriodConfig.enabled'),
         id: runId,
         code: `PR-${Date.now().toString().slice(-6)}`,
         period: periodName,
@@ -280,9 +319,27 @@ export function CreatePayrollWizard({ onCancel, onSuccess }: CreatePayrollWizard
       // Simpan rincian per karyawan agar halaman detail menampilkan hasil kalkulasi yang sebenarnya
       setRunResult(runId, {
         details: result.details,
+        sourceDetails: structuredClone(result.details),
         unmatchedBilling: result.unmatchedBilling,
+        calculation: {
+          employees: structuredClone(employees),
+          billing: structuredClone(billingUpload?.records ?? []),
+          bpjsKesConfig: structuredClone(bpjsKesConfig),
+          bpjsTkConfig: structuredClone(bpjsTkConfig),
+          tkProjectSettings: structuredClone(tkProjectSettings),
+          wageCapRules: structuredClone(wageCapRules),
+          periodKey,
+          pph21Config: structuredClone(initialPph21Config),
+          generalConfig: structuredClone(initialGeneralConfig),
+          includeThrInstallment: syncThrTaxInstallment,
+          projectAttendancePolicies: structuredClone(projectAttendancePolicies),
+          componentParameters: Object.fromEntries(salaryComponents.filter((component) => component.status === 'active').map((component) => [component.code, resolveComponentParameters(component)])),
+        },
+        overrides: {},
+        dirtyEmployeeIds: [],
+        calculatedAt: dayjs().toISOString(),
       })
-      applyPayrollPeriod(periodKey, employees.map((employee) => employee.employeeId))
+      if (!createdRun.specialPeriodsPending) applyPayrollPeriod(periodKey, employees.map((employee) => employee.employeeId))
 
       onSuccess(createdRun)
       if (summary.warningCount > 0 || result.unmatchedBilling.length > 0) {
@@ -291,6 +348,11 @@ export function CreatePayrollWizard({ onCancel, onSuccess }: CreatePayrollWizard
         )
       } else {
         snackbar.success(m.payroll_wizard_success())
+      }
+      } catch (error) {
+        snackbar.exception(error)
+      } finally {
+        setIsCalculating(false)
       }
     }, 600)
   }
@@ -453,14 +515,17 @@ export function CreatePayrollWizard({ onCancel, onSuccess }: CreatePayrollWizard
               </div>
             </div>
 
+            <Controller name='thrPeriodConfig' control={specialForm.control} render={({ field }) => <PayrollSpecialPeriodFields kind='thr' value={field.value} onChange={field.onChange} invalid={Boolean(specialForm.formState.errors.thrPeriodConfig)} />} />
+            <Controller name='uuckPeriodConfig' control={specialForm.control} render={({ field }) => <PayrollSpecialPeriodFields kind='uuck' value={field.value} onChange={field.onChange} invalid={Boolean(specialForm.formState.errors.uuckPeriodConfig)} />} />
+
             {/* Cycle Preview Info Banner */}
-            <div className='p-4 rounded-2xl border border-primary/20 bg-primary/5 flex items-start gap-3 text-xs'>
-              <IconInfoCircle className='size-5 text-primary shrink-0 mt-0.5' />
-              <div className='space-y-1'>
-                <p className='font-bold text-foreground'>
+            <Alert variant='info' className='items-start'>
+              <AlertIcon><IconInfoCircle /></AlertIcon>
+              <div className='flex min-w-0 flex-1 flex-col gap-1'>
+                <AlertTitle>
                   {m.payroll_wizard_cycle_summary()} <span className='text-primary'>{periodName}</span>
-                </p>
-                <p className='text-[11px] text-muted-foreground leading-relaxed'>
+                </AlertTitle>
+                <AlertDescription>
                   {m.payroll_wizard_cycle_from()}{' '}
                   <strong className='text-foreground'>
                     {cutoffStart ? dayjs(cutoffStart).locale(getLocale()).format('DD MMM YYYY') : '-'}
@@ -474,9 +539,9 @@ export function CreatePayrollWizard({ onCancel, onSuccess }: CreatePayrollWizard
                     {paymentDate ? dayjs(paymentDate).locale(getLocale()).format('DD MMMM YYYY') : '-'}
                   </strong>
                   {'.'}
-                </p>
+                </AlertDescription>
               </div>
-            </div>
+            </Alert>
           </div>
         )}
 

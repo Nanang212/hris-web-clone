@@ -1,6 +1,12 @@
 import { create } from 'zustand'
 
 import type { TaxYearToDateInput } from '../types'
+import { initialPayrollEmployeeInputs } from '../data/mock-payroll-inputs'
+
+export function payrollTaxIdentityKey(year: number, employeeId: string, nik?: string): string {
+  const identity = nik ?? initialPayrollEmployeeInputs.find((employee) => employee.employeeId === employeeId)?.nik
+  return `${year}:${identity && /^\d{16}$/.test(identity) ? identity : employeeId}`
+}
 
 interface PayrollTaxInputStoreState {
   taxYearToDateOverrides: Record<string, TaxYearToDateInput>
@@ -14,7 +20,7 @@ export const usePayrollTaxInputStore = create<PayrollTaxInputStoreState>((set) =
     set((state) => ({
       taxYearToDateOverrides: {
         ...state.taxYearToDateOverrides,
-        [`${year}:${employeeId}`]: value,
+        [payrollTaxIdentityKey(year, employeeId)]: value,
       },
     })),
 }))
