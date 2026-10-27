@@ -1,5 +1,6 @@
 // src/features/payroll/lib/payroll-payslip-helper.ts
 import type { EmployeePayrollDetail, PayslipRecord } from '../types'
+import { resolveComponentParameters } from './payroll-component-parameters'
 
 export function detailToPayslip(
   detail: EmployeePayrollDetail,
@@ -7,23 +8,24 @@ export function detailToPayslip(
   period: string = 'June 2026',
   paymentDate: string = '25 Jun 2026',
 ): PayslipRecord {
-  const earnings: { name: string; amount: number; isTaxable: boolean }[] = [
-    { name: 'Gaji Pokok', amount: detail.baseSalary, isTaxable: true },
-  ]
+  const cashComponents = detail.systemComponents ? [...detail.systemComponents, ...(detail.lines ?? [])] : undefined
+  const earnings: { name: string; amount: number; isTaxable: boolean }[] = cashComponents
+    ? cashComponents.filter((line) => resolveComponentParameters(line).thpEffect === 'add' && line.amount !== 0).map((line) => ({ name: line.name, amount: line.amount, isTaxable: resolveComponentParameters(line).taxGrossEffect === 'add' }))
+    : [{ name: 'Gaji Pokok', amount: detail.baseSalary, isTaxable: true }]
   const earningLines = detail.lines?.filter(
-    (line) => line.type === 'allowance' && line.cashImpact !== false,
+    (line) => resolveComponentParameters(line).thpEffect === 'add',
   )
-  const deductionLines = detail.lines?.filter((line) => line.type === 'deduction')
+  const deductionLines = detail.lines?.filter((line) => resolveComponentParameters(line).thpEffect === 'subtract')
 
-  if (earningLines?.length) {
+  if (!cashComponents && earningLines?.length) {
     earnings.push(
       ...earningLines.map((line) => ({
         name: line.name,
         amount: line.amount,
-        isTaxable: line.isTaxable,
+        isTaxable: resolveComponentParameters(line).taxTreatment === 'regular' && resolveComponentParameters(line).taxGrossEffect === 'add',
       })),
     )
-  } else if (detail.fixedAllowances > 0) {
+  } else if (!cashComponents && detail.fixedAllowances > 0) {
     earnings.push({ name: 'Tunjangan Tetap', amount: detail.fixedAllowances, isTaxable: true })
     if (detail.variableAllowances > 0) {
       earnings.push({
@@ -41,7 +43,10 @@ export function detailToPayslip(
     }
   }
 
-  const deductions: { name: string; amount: number }[] = []
+  const deductions: { name: string; amount: number }[] = cashComponents
+    ? cashComponents.filter((line) => resolveComponentParameters(line).thpEffect === 'subtract' && line.amount !== 0).map((line) => ({ name: line.name, amount: line.amount }))
+    : []
+  if (!cashComponents) {
   if (detail.bpjsKesEmployee > 0) {
     const family = detail.bpjsKesFamilyExtra ?? 0
     const kes1 = Math.max(0, detail.bpjsKesEmployee - family)
@@ -56,12 +61,13 @@ export function detailToPayslip(
       amount: detail.bpjsTkEmployee,
     })
   }
-  if (detail.pph21Tax > 0) {
-    deductions.push({ name: 'Pajak PPh 21 Bulanan', amount: detail.pph21Tax })
-  } else if (detail.pph21Tax < 0) {
+  const employeeTax = detail.pph21EmployeeDeduction ?? detail.pph21Tax
+  if (employeeTax > 0) {
+    deductions.push({ name: 'Pajak PPh 21 Bulanan', amount: employeeTax })
+  } else if (employeeTax < 0) {
     earnings.push({
       name: 'Pengembalian PPh 21',
-      amount: Math.abs(detail.pph21Tax),
+      amount: Math.abs(employeeTax),
       isTaxable: false,
     })
   }
@@ -91,6 +97,8 @@ export function detailToPayslip(
     }
   }
 
+  }
+
   return {
     id: `slip-${detail.employeeId}-${period.replace(/\s+/g, '-').toLowerCase()}`,
     payslipNumber: `PS/${period.slice(-4)}/${detail.employeeCode.replace(/\D/g, '').padStart(4, '0')}`,
@@ -102,15 +110,15 @@ export function detailToPayslip(
     employeeCode: detail.employeeCode,
     department: detail.department,
     position: detail.position,
-    joinDate: '12 Jan 2022',
+    joinDate: detail.joinDate ?? '',
     ptkpStatus: detail.ptkpStatus,
-    npwp: '82.918.271.0-012.000',
+    npwp: detail.npwp ?? '',
     bankName: detail.bankName,
     bankAccountNumber: detail.bankAccountNumber,
     earnings,
     deductions,
     totalEarnings: earnings.reduce((total, item) => total + item.amount, 0),
-    totalDeductions: detail.totalDeductions,
+    totalDeductions: deductions.reduce((total, item) => total + item.amount, 0),
     netPay: detail.netTakeHomePay,
     status: detail.status === 'paid' ? 'sent' : 'draft',
     sentAt: detail.status === 'paid' ? `${paymentDate}, 09:00` : undefined,

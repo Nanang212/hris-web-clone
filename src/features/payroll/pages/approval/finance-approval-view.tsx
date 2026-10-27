@@ -9,6 +9,7 @@ import { formatIDR } from '../../data/mock-payroll-data'
 import type { PayrollRun } from '../../types'
 import { m } from '@/i18n/paraglide/messages'
 import { Badge } from '@/shared/components/ui/badge'
+import { Alert, AlertAction, AlertDescription, AlertIcon, AlertTitle } from '@/shared/components/ui/alert'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { Checkbox } from '@/shared/components/ui/checkbox'
@@ -17,7 +18,7 @@ import { snackbar } from '@/shared/lib/snackbar'
 
 interface FinanceApprovalViewProps {
   run: PayrollRun
-  onApprove: (runId: string) => void
+  onApprove: (runId: string) => boolean | void
   onRequestRevision: (runId: string) => void
 }
 
@@ -34,12 +35,12 @@ export function FinanceApprovalView({
     budgetAvailable: true,
   })
 
-  const [approvalNotes, setApprovalNotes] = useState(m.payroll_finance_default_notes())
+  const [approvalNotes, setApprovalNotes] = useState<string>(m.payroll_finance_default_notes())
 
   const allChecked = Object.values(checklist).every(Boolean)
 
   const handleApprove = () => {
-    onApprove(run.id)
+    if (onApprove(run.id) === false) return
     snackbar.success(m.payroll_finance_approve_success({period: run.period}))
   }
 
@@ -51,31 +52,27 @@ export function FinanceApprovalView({
   return (
     <div className='max-w-4xl mx-auto space-y-6'>
       {/* ── 1. Approval Stage Banner ───────────────────────────────────────── */}
-      <div className='p-6 rounded-2xl border border-border/80 bg-card shadow-xs flex flex-wrap items-center justify-between gap-4'>
-        <div className='flex items-center gap-3.5'>
-          <div className='flex size-11 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400'>
-            <IconClock size={24} />
-          </div>
-          <div>
-            <div className='flex items-center gap-2'>
-              <h3 className='text-sm font-bold text-foreground'>{m.payroll_finance_stage_title()}</h3>
+      <Alert variant='warning' className='flex-wrap items-start'>
+          <AlertIcon><IconClock /></AlertIcon>
+          <div className='flex min-w-0 flex-1 flex-col gap-1'>
+            <div className='flex flex-wrap items-center gap-2'>
+              <AlertTitle>{m.payroll_finance_stage_title()}</AlertTitle>
               <Badge variant='amber'>{m.payroll_finance_stage_number()}</Badge>
             </div>
-            <p className='text-xs text-muted-foreground mt-0.5'>
+            <AlertDescription>
               {m.payroll_finance_period_label()}: <b className='text-foreground'>{run.period}</b> · {m.payroll_finance_disbursement_label()}:{' '}
               <b className='text-emerald-600 dark:text-emerald-400'>{formatIDR(run.totalNetDisbursement)}</b>
-            </p>
+            </AlertDescription>
           </div>
-        </div>
 
-        <div className='flex items-center gap-2 text-xs'>
+        <AlertAction className='flex max-w-full flex-wrap items-center gap-2 text-xs'>
           <span className='text-muted-foreground'>{m.payroll_finance_submitted_by()}</span>
           <span className='font-semibold text-foreground flex items-center gap-1'>
             <IconUserCheck size={14} className='text-primary' />
             {m.payroll_finance_submitter_role()}
           </span>
-        </div>
-      </div>
+        </AlertAction>
+      </Alert>
 
       {/* ── 2. Verification Checklist ──────────────────────────────────────── */}
       <div className='rounded-2xl border border-border/80 bg-card p-6 shadow-xs space-y-5'>

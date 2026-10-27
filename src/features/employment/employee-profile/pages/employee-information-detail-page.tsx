@@ -50,6 +50,8 @@ import { cn } from '@/shared/lib/utils'
 import { EmployeeBpjsTab } from '@/features/employment/employee-profile/components/employee-bpjs-tab'
 import { EmployeeInformationEditSheet } from '@/features/employment/employee-profile/components/employee-information-edit-sheet'
 import { EmployeeMcuTab } from '@/features/employment/employee-profile/components/employee-mcu-tab'
+import { EmployeeEmploymentHistory } from '@/features/employment/employee-profile/components/employee-employment-history'
+import { EmployeeRejoinDialog } from '@/features/employment/employee-profile/components/employee-rejoin-dialog'
 import {
   useDownloadEmployeeProfile,
   useGetEmployeeInformationDetail,
@@ -282,6 +284,7 @@ export function EmployeeInformationDetailPage({
   employeeId,
 }: Readonly<EmployeeInformationDetailPageProps>) {
   const [editOpen, setEditOpen] = useState(false)
+  const [rejoinOpen, setRejoinOpen] = useState(false)
   const detailQuery = useGetEmployeeInformationDetail(employeeId)
   const downloadMutation = useDownloadEmployeeProfile()
 
@@ -326,6 +329,7 @@ export function EmployeeInformationDetailPage({
       subtitle={m.employee_information_detail_subtitle()}
       actions={
         <div className='flex flex-wrap items-center gap-2'>
+          {(employee.status === 'Resigned' || employee.status === 'Inactive') && <Button size='sm' variant='outline' onClick={() => setRejoinOpen(true)}>{m.payroll_revision_rejoin()}</Button>}
           <Button size='sm' onClick={() => setEditOpen(true)}>
             <IconPencil data-icon='inline-start' />
             {m.employee_information_detail_edit()}
@@ -409,26 +413,30 @@ export function EmployeeInformationDetailPage({
         </CardContent>
       </Card>
 
-      <Tabs defaultValue='personal' className='min-w-0'>
+      <Tabs defaultValue='personal' className='grid min-w-0 gap-4'>
         <TabsList
           variant='line'
-          className='no-scrollbar w-full justify-start overflow-x-auto border-b'
+          className='grid h-auto! w-full grid-cols-2 items-stretch gap-2 border-b pb-3 sm:grid-cols-3 xl:grid-cols-5'
         >
-          <TabsTrigger value='personal'>{m.employee_information_detail_tab_personal()}</TabsTrigger>
-          <TabsTrigger value='employment'>
+          <TabsTrigger value='personal' className='h-auto min-h-10 min-w-0 whitespace-normal py-2'>{m.employee_information_detail_tab_personal()}</TabsTrigger>
+          <TabsTrigger value='employment' className='h-auto min-h-10 min-w-0 whitespace-normal py-2'>
             {m.employee_information_detail_tab_employment()}
           </TabsTrigger>
-          <TabsTrigger value='status'>{m.employee_information_detail_tab_status()}</TabsTrigger>
-          <TabsTrigger value='photo'>{m.employee_information_detail_tab_photo()}</TabsTrigger>
-          <TabsTrigger value='bank'>{m.employee_information_detail_tab_bank()}</TabsTrigger>
-          <TabsTrigger value='npwp'>{m.employee_information_detail_tab_npwp()}</TabsTrigger>
-          <TabsTrigger value='mcu'>{m.employee_information_detail_tab_mcu()}</TabsTrigger>
-          <TabsTrigger value='bpjs'>
+          <TabsTrigger value='status' className='h-auto min-h-10 min-w-0 whitespace-normal py-2'>{m.employee_information_detail_tab_status()}</TabsTrigger>
+          <TabsTrigger value='photo' className='h-auto min-h-10 min-w-0 whitespace-normal py-2'>{m.employee_information_detail_tab_photo()}</TabsTrigger>
+          <TabsTrigger value='bank' className='h-auto min-h-10 min-w-0 whitespace-normal py-2'>{m.employee_information_detail_tab_bank()}</TabsTrigger>
+          <TabsTrigger value='npwp' className='h-auto min-h-10 min-w-0 whitespace-normal py-2'>{m.employee_information_detail_tab_npwp()}</TabsTrigger>
+          <TabsTrigger value='mcu' className='h-auto min-h-10 min-w-0 whitespace-normal py-2'>{m.employee_information_detail_tab_mcu()}</TabsTrigger>
+          <TabsTrigger value='bpjs' className='h-auto min-h-10 min-w-0 whitespace-normal py-2'>
             {m.employee_information_detail_tab_bpjs
               ? m.employee_information_detail_tab_bpjs()
               : 'BPJS'}
           </TabsTrigger>
+          <TabsTrigger value='employment-history' className='h-auto min-h-10 min-w-0 whitespace-normal py-2'>{m.payroll_revision_history()}</TabsTrigger>
         </TabsList>
+        <TabsContent value='employment-history' className='min-w-0 pt-2'>
+          <EmployeeEmploymentHistory employeeId={employee.id} />
+        </TabsContent>
 
         <TabsContent value='personal'>
           <div className='grid min-w-0 gap-4 xl:grid-cols-2'>
@@ -900,6 +908,7 @@ export function EmployeeInformationDetailPage({
         onOpenChange={setEditOpen}
         employee={employee}
       />
+      {rejoinOpen && <EmployeeRejoinDialog employeeId={employee.id} name={employee.fullName} lastWorkingDate={employee.statusManagement?.lastWorkingDate} onClose={() => setRejoinOpen(false)} />}
     </AppMain>
   )
 }

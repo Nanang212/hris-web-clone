@@ -21,6 +21,7 @@ import type {
   ReconciliationStatus,
 } from '../lib/payroll-reconciliation'
 import { Badge } from '@/shared/components/ui/badge'
+import { Alert, AlertDescription, AlertIcon, AlertTitle } from '@/shared/components/ui/alert'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { m } from '@/i18n/paraglide/messages'
@@ -147,12 +148,11 @@ export function BpjsKesReconciliationPanel({
 
       {/* ── 2. Petunjuk Analisis Selisih ──────────────────────────────────── */}
       {issueCount > 0 && (
-        <div className='p-4 rounded-2xl border border-amber-300/80 bg-amber-50/80 dark:bg-amber-950/30 text-xs text-amber-900 dark:text-amber-200 space-y-2'>
-          <div className='flex items-center gap-2 font-bold'>
-            <IconAlertTriangle size={17} className='text-amber-600 dark:text-amber-400 shrink-0' />
-            <span>{m.payroll_recon_verify_count({ count: issueCount })}</span>
-          </div>
-          <div className='grid grid-cols-1 md:grid-cols-3 gap-2 pt-1 text-[11px]'>
+        <Alert variant='warning' className='items-start'>
+          <AlertIcon><IconAlertTriangle /></AlertIcon>
+          <div className='flex min-w-0 flex-1 flex-col gap-2'>
+            <AlertTitle>{m.payroll_recon_verify_count({ count: issueCount })}</AlertTitle>
+          <AlertDescription className='grid grid-cols-1 gap-2 md:grid-cols-3'>
             {summary.missingInBillingCount > 0 && (
               <div className='p-2.5 rounded-xl bg-background/80 border border-amber-200 dark:border-amber-900/50 space-y-0.5'>
                 <p className='font-bold text-amber-800 dark:text-amber-300 flex items-center gap-1.5'>
@@ -186,8 +186,9 @@ export function BpjsKesReconciliationPanel({
                 </p>
               </div>
             )}
+          </AlertDescription>
           </div>
-        </div>
+        </Alert>
       )}
 
       {/* ── 3. Filter & Table Card ────────────────────────────────────────── */}

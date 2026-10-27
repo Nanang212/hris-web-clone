@@ -1,5 +1,6 @@
 import { apiClient } from '@/shared/lib/axios'
 import type { Envelope } from '@/shared/types'
+import type { EmployeeInformationDocumentDetail } from '@/features/employment/employee-profile/types'
 import type {
   CreateEmployeeProfileInput,
   CreateEmployeeProfileOutput,
@@ -14,6 +15,143 @@ import type {
   UpdateEmployeeInformationRequest,
   UpdateEmployeeStatusPayload,
 } from '@/features/employment/employee-profile/types'
+
+export interface EmployeeRejoinInput {
+  joinDate: string
+  contract: { startDate: string; endDate?: string; reference: string }
+  notes: string
+}
+
+export interface EmployeeRejoinOutput {
+  employeeId: string
+  accountId: string
+  employmentPeriodId: string
+  status: 'Active'
+  joinDate: string
+}
+
+export interface EmployeeEmploymentPeriodRecord {
+  id: string
+  startDate: string
+  endDate: string | null
+  reason: string | null
+  contractReference: string | null
+  documents: (EmployeeInformationDocumentDetail & Partial<EmployeeEmploymentDocumentRecord>)[]
+  payslips: { id: string; period: string; downloadUrl: string | null }[]
+  screenings?: EmployeeEmploymentScreeningRecord[]
+}
+
+export interface EmployeeEmploymentScreeningRecord {
+  id: string
+  screeningDate: string
+  result: 'passed' | 'follow_up' | 'not_recommended'
+  notes: string
+  reviewerName: string
+  createdAt: string
+}
+
+export interface CreateEmployeeEmploymentScreeningInput {
+  screeningDate: string
+  result: EmployeeEmploymentScreeningRecord['result']
+  notes: string
+}
+
+export interface UploadEmployeeEmploymentDocumentInput {
+  title: string
+  category: 'contract' | 'employment_certificate' | 'screening' | 'other'
+  notes: string
+  file: File
+}
+
+export interface EmployeeEmploymentDocumentRecord extends EmployeeInformationDocumentDetail {
+  id: string
+  title: string
+  category: UploadEmployeeEmploymentDocumentInput['category']
+  notes: string
+  createdAt: string
+}
+
+export interface EmployeeEmploymentPeriodsOutput {
+  employeeId: string
+  items: EmployeeEmploymentPeriodRecord[]
+}
+
+/**
+ * POST /api/v1/company/employees/{employeeId}/rejoin
+ * Header: Idempotency-Key: a unique key retained when retrying the same request.
+ * Input: { "joinDate": "2026-08-01", "contract": { "startDate": "2026-08-01", "endDate": "2027-07-31", "reference": "PKWT/BFP/2026/008" }, "notes": "Re-join approved by HR" }
+ * Expected response:
+ * { "success": true, "code": "OK", "data": { "employeeId": "employee-10024", "accountId": "user-10024", "employmentPeriodId": "employment-period-2", "status": "Active", "joinDate": "2026-08-01" }, "messages": [] }
+ * Backend contract: preserve the existing employee/account and historical records;
+ * reject active employees, overlapping employment periods, or unauthorized requests.
+ * Reusing the key must not create an additional period. Re-join must not restore revoked roles automatically.
+ */
+export async function rejoinEmployee(employeeId: string, input: EmployeeRejoinInput, requestId: string) {
+  const response = await apiClient.post<Envelope<EmployeeRejoinOutput>>(
+    `/api/v1/company/employees/${encodeURIComponent(employeeId)}/rejoin`, input,
+    { headers: { 'Idempotency-Key': requestId } },
+  )
+  return response.data
+}
+
+/**
+ * GET /api/v1/company/employees/{employeeId}/employment-periods
+ * Expected response:
+ * { "success": true, "code": "OK", "data": { "employeeId": "employee-10024", "items": [{ "id": "employment-period-1", "startDate": "2025-01-01", "endDate": "2026-03-31", "reason": "Resigned", "contractReference": "PKWT/BFP/2025/001", "documents": [{ "fileName": "contract-2025.pdf", "fileSize": 420000, "url": "https://files.example.com/authorized-contract" }], "payslips": [{ "id": "slip-202603", "period": "2026-03", "downloadUrl": "https://files.example.com/authorized-slip" }] }, { "id": "employment-period-2", "startDate": "2026-08-01", "endDate": null, "reason": null, "contractReference": "PKWT/BFP/2026/008", "documents": [], "payslips": [] }] }, "messages": [] }
+ * Document/slip access must be authorized by the backend; URLs must not grant access to other employees.
+ */
+export async function getEmployeeEmploymentPeriods(employeeId: string) {
+  const response = await apiClient.get<Envelope<EmployeeEmploymentPeriodsOutput>>(
+    `/api/v1/company/employees/${encodeURIComponent(employeeId)}/employment-periods`,
+  )
+  return response.data
+}
+
+/**
+ * POST /api/v1/company/employees/{employeeId}/employment-periods/{periodId}/documents
+ * Content-Type: multipart/form-data (browser boundary). Fields: title, category, notes, file.
+ * Header: Idempotency-Key retained when retrying the same submission.
+ * Expected response:
+ * { "success": true, "code": "CREATED", "data": { "id": "employment-doc-1", "title": "Kontrak 2026", "category": "contract", "notes": "Kontrak ditandatangani", "fileName": "contract-2026.pdf", "fileSize": 420000, "url": "https://files.example.com/authorized-contract", "createdAt": "2026-10-27T09:00:00Z" }, "messages": ["Document uploaded"] }
+ * GET employment-periods must include this document in the matching period's documents array.
+ * Backend must authorize HR access and period ownership, enforce PDF/JPEG/PNG <= 10 MB,
+ * inspect actual file content, scan uploads, use private storage and authorized download URLs,
+ * and audit the uploader. Client validation does not replace these controls.
+ */
+export async function uploadEmployeeEmploymentDocument(employeeId: string, periodId: string, input: UploadEmployeeEmploymentDocumentInput, requestId: string) {
+  const body = new FormData()
+  body.append('title', input.title)
+  body.append('category', input.category)
+  body.append('notes', input.notes)
+  body.append('file', input.file)
+  const response = await apiClient.post<Envelope<EmployeeEmploymentDocumentRecord>>(
+    `/api/v1/company/employees/${encodeURIComponent(employeeId)}/employment-periods/${encodeURIComponent(periodId)}/documents`,
+    body,
+    { headers: { 'Content-Type': undefined, 'Idempotency-Key': requestId } },
+  )
+  return response.data
+}
+
+/**
+ * POST /api/v1/company/employees/{employeeId}/employment-periods/{periodId}/screenings
+ * Header: Idempotency-Key retained when retrying the same submission.
+ * Request: { "screeningDate": "2026-10-27", "result": "follow_up", "notes": "Perlu verifikasi referensi kerja." }
+ * Expected response:
+ * { "success": true, "code": "CREATED", "data": { "id": "screening-1", "screeningDate": "2026-10-27", "result": "follow_up", "notes": "Perlu verifikasi referensi kerja.", "reviewerName": "Siti Maharani", "createdAt": "2026-10-27T09:00:00Z" }, "messages": ["Screening recorded"] }
+ * GET employment-periods returns screenings: [{ id, screeningDate, result, notes, reviewerName, createdAt }]
+ * on the corresponding period; old payloads without screenings remain supported.
+ * Backend authorizes HR access/period ownership, validates dates and content, derives reviewer
+ * from the authenticated user and audits the action. A screening does not automatically change
+ * employee status, payroll, or re-join eligibility.
+ */
+export async function createEmployeeEmploymentScreening(employeeId: string, periodId: string, input: CreateEmployeeEmploymentScreeningInput, requestId: string) {
+  const response = await apiClient.post<Envelope<EmployeeEmploymentScreeningRecord>>(
+    `/api/v1/company/employees/${encodeURIComponent(employeeId)}/employment-periods/${encodeURIComponent(periodId)}/screenings`,
+    input,
+    { headers: { 'Idempotency-Key': requestId } },
+  )
+  return response.data
+}
 
 /**
  * Endpoint: `/api/v1/company/employee-information/create-options`

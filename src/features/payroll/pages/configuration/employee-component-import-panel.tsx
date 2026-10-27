@@ -1,9 +1,9 @@
-import { IconDownload, IconUpload } from '@tabler/icons-react'
+import { IconAlertTriangle, IconDownload, IconUpload } from '@tabler/icons-react'
 import { useRef, useState } from 'react'
 
 import { m } from '@/i18n/paraglide/messages'
 import { getLocale } from '@/i18n/paraglide/runtime'
-import { Alert, AlertDescription, AlertTitle } from '@/shared/components/ui/alert'
+import { Alert, AlertDescription, AlertIcon, AlertTitle } from '@/shared/components/ui/alert'
 import { Badge } from '@/shared/components/ui/badge'
 import { Button } from '@/shared/components/ui/button'
 import { ButtonGroup } from '@/shared/components/ui/button-group'
@@ -35,6 +35,7 @@ import {
   readEmployeeComponentWorkbook,
 } from '../../lib/employee-component-excel'
 import { employeeComponentKinds, usePayrollComponentStore } from '../../store/payroll-component-store'
+import { resolveComponentParameters, validateComponentParameters } from '../../lib/payroll-component-parameters'
 import type { EmployeePayrollComponent, PayrollComponentKind } from '../../types'
 
 const permittedKinds = [
@@ -78,6 +79,9 @@ export function EmployeeComponentImportPanel() {
     originalAmount: z.coerce.number().min(0),
     remainingBalance: z.coerce.number().min(0),
     notes: z.string(),
+    thpEffect: z.union([z.enum(['add', 'subtract', 'none']), z.literal('')]),
+    taxGrossEffect: z.union([z.enum(['add', 'subtract', 'none']), z.literal('')]),
+    taxTreatment: z.union([z.enum(['regular', 'final', 'non_taxable']), z.literal('')]),
   }))
 
   const closeDialog = () => {
@@ -170,6 +174,16 @@ export function EmployeeComponentImportPanel() {
           status: 'active',
           notes: data.notes || undefined,
         }
+        const defaults = resolveComponentParameters({ type: component.type, componentKind: component.componentKind, isTaxable: component.type === 'allowance' && component.componentKind !== 'non_taxable_payment', cashImpact: component.componentKind !== 'taxable_benefit' })
+        component.parameters = {
+          thpEffect: data.thpEffect || defaults.thpEffect,
+          taxGrossEffect: data.taxGrossEffect || defaults.taxGrossEffect,
+          taxTreatment: data.taxTreatment || defaults.taxTreatment,
+        }
+        if (!validateComponentParameters(component.parameters)) {
+          addError(m.payroll_revision_invalid_parameters())
+          continue
+        }
         const conflict = [...components, ...rows].some(
           (item) =>
             item.employeeId === component.employeeId &&
@@ -242,11 +256,14 @@ export function EmployeeComponentImportPanel() {
                 <span className='min-w-0 truncate text-sm text-muted-foreground'>{pending.fileName}</span>
               </div>
               {pending.errors.length > 0 && (
-                <Alert variant='destructive'>
+                <Alert variant='destructive' className='items-start'>
+                  <AlertIcon><IconAlertTriangle /></AlertIcon>
+                  <div className='flex min-w-0 flex-1 flex-col gap-1'>
                   <AlertTitle>{m.payroll_employee_components_import_errors_title({ count: pending.errors.length })}</AlertTitle>
                   <AlertDescription className='flex flex-col gap-1'>
                     {pending.errors.slice(0, 10).map((error) => <p key={error}>{error}</p>)}
                   </AlertDescription>
+                  </div>
                 </Alert>
               )}
               <div className='max-h-72 min-w-0 overflow-auto rounded-md border'>

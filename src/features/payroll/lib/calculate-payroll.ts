@@ -20,6 +20,8 @@ import type {
   PayrollCalculationOutput,
   PayrollEmployeeInput,
   PayrollLine,
+  PayrollInputLine,
+  PayrollComponentParameters,
   Pph21Config,
   ProjectAttendancePayrollPolicy,
   WageCapRule,
@@ -32,6 +34,8 @@ import {
 import { computeBillingAmounts } from './bpjs-kes-billing-calc'
 import { buildBillingIndex, resolveBillingForEmployee } from './bpjs-kes-billing-match'
 import { calculateFinalPeriodPph21, calculateMonthlyPph21 } from './pph21-calc'
+import { componentEffectAmount, resolveComponentParameters, validateComponentParameters } from './payroll-component-parameters'
+import { m } from '@/i18n/paraglide/messages'
 
 export interface CalculatePayrollParams {
   employees: PayrollEmployeeInput[]
@@ -55,6 +59,7 @@ export interface CalculatePayrollParams {
   latePenaltyPerOccurrence?: number
   /** Kebijakan absensi per project (apakah absensi memotong gaji alpa & telat). Map dari projectId -> ProjectAttendancePayrollPolicy. */
   projectAttendancePolicies?: Record<string, ProjectAttendancePayrollPolicy>
+  componentParameters?: Record<string, PayrollComponentParameters>
 }
 
 const sum = (values: number[]) => values.reduce((acc, v) => acc + v, 0)
@@ -82,26 +87,30 @@ export function calculatePayroll(params: CalculatePayrollParams): PayrollCalcula
   const matchedBilling = new Set<BpjsKesBillingRecord>()
 
   const details: EmployeePayrollDetail[] = employees.map((emp) => {
+    if (!Number.isFinite(emp.baseSalary) || emp.baseSalary < 0 ||
+      Object.values(emp.overrides?.statutoryAmounts ?? {}).some((amount) => !Number.isFinite(amount) || amount < 0)) {
+      throw new Error(`${emp.name}: ${m.payroll_revision_numeric_invalid()}`)
+    }
     const warnings: string[] = []
     const lines: PayrollLine[] = []
 
     // ── Langkah 5: komponen tetap & variabel ──────────────────────────────────────
     for (const line of emp.fixedComponents) lines.push({ ...line, source: 'fixed' })
     for (const line of emp.variableComponents) lines.push({ ...line, source: 'variable' })
+    const systemLine = (code: string, name: string, amount: number, thpEffect: PayrollComponentParameters['thpEffect'], taxGrossEffect: PayrollComponentParameters['taxGrossEffect']): PayrollInputLine => {
+      if (!Number.isFinite(amount) || amount < 0) throw new Error(`${name}: ${m.payroll_revision_numeric_invalid()}`)
+      const parameters = params.componentParameters?.[code] ?? { thpEffect, taxGrossEffect, taxTreatment: taxGrossEffect === 'none' ? 'non_taxable' : 'regular' }
+      if (!validateComponentParameters(parameters)) throw new Error(`${name}: ${m.payroll_revision_invalid_parameters()}`)
+      if (parameters.taxTreatment === 'final') throw new Error(`${name}: ${m.payroll_revision_final_pending()}`)
+      return { code, name, amount, type: thpEffect === 'subtract' ? 'deduction' : 'allowance', isTaxable: parameters.taxTreatment === 'regular', parameters }
+    }
 
     // Komponen otomatis dari presensi (variabel)
     const { workingDays, absentCount, lateCount, overtimeHours } = emp.attendance
-    const manualOvertimePay = sum(
-      lines.filter((line) => line.type === 'allowance' && line.componentKind === 'overtime').map((line) => line.amount),
-    )
-    const manualAttendanceReduction = sum(
-      lines.filter((line) => line.type === 'deduction' && line.componentKind === 'attendance_reduction').map((line) => line.amount),
-    )
     const calculatedOvertimePay =
-      manualOvertimePay === 0 && overtimeHours > 0
+      !lines.some((line) => line.componentKind === 'overtime') && overtimeHours > 0
         ? rp((overtimeHours * emp.baseSalary) / generalConfig.overtimeHourlyRateDivider)
         : 0
-    const overtimePay = manualOvertimePay + calculatedOvertimePay
 
     // Kebijakan absensi per project (apakah absensi memotong gaji alpa & denda telat)
     const projectPolicy = projectAttendancePolicies?.[emp.projectId]
@@ -110,11 +119,11 @@ export function calculatePayroll(params: CalculatePayrollParams): PayrollCalcula
     const shouldDeductLate = attendanceAffectsPayroll && (projectPolicy?.deductLate ?? true)
 
     const unpaidLeaveDeduction =
-      shouldDeductAbsence && manualAttendanceReduction === 0 && absentCount > 0 && workingDays > 0
+      shouldDeductAbsence && !lines.some((line) => line.componentKind === 'attendance_reduction') && absentCount > 0 && workingDays > 0
         ? rp((absentCount * emp.baseSalary) / workingDays)
         : 0
     const lateDeduction =
-      shouldDeductLate && lateCount > 0 ? rp(lateCount * latePenaltyPerOccurrence) : 0
+      shouldDeductLate && !lines.some((line) => line.code === 'LATE') && lateCount > 0 ? rp(lateCount * latePenaltyPerOccurrence) : 0
 
     if (calculatedOvertimePay > 0) {
       lines.push({
@@ -124,6 +133,7 @@ export function calculatePayroll(params: CalculatePayrollParams): PayrollCalcula
         amount: calculatedOvertimePay,
         isTaxable: true,
         componentKind: 'overtime',
+        parameters: params.componentParameters?.OVERTIME_PAY,
         source: 'attendance',
       })
     }
@@ -135,6 +145,7 @@ export function calculatePayroll(params: CalculatePayrollParams): PayrollCalcula
         amount: unpaidLeaveDeduction,
         isTaxable: false,
         componentKind: 'attendance_reduction',
+        parameters: params.componentParameters?.UNPAID_LEAVE,
         source: 'attendance',
       })
     }
@@ -142,6 +153,7 @@ export function calculatePayroll(params: CalculatePayrollParams): PayrollCalcula
       lines.push({
         code: 'LATE',
         name: `Denda Keterlambatan (${lateCount}x)`,
+        parameters: params.componentParameters?.DED_LATE,
         type: 'deduction',
         amount: lateDeduction,
         isTaxable: false,
@@ -149,9 +161,23 @@ export function calculatePayroll(params: CalculatePayrollParams): PayrollCalcula
       })
     }
 
-    const earningLines = lines.filter((l) => l.type === 'allowance')
-    const deductionLines = lines.filter((l) => l.type === 'deduction')
-    const cashEarningLines = earningLines.filter((l) => l.cashImpact !== false)
+    for (const line of lines) {
+      const parameters = resolveComponentParameters(line)
+      if (!Number.isFinite(line.amount) || line.amount < 0) {
+        throw new Error(`${emp.name}: ${line.name} — ${m.payroll_revision_numeric_invalid()}`)
+      }
+      if (!validateComponentParameters(parameters)) {
+        throw new Error(`${emp.name}: ${line.name} — ${m.payroll_revision_invalid_parameters()}`)
+      }
+      if (parameters.taxTreatment === 'final') {
+        throw new Error(`${emp.name}: ${line.name} — ${m.payroll_revision_final_pending()}`)
+      }
+      line.parameters = parameters
+    }
+    const earningLines = lines.filter((line) => resolveComponentParameters(line).taxGrossEffect === 'add')
+    const deductionLines = lines.filter((line) => resolveComponentParameters(line).thpEffect === 'subtract')
+    const cashEarningLines = lines.filter((line) => resolveComponentParameters(line).thpEffect === 'add')
+    const overtimePay = sum(cashEarningLines.filter((line) => line.componentKind === 'overtime').map((line) => line.amount))
 
     const fixedAllowances = sum(
       cashEarningLines
@@ -163,7 +189,6 @@ export function calculatePayroll(params: CalculatePayrollParams): PayrollCalcula
         .filter((line) => line.source === 'variable' && line.componentKind !== 'overtime')
         .map((line) => line.amount),
     )
-    const totalGross = emp.baseSalary + fixedAllowances + variableAllowances + overtimePay
 
     // Potongan tetap & variabel direkap terpisah (potongan presensi termasuk variabel)
     const totalFixedDeductions = sum(
@@ -174,7 +199,7 @@ export function calculatePayroll(params: CalculatePayrollParams): PayrollCalcula
     )
     const totalVariableDeductions = otherVariableDeductions + unpaidLeaveDeduction + lateDeduction
     // "Potongan lainnya" = potongan tetap + variabel selain presensi (satu kolom di rincian)
-    const otherDeductions = totalFixedDeductions + otherVariableDeductions
+    const otherDeductions = sum(deductionLines.map((line) => line.amount)) - unpaidLeaveDeduction - lateDeduction
     const loanDeduction = sum(
       deductionLines
         .filter((line) => line.componentKind === 'loan' || line.componentKind === 'cash_advance')
@@ -201,11 +226,11 @@ export function calculatePayroll(params: CalculatePayrollParams): PayrollCalcula
       otherDeductions - loanDeduction - qualifiedPensionDeduction - qualifiedZakatDeduction - manualAttendanceWageReduction,
     )
     const nonTaxablePayments = sum(
-      cashEarningLines.filter((line) => !line.isTaxable).map((line) => line.amount),
+      cashEarningLines.filter((line) => resolveComponentParameters(line).taxTreatment === 'non_taxable').map((line) => line.amount),
     )
     const taxableBenefits = sum(
       earningLines
-        .filter((line) => line.isTaxable && line.cashImpact === false)
+        .filter((line) => resolveComponentParameters(line).thpEffect === 'none')
         .map((line) => line.amount),
     )
 
@@ -245,31 +270,49 @@ export function calculatePayroll(params: CalculatePayrollParams): PayrollCalcula
     const jpActive = projectSetting?.jpActive ?? false
     const jpBase = Math.min(emp.baseSalary, bpjsTkConfig.jpMaxWageCap)
 
-    const bpjsTkJkk = rp((emp.baseSalary * jkkRate) / 100)
-    const bpjsTkJkm = rp((emp.baseSalary * bpjsTkConfig.jkmRatePercent) / 100)
-    const bpjsTkJhtEmployee = jhtActive
+    const statutoryOverride = emp.overrides?.statutoryAmounts
+    bpjsKesEmployee = statutoryOverride?.bpjsKesEmployee ?? bpjsKesEmployee
+    bpjsKesEmployer = statutoryOverride?.bpjsKesEmployer ?? bpjsKesEmployer
+    bpjsKesFamilyExtra = Math.min(bpjsKesFamilyExtra, bpjsKesEmployee)
+    const bpjsTkJkk = statutoryOverride?.bpjsTkJkk ?? rp((emp.baseSalary * jkkRate) / 100)
+    const bpjsTkJkm = statutoryOverride?.bpjsTkJkm ?? rp((emp.baseSalary * bpjsTkConfig.jkmRatePercent) / 100)
+    const bpjsTkJhtEmployee = statutoryOverride?.bpjsTkJhtEmployee ?? (jhtActive
       ? rp((emp.baseSalary * bpjsTkConfig.jhtEmployeePercent) / 100)
-      : 0
+      : 0)
     const bpjsTkJhtEmployer = jhtActive
       ? rp((emp.baseSalary * bpjsTkConfig.jhtCompanyPercent) / 100)
       : 0
-    const bpjsTkJpEmployee = jpActive ? rp((jpBase * bpjsTkConfig.jpEmployeePercent) / 100) : 0
+    const bpjsTkJpEmployee = statutoryOverride?.bpjsTkJpEmployee ?? (jpActive ? rp((jpBase * bpjsTkConfig.jpEmployeePercent) / 100) : 0)
     const bpjsTkJpEmployer = jpActive ? rp((jpBase * bpjsTkConfig.jpCompanyPercent) / 100) : 0
     // Hanya JHT & JP karyawan yang mengurangi THP
     const bpjsTkEmployee = bpjsTkJhtEmployee + bpjsTkJpEmployee
     const bpjsTkEmployer = bpjsTkJkk + bpjsTkJkm + bpjsTkJhtEmployer + bpjsTkJpEmployer
+    const systemComponents = [
+      systemLine('BASIC_SALARY', m.payroll_run_detail_col_base_salary(), emp.baseSalary, 'add', 'add'),
+      systemLine('DED_BPJS_KES', m.payroll_breakdown_health_employee(), bpjsKesEmployee, 'subtract', 'none'),
+      systemLine('DED_BPJS_TK', m.payroll_revision_statutory(), bpjsTkEmployee, 'subtract', 'none'),
+      systemLine('BPJS_KES_EMPLOYER', m.payroll_revision_health_employer(), bpjsKesEmployer, 'none', 'add'),
+      systemLine('JKK_EMPLOYER', m.payroll_bpjs_tk_jkk(), bpjsTkJkk, 'none', 'add'),
+      systemLine('JKM_EMPLOYER', m.payroll_bpjs_tk_jkm(), bpjsTkJkm, 'none', 'add'),
+    ]
+    const totalGross = sum(cashEarningLines.map((line) => line.amount)) + sum(systemComponents.filter((line) => resolveComponentParameters(line).thpEffect === 'add').map((line) => line.amount))
+    const systemCashDeductions = sum(systemComponents.filter((line) => resolveComponentParameters(line).thpEffect === 'subtract').map((line) => line.amount))
+    const systemTaxGross = sum(systemComponents.map((line) => {
+      const parameters = resolveComponentParameters(line)
+      return parameters.taxTreatment === 'regular' ? componentEffectAmount(line.amount, parameters.taxGrossEffect) : 0
+    }))
 
     // ── Langkah 8: PPh 21 (dasar pengenaan mengikuti isTaxable tiap komponen) ──────
-    const taxableAllowances = sum(earningLines.filter((l) => l.isTaxable).map((l) => l.amount))
+    const taxableAllowances = sum(lines.map((line) => {
+      const parameters = resolveComponentParameters(line)
+      return parameters.taxTreatment === 'regular'
+        ? componentEffectAmount(line.amount, parameters.taxGrossEffect)
+        : 0
+    }))
     // Porsi perusahaan BPJS Kes (4%), JKK, dan JKM = penghasilan kena pajak; pot. keluarga tambahan tidak memengaruhi pajak.
     const taxableIncome = Math.max(
       0,
-      emp.baseSalary +
-        taxableAllowances -
-        attendanceWageReduction +
-        bpjsKesEmployer +
-        bpjsTkJkk +
-        bpjsTkJkm,
+      systemTaxGross + taxableAllowances,
     )
     const pphResult = calculateMonthlyPph21({
       taxableGrossMonthly: taxableIncome,
@@ -283,6 +326,9 @@ export function calculatePayroll(params: CalculatePayrollParams): PayrollCalcula
     let finalTaxReconciliation
     let pph21Tax = pphResult.taxAmount
     if (shouldReconcileFinalTax) {
+      if (!emp.taxYearToDate || emp.taxYearToDate.verified === false) {
+        throw new Error(m.payroll_wizard_final_tax_missing({ count: 1 }))
+      }
       if (emp.taxYearToDate) {
         finalTaxReconciliation = calculateFinalPeriodPph21({
           currentTaxableGross: taxableIncome,
@@ -304,6 +350,7 @@ export function calculatePayroll(params: CalculatePayrollParams): PayrollCalcula
     if (pphResult.taxAllowance > 0) {
       lines.push({
         code: 'TAX_ALLOWANCE',
+        calculated: true,
         name:
           pph21Config.taxMethod === 'gross_up'
             ? 'Tunjangan PPh 21 (Gross-Up)'
@@ -311,17 +358,29 @@ export function calculatePayroll(params: CalculatePayrollParams): PayrollCalcula
         type: 'allowance',
         amount: pphResult.taxAllowance,
         isTaxable: false,
+        cashImpact: pph21Config.taxMethod === 'gross_up',
         source: 'fixed',
       })
     }
 
     // Cicilan PPh 21 THR (hanya satu kali per periode, tidak melebihi sisa saldo)
     const thr = includeThrInstallment ? emp.thrTaxInstallment : undefined
-    const thrTaxInstallment = thr ? Math.min(thr.amount, thr.remainingBalance) : 0
+    const thrTaxInstallment = emp.overrides?.thrTaxInstallmentAmount ?? (thr ? Math.min(thr.amount, thr.remainingBalance) : 0)
+    if (!Number.isFinite(thrTaxInstallment) || thrTaxInstallment < 0 || thrTaxInstallment > (thr?.remainingBalance ?? 0)) {
+      throw new Error(`${emp.name}: ${m.payroll_run_detail_remaining_balance({ amount: String(thr?.remainingBalance ?? 0) })}`)
+    }
 
     // ── Langkah 9: gaji bersih ─────────────────────────────────────────────────────
     // Jika nett, pajak tidak memotong gaji karyawan (ditanggung perusahaan)
-    const employeePph21Deduction = pph21Config.taxMethod === 'nett' ? 0 : pph21Tax
+    const employeeTax = pph21Config.taxMethod === 'nett' ? 0 : pph21Tax
+    const taxLine = systemLine('DED_PPH21', m.payroll_revision_tax_regular(), Math.abs(employeeTax), 'subtract', 'none')
+    if (resolveComponentParameters(taxLine).taxGrossEffect !== 'none') throw new Error(m.payroll_revision_invalid_parameters())
+    if (employeeTax < 0 && taxLine.parameters) taxLine.parameters = { ...taxLine.parameters, thpEffect: taxLine.parameters.thpEffect === 'subtract' ? 'add' : taxLine.parameters.thpEffect === 'add' ? 'subtract' : 'none' }
+    const employeePph21Deduction = -componentEffectAmount(taxLine.amount, resolveComponentParameters(taxLine).thpEffect)
+    const thrLine = systemLine('THR_TAX_INSTALLMENT', m.payroll_run_detail_thr_installment(), thrTaxInstallment, 'subtract', 'none')
+    if (resolveComponentParameters(thrLine).taxGrossEffect !== 'none') throw new Error(m.payroll_revision_invalid_parameters())
+    const thrCashDeduction = -componentEffectAmount(thrLine.amount, resolveComponentParameters(thrLine).thpEffect)
+    systemComponents.push(taxLine, thrLine)
     const finalTotalGross =
       totalGross +
       (pphResult.taxAllowance > 0 && pph21Config.taxMethod === 'gross_up'
@@ -332,16 +391,19 @@ export function calculatePayroll(params: CalculatePayrollParams): PayrollCalcula
       unpaidLeaveDeduction +
       lateDeduction +
       otherDeductions +
-      bpjsKesEmployee +
-      bpjsTkEmployee +
+      systemCashDeductions +
       employeePph21Deduction +
-      thrTaxInstallment
+      thrCashDeduction
     const netTakeHomePay = finalTotalGross - totalDeductions
     if (netTakeHomePay < 0) warnings.push('Gaji bersih negatif — periksa komponen potongan.')
 
     return {
       id: `emp-pay-${emp.employeeId}`,
       employeeId: emp.employeeId,
+      nik: emp.nik,
+      joinDate: emp.joinDate,
+      npwp: emp.npwp,
+      systemComponents,
       employeeName: emp.name,
       employeeCode: emp.nopeg,
       department: emp.department,
@@ -377,6 +439,7 @@ export function calculatePayroll(params: CalculatePayrollParams): PayrollCalcula
       bpjsKesEmployee,
       bpjsKesEmployer,
       pph21Tax,
+      pph21EmployeeDeduction: employeePph21Deduction,
       thrTaxInstallment,
       thrTaxInstallmentInfo: thr
         ? {
@@ -420,7 +483,10 @@ export function calculatePayroll(params: CalculatePayrollParams): PayrollCalcula
   const summary = {
     employeeCount: details.length,
     totalGross,
-    totalAllowances: totalGross - sum(details.map((d) => d.baseSalary)),
+    totalAllowances: totalGross - sum(details.map((detail) => {
+      const base = detail.systemComponents?.find((line) => line.code === 'BASIC_SALARY')
+      return base && resolveComponentParameters(base).thpEffect === 'add' ? base.amount : 0
+    })),
     totalDeductions: sum(details.map((d) => d.totalDeductions)),
     totalTaxPPh21: sum(details.map((d) => d.pph21Tax)),
     totalBpjsTK: sum(details.map((d) => d.bpjsTkEmployee)),

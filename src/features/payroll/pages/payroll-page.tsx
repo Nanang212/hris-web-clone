@@ -18,13 +18,14 @@ import { PayslipManagementTab } from './payslip/payslip-management-tab'
 import { CreatePayrollWizard } from './process/create-payroll-wizard'
 import { PayrollProcessDetail } from './process/payroll-process-detail'
 import { PayrollProcessTab } from './process/payroll-process-tab'
-import { initialPayrollRuns } from '../data/mock-payroll-data'
+import { usePayrollRunStore } from '../store/payroll-run-store'
 import type { PayrollTab, PayrollRun, ConfigSubTab } from '../types'
 import { m } from '@/i18n/paraglide/messages'
 import { useAppLayoutStore } from '@/shared/components/app-layout/app-layout-store'
 import { AppMain } from '@/shared/components/app-layout/app-main'
 import { Button } from '@/shared/components/ui/button'
 import { Tabs, TabsList, TabsTrigger } from '@/shared/components/ui/tabs'
+import { snackbar } from '@/shared/lib/snackbar'
 
 interface PayrollPageProps {
   initialTab?: PayrollTab
@@ -36,7 +37,8 @@ export function PayrollPage({
   initialSubTab = 'general',
 }: PayrollPageProps) {
   const [activeTab, setActiveTab] = useState<PayrollTab>(initialTab)
-  const [runs, setRuns] = useState<PayrollRun[]>(initialPayrollRuns)
+  const runs = usePayrollRunStore((state) => state.runs)
+  const setRuns = usePayrollRunStore((state) => state.setRuns)
 
   // Process sub-views: 'list' | 'create_wizard' | 'detail'
   const [processView, setProcessView] = useState<'list' | 'create_wizard' | 'detail'>('list')
@@ -67,7 +69,7 @@ export function PayrollPage({
     setProcessView('list')
   }
 
-  const tabs: { id: PayrollTab; label: string; icon: React.ComponentType<{ size: number }> }[] = [
+  const tabs: { id: PayrollTab; label: string; icon: React.ComponentType<{ size?: number }> }[] = [
     { id: 'overview', label: m.payroll_tab_overview(), icon: IconChartBar },
     { id: 'attendance', label: m.payroll_tab_attendance(), icon: IconCalendarStats },
     { id: 'configuration', label: m.payroll_tab_configuration(), icon: IconSettings },
@@ -188,6 +190,12 @@ export function PayrollPage({
                 setSelectedRun(null)
               }}
               onSubmitForApproval={(runId) => {
+                const result = usePayrollRunStore.getState().resultsByRunId[runId]
+                const current = runs.find((item) => item.id === runId)
+                if (!result?.calculation || !result.details.length || result.dirtyEmployeeIds?.length || current?.status !== 'draft' || current.specialPeriodsPending) {
+                  snackbar.error(current?.specialPeriodsPending ? m.payroll_revision_special_pending() : m.payroll_revision_dirty())
+                  return
+                }
                 setRuns((prev) =>
                   prev.map((r) =>
                     r.id === runId

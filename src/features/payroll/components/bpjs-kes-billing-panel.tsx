@@ -16,6 +16,7 @@ import {
   IconUpload,
 } from '@tabler/icons-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { Alert, AlertDescription, AlertIcon, AlertTitle } from '@/shared/components/ui/alert'
 import dayjs from 'dayjs'
 import 'dayjs/locale/en'
 import 'dayjs/locale/id'
@@ -404,22 +405,20 @@ export function BpjsKesBillingPanel({
       {(isWizard || isAutoMode) && (
         <div className='p-5 space-y-5'>
           {/* Info Banner */}
-          <div className='p-4 rounded-2xl border border-emerald-500/20 bg-emerald-50/40 dark:bg-emerald-950/20 flex items-start gap-3.5 text-xs'>
-            <div className='p-2 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5'>
-              <IconShieldCheck size={20} />
-            </div>
-            <div className='space-y-1 min-w-0'>
-              <div className='flex items-center gap-2'>
-                <p className='font-bold text-foreground'>
+          <Alert variant='success' className='items-start'>
+            <AlertIcon><IconShieldCheck /></AlertIcon>
+            <div className='flex min-w-0 flex-1 flex-col gap-1'>
+              <div className='flex flex-wrap items-center gap-2'>
+                <AlertTitle>
                   {m.payroll_billing_auto_active()}
-                </p>
+                </AlertTitle>
                 <Badge variant='emerald'>{m.payroll_billing_ready()}</Badge>
               </div>
-              <p className='text-[11px] text-muted-foreground leading-relaxed'>
+              <AlertDescription>
                 {m.payroll_billing_auto_description({ cap: formatIDR(bpjsKesConfig.maxWageCap), employeeRate: bpjsKesConfig.employeeRatePercent, employerRate: bpjsKesConfig.companyRatePercent })}
-              </p>
+              </AlertDescription>
             </div>
-          </div>
+          </Alert>
 
           {/* Quick Stat Cards */}
           <div className='grid grid-cols-2 sm:grid-cols-5 gap-3'>

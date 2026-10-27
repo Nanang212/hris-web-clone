@@ -19,6 +19,9 @@ export const employeeComponentExcelColumns = [
   'originalAmount',
   'remainingBalance',
   'notes',
+  'thpEffect',
+  'taxGrossEffect',
+  'taxTreatment',
 ] as const
 
 export async function readEmployeeComponentWorkbook(
@@ -39,7 +42,7 @@ export async function readEmployeeComponentWorkbook(
     defval: '',
     raw: true,
   })
-    .map((row, index) => ({
+    .map((row, index): Record<string, unknown> => ({
       ...row,
       __rowNumber: Number(row.__rowNum__ ?? headerIndex + index + 1) + 1,
     }))
@@ -99,6 +102,9 @@ export async function downloadEmployeeComponentTemplate(): Promise<void> {
     0,
     0,
     '',
+    'add',
+    'add',
+    'regular',
   ]
   example.height = 26
   example.eachCell((cell) => {
@@ -115,6 +121,8 @@ export async function downloadEmployeeComponentTemplate(): Promise<void> {
     }
     line.getCell(5).dataValidation = { type: 'list', allowBlank: true, formulae: ['"allowance,deduction"'] }
     line.getCell(8).dataValidation = { type: 'list', allowBlank: true, formulae: ['"one_time,recurring,installment"'] }
+    for (const column of [14, 15]) line.getCell(column).dataValidation = { type: 'list', allowBlank: true, formulae: ['"add,subtract,none"'] }
+    line.getCell(16).dataValidation = { type: 'list', allowBlank: true, formulae: ['"regular,final,non_taxable"'] }
   }
   for (const column of [7, 11, 12]) {
     sheet.getColumn(column).numFmt = '#,##0'
@@ -134,6 +142,8 @@ export async function downloadEmployeeComponentTemplate(): Promise<void> {
     ['componentKind (allowance)', employeeComponentKinds.allowance.join(' | ')],
     ['componentKind (deduction)', employeeComponentKinds.deduction.join(' | ')],
     ['frequency', 'one_time | recurring | installment'],
+    ['thpEffect, taxGrossEffect', 'add | subtract | none'],
+    ['taxTreatment', 'regular | final | non_taxable'],
     ['startPeriod, endPeriod', 'YYYY-MM'],
     ['amount, originalAmount, remainingBalance', '> 0'],
   ]

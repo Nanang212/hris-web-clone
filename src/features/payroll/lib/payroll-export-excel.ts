@@ -2,6 +2,7 @@
 // Export lengkap rincian payroll, rekonsiliasi BPJS Kesehatan, dan BPJS TK per project ke format Excel .xlsx.
 
 import ExcelJS from 'exceljs'
+import { resolveComponentParameters } from './payroll-component-parameters'
 
 import type { EmployeePayrollDetail, PayrollRun } from '../types'
 import type {
@@ -214,6 +215,7 @@ export async function exportPayrollRunToExcel(params: {
     'Objek PPh 21',
     'Dampak THP',
     'Nominal',
+    'Dampak Bruto Pajak',
   ])
   componentSheet.getRow(1).eachCell((cell) => {
     cell.font = { name: 'Segoe UI', size: 10, bold: true, color: { argb: 'FFFFFFFF' } }
@@ -221,7 +223,7 @@ export async function exportPayrollRunToExcel(params: {
     cell.alignment = { vertical: 'middle', horizontal: 'center' }
   })
   details.forEach((detail) => {
-    detail.lines?.forEach((line) => {
+    [...(detail.systemComponents ?? []), ...(detail.lines ?? [])].forEach((line) => {
       const row = componentSheet.addRow([
         detail.employeeCode,
         detail.employeeName,
@@ -229,10 +231,11 @@ export async function exportPayrollRunToExcel(params: {
         line.name,
         line.type,
         line.componentKind ?? '-',
-        line.source,
-        line.isTaxable ? 'Ya' : 'Tidak',
-        line.cashImpact === false ? 'Non-THP' : 'THP',
+        'source' in line ? String(line.source) : 'system',
+        resolveComponentParameters(line).taxTreatment,
+        resolveComponentParameters(line).thpEffect,
         line.amount,
+        resolveComponentParameters(line).taxGrossEffect,
       ])
       row.getCell(1).numFmt = '@'
       row.getCell(10).numFmt = '#,##0'

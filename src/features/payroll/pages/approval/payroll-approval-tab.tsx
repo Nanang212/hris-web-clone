@@ -8,6 +8,8 @@ import { formatIDR, formatCompactIDR, initialPayrollRuns } from '../../data/mock
 import type { PayrollRun } from '../../types'
 import { m } from '@/i18n/paraglide/messages'
 import { Button } from '@/shared/components/ui/button'
+import { snackbar } from '@/shared/lib/snackbar'
+import { usePayrollRunStore } from '../../store/payroll-run-store'
 import { Tabs, TabsList, TabsTrigger } from '@/shared/components/ui/tabs'
 import {
   Select,
@@ -46,6 +48,12 @@ export function PayrollApprovalTab({ runs: propRuns, onUpdateRuns }: PayrollAppr
   const [approvalView, setApprovalView] = useState<'variance' | 'finance_approval' | 'disbursement'>('variance')
 
   const handleApprove = (runId: string) => {
+    const result = usePayrollRunStore.getState().resultsByRunId[runId]
+    const current = runs.find((item) => item.id === runId)
+    if (current?.status !== 'in_review' || !result?.details.length || result.dirtyEmployeeIds?.length || current.specialPeriodsPending) {
+      snackbar.error(m.payroll_revision_dirty())
+      return false
+    }
     setRuns((prev) =>
       prev.map((r) =>
         r.id === runId
@@ -60,6 +68,7 @@ export function PayrollApprovalTab({ runs: propRuns, onUpdateRuns }: PayrollAppr
       ),
     )
     setApprovalView('disbursement')
+    return true
   }
 
   const handleMarkAsDisbursed = (runId: string) => {
@@ -227,7 +236,12 @@ export function PayrollApprovalTab({ runs: propRuns, onUpdateRuns }: PayrollAppr
         <FinanceApprovalView
           run={selectedRun}
           onApprove={handleApprove}
-          onRequestRevision={() => setApprovalView('variance')}
+          onRequestRevision={(runId) => {
+            setRuns((previous) => previous.map((item) => item.id === runId && item.status === 'in_review'
+              ? { ...item, status: 'draft', approvalStage: 'hr_review', approvedBy: undefined, approvedAt: undefined }
+              : item))
+            setApprovalView('variance')
+          }}
         />
       )}
 
