@@ -112,6 +112,7 @@ export function OvertimeApprovalDetailPage() {
             />
           </CardContent>
         </Card>
+        </div>
         <div className='flex flex-col gap-4'>
           <Card>
             <CardHeader>
