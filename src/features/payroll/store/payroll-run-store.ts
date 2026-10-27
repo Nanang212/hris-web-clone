@@ -5,7 +5,7 @@ import dayjs from 'dayjs'
 import type { BpjsKesBillingRecord, EmployeePayrollDetail, PayrollEmployeeOverride, PayrollRun } from '../types'
 import type { CalculatePayrollParams } from '../lib/calculate-payroll'
 import { calculatePayroll } from '../lib/calculate-payroll'
-import { initialPayrollRuns } from '../data/mock-payroll-data'
+import { createMockPayrollRunResults } from '../data/mock-payroll-run-results'
 
 export interface PayrollRunResult {
   details: EmployeePayrollDetail[]
@@ -28,10 +28,12 @@ interface PayrollRunStoreState {
   updateRunDetails: (runId: string, details: EmployeePayrollDetail[]) => void
 }
 
+const initialDemoData = createMockPayrollRunResults()
+
 export const usePayrollRunStore = create<PayrollRunStoreState>()((set, get) => ({
-  runs: initialPayrollRuns,
+  runs: initialDemoData.runs,
   setRuns: (update) => set((state) => ({ runs: typeof update === 'function' ? update(state.runs) : update })),
-  resultsByRunId: {},
+  resultsByRunId: initialDemoData.resultsByRunId,
   saveOverride: (runId, employeeId, value) => set((state) => {
     const current = state.resultsByRunId[runId]
     const run = state.runs.find((item) => item.id === runId)

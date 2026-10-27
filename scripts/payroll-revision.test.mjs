@@ -76,6 +76,7 @@ const { usePayrollRunStore } = load('src/features/payroll/store/payroll-run-stor
 const { payrollTaxIdentityKey } = load('src/features/payroll/store/payroll-tax-input-store.ts')
 const { detailToPayslip } = load('src/features/payroll/lib/payroll-payslip-helper.ts')
 const { buildPayrollBreakdown } = load('src/features/payroll/lib/payroll-breakdown.ts')
+const { createMockPayrollRunResults } = load('src/features/payroll/data/mock-payroll-run-results.ts')
 
 function fixture(lines = []) {
   return {
@@ -156,6 +157,75 @@ function fixture(lines = []) {
     ],
   }
 }
+
+test('existing demo batches have isolated details matching their list summaries', () => {
+  const data = createMockPayrollRunResults()
+  assert.equal(data.runs.length, 4)
+  for (const run of data.runs) {
+    const result = data.resultsByRunId[run.id]
+    assert.ok(result.calculation)
+    assert.ok(result.details.length > 0)
+    assert.equal(run.totalEmployees, result.details.length)
+    const sum = (key) => result.details.reduce((total, detail) => total + detail[key], 0)
+    assert.equal(run.totalGrossPay, sum('totalGross'))
+    assert.equal(run.totalDeductions, sum('totalDeductions'))
+    assert.equal(run.totalTaxPPh21, sum('pph21Tax'))
+    assert.equal(run.totalNetDisbursement, sum('netTakeHomePay'))
+    assert.equal(run.totalGrossPay - run.totalDeductions, run.totalNetDisbursement)
+    assert.equal(result.calculation.periodKey, `${run.periodYear}-${String(run.periodMonth).padStart(2, '0')}`)
+    assert.ok(result.details.every((detail) => detail.id.startsWith(run.id)))
+    if (run.status === 'disbursed') assert.ok(result.details.every((detail) => detail.status === 'paid'))
+  }
+  const [first, second] = data.runs.map((run) => data.resultsByRunId[run.id])
+  assert.notStrictEqual(first.details, second.details)
+  assert.notStrictEqual(first.calculation.employees, second.calculation.employees)
+  assert.notEqual(first.details[0].baseSalary, second.details[0].baseSalary)
+  assert.equal(data.resultsByRunId['unknown-run'], undefined)
+})
+
+test('editable demo draft supports overrides for every employee and repeatable batch recalculation', () => {
+  const data = createMockPayrollRunResults()
+  const run = data.runs.find((entry) => entry.code === 'PR-202607-DEMO')
+  assert.equal(run.status, 'draft')
+  assert.equal(run.specialPeriodsPending, undefined)
+  const original = data.resultsByRunId[run.id]
+  assert.equal(original.details.length, 6)
+  assert.equal(original.sourceDetails.length, 6)
+  const historical = structuredClone(data.resultsByRunId['pay-run-2026-05'])
+  const previous = usePayrollRunStore.getState()
+  try {
+    usePayrollRunStore.setState(data)
+    for (const [index, employee] of original.calculation.employees.entries()) {
+      const detail = original.sourceDetails.find((entry) => entry.employeeId === employee.employeeId)
+      const inputs = detail.lines.filter((entry) => !entry.calculated)
+      usePayrollRunStore.getState().saveOverride(run.id, employee.employeeId, {
+        baseSalary: employee.baseSalary + (index + 1) * 100000,
+        ptkpStatus: employee.ptkpStatus,
+        fixedComponents: inputs.filter((entry) => entry.source === 'fixed'),
+        variableComponents: inputs.filter((entry) => entry.source !== 'fixed'),
+        statutoryAmounts: {},
+        thrTaxInstallmentAmount: detail.thrTaxInstallment ?? 0,
+        taxYearToDate: { priorTaxableGross: 0, priorEmployeePensionContributions: 0, priorQualifiedZakat: 0, priorPph21Paid: 0, monthsWorked: 7, verified: false, isFinalTaxPeriod: false },
+        note: 'Demo override', updatedAt: '2026-10-27',
+      })
+    }
+    assert.equal(usePayrollRunStore.getState().resultsByRunId[run.id].dirtyEmployeeIds.length, 6)
+    const updated = usePayrollRunStore.getState().recalculate(run)
+    const first = structuredClone(usePayrollRunStore.getState().resultsByRunId[run.id].details)
+    for (const [index, detail] of first.entries()) {
+      assert.equal(detail.baseSalary, original.details[index].baseSalary + (index + 1) * 100000)
+    }
+    assert.equal(updated.totalNetDisbursement, first.reduce((sum, detail) => sum + detail.netTakeHomePay, 0))
+    assert.notEqual(updated.totalNetDisbursement, run.totalNetDisbursement)
+    assert.equal(usePayrollRunStore.getState().resultsByRunId[run.id].dirtyEmployeeIds.length, 0)
+    usePayrollRunStore.getState().recalculate(updated)
+    assert.deepEqual(usePayrollRunStore.getState().resultsByRunId[run.id].details, first)
+    assert.deepEqual(usePayrollRunStore.getState().resultsByRunId[run.id].sourceDetails, original.sourceDetails)
+    assert.deepEqual(usePayrollRunStore.getState().resultsByRunId['pay-run-2026-05'], historical)
+  } finally {
+    usePayrollRunStore.setState(previous)
+  }
+})
 const line = (thpEffect, taxGrossEffect, taxTreatment = 'regular') => ({
   code: 'TEST',
   name: 'Test',
